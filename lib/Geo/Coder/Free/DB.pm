@@ -93,7 +93,19 @@ sub _open {
 		if(defined($slurp_file) && (-r $slurp_file)) {
 			close($fin);
 			my $sep_char = $args{'sep_char'};
-			$dbh = DBI->connect("dbi:CSV:csv_sep_char=$sep_char");
+			if($args{'column_names'}) {
+				$dbh = DBI->connect("dbi:CSV:csv_sep_char=$sep_char", undef, undef,
+					{
+						csv_tables => {
+							$table => {
+								col_names => $args{'column_names'},
+							}
+						}
+					}
+				);
+			} else {
+				$dbh = DBI->connect("dbi:CSV:csv_sep_char=$sep_char");
+			}
 			$dbh->{'RaiseError'} = 1;
 
 			if($self->{'logger'}) {
@@ -197,7 +209,6 @@ sub selectall_hashref {
 		$query .= " $c1 = ?";
 		push @args, $params{$c1};
 	}
-	$query .= ' ORDER BY entry';
 	if($self->{'logger'}) {
 		$self->{'logger'}->debug("selectall_hashref $query: " . join(', ', @args));
 	}
@@ -232,7 +243,6 @@ sub fetchrow_hashref {
 		$query .= " $c1 = ?";
 		push @args, $params{$c1};
 	}
-	$query .= ' ORDER BY entry';
 	if($self->{'logger'}) {
 		$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
 	}
