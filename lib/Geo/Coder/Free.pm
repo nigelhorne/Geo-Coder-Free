@@ -77,6 +77,20 @@ sub geocode {
 	my $location = $param{location}
 		or Carp::croak("Usage: geocode(location => \$location)");
 
+	my $county;
+	my $country;
+
+	if($location =~ /^(\w+)?,(.+),(.+)?$/) {
+		# Turn 'Ramsgate, Kent, UK' into 'Ramsgate'
+		$location = $1;
+		$county = $2;
+		$county =~ s/^\s//g;
+		$county =~ s/\s$//g;
+		my $country = $3;
+	} else {
+		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
+	}
+
 	my $rc;
 	if(wantarray && $rc->{'otherlocations'} && $rc->{'otherlocations'}->{'loc'} &&
 	   (ref($rc->{'otherlocations'}->{'loc'}) eq 'ARRAY')) {
