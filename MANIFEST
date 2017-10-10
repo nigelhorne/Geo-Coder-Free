@@ -15,3 +15,4 @@ t/10-new.t
 t/admin1.t
 t/admin2.t
 t/cities.t
+t/uk.t

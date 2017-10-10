@@ -3,6 +3,8 @@ package Geo::Coder::Free;
 use strict;
 use warnings;
 
+use Geo::Coder::Free::DB::admin1;
+use Geo::Coder::Free::DB::admin2;
 use Geo::Coder::Free::DB::cities;
 use Carp;
 
@@ -47,9 +49,7 @@ sub new {
 	# FIXME: use Findbin
 	Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
 
-	my $cities = Geo::Coder::Free::DB::cities->new() or die;
-
-	return bless { cities => $cities }, $class;
+	return bless { }, $class;
 }
 
 =head2 geocode
@@ -79,27 +79,85 @@ sub geocode {
 
 	my $county;
 	my $country;
+	my $concatenated_codes;
 
 	if($location =~ /^(\w+)?,(.+),(.+)?$/) {
 		# Turn 'Ramsgate, Kent, UK' into 'Ramsgate'
 		$location = $1;
 		$county = $2;
+		$country = $3;
 		$county =~ s/^\s//g;
 		$county =~ s/\s$//g;
-		my $country = $3;
+		$country =~ s/^\s//g;
+		$country =~ s/\s$//g;
+		if(($country eq 'UK') || ($country eq 'United Kingdom')) {
+			$country = 'Great Britain';
+			$concatenated_codes = 'GB';
+		}
 	} else {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
 	}
 
-	my $rc;
-	if(wantarray && $rc->{'otherlocations'} && $rc->{'otherlocations'}->{'loc'} &&
-	   (ref($rc->{'otherlocations'}->{'loc'}) eq 'ARRAY')) {
-		my @rc = @{$rc->{'otherlocations'}->{'loc'}};
-		if(scalar(@rc)) {
-			return @rc;
+	if($country) {
+		if(!defined($self->{'admin1'})) {
+			$self->{'admin1'} = Geo::Coder::Free::DB::admin1->new() or die "Can't open the admin1 database";
+		}
+		if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
+			$concatenated_codes = $admin1->{'concatenated_codes'};
+		} else {
+			require Locale::Country;
+			$concatenated_codes = Locale::Country::country2code($country);
 		}
 	}
-	return $rc;
+	return unless(defined($concatenated_codes));
+
+	if(!defined($self->{'admin2'})) {
+		$self->{'admin2'} = Geo::Coder::Free::DB::admin2->new() or die "Can't open the admin1 database";
+	}
+	my @admin2s = $self->{'admin2'}->fetchrow_hashref(asciiname => $county);
+	my $admin2;
+	my $region;
+	foreach my $admin2(@admin2s) {
+		if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+			$region = $admin2->{'concatenated_codes'};
+			last;
+		}
+	}
+
+	if(!defined($region)) {
+		# e.g. Unitary authorities in the UK
+		@admin2s = $self->{'admin2'}->fetchrow_hashref(asciiname => $location);
+		foreach my $admin2(@admin2s) {
+			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+				$region = $admin2->{'concatenated_codes'};
+				last;
+			}
+		}
+	}
+
+	if(!defined($self->{'cities'})) {
+		$self->{'cities'} = Geo::Coder::Free::DB::cities->new();
+	}
+
+	my $options = { City => lc($location) };
+	if($region) {
+		if($region =~ /^.+\.(.+)$/) {
+			$region = $1;
+		}
+		$options->{'Region'} = $region;
+	}
+	
+	my @rc = $self->{'cities'}->fetchrow_hashref($options);
+	return wantarray ? @rc : $rc[0];
+	# my $rc;
+	# if(wantarray && $rc->{'otherlocations'} && $rc->{'otherlocations'}->{'loc'} &&
+	   # (ref($rc->{'otherlocations'}->{'loc'}) eq 'ARRAY')) {
+		# my @rc = @{$rc->{'otherlocations'}->{'loc'}};
+		# if(scalar(@rc)) {
+			# return @rc;
+		# }
+	# }
+	# return $rc;
 	# my @results = @{ $data || [] };
 	# wantarray ? @results : $results[0];
 }

@@ -4,7 +4,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 4;
+use Test::Most tests => 5;
 
 BEGIN {
 	use_ok('Geo::Coder::Free::DB::admin1');
@@ -16,6 +16,9 @@ CITIES: {
 
 	my $england = $admin1->fetchrow_hashref({ concatenated_codes => 'GB.ENG' });
 	ok($england->{asciiname} eq 'England');
+
+	$england = $admin1->fetchrow_hashref({ asciiname => 'England' });
+	ok($england->{concatenated_codes} eq 'GB.ENG');
 };
 
 package MyLogger;
