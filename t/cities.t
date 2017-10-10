@@ -12,7 +12,6 @@ BEGIN {
 }
 
 CITIES: {
-	$ENV{'TEST_VERBOSE'} = 1;	# find what travis is complaining about
 	Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
 	my $cities = new_ok('Geo::Coder::Free::DB::cities' => [logger => new_ok('MyLogger')]);
 

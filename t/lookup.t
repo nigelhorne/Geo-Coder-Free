@@ -2,8 +2,9 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 14;
+use Test::Most tests => 18;
 use Test::Number::Delta;
+use Test::Carp;
 
 BEGIN {
 	use_ok('Geo::Coder::Free');
@@ -33,4 +34,13 @@ LOOKUP: {
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
+
+	$location = $geocoder->geocode('St Nicholas-at-Wade, Kent, England');
+	ok(defined($location));
+	delta_within($location->{latitude}, 51.35, 1e-2);
+	delta_within($location->{longitude}, 1.25, 1e-2);
+
+	does_croak(sub { 
+		$location = $geocoder->geocode('Minster, Thanet, Kent, England');
+	});
 }

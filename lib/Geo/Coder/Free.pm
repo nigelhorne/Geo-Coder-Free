@@ -88,15 +88,19 @@ sub geocode {
 	my $country;
 	my $concatenated_codes;
 
-	if($location =~ /^([\w\s]+)?,(.+),(.+)?$/) {
+	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
 		# Turn 'Ramsgate, Kent, UK' into 'Ramsgate'
 		$location = $1;
 		$county = $2;
 		$country = $3;
+		$location =~ s/\-/ /g;
 		$county =~ s/^\s//g;
 		$county =~ s/\s$//g;
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
+		if($location =~ /^St (.+)/) {
+			$location = "Saint $1";
+		}
 		if(($country eq 'UK') || ($country eq 'United Kingdom')) {
 			$country = 'Great Britain';
 			$concatenated_codes = 'GB';

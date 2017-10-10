@@ -16,6 +16,7 @@ WriteMakefile(
 	'Test::Most' => 0,
 	'Test::NoWarnings' => 0,
 	'Test::Number::Delta' => 0,
+	'Test::Carp' => 0,
     },
     PREREQ_PM => {
 	'DBI' => 0,
