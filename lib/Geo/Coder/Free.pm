@@ -6,7 +6,10 @@ use warnings;
 use Geo::Coder::Free::DB::admin1;
 use Geo::Coder::Free::DB::admin2;
 use Geo::Coder::Free::DB::cities;
+use Module::Info;
 use Carp;
+use Error::Simple;
+use File::Spec;
 
 =head1 NAME
 
@@ -46,8 +49,11 @@ sub new {
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
 
-	# FIXME: use Findbin
-	Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
+	# Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
+
+	my $directory = Module::Info->new_from_loaded(__PACKAGE__)->file();
+	$directory =~ s/\.pm$//;
+	Geo::Coder::Free::DB::init(directory => File::Spec->catfile($directory, 'databases'));
 
 	return bless { }, $class;
 }
@@ -59,8 +65,9 @@ sub new {
     print 'Latitude: ', $location->{'latt'}, "\n";
     print 'Longitude: ', $location->{'longt'}, "\n";
 
-    @locations = $geocoder->geocode('Portland, USA');
-    diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
+    # TODO:
+    # @locations = $geocoder->geocode('Portland, USA');
+    # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
     	
 =cut
 
@@ -81,7 +88,7 @@ sub geocode {
 	my $country;
 	my $concatenated_codes;
 
-	if($location =~ /^(\w+)?,(.+),(.+)?$/) {
+	if($location =~ /^([\w\s]+)?,(.+),(.+)?$/) {
 		# Turn 'Ramsgate, Kent, UK' into 'Ramsgate'
 		$location = $1;
 		$county = $2;
@@ -114,23 +121,39 @@ sub geocode {
 	if(!defined($self->{'admin2'})) {
 		$self->{'admin2'} = Geo::Coder::Free::DB::admin2->new() or die "Can't open the admin1 database";
 	}
-	my @admin2s = $self->{'admin2'}->fetchrow_hashref(asciiname => $county);
-	my $admin2;
+	my @admin2s;
 	my $region;
-	foreach my $admin2(@admin2s) {
-		if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-			$region = $admin2->{'concatenated_codes'};
-			last;
+	if($county =~ /^[A-Z]{2}/) {
+		# Canadian province or US state
+		$region = $county;
+	} else {
+		@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $county)};
+		foreach my $admin2(@admin2s) {
+			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+				$region = $admin2->{'concatenated_codes'};
+				last;
+			}
 		}
 	}
 
 	if(!defined($region)) {
 		# e.g. Unitary authorities in the UK
-		@admin2s = $self->{'admin2'}->fetchrow_hashref(asciiname => $location);
-		foreach my $admin2(@admin2s) {
-			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-				$region = $admin2->{'concatenated_codes'};
-				last;
+		@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $location)};
+		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
+			foreach my $admin2(@admin2s) {
+				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+					$region = $admin2->{'concatenated_codes'};
+					last;
+				}
+			}
+		} else {
+			# e.g. states in the US
+			my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $county)};
+			foreach my $admin1(@admin1s) {
+				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
+					$region = $admin1->{'concatenated_codes'};
+					last;
+				}
 			}
 		}
 	}
@@ -147,8 +170,10 @@ sub geocode {
 		$options->{'Region'} = $region;
 	}
 	
-	my @rc = $self->{'cities'}->fetchrow_hashref($options);
-	return wantarray ? @rc : $rc[0];
+	if(wantarray) {
+		return @{$self->{'cities'}->selectall_hashref($options)};
+	}
+	return $self->{'cities'}->fetchrow_hashref($options);
 	# my $rc;
 	# if(wantarray && $rc->{'otherlocations'} && $rc->{'otherlocations'}->{'loc'} &&
 	   # (ref($rc->{'otherlocations'}->{'loc'}) eq 'ARRAY')) {
@@ -190,14 +215,14 @@ sub reverse_geocode {
 
 Nigel Horne <njh@bandsman.co.uk>
 
-Based on L<Geo::Coder::Coder::Googleplaces>.
-
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =head1 BUGS
 
 CSV files take a long time to load.  Convert to SQLite.
+
+Lots of lookups fail at the moment.
 
 =head1 SEE ALSO
 
