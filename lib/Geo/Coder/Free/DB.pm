@@ -1,6 +1,7 @@
 package Geo::Coder::Free::DB;
 
 use warnings;
+use strict;
 
 use File::Glob;
 use File::Basename;
@@ -9,6 +10,7 @@ use File::Spec;
 use File::pfopen 0.02;
 use File::Temp;
 use Gzip::Faster;
+use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 
 our @databases;
 our $directory;
@@ -39,6 +41,8 @@ sub init {
 
 sub set_logger {
 	my $self = shift;
+
+	my %args;
 
 	if(ref($_[0]) eq 'HASH') {
 		%args = %{$_[0]};
@@ -129,6 +133,7 @@ sub _open {
 			# Text::CSV::Slurp->import();
 			# $self->{'data'} = Text::CSV::Slurp->load(file => $slurp_file, %options);
 
+			if(0) {
 			require Text::xSV::Slurp;
 			Text::xSV::Slurp->import();
 
@@ -153,6 +158,7 @@ sub _open {
 			$self->{'data'} = ();
 			foreach my $d(@data) {
 				$self->{'data'}[$i++] = $d;
+			}
 			}
 		} else {
 			$slurp_file = File::Spec->catfile($directory, "$table.xml");
@@ -263,7 +269,7 @@ sub execute {
 
 	my $query = $args{'query'};
 	if($self->{'logger'}) {
-		$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
+		$self->{'logger'}->debug("fetchrow_hashref $query");
 	}
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute() || throw Error::Simple($query);

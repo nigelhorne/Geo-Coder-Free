@@ -87,6 +87,7 @@ sub geocode {
 	my $county;
 	my $state;
 	my $country;
+	my $country_code;
 	my $concatenated_codes;
 
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
@@ -119,6 +120,7 @@ sub geocode {
 		$country =~ s/\s$//g;
 	} else {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
+		return;
 	}
 
 	if($country) {
@@ -134,6 +136,7 @@ sub geocode {
 					$concatenated_codes = uc(Locale::Country::country2code($country)) . ".$state";
 				} else {
 					$concatenated_codes = uc(Locale::Country::country2code($country));
+					$country_code = $concatenated_codes;
 					if($state) {
 						my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
 						foreach my $admin1(@admin1s) {
@@ -156,6 +159,7 @@ sub geocode {
 	}
 	my @admin2s;
 	my $region;
+	my @regions;
 	if($county =~ /^[A-Z]{2}/) {
 		# Canadian province or US state
 		$region = $county;
@@ -172,9 +176,11 @@ sub geocode {
 							last;
 						}
 					} else {
-						$region = $rc;
-						last;
+						push @regions, $region;
+						push @regions, $rc;
 					}
+				} else {
+					push @regions, $region;
 				}
 			}
 		}
@@ -193,7 +199,7 @@ sub geocode {
 		}
 	}
 
-	if(!defined($region)) {
+	if((scalar(@regions) == 0) && (!defined($region))) {
 		# e.g. Unitary authorities in the UK
 		@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $location)};
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
@@ -225,12 +231,39 @@ sub geocode {
 			$region = $1;
 		}
 		$options->{'Region'} = $region;
+		if($country_code) {
+			$options->{'Country'} = lc($country_code);
+		}
 	}
 
+	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray) {
-		return @{$self->{'cities'}->selectall_hashref($options)};
+		my @rc = @{$self->{'cities'}->selectall_hashref($options)};
+		foreach my $city(@rc) {
+			if($city->{'Latitude'}) {
+				$city->{'latitude'} = delete $city->{'Latitude'};
+				$city->{'longitude'} = delete $city->{'Longitude'};
+			}
+		}
+		return @rc;
 	}
-	return $self->{'cities'}->fetchrow_hashref($options);
+	my $city = $self->{'cities'}->fetchrow_hashref($options);
+	if(!defined($city)) {
+		foreach $region(@regions) {
+			if($region =~ /^.+\.(.+)$/) {
+				$region = $1;
+			}
+			$options->{'Region'} = $region;
+			$city = $self->{'cities'}->fetchrow_hashref($options);
+			last if(defined($city));
+		}
+	}
+
+	if(defined($city) && $city->{'Latitude'}) {
+		$city->{'latitude'} = delete $city->{'Latitude'};
+		$city->{'longitude'} = delete $city->{'Longitude'};
+	}
+	return $city;
 	# my $rc;
 	# if(wantarray && $rc->{'otherlocations'} && $rc->{'otherlocations'}->{'loc'} &&
 	   # (ref($rc->{'otherlocations'}->{'loc'}) eq 'ARRAY')) {

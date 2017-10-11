@@ -19,8 +19,13 @@ CITIES: {
 	ok($cities->population(Country => 'gb', City => 'ramsgate') == 38624);
 
 	my $ramsgate = $cities->fetchrow_hashref({ Country => 'gb', City => 'ramsgate' });
-	delta_within($ramsgate->{latitude}, 51.33, 1e-2);
-	delta_within($ramsgate->{longitude}, 1.43, 1e-2);
+	if($ramsgate->{latitude}) {
+		delta_within($ramsgate->{latitude}, 51.33, 1e-2);
+		delta_within($ramsgate->{longitude}, 1.43, 1e-2);
+	} else {
+		delta_within($ramsgate->{Latitude}, 51.33, 1e-2);
+		delta_within($ramsgate->{Longitude}, 1.43, 1e-2);
+	}
 };
 
 package MyLogger;

@@ -8,3 +8,5 @@ admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt
 admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt
 
 See also http://download.geonames.org/export/dump/allCountries.zip
+
+To significantly speed this up, gunzip cities.csv and run it through the db2sql script to create an SQLite file.

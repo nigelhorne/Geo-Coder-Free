@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 32;
+use Test::Most tests => 41;
 use Test::Number::Delta;
 use Test::Carp;
 
@@ -15,7 +15,22 @@ LOOKUP: {
 
 	my $geocoder = new_ok('Geo::Coder::Free');
 
-	my $location = $geocoder->geocode('Ramsgate, Kent, England');
+	my $location = $geocoder->geocode('Woolwich, London, England');
+	ok(defined($location));
+	delta_within($location->{latitude}, 51.47, 1e-2);
+	delta_within($location->{longitude}, 0.20, 1e-2);
+ 
+	$location = $geocoder->geocode('Lambeth, London, England');
+	ok(defined($location));
+	delta_within($location->{latitude}, 51.49, 1e-2);
+	delta_within($location->{longitude}, -0.12, 1e-2);
+ 
+	$location = $geocoder->geocode('Indianapolis, Indiana, USA');
+	ok(defined($location));
+	delta_within($location->{latitude}, 39.77, 1e-2);
+	delta_within($location->{longitude}, -86.16, 1e-2);
+ 
+	$location = $geocoder->geocode('Ramsgate, Kent, England');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.33, 1e-2);
 	delta_within($location->{longitude}, 1.43, 1e-2);
