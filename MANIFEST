@@ -1,4 +1,6 @@
+bin/createdatabase
 lib/Geo/Coder/Free.pm
+lib/Geo/Coder/Free/bin/db2sql
 lib/Geo/Coder/Free/databases/admin1.db
 lib/Geo/Coder/Free/databases/admin2.db
 lib/Geo/Coder/Free/databases/cities.csv.gz
