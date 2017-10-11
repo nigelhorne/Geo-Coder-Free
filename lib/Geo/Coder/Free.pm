@@ -68,7 +68,7 @@ sub new {
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
-    	
+ 	
 =cut
 
 sub geocode {
@@ -85,6 +85,7 @@ sub geocode {
 		or Carp::croak("Usage: geocode(location => \$location)");
 
 	my $county;
+	my $state;
 	my $country;
 	my $concatenated_codes;
 
@@ -98,13 +99,24 @@ sub geocode {
 		$county =~ s/\s$//g;
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
-		if($location =~ /^St (.+)/) {
+		if($location =~ /^St\.? (.+)/) {
 			$location = "Saint $1";
 		}
 		if(($country eq 'UK') || ($country eq 'United Kingdom')) {
 			$country = 'Great Britain';
 			$concatenated_codes = 'GB';
 		}
+	} elsif($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),\s*(Canada|United States|USA|US)?$/) {
+		$location = $1;
+		$county = $2;
+		$state = $3;
+		$country = $4;
+		$county =~ s/^\s//g;
+		$county =~ s/\s$//g;
+		$state =~ s/^\s//g;
+		$state =~ s/\s$//g;
+		$country =~ s/^\s//g;
+		$country =~ s/\s$//g;
 	} else {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
 	}
@@ -117,7 +129,24 @@ sub geocode {
 			$concatenated_codes = $admin1->{'concatenated_codes'};
 		} else {
 			require Locale::Country;
-			$concatenated_codes = Locale::Country::country2code($country);
+			if($state) {
+				if($state =~ /^[A-Z]{2}$/) {
+					$concatenated_codes = uc(Locale::Country::country2code($country)) . ".$state";
+				} else {
+					$concatenated_codes = uc(Locale::Country::country2code($country));
+					if($state) {
+						my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
+						foreach my $admin1(@admin1s) {
+							if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
+								$concatenated_codes = $admin1->{'concatenated_codes'};
+								last;
+							}
+						}
+					}
+				}
+			} else {
+				$concatenated_codes = uc(Locale::Country::country2code($country));
+			}
 		}
 	}
 	return unless(defined($concatenated_codes));
@@ -135,7 +164,31 @@ sub geocode {
 		foreach my $admin2(@admin2s) {
 			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
 				$region = $admin2->{'concatenated_codes'};
-				last;
+				if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
+					my $rc = $1;
+					if($state =~ /^[A-Z]{2}$/) {
+						if($state eq $rc) {
+							$region = $rc;
+							last;
+						}
+					} else {
+						$region = $rc;
+						last;
+					}
+				}
+			}
+		}
+		if($state && !defined($region)) {
+			if($state =~ /^[A-Z]{2}$/) {
+				$region = $state;
+			} else {
+				@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $state)};
+				foreach my $admin2(@admin2s) {
+					if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+						$region = $admin2->{'concatenated_codes'};
+						last;
+					}
+				}
 			}
 		}
 	}
@@ -173,7 +226,7 @@ sub geocode {
 		}
 		$options->{'Region'} = $region;
 	}
-	
+
 	if(wantarray) {
 		return @{$self->{'cities'}->selectall_hashref($options)};
 	}
