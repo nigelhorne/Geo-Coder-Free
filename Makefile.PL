@@ -11,9 +11,9 @@ WriteMakefile(
      ($ExtUtils::MakeMaker::VERSION >= 6.3002))
       ? ('LICENSE'=> 'GPL')
       : ()),
-    PL_FILES	=> {},
     BUILD_REQUIRES => {	# For bin/createdatabase
-    	'App::csv2sqlite' => 0
+    	'App::csv2sqlite' => 0,
+	'File::Copy' => 0,
     },
     TEST_REQUIRES => {
 	'Test::Most' => 0,
@@ -52,5 +52,3 @@ WriteMakefile(
     # PPM_INSTALL_SCRIPT	=> 'bin/createdatabase',
     MIN_PERL_VERSION	=> '5.6.2'	# Probably would work, but never tested on earlier versions than this
 );
-
-(system('bash bin/createdatabase') == 0) || warn "Can't create the SQLite database - expect poor performance";
