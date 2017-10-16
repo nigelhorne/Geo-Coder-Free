@@ -283,24 +283,12 @@ sub geocode {
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
 
-Similar to geocode except it expects a latitude/longitude parameter.
+To be done.
 
 =cut
 
 sub reverse_geocode {
-	my $self = shift;
-
-	my %param;
-	if (@_ % 2 == 0) {
-		%param = @_;
-	} else {
-		$param{latlng} = shift;
-	}
-
-	my $latlng = $param{latlng}
-		or Carp::croak("Usage: reverse_geocode(latlng => \$latlng)");
-
-	return $self->geocode(location => $latlng, reverse => 1);
+	Carp::croak('Reverse lookup is not yet supported');
 };
 
 =head1 AUTHOR
