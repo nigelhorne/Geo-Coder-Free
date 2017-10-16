@@ -75,7 +75,9 @@ sub geocode {
 	my $self = shift;
 
 	my %param;
-	if (@_ % 2 == 0) {
+	if(ref($_[0]) eq 'HASH') {
+		%param = %{$_[0]};
+	} elsif(@_ % 2 == 0) {
 		%param = @_;
 	} else {
 		$param{location} = shift;
