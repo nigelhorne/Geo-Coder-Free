@@ -300,6 +300,15 @@ sub reverse_geocode {
 	Carp::croak('Reverse lookup is not yet supported');
 };
 
+=head2	ua
+
+Does nothing, here for compatability with other geocoders
+
+=cut
+
+sub ua {
+};
+
 =head1 AUTHOR
 
 Nigel Horne <njh@bandsman.co.uk>
