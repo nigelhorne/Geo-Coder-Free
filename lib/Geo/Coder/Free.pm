@@ -302,7 +302,7 @@ sub reverse_geocode {
 
 =head2	ua
 
-Does nothing, here for compatability with other geocoders
+Does nothing, here for compatibility with other geocoders
 
 =cut
 

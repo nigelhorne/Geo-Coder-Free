@@ -1,5 +1,3 @@
-[![CPAN](https://img.shields.io/cpan/v/Geo-Coder-Free.svg)](http://search.cpan.org/~nhorne/Geo-Coder-Free/)
-
 # Geo::Coder::Free
 
 Provides a geocoding functionality using free databases of towns
@@ -54,7 +52,7 @@ To be done.
 
 ## ua
 
-Does nothing, here for compatability with other geocoders
+Does nothing, here for compatibility with other geocoders
 
 # AUTHOR
 
