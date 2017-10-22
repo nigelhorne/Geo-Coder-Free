@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.02.1	Sun Oct 22 10:46:22 EDT 2017
+	Fixed spelling mistake
+
 0.02	Sun Oct 22 10:31:35 EDT 2017
 	Mention that reverse isn't supported
 	Added createdatabase.PL
