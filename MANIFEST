@@ -6,7 +6,6 @@ lib/Geo/Coder/Free/bin/db2sql
 lib/Geo/Coder/Free/databases/admin1.db
 lib/Geo/Coder/Free/databases/admin2.db
 lib/Geo/Coder/Free/databases/cities.csv.gz
-lib/Geo/Coder/Free/databases/cities.sql
 lib/Geo/Coder/Free/DB.pm
 lib/Geo/Coder/Free/DB/admin1.pm
 lib/Geo/Coder/Free/DB/admin2.pm
