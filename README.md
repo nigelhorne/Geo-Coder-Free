@@ -4,7 +4,7 @@ Provides a geocoding functionality using free databases of towns
 
 # VERSION
 
-Version 0.02
+Version 0.03
 
 # SYNOPSIS
 

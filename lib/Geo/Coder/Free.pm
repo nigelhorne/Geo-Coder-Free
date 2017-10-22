@@ -17,7 +17,7 @@ Geo::Coder::Free - Provides a geocoding functionality using free databases of to
 
 =head1 VERSION
 
-Version 0.02.1
+Version 0.03
 
 =cut
 
