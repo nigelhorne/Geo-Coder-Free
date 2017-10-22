@@ -6,7 +6,7 @@ Provides a geocoding functionality using free databases of towns
 
 # VERSION
 
-Version 0.01
+Version 0.02
 
 # SYNOPSIS
 
@@ -51,6 +51,10 @@ To significantly speed this up, gunzip cities.csv and run it through the db2sql 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
 
 To be done.
+
+## ua
+
+Does nothing, here for compatability with other geocoders
 
 # AUTHOR
 

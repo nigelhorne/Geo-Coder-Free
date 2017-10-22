@@ -21,5 +21,7 @@ t/admin1.t
 t/admin2.t
 t/cities.t
 t/lookup.t
+t/pod-cm.t
+t/pod.t
 t/spelling.t
 t/strict.t
