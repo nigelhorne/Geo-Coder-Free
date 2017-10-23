@@ -17,11 +17,11 @@ Geo::Coder::Free - Provides a geocoding functionality using free databases of to
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -298,6 +298,15 @@ To be done.
 
 sub reverse_geocode {
 	Carp::croak('Reverse lookup is not yet supported');
+};
+
+=head2	ua
+
+Does nothing, here for compatibility with other geocoders
+
+=cut
+
+sub ua {
 };
 
 =head1 AUTHOR
