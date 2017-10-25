@@ -11,6 +11,8 @@ use Carp;
 use Error::Simple;
 use File::Spec;
 
+our %admin1cache;
+
 =head1 NAME
 
 Geo::Coder::Free - Provides a geocoding functionality using free databases of towns
@@ -135,20 +137,25 @@ sub geocode {
 	}
 
 	if($country) {
-		if(!defined($self->{'admin1'})) {
-			$self->{'admin1'} = Geo::Coder::Free::DB::admin1->new() or die "Can't open the admin1 database";
-		}
-		if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
-			$concatenated_codes = $admin1->{'concatenated_codes'};
+		if($state && $admin1cache{$state}) {
+			$concatenated_codes = $admin1cache{$state};
+		} elsif($admin1cache{$country} && !defined($state)) {
+			$concatenated_codes = $admin1cache{$country};
 		} else {
-			require Locale::Country;
-			if($state) {
-				if($state =~ /^[A-Z]{2}$/) {
-					$concatenated_codes = uc(Locale::Country::country2code($country)) . ".$state";
-				} else {
-					$concatenated_codes = uc(Locale::Country::country2code($country));
-					$country_code = $concatenated_codes;
-					if($state) {
+			if(!defined($self->{'admin1'})) {
+				$self->{'admin1'} = Geo::Coder::Free::DB::admin1->new() or die "Can't open the admin1 database";
+			}
+			if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
+				$concatenated_codes = $admin1->{'concatenated_codes'};
+				$admin1cache{$country} = $concatenated_codes;
+			} else {
+				require Locale::Country;
+				if($state) {
+					if($state =~ /^[A-Z]{2}$/) {
+						$concatenated_codes = uc(Locale::Country::country2code($country)) . ".$state";
+					} else {
+						$concatenated_codes = uc(Locale::Country::country2code($country));
+						$country_code = $concatenated_codes;
 						my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
 						foreach my $admin1(@admin1s) {
 							if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
@@ -157,9 +164,11 @@ sub geocode {
 							}
 						}
 					}
+					$admin1cache{$state} = $concatenated_codes;
+				} else {
+					$concatenated_codes = uc(Locale::Country::country2code($country));
+					$admin1cache{$country} = $concatenated_codes;
 				}
-			} else {
-				$concatenated_codes = uc(Locale::Country::country2code($country));
 			}
 		}
 	}
