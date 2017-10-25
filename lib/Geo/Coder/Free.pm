@@ -12,6 +12,7 @@ use Error::Simple;
 use File::Spec;
 
 our %admin1cache;
+our %admin2cache;
 
 =head1 NAME
 
@@ -184,42 +185,52 @@ sub geocode {
 		# Canadian province or US state
 		$region = $county;
 	} else {
-		@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $county)};
-		foreach my $admin2(@admin2s) {
-			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-				$region = $admin2->{'concatenated_codes'};
-				if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
-					my $rc = $1;
-					if($state =~ /^[A-Z]{2}$/) {
-						if($state eq $rc) {
-							$region = $rc;
-							last;
+		if($county && $admin1cache{$county}) {
+			$region = $admin1cache{$county};
+		} elsif($county && $admin2cache{$county}) {
+			$region = $admin2cache{$county};
+		} elsif(defined($state) && $admin1cache{$state} && !defined($county)) {
+			$region = $admin2cache{$state};
+		} else {
+			@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $county)};
+			foreach my $admin2(@admin2s) {
+				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+					$region = $admin2->{'concatenated_codes'};
+					if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
+						my $rc = $1;
+						if($state =~ /^[A-Z]{2}$/) {
+							if($state eq $rc) {
+								$region = $rc;
+								@regions = ();
+								last;
+							}
+						} else {
+							push @regions, $region;
+							push @regions, $rc;
 						}
 					} else {
 						push @regions, $region;
-						push @regions, $rc;
 					}
-				} else {
-					push @regions, $region;
 				}
 			}
-		}
-		if($state && !defined($region)) {
-			if($state =~ /^[A-Z]{2}$/) {
-				$region = $state;
-			} else {
-				@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $state)};
-				foreach my $admin2(@admin2s) {
-					if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-						$region = $admin2->{'concatenated_codes'};
-						last;
+			if($state && !defined($region)) {
+				if($state =~ /^[A-Z]{2}$/) {
+					$region = $state;
+					@regions = ();
+				} else {
+					@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $state)};
+					foreach my $admin2(@admin2s) {
+						if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+							$region = $admin2->{'concatenated_codes'};
+							last;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	if((scalar(@regions) == 0) && (!defined($region))) {
+	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $location)};
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
@@ -235,6 +246,7 @@ sub geocode {
 			foreach my $admin1(@admin1s) {
 				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
 					$region = $admin1->{'concatenated_codes'};
+					$admin1cache{$county} = $region;
 					last;
 				}
 			}
@@ -254,6 +266,11 @@ sub geocode {
 		if($country_code) {
 			$options->{'Country'} = lc($country_code);
 		}
+		if($state) {
+			$admin2cache{$state} = $region;
+		} elsif($county) {
+			$admin2cache{$county} = $region;
+		}
 	}
 
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
@@ -272,6 +289,9 @@ sub geocode {
 		foreach $region(@regions) {
 			if($region =~ /^.+\.(.+)$/) {
 				$region = $1;
+			}
+			if($country =~ /^(Canada|United States|USA|US)$/) {
+				next unless($region =~ /^[A-Z]{2}$/);
 			}
 			$options->{'Region'} = $region;
 			$city = $self->{'cities'}->fetchrow_hashref($options);

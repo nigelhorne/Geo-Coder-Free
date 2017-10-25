@@ -2,7 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.04
 	Fix throw in http://www.cpantesters.org/cpan/report/ab86a142-b8d9-11e7-a1cf-bb670eaac09d
-	Cache lookups to the admin1 table
+	Various speedups
 
 0.03	Sun Oct 22 10:46:22 EDT 2017
 	Fixed spelling mistake
