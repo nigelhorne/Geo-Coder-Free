@@ -1,5 +1,7 @@
 package Geo::Coder::Free;
 
+# TODO: fix Montgomery, MD, USA - find the county
+
 use strict;
 use warnings;
 
