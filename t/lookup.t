@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 46;
+use Test::Most tests => 47;
 use Test::Number::Delta;
 use Test::Carp;
 
@@ -64,6 +64,9 @@ LOOKUP: {
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
  
+	$location = $geocoder->geocode('Montgomery County, Maryland, USA');
+	ok(!defined($location));
+
 	$location = $geocoder->geocode('St Nicholas-at-Wade, Kent, UK');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.35, 1e-2);
