@@ -166,8 +166,11 @@ sub geocode {
 						}
 					}
 					$admin1cache{$state} = $concatenated_codes;
-				} else {
-					$concatenated_codes = uc(Locale::Country::country2code($country));
+				} elsif(my $rc = Locale::Country::country2code($country)) {
+					$concatenated_codes = uc($rc);
+					$admin1cache{$country} = $concatenated_codes;
+				} elsif(Locale::Country::code2country($country)) {
+					$concatenated_codes = uc($country);
 					$admin1cache{$country} = $concatenated_codes;
 				}
 			}
@@ -189,7 +192,7 @@ sub geocode {
 			$region = $admin1cache{$county};
 		} elsif($county && $admin2cache{$county}) {
 			$region = $admin2cache{$county};
-		} elsif(defined($state) && $admin1cache{$state} && !defined($county)) {
+		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
 			$region = $admin2cache{$state};
 		} else {
 			@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $county)};
