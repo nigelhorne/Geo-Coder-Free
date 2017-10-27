@@ -20,11 +20,11 @@ Geo::Coder::Free - Provides a geocoding functionality using free databases of to
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
@@ -44,7 +44,8 @@ admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt
 
 See also http://download.geonames.org/export/dump/allCountries.zip
 
-To significantly speed this up, gunzip cities.csv and run it through the db2sql script to create an SQLite file.
+To significantly speed this up,
+gunzip cities.csv and run it through the db2sql script to create an SQLite file.
 
 =head1 METHODS
 
