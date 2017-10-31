@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 56;
+use Test::Most tests => 59;
 use Test::Number::Delta;
 use Test::Carp;
 
@@ -76,6 +76,11 @@ LOOKUP: {
 	delta_within($location->{longitude}, -77.03, 1e-2);
  
 	$location = $geocoder->geocode('Silver Spring, Montgomery, MD, USA');
+	ok(defined($location));
+	delta_within($location->{latitude}, 38.99, 1e-2);
+	delta_within($location->{longitude}, -77.03, 1e-2);
+ 
+	$location = $geocoder->geocode('Silver Spring, Maryland, United States');
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);

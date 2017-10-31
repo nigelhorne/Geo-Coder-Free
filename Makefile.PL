@@ -14,6 +14,7 @@ WriteMakefile(
     BUILD_REQUIRES => {	# For bin/createdatabase
     	'App::csv2sqlite' => 0,
 	'File::Copy' => 0,
+	'DBD::SQLite' => 0,
     },
     TEST_REQUIRES => {
 	'Test::Most' => 0,
