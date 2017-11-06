@@ -16,7 +16,7 @@ CITIES: {
 
 	my $kent = $admin2->fetchrow_hashref({ concatenated_codes => 'GB.ENG.G5' });
 	ok($kent->{asciiname} eq 'Kent');
-};
+}
 
 package MyLogger;
 

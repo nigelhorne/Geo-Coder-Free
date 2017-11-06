@@ -19,7 +19,7 @@ CITIES: {
 
 	$england = $admin1->fetchrow_hashref({ asciiname => 'England' });
 	ok($england->{concatenated_codes} eq 'GB.ENG');
-};
+}
 
 package MyLogger;
 

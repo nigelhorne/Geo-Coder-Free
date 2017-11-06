@@ -26,7 +26,7 @@ CITIES: {
 		delta_within($ramsgate->{Latitude}, 51.33, 1e-2);
 		delta_within($ramsgate->{Longitude}, 1.43, 1e-2);
 	}
-};
+}
 
 package MyLogger;
 

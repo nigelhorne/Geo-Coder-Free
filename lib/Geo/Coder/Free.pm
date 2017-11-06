@@ -81,7 +81,7 @@ sub new {
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
- 	
+ 
 =cut
 
 sub geocode {
@@ -331,7 +331,7 @@ To be done.
 
 sub reverse_geocode {
 	Carp::croak('Reverse lookup is not yet supported');
-};
+}
 
 =head2	ua
 
@@ -340,7 +340,7 @@ Does nothing, here for compatibility with other geocoders
 =cut
 
 sub ua {
-};
+}
 
 =head1 AUTHOR
 
