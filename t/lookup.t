@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 62;
+use Test::Most tests => 65;
 use Test::Number::Delta;
 use Test::Carp;
 
@@ -11,7 +11,7 @@ BEGIN {
 }
 
 LOOKUP: {
-	diag('This will take some time and consume a lot of memory until the database has been changed from CSV to SQLite');
+	diag('This may take some time and consume a lot of memory if the database is not SQLite');
 
 	my $geocoder = new_ok('Geo::Coder::Free');
 
@@ -126,6 +126,10 @@ LOOKUP: {
 	delta_within($locations[0]->{latitude}, 51.15, 1e-2);
 	delta_within($locations[0]->{longitude}, 1.27, 1e-2);
 
+	$location = $geocoder->geocode(location => 'Newport Pagnell, Buckinghamshire, England');
+	ok(defined($location));
+	delta_within($location->{latitude}, 52.08, 1e-2);
+	delta_within($location->{longitude}, -0.72, 1e-2);
 
 	# my $address = $geocoder->reverse_geocode(latlng => '51.50,-0.13');
 	# like($address->{'city'}, qr/^London$/i, 'test reverse');

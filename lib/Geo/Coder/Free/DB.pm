@@ -74,8 +74,8 @@ sub _open {
 	# Read in the database
 	my $dbh;
 
-	my $directory = $self->{'directory'} || $directory;
-	my $slurp_file = File::Spec->catfile($directory, "$table.sql");
+	my $dir = $self->{'directory'} || $directory;
+	my $slurp_file = File::Spec->catfile($dir, "$table.sql");
 
 	if(-r $slurp_file) {
 		$dbh = DBI->connect("dbi:SQLite:dbname=$slurp_file", undef, undef, {
@@ -86,14 +86,14 @@ sub _open {
 		}
 	} else {
 		my $fin;
-		($fin, $slurp_file) = File::pfopen::pfopen($directory, $table, 'csv.gz:db.gz');
+		($fin, $slurp_file) = File::pfopen::pfopen($dir, $table, 'csv.gz:db.gz');
 		if(defined($slurp_file) && (-r $slurp_file)) {
 			$fin = File::Temp->new(SUFFIX => '.csv', UNLINK => 0);
 			print $fin gunzip_file($slurp_file);
 			$slurp_file = $fin->filename();
 			$self->{'temp'} = $slurp_file;
 		} else {
-			($fin, $slurp_file) = File::pfopen::pfopen($directory, $table, 'csv:db');
+			($fin, $slurp_file) = File::pfopen::pfopen($dir, $table, 'csv:db');
 		}
 		if(defined($slurp_file) && (-r $slurp_file)) {
 			close($fin);
@@ -162,7 +162,7 @@ sub _open {
 			}
 			}
 		} else {
-			$slurp_file = File::Spec->catfile($directory, "$table.xml");
+			$slurp_file = File::Spec->catfile($dir, "$table.xml");
 			if(-r $slurp_file) {
 				$dbh = DBI->connect('dbi:XMLSimple(RaiseError=>1):');
 				$dbh->{'RaiseError'} = 1;
@@ -171,7 +171,7 @@ sub _open {
 				}
 				$dbh->func($table, 'XML', $slurp_file, 'xmlsimple_import');
 			} else {
-				throw Error::Simple("Can't open $directory/$table");
+				throw Error::Simple("Can't open $dir/$table");
 			}
 		}
 	}

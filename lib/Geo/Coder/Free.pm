@@ -14,6 +14,15 @@ use File::Spec;
 our %admin1cache;
 our %admin2cache;
 
+#  Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
+# FIXME: Should be in a configuration file
+my %known_locations = (
+	'Newport Pagnell, Buckinghamshire, England' => {
+		'latitude' => 52.08675,
+		'longitude' => -0.72270
+	}
+);
+
 =head1 NAME
 
 Geo::Coder::Free - Provides a geocoding functionality using free databases of towns
@@ -98,6 +107,10 @@ sub geocode {
 
 	my $location = $param{location}
 		or Carp::croak("Usage: geocode(location => \$location)");
+
+	if($known_locations{$location}) {
+		return $known_locations{$location};
+	}
 
 	my $county;
 	my $state;
@@ -303,7 +316,7 @@ sub geocode {
 		}
 	}
 
-	if(defined($city) && $city->{'Latitude'}) {
+	if(defined($city) && defined($city->{'Latitude'})) {
 		$city->{'latitude'} = delete $city->{'Latitude'};
 		$city->{'longitude'} = delete $city->{'Longitude'};
 	}
