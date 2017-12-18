@@ -26,6 +26,7 @@ WriteMakefile(
 		'DBI' => 0,
 		'File::pfopen' => '0.02',
 		'DBD::CSV' => 0,
+		'Locale::US' => 0,
 		'Text::xSV::Slurp' => 0,
 		'Gzip::Faster' => 0,
 		'File::Temp' => 0,

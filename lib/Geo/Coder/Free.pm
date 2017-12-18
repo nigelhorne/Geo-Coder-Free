@@ -10,6 +10,7 @@ use Module::Info;
 use Carp;
 use Error::Simple;
 use File::Spec;
+use Locale::US;
 
 our %admin1cache;
 our %admin2cache;
@@ -198,6 +199,13 @@ sub geocode {
 	my @admin2s;
 	my $region;
 	my @regions;
+	# TODO:  Locale::CA for Canadian provinces
+	if(($country =~ /^(United States|USA|US)$/) && (length($county) > 2)) {
+		my $us = Locale::US->new();
+		if(my $twoletterstate = $us->{state2code}{uc($county)}) {
+			$county = $twoletterstate;
+		}
+	}
 	if($county =~ /^[A-Z]{2}/) {
 		# Canadian province or US state
 		$region = $county;
@@ -215,7 +223,7 @@ sub geocode {
 					$region = $admin2->{'concatenated_codes'};
 					if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
 						my $rc = $1;
-						if($state =~ /^[A-Z]{2}$/) {
+						if(defined($state) && ($state =~ /^[A-Z]{2}$/)) {
 							if($state eq $rc) {
 								$region = $rc;
 								@regions = ();
