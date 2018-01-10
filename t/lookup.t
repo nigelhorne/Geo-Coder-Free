@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 65;
+use Test::Most tests => 66;
 use Test::Number::Delta;
 use Test::Carp;
 
@@ -130,6 +130,9 @@ LOOKUP: {
 	ok(defined($location));
 	delta_within($location->{latitude}, 52.08, 1e-2);
 	delta_within($location->{longitude}, -0.72, 1e-2);
+
+	$location = $geocoder->geocode('Thanet, Kent, England');
+	ok(defined($location));
 
 	# my $address = $geocoder->reverse_geocode(latlng => '51.50,-0.13');
 	# like($address->{'city'}, qr/^London$/i, 'test reverse');

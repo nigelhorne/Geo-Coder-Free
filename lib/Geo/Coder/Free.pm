@@ -21,7 +21,7 @@ my %known_locations = (
 	'Newport Pagnell, Buckinghamshire, England' => {
 		'latitude' => 52.08675,
 		'longitude' => -0.72270
-	}
+	},
 );
 
 =head1 NAME
