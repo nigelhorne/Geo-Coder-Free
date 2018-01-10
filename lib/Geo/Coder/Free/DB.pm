@@ -3,7 +3,6 @@ package Geo::Coder::Free::DB;
 use warnings;
 use strict;
 
-use File::Glob;
 use File::Basename;
 use DBI;
 use File::Spec;
