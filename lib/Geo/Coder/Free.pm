@@ -11,6 +11,7 @@ use Carp;
 use Error::Simple;
 use File::Spec;
 use Locale::US;
+use CHI;
 
 our %admin1cache;
 our %admin2cache;
@@ -76,7 +77,11 @@ sub new {
 
 	my $directory = Module::Info->new_from_loaded(__PACKAGE__)->file();
 	$directory =~ s/\.pm$//;
-	Geo::Coder::Free::DB::init(directory => File::Spec->catfile($directory, 'databases'));
+
+	Geo::Coder::Free::DB::init({
+		directory => File::Spec->catfile($directory, 'databases'),
+		cache => CHI->new(driver => 'Memory', datastore => { })
+	});
 
 	return bless { }, $class;
 }
@@ -380,7 +385,7 @@ VWF, Maxmind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017 Nigel Horne.
+Copyright 2017-2018 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

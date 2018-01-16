@@ -33,6 +33,7 @@ WriteMakefile(
 		'Module::Info' => 0,
 		'File::Spec' => 0,
 		'Error::Simple' => 0,
+		'CHI' => 0,
 	},
 	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean		=> { FILES => 'Geo-Coder-Free-*' },

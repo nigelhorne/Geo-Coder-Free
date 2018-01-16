@@ -1,5 +1,7 @@
 package Geo::Coder::Free::DB;
 
+# Read-only access to databases
+
 use warnings;
 use strict;
 
@@ -15,6 +17,7 @@ use Error::Simple;
 our @databases;
 our $directory;
 our $logger;
+our $cache;
 
 sub new {
 	my $proto = shift;
@@ -24,7 +27,11 @@ sub new {
 
 	# init(\%args);
 
-	return bless { logger => $args{'logger'} || $logger, directory => $args{'directory'} || $directory }, $class;
+	return bless {
+		logger => $args{'logger'} || $logger,
+		directory => $args{'directory'} || $directory,
+		cache => $args{'cache'} || $cache
+	}, $class;
 }
 
 # Can also be run as a class level Geo::Coder::Free::DB::init(directory => '../databases')
@@ -33,6 +40,7 @@ sub init {
 
 	$directory ||= $args{'directory'};
 	$logger ||= $args{'logger'};
+	$cache ||= $args{'cache'};
 	if($args{'databases'}) {
 		@databases = $args{'databases'};
 	}
@@ -216,9 +224,20 @@ sub selectall_hashref {
 	}
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute(@args) || throw Error::Simple("$query: @args");
+
+	my $key = "$query " . join(', ', @args);
+	my $c;
+	if($c = $self->{cache}) {
+		if(my $rc = $c->get($key)) {
+			return $rc;
+		}
+	}
 	my @rc;
 	while (my $href = $sth->fetchrow_hashref()) {
 		push @rc, $href;
+	}
+	if($c) {
+		$c->set($key, \@rc, '1 hour');
 	}
 
 	return \@rc;
@@ -234,7 +253,7 @@ sub fetchrow_hashref {
 
 	$self->_open() if(!$self->{table});
 
-	my $query = "SELECT * FROM $table";
+	my $query = "SELECT DISTINCT * FROM $table";
 	my @args;
 	foreach my $c1(keys(%params)) {
 		if(scalar(@args) == 0) {
@@ -306,6 +325,9 @@ sub AUTOLOAD {
 	my $query = "SELECT DISTINCT $column FROM $table";
 	my @args;
 	foreach my $c1(keys(%params)) {
+		if(!defined($params{$c1})) {
+			$self->{'logger'}->debug("AUTOLOAD params $c1 isn't defined");
+		}
 		# $query .= " AND $c1 LIKE ?";
 		if(scalar(@args) == 0) {
 			$query .= ' WHERE';
@@ -317,7 +339,7 @@ sub AUTOLOAD {
 	}
 	$query .= " ORDER BY $column";
 	if($self->{'logger'}) {
-		if(scalar(@args)) {
+		if(scalar(@args) && $args[0]) {
 			$self->{'logger'}->debug("AUTOLOAD $query: " . join(', ', @args));
 		} else {
 			$self->{'logger'}->debug("AUTOLOAD $query");
