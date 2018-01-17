@@ -253,7 +253,12 @@ sub fetchrow_hashref {
 
 	$self->_open() if(!$self->{table});
 
-	my $query = "SELECT DISTINCT * FROM $table";
+	my $query;
+	if(wantarray) {
+		$query = "SELECT * FROM $table";
+	} else {
+		$query = "SELECT DISTINCT * FROM $table";
+	}
 	my @args;
 	foreach my $c1(keys(%params)) {
 		if(scalar(@args) == 0) {
@@ -322,7 +327,12 @@ sub AUTOLOAD {
 
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
-	my $query = "SELECT DISTINCT $column FROM $table";
+	my $query;
+	if(wantarray) {
+		$query = "SELECT $column FROM $table";
+	} else {
+		$query = "SELECT DISTINCT $column FROM $table";
+	}
 	my @args;
 	foreach my $c1(keys(%params)) {
 		if(!defined($params{$c1})) {
