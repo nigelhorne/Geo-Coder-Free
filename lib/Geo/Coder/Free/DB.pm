@@ -235,6 +235,7 @@ sub selectall_hashref {
 	my @rc;
 	while (my $href = $sth->fetchrow_hashref()) {
 		push @rc, $href;
+		# last if(!wantarray);
 	}
 	if($c) {
 		$c->set($key, \@rc, '1 hour');
@@ -269,6 +270,7 @@ sub fetchrow_hashref {
 		$query .= " $c1 = ?";
 		push @args, $params{$c1};
 	}
+	# $query .= ' ORDER BY entry';
 	if($self->{'logger'}) {
 		$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
 	}
@@ -310,6 +312,8 @@ sub updated {
 
 # Return the contents of an arbiratary column in the database which match the given criteria
 # Returns an array of the matches, or just the first entry when called in scalar context
+
+# Set distinct to 1 if you're after a uniq list
 sub AUTOLOAD {
 	our $AUTOLOAD;
 	my $column = $AUTOLOAD;
@@ -328,7 +332,7 @@ sub AUTOLOAD {
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
 	my $query;
-	if(wantarray) {
+	if(wantarray && !delete($params{'distinct'})) {
 		$query = "SELECT $column FROM $table";
 	} else {
 		$query = "SELECT DISTINCT $column FROM $table";
@@ -358,7 +362,7 @@ sub AUTOLOAD {
 	my $sth = $self->{$table}->prepare($query) || throw Error::Simple($query);
 	$sth->execute(@args) || throw Error::Simple($query);
 
-	if(wantarray()) {
+	if(wantarray) {
 		return map { $_->[0] } @{$sth->fetchall_arrayref()};
 	}
 	return $sth->fetchrow_array();	# Return the first match only
