@@ -222,7 +222,7 @@ sub geocode {
 		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
 			$region = $admin2cache{$state};
 		} else {
-			@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $county)};
+			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
 			foreach my $admin2(@admin2s) {
 				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
 					$region = $admin2->{'concatenated_codes'};
@@ -248,7 +248,7 @@ sub geocode {
 					$region = $state;
 					@regions = ();
 				} else {
-					@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $state)};
+					@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $state);
 					foreach my $admin2(@admin2s) {
 						if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
 							$region = $admin2->{'concatenated_codes'};
@@ -262,7 +262,7 @@ sub geocode {
 
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
-		@admin2s = @{$self->{'admin2'}->selectall_hashref(asciiname => $location)};
+		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
 				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
@@ -272,7 +272,7 @@ sub geocode {
 			}
 		} else {
 			# e.g. states in the US
-			my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $county)};
+			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
 				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
 					$region = $admin1->{'concatenated_codes'};
@@ -305,7 +305,7 @@ sub geocode {
 
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray) {
-		my @rc = @{$self->{'cities'}->selectall_hashref($options)};
+		my @rc = $self->{'cities'}->selectall_hash($options);
 		foreach my $city(@rc) {
 			if($city->{'Latitude'}) {
 				$city->{'latitude'} = delete $city->{'Latitude'};

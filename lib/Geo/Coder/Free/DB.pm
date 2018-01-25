@@ -1,5 +1,15 @@
 package Geo::Coder::Free::DB;
 
+# Author Nigel Horne: njh@bandsman.co.uk
+# Copyright (C) 2015-2018, Nigel Horne
+
+# Usage is subject to licence terms.
+# The licence terms of this software are as follows:
+# Personal single user, single computer use: GPL2
+# All other users (including Commercial, Charity, Educational, Government)
+#	must apply in writing for a licence for use from Nigel Horne at the
+#	above e-mail.
+
 # Read-only access to databases
 
 use warnings;
@@ -25,6 +35,11 @@ sub new {
 
 	my $class = ref($proto) || $proto;
 
+	if($class eq 'Geo::Coder::Free::DB') {
+		die "$class: abstract class";
+	}
+
+	die "$class: where are the files?" unless($directory || $args{'directory'});
 	# init(\%args);
 
 	return bless {
@@ -193,6 +208,12 @@ sub _open {
 # Returns a reference to an array of hash references of all the data meeting
 # the given criteria
 sub selectall_hashref {
+	my @rc = selectall_hash(@_);
+	return \@rc;
+}
+
+# Returns an array of hash references
+sub selectall_hash {
 	my $self = shift;
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
@@ -203,9 +224,9 @@ sub selectall_hashref {
 
 	if((scalar(keys %params) == 0) && $self->{'data'}) {
 		if($self->{'logger'}) {
-			$self->{'logger'}->trace("$table: selectall_hashref fast track return");
+			$self->{'logger'}->trace("$table: selectall_hash fast track return");
 		}
-		return $self->{'data'};
+		return @{$self->{'data'}};
 	}
 
 	my $query = "SELECT * FROM $table";
@@ -220,7 +241,7 @@ sub selectall_hashref {
 		push @args, $params{$c1};
 	}
 	if($self->{'logger'}) {
-		$self->{'logger'}->debug("selectall_hashref $query: " . join(', ', @args));
+		$self->{'logger'}->debug("selectall_hash $query: " . join(', ', @args));
 	}
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute(@args) || throw Error::Simple("$query: @args");
@@ -229,19 +250,19 @@ sub selectall_hashref {
 	my $c;
 	if($c = $self->{cache}) {
 		if(my $rc = $c->get($key)) {
-			return $rc;
+			return @{$rc};
 		}
 	}
 	my @rc;
-	while (my $href = $sth->fetchrow_hashref()) {
+	while(my $href = $sth->fetchrow_hashref()) {
 		push @rc, $href;
-		# last if(!wantarray);
+		last if(!wantarray);
 	}
-	if($c) {
+	if($c && wantarray) {
 		$c->set($key, \@rc, '1 hour');
 	}
 
-	return \@rc;
+	return @rc;
 }
 
 # Returns a hash reference for one row in a table
@@ -254,12 +275,7 @@ sub fetchrow_hashref {
 
 	$self->_open() if(!$self->{table});
 
-	my $query;
-	if(wantarray) {
-		$query = "SELECT * FROM $table";
-	} else {
-		$query = "SELECT DISTINCT * FROM $table";
-	}
+	my $query = "SELECT DISTINCT * FROM $table";
 	my @args;
 	foreach my $c1(keys(%params)) {
 		if(scalar(@args) == 0) {
@@ -296,7 +312,7 @@ sub execute {
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute() || throw Error::Simple($query);
 	my @rc;
-	while (my $href = $sth->fetchrow_hashref()) {
+	while(my $href = $sth->fetchrow_hashref()) {
 		push @rc, $href;
 	}
 
@@ -310,8 +326,10 @@ sub updated {
 	return $self->{'_updated'};
 }
 
-# Return the contents of an arbiratary column in the database which match the given criteria
-# Returns an array of the matches, or just the first entry when called in scalar context
+# Return the contents of an arbiratary column in the database which match the
+#	given criteria
+# Returns an array of the matches, or just the first entry when called in
+#	scalar context
 
 # Set distinct to 1 if you're after a uniq list
 sub AUTOLOAD {
