@@ -96,7 +96,7 @@ sub new {
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
- 
+
 =cut
 
 sub geocode {

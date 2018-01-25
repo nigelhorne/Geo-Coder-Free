@@ -19,77 +19,77 @@ LOOKUP: {
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.47, 1e-2);
 	delta_within($location->{longitude}, 0.20, 1e-2);
- 
+
 	$location = $geocoder->geocode('Lambeth, London, England');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.49, 1e-2);
 	delta_within($location->{longitude}, -0.12, 1e-2);
- 
+
 	$location = $geocoder->geocode('Indianapolis, Indiana, USA');
 	ok(defined($location));
 	delta_within($location->{latitude}, 39.77, 1e-2);
 	delta_within($location->{longitude}, -86.16, 1e-2);
- 
+
 	$location = $geocoder->geocode('Ramsgate, Kent, England');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.33, 1e-2);
 	delta_within($location->{longitude}, 1.43, 1e-2);
- 
+
 	$location = $geocoder->geocode('Wokingham, Berkshire, United Kingdom');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.42, 1e-2);
 	delta_within($location->{longitude}, -0.84, 1e-2);
- 
+
 	$location = $geocoder->geocode('Wokingham, Berkshire, UK');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.42, 1e-2);
 	delta_within($location->{longitude}, -0.84, 1e-2);
- 
+
 	$location = $geocoder->geocode('Wokingham, Berkshire, GB');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.42, 1e-2);
 	delta_within($location->{longitude}, -0.84, 1e-2);
- 
+
 	$location = $geocoder->geocode('Wokingham, Berkshire, England');
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.42, 1e-2);
 	delta_within($location->{longitude}, -0.84, 1e-2);
- 
+
 	# FIXME: This finds the Wokingham in England because of a problem in the unitary city handling
 	# which actually looks for Wokingham, GB.
 
 	# $location = $geocoder->geocode('Wokingham, Berkshire, Scotland');
 	# ok(!defined($location));
- 
-	does_croak(sub { 
+
+	does_croak(sub {
 		$location = $geocoder->geocode('Minster, Thanet, Kent, England');
 	});
- 
+
 	$location = $geocoder->geocode('Silver Spring, Maryland, USA');
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
- 
+
 	$location = $geocoder->geocode('Silver Spring, MD, USA');
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
- 
+
 	$location = $geocoder->geocode('Silver Spring, Montgomery, MD, USA');
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
- 
+
 	$location = $geocoder->geocode('Silver Spring, Maryland, United States');
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
- 
+
 	$location = $geocoder->geocode('Silver Spring, Montgomery County, Maryland, USA');
 	ok(defined($location));
 	delta_within($location->{latitude}, 38.99, 1e-2);
 	delta_within($location->{longitude}, -77.03, 1e-2);
- 
+
 	$location = $geocoder->geocode('Montgomery County, Maryland, USA');
 	ok(!defined($location));
 
@@ -97,11 +97,11 @@ LOOKUP: {
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.35, 1e-2);
 	delta_within($location->{longitude}, 1.25, 1e-2);
- 
-	does_croak(sub { 
+
+	does_croak(sub {
 		$location = $geocoder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
 	});
- 
+
 	# FIXME:  this actually does a look up that fails
 	$location = $geocoder->geocode('Rockville Pike, Rockville, MD, USA');
 	ok(!defined($location));
@@ -137,11 +137,11 @@ LOOKUP: {
 	# my $address = $geocoder->reverse_geocode(latlng => '51.50,-0.13');
 	# like($address->{'city'}, qr/^London$/i, 'test reverse');
 
-	does_croak(sub { 
+	does_croak(sub {
 		$location = $geocoder->geocode();
 	});
 
-	does_croak(sub { 
+	does_croak(sub {
 		$location = $geocoder->reverse_geocode();
 	});
 }
