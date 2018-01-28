@@ -37,9 +37,9 @@ WriteMakefile(
 	},
 	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean		=> { FILES => 'Geo-Coder-Free-*' },
-	META_ADD => {
-		provides => {}
-	},
+	# META_ADD => {
+		# provides => {}
+	# },
 	META_MERGE		=> {
 		'meta-spec' => { version => 2 },
 		resources => {
