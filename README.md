@@ -10,7 +10,7 @@ Provides a geocoding functionality using free databases of towns
 
 # VERSION
 
-Version 0.04
+Version 0.05
 
 # SYNOPSIS
 
@@ -30,7 +30,8 @@ admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt
 
 See also http://download.geonames.org/export/dump/allCountries.zip
 
-To significantly speed this up, gunzip cities.csv and run it through the db2sql script to create an SQLite file.
+To significantly speed this up,
+gunzip cities.csv and run it through the db2sql script to create an SQLite file.
 
 # METHODS
 
@@ -48,7 +49,6 @@ To significantly speed this up, gunzip cities.csv and run it through the db2sql 
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
-        
 
 ## reverse\_geocode
 
@@ -77,7 +77,7 @@ VWF, Maxmind and geonames.
 
 # LICENSE AND COPYRIGHT
 
-Copyright 2017 Nigel Horne.
+Copyright 2017-2018 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
