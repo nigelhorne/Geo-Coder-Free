@@ -1,8 +1,11 @@
-#!/bin/bash -ex
+#!/usr/bin/env bash
+
+set -e
+set -x
 
 trap "rm $1.sql" 1 2 15
 
-which sqlite3 || exit 0
+which sqlite3 || exit 1
 
 rm -f $1.sql
 gunzip -c $1.csv.gz | csv2sqlite -o allow_loose_quotes=1 /dev/stdin $1.sql
