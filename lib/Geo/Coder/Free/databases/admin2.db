@@ -253,7 +253,7 @@ AF.29.7053778	Jānī Khēl	Jani Khel	7053778
 AF.29.7053779	Mutā Khān	Muta Khan	7053779
 AF.29.7053780	Nīkêh	Nikeh	7053780
 AF.29.7053781	Ōmnah	Omnah	7053781
-AF.29.7053782	Urgūn	Urgun	7053782
+AF.29.7053782	Urgun District	Urgun District	7053782
 AF.29.7053783	Sar Rowẕah	Sar Rowzah	7053783
 AF.29.7053784	Saṟōbī	Sarobi	7053784
 AF.29.7053785	Sharan	Sharan	7053785
@@ -444,7 +444,6 @@ AL.46.18	Rrethi i Pogradecit	Rrethi i Pogradecit	781990
 AL.45.17	Rrethi i Përmetit	Rrethi i Permetit	782072
 AL.48.16	Rrethi i Mirditës	Rrethi i Mirdites	782268
 AL.41.15	Rrethi i Matit	Rrethi i Matit	782345
-AL.43.13	Rrethi i Librazhdit	Rrethi i Librazhdit	782521
 AL.47.11	Rrethi i Kukësit	Rrethi i Kukesit	782662
 AL.46.09	Rrethi i Korçës	Rrethi i Korces	782758
 AL.46.08	Rrethi i Kolonjës	Rrethi i Kolonjes	782775
@@ -2358,7 +2357,7 @@ BG.53.RSE03	Obshtina Borovo	Obshtina Borovo	733042
 BG.64.VRC05	Obshtina Borovan	Obshtina Borovan	733057
 BG.57.SML05	Obshtina Borino	Obshtina Borino	733066
 BG.65.JAM03	Obshtina Bolyarovo	Obshtina Bolyarovo	733090
-BG.45.KNL04	Obshtina Bobovdol	Obshtina Bobovdol	733150
+BG.45.KNL04	Obshtina Bobov Dol	Obshtina Bobov Dol	733150
 BG.45.KNL05	Obshtina Boboshevo	Obshtina Boboshevo	733152
 BG.38.BLG03	Obshtina Blagoevgrad	Obshtina Blagoevgrad	733190
 BG.47.MON02	Obshtina Berkovitsa	Obshtina Berkovitsa	733263
@@ -2523,6 +2522,7 @@ BI.24.9171888	Kanyosha	Kanyosha	9171888
 BI.24.9171890	Kinindo	Kinindo	9171890
 BI.22.9179822	Muramvya	Muramvya	9179822
 BI.26.9881326	Commune of Burambi	Commune of Burambi	9881326
+BJ.12.2391090	Dogbo Tota	Dogbo Tota	2391090
 BJ.16.7668892	Commune of Adjohoun	Commune of Adjohoun	7668892
 BJ.16.7668898	Bonou	Bonou	7668898
 BJ.16.7668900	Dangbo	Dangbo	7668900
@@ -2599,7 +2599,6 @@ BJ.12.10344473	Djakotomey	Djakotomey	10344473
 BJ.12.10344474	Klouékanmè	Klouekanme	10344474
 BJ.12.10344475	Lalo	Lalo	10344475
 BJ.12.10344476	Toviklin	Toviklin	10344476
-BJ.18.11272511	Zaffé	Zaffe	11272511
 BN.04.10630196	Kiudang	Kiudang	10630196
 BO.08.0705	Provincia Chiquitos	Provincia Chiquitos	3444670
 BO.08.0712	Provincia Ángel Sandoval	Provincia Angel Sandoval	3444765
@@ -8367,7 +8366,7 @@ BY.03.624062	Ashmyanski Rayon	Ashmyanski Rayon	624062
 BY.07.624077	Arshanski Rayon	Arshanski Rayon	624077
 BY.04.624196	Kastrychnitski Rayon	Kastrychnitski Rayon	624196
 BY.02.624197	Aktsyabrski Rayon	Aktsyabrski Rayon	624197
-BY.03.624498	Navahrudski Rayon	Navahrudski Rayon	624498
+BY.03.624498	Novogrudskiy Rayon	Novogrudskiy Rayon	624498
 BY.05.624699	Nyasvizhski Rayon	Nyasvizhski Rayon	624699
 BY.02.624798	Narawlyanski Rayon	Narawlyanski Rayon	624798
 BY.05.624858	Myadzyel’ski Rayon	Myadzyel'ski Rayon	624858
@@ -8441,7 +8440,7 @@ BY.01.630155	Byarozawski Rayon	Byarozawski Rayon	630155
 BY.05.630193	Byarezinski Rayon	Byarezinski Rayon	630193
 BY.03.630208	Byerastavitski Rayon	Byerastavitski Rayon	630208
 BY.06.630244	Byalynitski Rayon	Byalynitski Rayon	630244
-BY.01.630420	Baranavitski Rayon	Baranavitski Rayon	630420
+BY.01.630420	Baranovichskiy Rayon	Baranovichskiy Rayon	630420
 BY.06.828843	Drybinski Rayon	Drybinski Rayon	828843
 BY.03.828847	Horad Hrodna	Horad Hrodna	828847
 BY.02.828879	Uvarovichskiy Rayon	Uvarovichskiy Rayon	828879
@@ -8480,109 +8479,172 @@ BZ.05.9257719	Danriga District	Danriga District	9257719
 CA.10.08	Abitibi-Témiscamingue	Abitibi-Temiscamingue	5881941
 CA.04.1306	Albert County	Albert County	5883098
 CA.03.5883398	Alexander	Alexander	5883398
-CA.08.5883638	Algoma	Algoma	5883638
+CA.08.3557	Algoma	Algoma	5883638
 CA.03.5884145	Alonsa	Alonsa	5884145
 CA.07.1205	Annapolis County	Annapolis County	5885415
 CA.07.1214	Antigonish County	Antigonish County	5886183
 CA.03.5886869	Argyle	Argyle	5886869
 CA.03.5887047	Armstrong	Armstrong	5887047
-CA.08.5907982	Brant	Brant	5907982
+CA.01.4810016	Beaver County	Beaver County	5896654
+CA.01.4819049	Birch Hills County	Birch Hills County	5901449
+CA.08.3529	Brant	Brant	5907982
+CA.01.4811032	Brazeau County	Brazeau County	5908165
 CA.03.5909350	Brokenhead	Brokenhead	5909350
-CA.08.5910071	Bruce County	Bruce County	5910071
+CA.08.3541	Bruce County	Bruce County	5910071
 CA.07.5915565	Cape Breton County	Cape Breton County	5915565
 CA.02.5917	Capital Regional District	Capital Regional District	5916420
+CA.01.4803001	Cardston County	Cardston County	5916822
 CA.02.5941	Cariboo Regional District	Cariboo Regional District	5916918
 CA.04.1311	Carleton County	Carleton County	5917147
 CA.03.5917773	Cartier	Cartier	5917773
 CA.02.5945	Central Coast Regional District	Central Coast Regional District	5919023
 CA.04.1302	Charlotte County	Charlotte County	5920264
-CA.08.5920450	Chatham-Kent	Chatham-Kent	5920450
-CA.08.5924616	Cochrane District	Cochrane District	5924616
+CA.08.3536	Chatham-Kent	Chatham-Kent	5920450
+CA.01.4809002	Clearwater County	Clearwater County	5923679
+CA.08.3556	Cochrane District	Cochrane District	5924616
 CA.07.1210	Colchester	Colchester	5924982
 CA.03.5925083	Coldwell	Coldwell	5925083
 CA.02.5939	Columbia-Shuswap Regional District	Columbia-Shuswap Regional District	5926222
 CA.03.5928075	Cornwallis	Cornwallis	5928075
 CA.10.09	Côte-Nord	Cote-Nord	5928473
+CA.01.4813044	County of Athabasca No. 12	County of Athabasca No. 12	5928928
+CA.01.4813018	County of Barrhead No. 11	County of Barrhead No. 11	5928929
+CA.01.4810001	County of Camrose No. 22	County of Camrose No. 22	5928930
+CA.01.4801008	County of Forty Mile No. 8	County of Forty Mile No. 8	5928931
+CA.01.4819006	County of Grande Prairie No. 1	County of Grande Prairie No. 1	5928932
+CA.01.4802011	County of Lethbridge No. 26	County of Lethbridge No. 26	5928933
+CA.01.4810026	County of Minburn No. 27	County of Minburn No. 27	5928934
+CA.01.4802031	County of Newell No. 4	County of Newell No. 4	5928935
+CA.01.4807011	County of Paintearth No. 18	County of Paintearth No. 18	5928936
+CA.01.4807019	County of Stettler No. 6	County of Stettler No. 6	5928937
+CA.01.4812014	County of St. Paul No. 19	County of St. Paul No. 19	5928938
+CA.01.4813036	County of Thorhild No. 7	County of Thorhild No. 7	5928939
+CA.01.4810048	County of Two Hills No. 21	County of Two Hills No. 21	5928940
+CA.01.4810036	County of Vermilion River No. 24	County of Vermilion River No. 24	5928941
+CA.01.4802001	County of Warner No. 5	County of Warner No. 5	5928942
+CA.01.4811001	County of Wetaskiwin No. 10	County of Wetaskiwin No. 10	5928943
 CA.02.5919	Cowichan Valley Regional District	Cowichan Valley Regional District	5931136
 CA.07.1211	Cumberland County	Cumberland County	5933880
+CA.01.4801003	Cypress County	Cypress County	5934408
 CA.03.5935342	Dauphin	Dauphin	5935342
 CA.03.5938127	De Salaberry	De Salaberry	5938127
 CA.07.5939237	Digby County	Digby County	5939237
-CA.08.5943542	Dufferin County	Dufferin County	5943542
+CA.08.3522	Dufferin County	Dufferin County	5943542
 CA.03.5943543	Dufferin	Dufferin	5943543
-CA.08.5944369	Durham	Durham	5944369
+CA.08.3518	Durham	Durham	5944369
 CA.03.5946153	East St. Paul	East St. Paul	5946153
-CA.08.5947587	Elgin County	Elgin County	5947587
+CA.08.3534	Elgin County	Elgin County	5947587
 CA.03.5948173	Elton	Elton	5948173
-CA.08.5949533	Essex County	Essex County	5949533
+CA.08.3537	Essex County	Essex County	5949533
 CA.10.05	Estrie	Estrie	5949621
 CA.03.5953379	Fisher	Fisher	5953379
+CA.01.4807031	Flagstaff County	Flagstaff County	5954111
 CA.02.5909	Fraser Valley Regional District	Fraser Valley Regional District	5957659
-CA.08.5958506	Frontenac County	Frontenac County	5958506
+CA.08.3510	Frontenac County	Frontenac County	5958506
 CA.03.5961416	Gimli	Gimli	5961416
 CA.03.5964094	Grahamdale	Grahamdale	5964094
 CA.02.5915	Greater Vancouver Regional District	Greater Vancouver Regional District	5965814
-CA.08.5966925	Grey County	Grey County	5966925
+CA.08.3542	Grey County	Grey County	5966925
 CA.03.5966926	Grey	Grey	5966926
 CA.07.5968620	Guysborough County	Guysborough County	5968620
-CA.08.5969093	Haldimand County	Haldimand County	5969093
-CA.08.5969392	Haliburton County	Haliburton County	5969392
+CA.08.3528	Haldimand County	Haldimand County	5969093
+CA.08.3546	Haliburton County	Haliburton County	5969392
 CA.07.5969424	Halifax County	Halifax County	5969424
-CA.08.5969719	Halton	Halton	5969719
-CA.08.5969784	Hamilton	Hamilton	5969784
+CA.08.3524	Halton	Halton	5969719
+CA.08.3525	Hamilton	Hamilton	5969784
 CA.03.5970302	Hanover	Hanover	5970302
-CA.08.5971841	Hastings County	Hastings County	5971841
+CA.08.3512	Hastings County	Hastings County	5971841
 CA.03.5972962	Headingley	Headingley	5972962
-CA.08.5978829	Huron County	Huron County	5978829
+CA.08.3540	Huron County	Huron County	5978829
+CA.01.4815037	Improvement District No. 12	Improvement District No. 12	5982630
+CA.01.4810068	Improvement District No. 13	Improvement District No. 13	5982631
+CA.01.4816051	Improvement District No. 24	Improvement District No. 24	5982632
+CA.01.4814028	Improvement District No. 25	Improvement District No. 25	5982633
+CA.01.4803003	Improvement District No. 4	Improvement District No. 4	5982634
+CA.01.4815032	Improvement District No. 9	Improvement District No. 9	5982635
 CA.07.1215	Inverness County	Inverness County	5983629
-CA.08.5989818	Kawartha Lakes	Kawartha Lakes	5989818
+CA.01.4815033	Jasper	Jasper	5985919
+CA.01.4815013	Kananaskis Improvement District	Kananaskis Improvement District	5989103
+CA.08.3516	Kawartha Lakes	Kawartha Lakes	5989818
 CA.03.5990627	Kelsey	Kelsey	5990627
-CA.08.5991054	Kenora District	Kenora District	5991054
+CA.08.3560	Kenora District	Kenora District	5991054
 CA.04.1308	Kent County	Kent County	5991094
 CA.09.1101	Kings County	Kings County	5992375
 CA.07.1207	Kings County	Kings County	5992377
 CA.04.1305	Kings County	Kings County	5992378
+CA.01.4805041	Kneehill County	Kneehill County	5993556
 CA.03.6014442	Lac du Bonnet	Lac du Bonnet	6014442
-CA.08.6049019	Lambton County	Lambton County	6049019
-CA.08.6049130	Lanark County	Lanark County	6049130
+CA.01.4808022	Lacombe County	Lacombe County	6035617
+CA.01.4813001	Lac Ste. Anne County	Lac Ste. Anne County	6043472
+CA.08.3538	Lambton County	Lambton County	6049019
+CA.01.4810058	Lamont County	Lamont County	6049063
+CA.08.3509	Lanark County	Lanark County	6049130
 CA.10.14	Lanaudière	Lanaudiere	6049141
 CA.10.15	Laurentides	Laurentides	6050541
 CA.10.13	Laval	Laval	6050612
-CA.08.6052311	Lennox and Addington County	Lennox and Addington County	6052311
+CA.01.4811012	Leduc County	Leduc County	6051564
+CA.08.3511	Lennox and Addington County	Lennox and Addington County	6052311
 CA.07.6062070	Lunenburg County	Lunenburg County	6062070
 CA.03.6062676	Macdonald	Macdonald	6062676
-CA.08.6065217	Manitoulin District	Manitoulin District	6065217
+CA.08.3551	Manitoulin District	Manitoulin District	6065217
 CA.10.04	Mauricie	Mauricie	6068167
-CA.08.6073256	Middlesex County	Middlesex County	6073256
+CA.08.3539	Middlesex County	Middlesex County	6073256
 CA.10.6074643	Minganie	Minganie	6074643
 CA.03.6076808	Montcalm	Montcalm	6076808
 CA.10.16	Montérégie	Monteregie	6076966
 CA.10.06	Montréal	Montreal	6077246
 CA.03.6078726	Morris	Morris	6078726
 CA.03.6079284	Mossey River	Mossey River	6079284
-CA.08.6084939	District Municipality of Muskoka	District Municipality of Muskoka	6084939
-CA.08.6087883	Regional Municipality of Niagara	Regional Municipality of Niagara	6087883
-CA.08.6088501	Nipissing District	Nipissing District	6088501
+CA.01.4806028	Mountain View County	Mountain View County	6079662
+CA.01.4804001	Municipal District of Acadia No. 34	Municipal District of Acadia No. 34	6084201
+CA.01.4815015	Municipal District of Bighorn No. 8	Municipal District of Bighorn No. 8	6084202
+CA.01.4817027	Municipal District of Big Lakes No. 125	Municipal District of Big Lakes No. 125	6084203
+CA.01.4812004	Municipal District of Bonnyville No. 87	Municipal District of Bonnyville No. 87	6084204
+CA.01.4817062	Municipal District of Clear Hills No. 21	Municipal District of Clear Hills No. 21	6084205
+CA.01.4819066	Municipal District of Fairview No. 136	Municipal District of Fairview No. 136	6084206
+CA.01.4806001	Municipal District of Foothills No. 31	Municipal District of Foothills No. 31	6084207
+CA.01.4818015	Municipal District of Greenview No. 16	Municipal District of Greenview No. 16	6084208
+CA.01.4817033	Municipal District of Lesser Slave River No. 124	Municipal District of Lesser Slave River No. 124	6084209
+CA.01.4817076	Municipal District of Northern Lights No. 22	Municipal District of Northern Lights No. 22	6084210
+CA.01.4817031	Municipal District of Opportunity No. 17	Municipal District of Opportunity No. 17	6084211
+CA.01.4819071	Municipal District of Peace No. 135	Municipal District of Peace No. 135	6084212
+CA.01.4803011	Municipal District of Pincher Creek No. 9	Municipal District of Pincher Creek No. 9	6084213
+CA.01.4807001	Municipal District of Provost No. 52	Municipal District of Provost No. 52	6084214
+CA.01.4815045	Municipal District of Ranchland No. 66	Municipal District of Ranchland No. 66	6084215
+CA.01.4806014	Municipal District of Rocky View No. 44	Municipal District of Rocky View No. 44	6084216
+CA.01.4819041	Municipal District of Smoky River No. 130	Municipal District of Smoky River No. 130	6084217
+CA.01.4819054	Municipal District of Spirit River No. 133	Municipal District of Spirit River No. 133	6084218
+CA.01.4802021	Municipal District of Taber	Municipal District of Taber	6084219
+CA.01.4807049	Municipal District of Wainwright No. 61	Municipal District of Wainwright No. 61	6084220
+CA.01.4813028	Municipal District of Westlock No. 92	Municipal District of Westlock No. 92	6084221
+CA.01.4803018	Municipal District of Willow Creek No. 26	Municipal District of Willow Creek No. 26	6084222
+CA.08.3544	District Municipality of Muskoka	District Municipality of Muskoka	6084939
+CA.08.3526	Regional Municipality of Niagara	Regional Municipality of Niagara	6087883
+CA.08.3548	Nipissing District	Nipissing District	6088501
+CA.01.4817026	Northern Sunrise County	Northern Sunrise County	6089985
 CA.04.1309	Northumberland County	Northumberland County	6090771
-CA.08.6090772	Northumberland County	Northumberland County	6090772
+CA.08.3514	Northumberland County	Northumberland County	6090772
 CA.10.07	Outaouais	Outaouais	6095306
-CA.08.6095780	Oxford County	Oxford County	6095780
-CA.08.6098746	Parry Sound District	Parry Sound District	6098746
+CA.08.3532	Oxford County	Oxford County	6095780
+CA.01.4811034	Parkland County	Parkland County	6098589
+CA.08.3549	Parry Sound District	Parry Sound District	6098746
 CA.02.5955	Peace River Regional District	Peace River Regional District	6100076
-CA.08.6100475	Peel	Peel	6100475
-CA.08.6101545	Perth County	Perth County	6101545
-CA.08.6101646	Peterborough County	Peterborough County	6101646
+CA.08.3521	Peel	Peel	6100475
+CA.08.3531	Perth County	Perth County	6101545
+CA.08.3515	Peterborough County	Peterborough County	6101646
 CA.07.1212	Pictou County	Pictou County	6104222
 CA.03.6105291	Piney	Piney	6105291
 CA.03.6105529	Pipestone	Pipestone	6105529
+CA.01.4808038	Ponoka County	Ponoka County	6109274
 CA.03.6111530	Portage la Prairie	Portage la Prairie	6111530
 CA.02.5927	Powell River Regional District	Powell River Regional District	6112609
 CA.09.1103	Prince County	Prince County	6113329
-CA.08.6113354	Prince Edward County	Prince Edward County	6113354
+CA.08.3513	Prince Edward County	Prince Edward County	6113354
 CA.09.1102	Queens County	Queens County	6115098
 CA.07.6115099	Queens County	Queens County	6115099
 CA.04.1304	Queens County	Queens County	6115101
-CA.08.6116135	Rainy River District	Rainy River District	6116135
+CA.08.3559	Rainy River District	Rainy River District	6116135
+CA.01.4808001	Red Deer County	Red Deer County	6118160
 CA.02.5923	Regional District of Alberni-Clayoquot	Regional District of Alberni-Clayoquot	6119125
 CA.02.5951	Regional District of Bulkley-Nechako	Regional District of Bulkley-Nechako	6119126
 CA.02.5903	Regional District of Central Kootenay	Regional District of Central Kootenay	6119127
@@ -8595,60 +8657,73 @@ CA.02.5943	Regional District of Mount Waddington	Regional District of Mount Wadd
 CA.02.5921	Regional District of Nanaimo	Regional District of Nanaimo	6119135
 CA.02.5937	Regional District of North Okanagan	Regional District of North Okanagan	6119136
 CA.02.5907	Regional District of Okanagan-Similkameen	Regional District of Okanagan-Similkameen	6119137
-CA.08.6119449	Renfrew County	Renfrew County	6119449
+CA.08.3547	Renfrew County	Renfrew County	6119449
 CA.03.6121677	Reynolds	Reynolds	6121677
 CA.07.1216	Richmond County	Richmond County	6122075
 CA.03.6122576	Ritchot	Ritchot	6122576
 CA.03.6126541	Rockwood	Rockwood	6126541
 CA.03.6127181	Roland	Roland	6127181
 CA.03.6127585	Rosedale	Rosedale	6127585
+CA.01.4819059	Saddle Hills County	Saddle Hills County	6137110
 CA.10.02	Saguenay/Lac-Saint-Jean	Saguenay/Lac-Saint-Jean	6137271
 CA.04.1301	Saint John County	Saint John County	6138518
 CA.07.6145888	Shelburne County	Shelburne County	6145888
 CA.03.6147482	Sifton	Sifton	6147482
-CA.08.6147963	Simcoe County	Simcoe County	6147963
+CA.08.3543	Simcoe County	Simcoe County	6147963
 CA.02.5947	Skeena-Queen Charlotte Regional District	Skeena-Queen Charlotte Regional District	6148773
+CA.01.4812022	Smoky Lake County	Smoky Lake County	6150297
+CA.01.4804004	Special Area No. 2	Special Area No. 2	6153329
+CA.01.4804012	Special Area No. 3	Special Area No. 3	6153330
+CA.01.4804020	Special Area No. 4	Special Area No. 4	6153331
+CA.01.4817095	Mackenzie County	Mackenzie County	6153332
 CA.03.6154185	Springfield	Springfield	6154185
 CA.02.5931	Squamish-Lillooet Regional District	Squamish-Lillooet Regional District	6154640
 CA.03.6155131	St. Andrews	St. Andrews	6155131
 CA.03.6155186	Stanley	Stanley	6155186
+CA.01.4805031	Starland County	Starland County	6155475
 CA.03.6155764	St. Clements	St. Clements	6155764
 CA.03.6155865	Ste. Anne	Ste. Anne	6155865
 CA.03.6156971	St. Laurent	St. Laurent	6156971
+CA.01.4811052	Strathcona County	Strathcona County	6157997
 CA.03.6158376	Stuartburn	Stuartburn	6158376
-CA.08.6158840	Sudbury	Sudbury	6158840
-CA.08.6158841	Sudbury	Sudbury	6158841
+CA.01.4811059	Sturgeon County	Sturgeon County	6158563
+CA.08.3552	Sudbury	Sudbury	6158840
+CA.08.3553	Sudbury	Sudbury	6158841
 CA.04.1303	Sunbury County	Sunbury County	6159368
 CA.02.5929	Sunshine Coast Regional District	Sunshine Coast Regional District	6159746
 CA.03.6165405	Thompson	Thompson	6165405
 CA.02.5933	Thompson-Nicola Regional District	Thompson-Nicola Regional District	6165501
-CA.08.6166139	Thunder Bay District	Thunder Bay District	6166139
-CA.08.6166724	Timiskaming District	Timiskaming District	6166724
-CA.08.6172001	United Counties of Leeds and Grenville	United Counties of Leeds and Grenville	6172001
-CA.08.6172002	Comtés unis de Prescott et Russell	Comtes unis de Prescott et Russell	6172002
-CA.08.6172003	United Counties of Stormont, Dundas and Glengarry	United Counties of Stormont, Dundas and Glengarry	6172003
+CA.08.3558	Thunder Bay District	Thunder Bay District	6166139
+CA.08.3554	Timiskaming District	Timiskaming District	6166724
+CA.08.3507	United Counties of Leeds and Grenville	United Counties of Leeds and Grenville	6172001
+CA.08.3502	Comtés unis de Prescott et Russell	Comtes unis de Prescott et Russell	6172002
+CA.08.3501	United Counties of Stormont, Dundas and Glengarry	United Counties of Stormont, Dundas and Glengarry	6172003
 CA.07.1218	Victoria County	Victoria County	6174034
 CA.03.6174040	Victoria	Victoria	6174040
-CA.08.6176824	Regional Municipality of Waterloo	Regional Municipality of Waterloo	6176824
-CA.08.6177913	Wellington County	Wellington County	6177913
+CA.01.4805001	Vulcan County	Vulcan County	6174688
+CA.08.3530	Regional Municipality of Waterloo	Regional Municipality of Waterloo	6176824
+CA.08.3523	Wellington County	Wellington County	6177913
 CA.04.1307	Westmorland County	Westmorland County	6179219
 CA.03.6179507	West St. Paul	West St. Paul	6179507
+CA.01.4805012	Wheatland County	Wheatland County	6179870
 CA.03.6180469	Whitehead	Whitehead	6180469
 CA.03.6180732	Whitemouth	Whitemouth	6180732
-CA.01.6184011	Wood Buffalo	Wood Buffalo	6184011
+CA.01.4816037	Wood Buffalo	Wood Buffalo	6184011
 CA.03.6184198	Woodlands	Woodlands	6184198
+CA.01.4813029	Woodlands County	Woodlands County	6184203
 CA.07.6185218	Yarmouth County	Yarmouth County	6185218
+CA.01.4814003	Yellowhead County	Yellowhead County	6185360
 CA.04.1310	York County	York County	6185557
-CA.08.6185560	York	York	6185560
+CA.08.3519	York	York	6185560
 CA.10.01	Bas-Saint-Laurent	Bas-Saint-Laurent	6691318
 CA.10.03	Capitale-Nationale	Capitale-Nationale	6691319
 CA.10.10	Nord-du-Québec	Nord-du-Quebec	6691320
 CA.10.11	Gaspésie-Îles-de-la-Madeleine	Gaspesie-Iles-de-la-Madeleine	6691321
 CA.10.12	Chaudière-Appalaches	Chaudiere-Appalaches	6691322
 CA.04.1314	Restigouche	Restigouche	6944116
-CA.08.8133394	Toronto county	Toronto county	8133394
+CA.08.3520	Toronto county	Toronto county	8133394
 CA.10.17	Centre-du-Québec	Centre-du-Quebec	8449526
-CA.08.8581623	Ottawa	Ottawa	8581623
+CA.08.3506	Ottawa	Ottawa	8581623
 CA.02.5926	Comox Valley Regional District	Comox Valley Regional District	8593703
 CA.02.5959	Northern Rockies Regional Municipality	Northern Rockies Regional Municipality	8593704
 CA.02.5957	Stikine Region	Stikine Region	8593705
@@ -8657,6 +8732,275 @@ CA.04.1315	Gloucester County	Gloucester County	8593708
 CA.04.1313	Madawaska County	Madawaska County	8593709
 CA.04.1312	Victoria County	Victoria County	8593710
 CA.03.11153049	Rural Municipality of Yellowhead	Rural Municipality of Yellowhead	11153049
+CA.01.4812037	Lac la Biche County	Lac la Biche County	11791378
+CA.01.4815007	Crowsnest Pass	Crowsnest Pass	11791395
+CA.01.4806016	Calgary	Calgary	11807181
+CA.01.4811061	Edmonton	Edmonton	11807182
+CA.01.4801006	Medicine Hat	Medicine Hat	11807183
+CA.01.4802012	Lethbridge	Lethbridge	11807184
+CA.01.4811007	Norris Beach	Norris Beach	11807185
+CA.01.4811062	St. Albert	St. Albert	11807186
+CA.01.4803021	Granum	Granum	11807187
+CA.01.4813031	Westlock	Westlock	11807188
+CA.01.4814024	Edson	Edson	11807189
+CA.01.4813046	Boyle	Boyle	11807190
+CA.01.4806021	Airdrie	Airdrie	11807191
+CA.01.4802019	Coaldale	Coaldale	11807192
+CA.01.4813014	Onoway	Onoway	11807193
+CA.01.4806022	Irricana	Irricana	11807194
+CA.01.4806026	Crossfield	Crossfield	11807195
+CA.01.4812016	Elk Point	Elk Point	11807196
+CA.01.4810039	Lloydminster (Part)	Lloydminster (Part)	11807197
+CA.01.4807004	Czar	Czar	11807198
+CA.01.4810011	Camrose	Camrose	11807199
+CA.01.4808031	Lacombe	Lacombe	11807200
+CA.01.4811016	Leduc	Leduc	11807201
+CA.01.4811049	Spruce Grove	Spruce Grove	11807202
+CA.01.4802034	Brooks	Brooks	11807203
+CA.01.4806034	Olds	Olds	11807204
+CA.01.4812018	St. Paul	St. Paul	11807205
+CA.01.4810022	Viking	Viking	11807206
+CA.01.4811056	Fort Saskatchewan	Fort Saskatchewan	11807207
+CA.01.4819012	Grande Prairie	Grande Prairie	11807208
+CA.01.4802029	Vauxhall	Vauxhall	11807209
+CA.01.4808011	Red Deer	Red Deer	11807210
+CA.01.4811011	Millet	Millet	11807211
+CA.01.4806017	Chestermere	Chestermere	11807212
+CA.01.4811002	Wetaskiwin	Wetaskiwin	11807213
+CA.01.4811013	Beaumont	Beaumont	11807214
+CA.01.4805049	Trochu	Trochu	11807215
+CA.01.4803016	Cowley	Cowley	11807216
+CA.01.4812002	Cold Lake	Cold Lake	11807217
+CA.01.4813002	Mayerthorpe	Mayerthorpe	11807218
+CA.01.4817024	Swan Hills	Swan Hills	11807219
+CA.01.4805048	Three Hills	Three Hills	11807220
+CA.01.4810028	Vegreville	Vegreville	11807221
+CA.01.4807012	Coronation	Coronation	11807222
+CA.01.4811065	Redwater	Redwater	11807223
+CA.01.4811066	Bon Accord	Bon Accord	11807224
+CA.01.4810052	Two Hills	Two Hills	11807225
+CA.01.4819046	Falher	Falher	11807226
+CA.01.4802018	Picture Butte	Picture Butte	11807227
+CA.01.4815023	Canmore	Canmore	11807228
+CA.01.4811048	Stony Plain	Stony Plain	11807229
+CA.01.4803026	Nanton	Nanton	11807230
+CA.01.4808012	Sylvan Lake	Sylvan Lake	11807231
+CA.01.4808024	Eckville	Eckville	11807232
+CA.01.4808026	Bentley	Bentley	11807233
+CA.01.4808029	Blackfalds	Blackfalds	11807234
+CA.01.4814019	Hinton	Hinton	11807235
+CA.01.4803024	Stavely	Stavely	11807236
+CA.01.4806032	Didsbury	Didsbury	11807237
+CA.01.4813015	South View	South View	11807238
+CA.01.4803019	Fort Macleod	Fort Macleod	11807239
+CA.01.4803022	Claresholm	Claresholm	11807240
+CA.01.4806029	Carstairs	Carstairs	11807241
+CA.01.4811064	Gibbons	Gibbons	11807242
+CA.01.4807026	Stettler	Stettler	11807243
+CA.01.4804014	Oyen	Oyen	11807244
+CA.01.4801014	Bow Island	Bow Island	11807245
+CA.01.4805018	Strathmore	Strathmore	11807246
+CA.01.4813019	Barrhead	Barrhead	11807247
+CA.01.4813033	Larkspur	Larkspur	11807248
+CA.01.4801018	Redcliff	Redcliff	11807249
+CA.01.4802013	Coalhurst	Coalhurst	11807250
+CA.01.4810019	Ryley	Ryley	11807251
+CA.01.4810018	Tofield	Tofield	11807252
+CA.01.4819009	Beaverlodge	Beaverlodge	11807253
+CA.01.4806019	Cochrane	Cochrane	11807254
+CA.01.4805034	Delia	Delia	11807255
+CA.01.4805006	Vulcan	Vulcan	11807256
+CA.01.4807002	Provost	Provost	11807257
+CA.01.4805036	Munson	Munson	11807258
+CA.01.4810066	Bruderheim	Bruderheim	11807259
+CA.01.4802036	Duchess	Duchess	11807260
+CA.01.4810056	Willingdon	Willingdon	11807261
+CA.01.4807014	Castor	Castor	11807262
+CA.01.4819011	Wembley	Wembley	11807263
+CA.01.4805026	Drumheller	Drumheller	11807264
+CA.01.4812029	Smoky Lake	Smoky Lake	11807265
+CA.01.4810002	Bashaw	Bashaw	11807266
+CA.01.4805038	Morrin	Morrin	11807267
+CA.01.4811018	Devon	Devon	11807268
+CA.01.4811019	Calmar	Calmar	11807269
+CA.01.4802004	Milk River	Milk River	11807270
+CA.01.4811031	Drayton Valley	Drayton Valley	11807271
+CA.01.4810042	Vermilion	Vermilion	11807272
+CA.01.4807016	Halkirk	Halkirk	11807273
+CA.01.4808044	Rimbey	Rimbey	11807274
+CA.01.4813030	Whitecourt	Whitecourt	11807275
+CA.01.4802008	Raymond	Raymond	11807276
+CA.01.4818018	Valleyview	Valleyview	11807277
+CA.01.4810061	Mundare	Mundare	11807278
+CA.01.4810064	Lamont	Lamont	11807279
+CA.01.4808042	Parkland Beach	Parkland Beach	11807280
+CA.01.4802022	Taber	Taber	11807281
+CA.01.4808039	Ponoka	Ponoka	11807282
+CA.01.4807021	Big Valley	Big Valley	11807283
+CA.01.4811068	Morinville	Morinville	11807284
+CA.01.4811069	Legal	Legal	11807285
+CA.01.4817021	High Prairie	High Prairie	11807286
+CA.01.4806031	Cremona	Cremona	11807287
+CA.01.4815035	Banff	Banff	11807288
+CA.01.4818002	Fox Creek	Fox Creek	11807289
+CA.01.4818005	Grande Cache	Grande Cache	11807290
+CA.01.4813048	Athabasca	Athabasca	11807291
+CA.01.4817029	Slave Lake	Slave Lake	11807292
+CA.01.4817078	Manning	Manning	11807293
+CA.01.4817093	High Level	High Level	11807294
+CA.01.4817097	Rainbow Lake	Rainbow Lake	11807295
+CA.01.4819014	Sexsmith	Sexsmith	11807296
+CA.01.4819068	Fairview	Fairview	11807297
+CA.01.4819074	Grimshaw	Grimshaw	11807298
+CA.01.4808006	Bowden	Bowden	11807299
+CA.01.4804011	Hanna	Hanna	11807300
+CA.01.4811024	Warburg	Warburg	11807301
+CA.01.4806036	Sundre	Sundre	11807302
+CA.01.4819038	Peace River	Peace River	11807303
+CA.01.4819042	McLennan	McLennan	11807304
+CA.01.4819058	Spirit River	Spirit River	11807305
+CA.01.4805011	Arrowwood	Arrowwood	11807306
+CA.01.4808008	Innisfail	Innisfail	11807307
+CA.01.4808009	Penhold	Penhold	11807308
+CA.01.4806006	High River	High River	11807309
+CA.01.4812009	Bonnyville	Bonnyville	11807310
+CA.01.4803004	Cardston	Cardston	11807311
+CA.01.4803014	Pincher Creek	Pincher Creek	11807312
+CA.01.4802039	Bassano	Bassano	11807313
+CA.01.4803002	Magrath	Magrath	11807314
+CA.01.4806009	Turner Valley	Turner Valley	11807315
+CA.01.4806011	Black Diamond	Black Diamond	11807316
+CA.01.4808028	Gull Lake	Gull Lake	11807317
+CA.01.4813011	Sunset Point	Sunset Point	11807318
+CA.01.4806012	Okotoks	Okotoks	11807319
+CA.01.4807044	Sedgewick	Sedgewick	11807320
+CA.01.4813003	Nakamun Park	Nakamun Park	11807321
+CA.01.4813010	Silver Sands	Silver Sands	11807322
+CA.01.4812011	Bonnyville Beach	Bonnyville Beach	11807323
+CA.01.4813057	West Baptiste	West Baptiste	11807324
+CA.01.4809015	Rocky Mountain House	Rocky Mountain House	11807325
+CA.01.4807039	Daysland	Daysland	11807326
+CA.01.4807042	Killam	Killam	11807327
+CA.01.4811003	Argentia Beach	Argentia Beach	11807328
+CA.01.4807048	Hardisty	Hardisty	11807329
+CA.01.4807054	Wainwright	Wainwright	11807330
+CA.01.4813008	Ross Haven	Ross Haven	11807331
+CA.01.4813061	Whispering Hills	Whispering Hills	11807332
+CA.01.4813009	Castle Island	Castle Island	11807333
+CA.01.4808027	Sunbreaker Cove	Sunbreaker Cove	11807334
+CA.01.4807028	Rochon Sands	Rochon Sands	11807335
+CA.01.4811008	Ma-Me-O Beach	Ma-Me-O Beach	11807336
+CA.01.4811009	Silver Beach	Silver Beach	11807337
+CA.01.4813013	Birch Cove	Birch Cove	11807338
+CA.01.4812020	Horseshoe Bay	Horseshoe Bay	11807339
+CA.01.4811038	Seba Beach	Seba Beach	11807340
+CA.01.4811039	Betula Beach	Betula Beach	11807341
+CA.01.4802038	Rosemary	Rosemary	11807342
+CA.01.4811041	Point Alison	Point Alison	11807343
+CA.01.4807027	White Sands	White Sands	11807344
+CA.01.4815027	Ghost Lake	Ghost Lake	11807345
+CA.01.4808013	Norglenwold	Norglenwold	11807346
+CA.01.4808023	Birchcliff	Birchcliff	11807347
+CA.01.4808025	Half Moon Bay	Half Moon Bay	11807348
+CA.01.4813055	South Baptiste	South Baptiste	11807349
+CA.01.4813007	Yellowstone	Yellowstone	11807350
+CA.01.4813005	Val Quentin	Val Quentin	11807351
+CA.01.4813006	West Cove	West Cove	11807352
+CA.01.4811042	Lakeview	Lakeview	11807353
+CA.01.4802014	Nobleford	Nobleford	11807354
+CA.01.4811044	Kapasiwin	Kapasiwin	11807355
+CA.01.4813016	Sandy Beach	Sandy Beach	11807356
+CA.01.4811023	Golden Days	Golden Days	11807357
+CA.01.4805002	Carmangay	Carmangay	11807358
+CA.01.4813017	Sunrise Beach	Sunrise Beach	11807359
+CA.01.4811020	Sundance Beach	Sundance Beach	11807360
+CA.01.4813045	Mewatha Beach	Mewatha Beach	11807361
+CA.01.4811005	Poplar Bay	Poplar Bay	11807362
+CA.01.4811006	Crystal Springs	Crystal Springs	11807363
+CA.01.4811022	Itaska Beach	Itaska Beach	11807364
+CA.01.4815030	Waiparous	Waiparous	11807365
+CA.01.4802002	Coutts	Coutts	11807366
+CA.01.4813047	Sunset Beach	Sunset Beach	11807367
+CA.01.4813049	Island Lake	Island Lake	11807368
+CA.01.4813051	Island Lake South	Island Lake South	11807369
+CA.01.4813053	Bondiss	Bondiss	11807370
+CA.01.4807029	Donalda	Donalda	11807371
+CA.01.4808005	Jarvis Bay	Jarvis Bay	11807372
+CA.01.4812013	Pelican Narrows	Pelican Narrows	11807373
+CA.01.4811004	Grandview	Grandview	11807374
+CA.01.4809005	Burnstick Lake	Burnstick Lake	11807375
+CA.01.4805022	Rockyford	Rockyford	11807376
+CA.01.4805042	Carbon	Carbon	11807377
+CA.01.4805044	Acme	Acme	11807378
+CA.01.4805046	Linden	Linden	11807379
+CA.01.4807006	Hughenden	Hughenden	11807380
+CA.01.4812024	Vilna	Vilna	11807381
+CA.01.4812026	Waskatenau	Waskatenau	11807382
+CA.01.4810051	Myrnam	Myrnam	11807383
+CA.01.4810009	Bawlf	Bawlf	11807384
+CA.01.4802016	Barons	Barons	11807385
+CA.01.4807046	Lougheed	Lougheed	11807386
+CA.01.4805019	Hussar	Hussar	11807387
+CA.01.4813012	Alberta Beach	Alberta Beach	11807388
+CA.01.4806024	Beiseker	Beiseker	11807389
+CA.01.4810031	Innisfree	Innisfree	11807390
+CA.01.4812012	Glendon	Glendon	11807391
+CA.01.4811045	Wabamun	Wabamun	11807392
+CA.01.4807008	Amisk	Amisk	11807393
+CA.01.4807032	Alliance	Alliance	11807394
+CA.01.4801009	Foremost	Foremost	11807395
+CA.01.4810034	Mannville	Mannville	11807396
+CA.01.4810038	Paradise Valley	Paradise Valley	11807397
+CA.01.4802009	Stirling	Stirling	11807398
+CA.01.4804016	Cereal	Cereal	11807399
+CA.01.4804019	Youngstown	Youngstown	11807400
+CA.01.4804021	Veteran	Veteran	11807401
+CA.01.4804022	Consort	Consort	11807402
+CA.01.4805004	Champion	Champion	11807403
+CA.01.4805021	Standard	Standard	11807404
+CA.01.4805008	Lomond	Lomond	11807405
+CA.01.4805009	Milo	Milo	11807406
+CA.01.4807022	Gadsby	Gadsby	11807407
+CA.01.4807024	Botha	Botha	11807408
+CA.01.4810003	Rosalind	Rosalind	11807409
+CA.01.4810004	Ferintosh	Ferintosh	11807410
+CA.01.4810006	Edberg	Edberg	11807411
+CA.01.4810012	Bittern Lake	Bittern Lake	11807412
+CA.01.4810014	Hay Lakes	Hay Lakes	11807413
+CA.01.4811026	Breton	Breton	11807414
+CA.01.4802006	Warner	Warner	11807415
+CA.01.4811021	Thorsby	Thorsby	11807416
+CA.01.4808032	Clive	Clive	11807417
+CA.01.4802023	Barnwell	Barnwell	11807418
+CA.01.4808034	Alix	Alix	11807419
+CA.01.4810046	Dewberry	Dewberry	11807420
+CA.01.4810021	Holden	Holden	11807421
+CA.01.4810041	Kitscoty	Kitscoty	11807422
+CA.01.4810044	Marwayne	Marwayne	11807423
+CA.01.4811046	Spring Lake	Spring Lake	11807424
+CA.01.4810059	Andrew	Andrew	11807425
+CA.01.4810062	Chipman	Chipman	11807426
+CA.01.4813032	Clyde	Clyde	11807427
+CA.01.4819048	Girouxville	Girouxville	11807428
+CA.01.4819072	Berwyn	Berwyn	11807429
+CA.01.4819008	Hythe	Hythe	11807430
+CA.01.4819044	Donnelly	Donnelly	11807431
+CA.01.4819056	Rycroft	Rycroft	11807432
+CA.01.4808002	Elnora	Elnora	11807433
+CA.01.4808004	Delburne	Delburne	11807434
+CA.01.4804006	Empress	Empress	11807435
+CA.01.4817039	Nampa	Nampa	11807436
+CA.01.4817064	Hines Creek	Hines Creek	11807437
+CA.01.4806008	Longview	Longview	11807438
+CA.01.4803006	Glenwood	Glenwood	11807439
+CA.01.4803008	Hill Spring	Hill Spring	11807440
+CA.01.4809010	Caroline	Caroline	11807441
+CA.01.4807036	Forestburg	Forestburg	11807442
+CA.01.4807038	Heisler	Heisler	11807443
+CA.01.4807051	Chauvin	Chauvin	11807444
+CA.01.4807052	Edgerton	Edgerton	11807445
+CA.01.4807056	Irma	Irma	11807446
+CA.01.4812038	Improvement District No. 349	Improvement District No. 349	11807447
 CD.04.209226	Mbuji-Mayi City	Mbuji-Mayi City	209226
 CD.11.211067	Lubero	Lubero	211067
 CD.30.212726	Ville de Kisangani	Ville de Kisangani	212726
@@ -8981,6 +9325,7 @@ CH.GR.1845	Region Landquart	Region Landquart	11611655
 CH.GR.1842	Region Bernina	Region Bernina	11611656
 CH.GR.1847	Region Moesa	Region Moesa	11611657
 CH.GR.1846	Region Maloja	Region Maloja	11611658
+CH.BE.11813921	Sonceboz-Sombeval	Sonceboz-Sombeval	11813921
 CI.97.2597334	Bafing	Bafing	2597334
 CI.76.11153075	Gbôklé	Gbokle	11153075
 CI.76.11153076	Nawa	Nawa	11153076
@@ -9028,7 +9373,7 @@ CL.10.123	Provincia de Tierra del Fuego	Provincia de Tierra del Fuego	3869875
 CL.11.71	Provincia de Talca	Provincia de Talca	3870289
 CL.12.136	Provincia de Talagante	Provincia de Talagante	3870304
 CL.12.131	Provincia de Santiago	Provincia de Santiago	3871332
-CL.01.57	Provincia de San Felipe	Provincia de San Felipe	3872251
+CL.01.57	Provincia de San Felipe de Aconcagua	Provincia de San Felipe de Aconcagua	3872251
 CL.01.56	San Antonio Province	San Antonio Province	3872374
 CL.01.55	Provincia de Quillota	Provincia de Quillota	3874118
 CL.01.54	Petorca Province	Petorca Province	3876415
@@ -12080,219 +12425,85 @@ EC.20.1909	Paquisha	Paquisha	10792548
 EC.25.2402	La Libertad	La Libertad	10792549
 EC.15.1411	Pablo Sexto	Pablo Sexto	10792550
 EC.26.2302	La Concordia	La Concordia	10792565
-EE.03.0322	Kohtla-Järve linn	Kohtla-Jaerve linn	862989
+EE.03.0321	Kohtla-Järve linn	Kohtla-Jaerve linn	862989
 EE.03.0511	Narva linn	Narva linn	862990
-EE.11.0625	Pärnu linn	Paernu linn	862993
+EE.11.0624	Pärnu linn	Paernu linn	862993
 EE.03.0735	Sillamäe linn	Sillamaee linn	862994
 EE.01.0784	Tallinn	Tallinn	862995
-EE.18.0170	Elva linn	Elva linn	7522266
-EE.02.0175	Emmaste vald	Emmaste vald	7522267
-EE.21.0181	Haanja vald	Haanja vald	7522268
-EE.07.0183	Haapsalu linn	Haapsalu linn	7522269
-EE.18.0185	Haaslava vald	Haaslava vald	7522270
-EE.11.0188	Halinga vald	Halinga vald	7522271
-EE.08.0190	Haljala vald	Haljala vald	7522272
-EE.20.0192	Halliste vald	Halliste vald	7522273
-EE.07.0195	Hanila vald	Hanila vald	7522274
+EE.07.0184	Haapsalu linn	Haapsalu linn	7522269
+EE.08.0191	Haljala vald	Haljala vald	7522272
 EE.01.0198	Harku vald	Harku vald	7522275
-EE.19.0203	Helme vald	Helme vald	7522276
-EE.19.0208	Hummuli vald	Hummuli vald	7522277
-EE.11.0213	Häädemeeste vald	Haeaedemeeste vald	7522278
-EE.03.0224	Iisaku vald	Iisaku vald	7522279
-EE.03.0229	Illuka vald	Illuka vald	7522280
-EE.04.0234	Imavere vald	Imavere vald	7522281
-EE.13.0240	Juuru vald	Juuru vald	7522282
+EE.11.0214	Häädemeeste vald	Haeaedemeeste vald	7522278
 EE.01.0245	Jõelähtme vald	Joelaehtme vald	7522283
-EE.05.0248	Jõgeva vald	Jogeva vald	7522284
-EE.05.0249	Jõgeva linn	Jogeva linn	7522285
+EE.05.0247	Jõgeva vald	Jogeva vald	7522284
 EE.03.0251	Jõhvi vald	Johvi vald	7522286
-EE.04.0257	Järva-Jaani vald	Jaerva-Jaani vald	7522287
-EE.13.0260	Järvakandi vald	Jaervakandi vald	7522288
 EE.08.0272	Kadrina vald	Kadrina vald	7522290
-EE.13.0277	Kaiu vald	Kaiu vald	7522292
-EE.18.0279	Kallaste linn	Kallaste linn	7522293
-EE.18.0282	Kambja vald	Kambja vald	7522294
-EE.12.0285	Kanepi vald	Kanepi vald	7522295
-EE.04.0288	Kareda vald	Kareda vald	7522296
-EE.19.0289	Karula vald	Karula vald	7522297
-EE.13.0292	Kehtna vald	Kehtna vald	7522298
-EE.01.0295	Keila vald	Keila vald	7522299
+EE.18.0283	Kambja vald	Kambja vald	7522294
+EE.12.0284	Kanepi vald	Kanepi vald	7522295
+EE.13.0293	Kehtna vald	Kehtna vald	7522298
 EE.01.0296	Keila linn	Keila linn	7522300
-EE.01.0297	Kernu vald	Kernu vald	7522301
-EE.14.0301	Kihelkonna vald	Kihelkonna vald	7522302
 EE.11.0303	Kihnu vald	Kihnu vald	7522303
 EE.01.0304	Kiili vald	Kiili vald	7522304
-EE.03.0309	Kiviõli linn	Kivioli linn	7522305
-EE.04.0314	Koeru vald	Koeru vald	7522306
 EE.13.0317	Kohila vald	Kohila vald	7522307
-EE.03.0320	Kohtla vald	Kohtla vald	7522308
-EE.05.0773	Tabivere vald	Tabivere vald	7522309
-EE.19.0779	Taheva vald	Taheva vald	7522311
-EE.03.0323	Kohtla-Nõmme vald	Kohtla-Nomme vald	7522312
-EE.04.0325	Koigi vald	Koigi vald	7522313
-EE.20.0328	Kolga-Jaani vald	Kolga-Jaani vald	7522314
-EE.18.0331	Konguta vald	Konguta vald	7522315
-EE.11.0334	Koonga vald	Koonga vald	7522316
 EE.01.0338	Kose vald	Kose vald	7522317
-EE.07.0342	Kullamaa vald	Kullamaa vald	7522318
-EE.08.0345	Kunda linn	Kunda linn	7522319
-EE.12.0354	Kõlleste vald	Kolleste vald	7522320
-EE.20.0357	Kõo vald	Koo vald	7522321
-EE.20.0360	Kõpu vald	Kopu vald	7522322
-EE.02.0368	Käina vald	Kaeina vald	7522324
-EE.13.0375	Käru vald	Kaeru vald	7522327
-EE.08.0381	Laekvere vald	Laekvere vald	7522328
-EE.18.0383	Laeva vald	Laeva vald	7522329
-EE.14.0403	Leisi vald	Leisi vald	7522330
-EE.07.0411	Lihula vald	Lihula vald	7522331
-EE.03.0420	Lohusuu vald	Lohusuu vald	7522332
 EE.01.0424	Loksa linn	Loksa linn	7522333
 EE.18.0432	Luunja vald	Luunja vald	7522334
-EE.03.0438	Lüganuse vald	Lueganuse vald	7522335
+EE.03.0442	Lüganuse vald	Lueganuse vald	7522335
 EE.01.0446	Maardu linn	Maardu linn	7522337
-EE.07.0452	Martna vald	Martna vald	7522339
-EE.18.0454	Meeksi vald	Meeksi vald	7522340
-EE.21.0460	Meremäe vald	Meremaee vald	7522341
-EE.12.0465	Mikitamäe vald	Mikitamaee vald	7522342
-EE.21.0468	Misso vald	Misso vald	7522343
-EE.12.0473	Mooste vald	Mooste vald	7522344
 EE.14.0478	Muhu vald	Muhu vald	7522345
-EE.14.0483	Mustjala vald	Mustjala vald	7522346
-EE.05.0485	Mustvee linn	Mustvee linn	7522347
-EE.08.0786	Tamsalu vald	Tamsalu vald	7522348
-EE.21.0843	Urvaste vald	Urvaste vald	7522349
-EE.11.0848	Tahkuranna vald	Tahkuranna vald	7522350
-EE.03.0851	Vaivara vald	Vaivara vald	7522351
-EE.19.0854	Valga linn	Valga linn	7522352
-EE.20.0490	Mõisaküla linn	Moisakuela linn	7522353
-EE.21.0493	Mõniste vald	Moniste vald	7522354
-EE.03.0498	Mäetaguse vald	Maeetaguse vald	7522355
-EE.18.0501	Mäksa vald	Maeksa vald	7522356
-EE.13.0504	Märjamaa vald	Maerjamaa vald	7522357
-EE.03.0513	Narva-Jõesuu linn	Narva-Joesuu linn	7522358
-EE.01.0518	Nissi vald	Nissi vald	7522359
-EE.07.0520	Noarootsi vald	Noarootsi vald	7522360
+EE.13.0503	Märjamaa vald	Maerjamaa vald	7522357
+EE.03.0514	Narva-Jõesuu linn	Narva-Joesuu linn	7522358
 EE.18.0528	Nõo vald	Noo vald	7522361
-EE.07.0531	Nõva vald	Nova vald	7522362
-EE.12.0547	Orava vald	Orava vald	7522363
-EE.14.0550	Orissaare vald	Orissaare vald	7522364
-EE.01.0562	Padise vald	Padise vald	7522366
-EE.04.0565	Paide vald	Paide vald	7522367
-EE.04.0566	Paide linn	Paide linn	7522368
-EE.11.0568	Paikuse vald	Paikuse vald	7522369
-EE.05.0573	Pajusi vald	Pajusi vald	7522371
-EE.05.0576	Pala vald	Pala vald	7522372
-EE.05.0578	Palamuse vald	Palamuse vald	7522373
-EE.01.0580	Paldiski linn	Paldiski linn	7522374
-EE.19.0582	Palupera vald	Palupera vald	7522375
-EE.18.0587	Peipsiääre vald	Peipsiaeaere vald	7522376
-EE.14.0592	Pihtla vald	Pihtla vald	7522377
-EE.18.0595	Piirissaare vald	Piirissaare vald	7522378
-EE.20.0600	Karksi vald	Karksi vald	7522379
-EE.18.0605	Puhja vald	Puhja vald	7522380
-EE.19.0608	Puka vald	Puka vald	7522381
-EE.05.0611	Puurmani vald	Puurmani vald	7522382
-EE.19.0613	Põdrala vald	Podrala vald	7522383
-EE.05.0616	Põltsamaa vald	Poltsamaa vald	7522384
-EE.05.0617	Põltsamaa linn	Poltsamaa linn	7522385
-EE.14.0634	Pöide vald	Poeide vald	7522387
-EE.19.0636	Otepää vald	Otepaeae vald	7522388
-EE.02.0639	Pühalepa vald	Puehalepa vald	7522389
-EE.08.0790	Tapa vald	Tapa vald	7522390
-EE.18.0794	Tartu vald	Tartu vald	7522391
-EE.11.0805	Tootsi vald	Tootsi vald	7522392
-EE.14.0807	Torgu vald	Torgu vald	7522393
-EE.11.0808	Tori vald	Tori vald	7522394
-EE.05.0810	Torma vald	Torma vald	7522395
-EE.03.0815	Tudulinna vald	Tudulinna vald	7522396
-EE.12.0934	Värska vald	Vaerska vald	7522397
-EE.04.0937	Väätsa vald	Vaeaetsa vald	7522398
-EE.19.0943	Õru vald	Oru vald	7522399
-EE.18.0949	Ülenurme vald	UElenurme vald	7522400
-EE.13.0669	Rapla vald	Rapla vald	7522401
-EE.07.0674	Ridala Parish	Ridala Parish	7522402
-EE.04.0684	Roosna-Alliku vald	Roosna-Alliku vald	7522404
+EE.04.0567	Paide linn	Paide linn	7522368
+EE.18.0586	Peipsiääre vald	Peipsiaeaere vald	7522376
+EE.05.0618	Põltsamaa vald	Poltsamaa vald	7522384
+EE.19.0557	Otepää vald	Otepaeae vald	7522388
+EE.08.0792	Tapa vald	Tapa vald	7522390
+EE.18.0796	Tartu vald	Tartu vald	7522391
+EE.11.0809	Tori vald	Tori vald	7522394
+EE.13.0668	Rapla vald	Rapla vald	7522401
 EE.14.0689	Ruhnu vald	Ruhnu vald	7522405
-EE.18.0694	Rõngu vald	Rongu vald	7522406
-EE.21.0697	Rõuge vald	Rouge vald	7522407
-EE.08.0702	Rägavere vald	Raegavere vald	7522408
-EE.12.0707	Räpina vald	Raepina vald	7522409
-EE.11.0710	Saarde vald	Saarde vald	7522410
-EE.05.0713	Saare vald	Saare vald	7522411
+EE.21.0698	Rõuge vald	Rouge vald	7522407
+EE.12.0708	Räpina vald	Raepina vald	7522409
+EE.11.0712	Saarde vald	Saarde vald	7522410
 EE.01.0718	Saku vald	Saku vald	7522413
-EE.14.0721	Salme vald	Salme vald	7522414
-EE.19.0724	Sangaste vald	Sangaste vald	7522415
 EE.01.0651	Raasiku vald	Raasiku vald	7522417
 EE.01.0653	Rae vald	Rae vald	7522418
-EE.13.0654	Raikküla vald	Raikkuela vald	7522419
-EE.05.0657	Kasepää vald	Kasepaeae vald	7522420
-EE.08.0660	Rakke vald	Rakke vald	7522421
-EE.08.0662	Rakvere vald	Rakvere vald	7522422
+EE.08.0661	Rakvere vald	Rakvere vald	7522422
 EE.08.0663	Rakvere linn	Rakvere linn	7522423
-EE.18.0666	Rannu vald	Rannu vald	7522424
-EE.01.0727	Saue vald	Saue vald	7522425
-EE.01.0728	Saue linn	Saue linn	7522426
-EE.14.0349	Kuressaare linn	Kuressaare linn	7522427
+EE.01.0726	Saue vald	Saue vald	7522425
 EE.01.0353	Kuusalu vald	Kuusalu vald	7522428
-EE.03.0751	Sonda vald	Sonda vald	7522429
-EE.11.0756	Surju vald	Surju vald	7522430
-EE.20.0758	Suure-Jaani vald	Suure-Jaani vald	7522431
-EE.21.0767	Sõmerpalu vald	Somerpalu vald	7522432
-EE.08.0770	Sõmeru vald	Someru vald	7522433
-EE.18.0795	Tartu linn	Tartu linn	7522434
-EE.20.0797	Tarvastu vald	Tarvastu vald	7522435
-EE.20.0105	Abja vald	Abja vald	7522436
-EE.01.0112	Aegviidu vald	Aegviidu vald	7522437
-EE.12.0117	Ahja vald	Ahja vald	7522438
-EE.03.0122	Alajõe vald	Alajoe vald	7522439
-EE.18.0126	Alatskivi vald	Alatskivi vald	7522440
-EE.04.0129	Albu vald	Albu vald	7522441
-EE.04.0134	Ambla vald	Ambla vald	7522442
-EE.01.0140	Anija vald	Anija vald	7522443
-EE.21.0143	Antsla vald	Antsla vald	7522444
-EE.11.0149	Are vald	Are vald	7522445
-EE.03.0154	Aseri vald	Aseri vald	7522446
-EE.11.0160	Audru vald	Audru vald	7522447
-EE.03.0164	Avinurme vald	Avinurme vald	7522448
-EE.11.0730	Sauga vald	Sauga vald	7522449
-EE.11.0741	Sindi linn	Sindi linn	7522450
-EE.18.0861	Vara vald	Vara vald	7522451
-EE.11.0863	Varbla vald	Varbla vald	7522452
-EE.21.0865	Varstu vald	Varstu vald	7522453
-EE.01.0868	Vasalemma vald	Vasalemma vald	7522454
-EE.12.0872	Vastse-Kuuste vald	Vastse-Kuuste vald	7522455
-EE.21.0874	Vastseliina vald	Vastseliina vald	7522456
-EE.12.0879	Veriora vald	Veriora vald	7522457
-EE.13.0884	Vigala vald	Vigala vald	7522458
-EE.08.0887	Vihula vald	Vihula vald	7522459
+EE.18.0793	Tartu linn	Tartu linn	7522434
+EE.01.0141	Anija vald	Anija vald	7522443
+EE.21.0142	Antsla vald	Antsla vald	7522444
 EE.01.0890	Viimsi vald	Viimsi vald	7522460
-EE.12.0385	Laheda vald	Laheda vald	7522462
-EE.14.0386	Laimjala vald	Laimjala vald	7522463
-EE.21.0389	Lasva vald	Lasva vald	7522464
-EE.12.0621	Põlva vald	Polva vald	7522467
-EE.03.0802	Toila vald	Toila vald	7522469
-EE.19.0820	Tõlliste vald	Tolliste vald	7522470
-EE.19.0823	Tõrva linn	Torva linn	7522471
-EE.11.0826	Tõstamaa vald	Tostamaa vald	7522472
-EE.18.0831	Tähtvere vald	Taehtvere vald	7522473
-EE.04.0835	Türi vald	Tueri vald	7522474
-EE.12.0856	Valgjärve vald	Valgjaerve vald	7522475
-EE.14.0858	Valjala vald	Valjala vald	7522476
+EE.12.0622	Põlva vald	Polva vald	7522467
+EE.03.0803	Toila vald	Toila vald	7522469
+EE.04.0834	Türi vald	Tueri vald	7522474
 EE.20.0897	Viljandi linn	Viljandi linn	7522477
-EE.08.0900	Vinni vald	Vinni vald	7522478
-EE.08.0902	Viru-Nigula vald	Viru-Nigula vald	7522479
+EE.08.0901	Vinni vald	Vinni vald	7522478
+EE.08.0903	Viru-Nigula vald	Viru-Nigula vald	7522479
 EE.07.0907	Vormsi vald	Vormsi vald	7522480
-EE.20.0912	Võhma linn	Vohma linn	7522481
-EE.18.0915	Võnnu vald	Vonnu vald	7522482
-EE.21.0918	Võru vald	Voru vald	7522483
+EE.21.0917	Võru vald	Voru vald	7522483
 EE.21.0919	Võru linn	Voru linn	7522484
-EE.08.0926	Väike-Maarja vald	Vaeike-Maarja vald	7522485
-EE.11.0929	Vändra vald	Vaendra vald	7522486
-EE.11.0931	Vändra vald (alev)	Vaendra vald (alev)	7522487
-EE.20.0898	Viljandi vald	Viljandi vald	11054708
-EE.02.0204	Hiiu vald	Hiiu vald	11054709
-EE.14.0433	Lääne-Saare vald	Laeaene-Saare vald	11054711
-EE.07.0436	Lääne-Nigula vald	Laeaene-Nigula vald	11054712
+EE.08.0928	Väike-Maarja vald	Vaeike-Maarja vald	7522485
+EE.20.0899	Viljandi vald	Viljandi vald	11054708
+EE.07.0441	Lääne-Nigula vald	Laeaene-Nigula vald	11054712
+EE.20.0480	Mulgi vald	Mulgi vald	11776869
+EE.19.0855	Valga vald	Valga vald	11776870
+EE.21.0732	Setomaa vald	Setomaa vald	11776871
+EE.02.0205	Hiiumaa vald	Hiiumaa vald	11776872
+EE.18.0171	Elva vald	Elva vald	11776873
+EE.14.0714	Saaremaa vald	Saaremaa vald	11776874
+EE.04.0255	Järva vald	Jaerva vald	11776875
+EE.05.0486	Mustvee vald	Mustvee vald	11776876
+EE.18.0291	Kastre vald	Kastre vald	11776877
+EE.19.0824	Tõrva vald	Torva vald	11776878
+EE.03.0130	Alutaguse vald	Alutaguse vald	11776879
+EE.11.0430	Lääneranna vald	Laeaeneranna vald	11776880
+EE.01.0431	Lääne-Harju vald	Laeaene-Harju vald	11776881
+EE.20.0615	Põhja-Sakala vald	Pohja-Sakala vald	11776882
+EE.11.0638	Põhja-Pärnumaa vald	Pohja-Paernumaa vald	11776883
 EG.09.345955	Markaz al Bājūr	Markaz al Bajur	345955
 EG.05.346029	Markaz Ziftá	Markaz Zifta	346029
 EG.16.346518	Markaz ‘Unaybah	Markaz `Unaybah	346518
@@ -12603,6 +12814,46 @@ ET.52.10395468	Gode Zone	Gode Zone	10395468
 ET.52.10399848	Degehabur Zone	Degehabur Zone	10399848
 ET.52.10400171	Fafan	Fafan	10400171
 ET.53.11153778	Southeastern Tigray Zone	Southeastern Tigray Zone	11153778
+ET.53.11750806	Western	Western	11750806
+ET.46.11750807	North Gonder	North Gonder	11750807
+ET.46.11750808	Wag Himra	Wag Himra	11750808
+ET.46.11750809	West Gojam	West Gojam	11750809
+ET.46.11750810	East Gojam	East Gojam	11750810
+ET.46.11750811	South Gonder	South Gonder	11750811
+ET.46.11750812	Oromiya	Oromiya	11750812
+ET.47.11750813	Kemashi	Kemashi	11750813
+ET.49.11750817	Nuer	Nuer	11750817
+ET.49.11750818	Agnuak	Agnuak	11750818
+ET.49.11750819	Mezhenger	Mezhenger	11750819
+ET.54.11750820	Sheka	Sheka	11750820
+ET.54.11750821	Konta	Konta	11750821
+ET.54.11750822	Dawro	Dawro	11750822
+ET.54.11750824	Segen Peoples	Segen Peoples	11750824
+ET.54.11750825	Gedio	Gedio	11750825
+ET.54.11750826	Selti	Selti	11750826
+ET.51.11750827	Kellem Wellega	Kellem Wellega	11750827
+ET.51.11750828	Ilubabor	Ilubabor	11750828
+ET.51.11750829	Horo Guduru	Horo Guduru	11750829
+ET.51.11750830	West Harerge	West Harerge	11750830
+ET.51.11750831	East Harerge	East Harerge	11750831
+ET.52.11750832	Siti	Siti	11750832
+ET.52.11750833	Nogob	Nogob	11750833
+ET.52.11750834	Doolo	Doolo	11750834
+ET.52.11750835	Korahe	Korahe	11750835
+ET.52.11750836	Shabelle	Shabelle	11750836
+ET.51.11750837	Southwest Shuwa	Southwest Shuwa	11750837
+ET.50.11750838	Harari	Harari	11750838
+ET.44.11750840	Kolfe Keranyo	Kolfe Keranyo	11750840
+ET.44.11750841	Akaki Kaliti	Akaki Kaliti	11750841
+ET.44.11750842	Nefas Silk Lafto	Nefas Silk Lafto	11750842
+ET.44.11750843	Bole	Bole	11750843
+ET.44.11750844	Yeka	Yeka	11750844
+ET.44.11750845	Kirkos	Kirkos	11750845
+ET.44.11750846	Gulele	Gulele	11750846
+ET.44.11750847	Arada	Arada	11750847
+ET.44.11750848	Addis Ketema	Addis Ketema	11750848
+ET.44.11750849	Lideta	Lideta	11750849
+ET.51.11750850	West Arsi	West Arsi	11750850
 FI.15.153	Sydösterbotten	Sydosterbotten	9610576
 FI.02.021	Åboland-Turunmaa	Aboland-Turunmaa	9610642
 FI.02.022	Salo	Salo	9610643
@@ -12769,16 +13020,16 @@ FM.03.PA	Paata-Tupunion Municipality	Paata-Tupunion Municipality	7626994
 FM.03.PI	Piis-Panewu Municipality	Piis-Panewu Municipality	7626995
 FM.03.ON	Oneisom Municipality	Oneisom Municipality	7626996
 FM.03.PN	Pwene Municipality	Pwene Municipality	7626997
-FO.SA.3	Viðareiði	Vidareidi	2610303
+FO.NO.3	Viðareiði	Vidareidi	2610303
 FO.ST.28	Vestmanna	Vestmanna	2610344
 FO.SU.49	Vágur	Vagur	2610808
 FO.ST.29	Tórshavn	Torshavn	2611397
 FO.SU.50	Sunnbøur	Sunnbour	2612088
-FO.ST.36	Sørvágur	Sorvagur	2612891
-FO.SU.43	Skúvoy	Skuvoy	2613479
+FO.VG.36	Sørvágur	Sorvagur	2612891
+FO.SA.43	Skúvoy	Skuvoy	2613479
 FO.SA.40	Skopun	Skopun	2613661
-FO.SU.41	Skálavík	Skalavik	2613922
-FO.NO.39	Sandur	Sandur	2614213
+FO.SA.41	Skálavík	Skalavik	2613922
+FO.SA.39	Sandur	Sandur	2614213
 FO.OS.14	Runavík	Runavik	2614403
 FO.SU.48	Porkeri	Porkeri	2615133
 FO.OS.15	Nes	Nes	2616501
@@ -12787,7 +13038,7 @@ FO.NO.6	Kunoy	Kunoy	2618121
 FO.NO.5	Klaksvik	Klaksvik	2618796
 FO.NO.4	Hvannasund	Hvannasund	2619569
 FO.SU.44	Hvalbøur	Hvalbour	2619592
-FO.SU.42	Húsavík	Husavik	2619613
+FO.SA.42	Húsavík	Husavik	2619613
 FO.SU.47	Hov	Hov	2619738
 FO.NO.1	Fugloy	Fugloy	2621795
 FO.ST.11	Fuglafjørður	Fuglafjordur	2621810
@@ -12798,99 +13049,99 @@ FO.VG.34	Vága Municipality	Vaga Municipality	7798680
 FO.SU.45	Tvøroyri	Tvoroyri	7798684
 FO.ST.18	Sunda	Sunda	7798685
 FO.OS.17	Sjóvar	Sjovar	7798686
-FR.11.78	Département des Yvelines	Departement des Yvelines	2967196
+FR.11.78	Yvelines	Yvelines	2967196
 FR.27.89	Département de l'Yonne	Departement de l'Yonne	2967222
-FR.44.88	Département des Vosges	Departement des Vosges	2967681
+FR.44.88	Vosges	Vosges	2967681
 FR.11.75	Paris	Paris	2968815
-FR.75.86	Département de la Vienne	Departement de la Vienne	2969280
+FR.75.86	Vienne	Vienne	2969280
 FR.52.85	Département de la Vendée	Departement de la Vendee	2970140
 FR.93.84	Département du Vaucluse	Departement du Vaucluse	2970554
-FR.93.83	Département du Var	Departement du Var	2970749
+FR.93.83	Var	Var	2970749
 FR.11.95	Département du Val-d’Oise	Departement du Val-d'Oise	2971071
-FR.11.94	Département du Val-de-Marne	Departement du Val-de-Marne	2971090
+FR.11.94	Val-de-Marne	Val-de-Marne	2971090
 FR.76.82	Département du Tarn-et-Garonne	Departement du Tarn-et-Garonne	2973357
-FR.76.81	Département du Tarn	Departement du Tarn	2973362
-FR.32.80	Département de la Somme	Departement de la Somme	2974304
-FR.11.93	Département de Seine-Saint-Denis	Departement de Seine-Saint-Denis	2975246
-FR.28.76	Département de la Seine-Maritime	Departement de la Seine-Maritime	2975248
-FR.11.77	Département de Seine-et-Marne	Departement de Seine-et-Marne	2975249
-FR.84.73	Département de la Savoie	Departement de la Savoie	2975517
-FR.52.72	Département de la Sarthe	Departement de la Sarthe	2975926
+FR.76.81	Tarn	Tarn	2973362
+FR.32.80	Somme	Somme	2974304
+FR.11.93	Seine-Saint-Denis	Seine-Saint-Denis	2975246
+FR.28.76	Seine-Maritime	Seine-Maritime	2975248
+FR.11.77	Seine-et-Marne	Seine-et-Marne	2975249
+FR.84.73	Savoie	Savoie	2975517
+FR.52.72	Sarthe	Sarthe	2975926
 FR.27.71	Département de Saône-et-Loire	Departement de Saone-et-Loire	2976082
 FR.76.66	Département des Pyrénées-Orientales	Departement des Pyrenees-Orientales	2984885
 FR.75.64	Département des Pyrénées-Atlantiques	Departement des Pyrenees-Atlantiques	2984887
 FR.84.63	Département du Puy-de-Dôme	Departement du Puy-de-Dome	2984986
 FR.84.69	Département du Rhône	Departement du Rhone	2987410
-FR.32.62	Département du Pas-de-Calais	Departement du Pas-de-Calais	2988430
+FR.32.62	Pas-de-Calais	Pas-de-Calais	2988430
 FR.28.61	Département de l'Orne	Departement de l'Orne	2989247
 FR.32.60	Département de l'Oise	Departement de l'Oise	2989663
-FR.32.59	Département du Nord	Departement du Nord	2990129
+FR.32.59	Nord	Nord	2990129
 FR.27.58	Département de la Nièvre	Departement de la Nievre	2990371
-FR.44.57	Département de la Moselle	Departement de la Moselle	2991627
-FR.53.56	Département du Morbihan	Departement du Morbihan	2991879
-FR.44.55	Département de la Meuse	Departement de la Meuse	2994106
-FR.44.54	Département de Meurthe-et-Moselle	Departement de Meurthe-et-Moselle	2994111
-FR.52.53	Département de la Mayenne	Departement de la Mayenne	2994932
-FR.44.51	Département de la Marne	Departement de la Marne	2995603
-FR.28.50	Département de la Manche	Departement de la Manche	2996268
+FR.44.57	Moselle	Moselle	2991627
+FR.53.56	Morbihan	Morbihan	2991879
+FR.44.55	Meuse	Meuse	2994106
+FR.44.54	Meurthe-et-Moselle	Meurthe-et-Moselle	2994111
+FR.52.53	Mayenne	Mayenne	2994932
+FR.44.51	Marne	Marne	2995603
+FR.28.50	Manche	Manche	2996268
 FR.52.49	Département de Maine-et-Loire	Departement de Maine-et-Loire	2996663
 FR.76.48	Département de la Lozère	Departement de la Lozere	2997288
 FR.75.47	Département du Lot-et-Garonne	Departement du Lot-et-Garonne	2997523
-FR.76.46	Département du Lot	Departement du Lot	2997524
+FR.76.46	Lot	Lot	2997524
 FR.24.41	Département du Loir-et-Cher	Departement du Loir-et-Cher	2997856
-FR.24.45	Département du Loiret	Departement du Loiret	2997857
-FR.52.44	Département de la Loire-Atlantique	Departement de la Loire-Atlantique	2997861
+FR.24.45	Loiret	Loiret	2997857
+FR.52.44	Loire-Atlantique	Loire-Atlantique	2997861
 FR.84.42	Département de la Loire	Departement de la Loire	2997870
-FR.75.40	Département des Landes	Departement des Landes	3007866
-FR.27.39	Département du Jura	Departement du Jura	3012051
+FR.75.40	Landes	Landes	3007866
+FR.27.39	Jura	Jura	3012051
 FR.84.38	Département de l'Isère	Departement de l'Isere	3012715
 FR.24.37	Département d'Indre-et-Loire	Departement d'Indre-et-Loire	3012804
 FR.24.36	Département de l'Indre	Departement de l'Indre	3012805
 FR.53.35	Département d'Ille-et-Vilaine	Departement d'Ille-et-Vilaine	3012849
 FR.76.34	Département de l'Hérault	Departement de l'Herault	3013500
-FR.11.92	Département des Hauts-de-Seine	Departement des Hauts-de-Seine	3013657
-FR.44.68	Département du Haut-Rhin	Departement du Haut-Rhin	3013663
-FR.75.87	Département de la Haute-Vienne	Departement de la Haute-Vienne	3013719
+FR.11.92	Hauts-de-Seine	Hauts-de-Seine	3013657
+FR.44.68	Haut-Rhin	Haut-Rhin	3013663
+FR.75.87	Haute-Vienne	Haute-Vienne	3013719
 FR.76.65	Département des Hautes-Pyrénées	Departement des Hautes-Pyrenees	3013726
-FR.84.74	Département de la Haute-Savoie	Departement de la Haute-Savoie	3013736
+FR.84.74	Haute-Savoie	Haute-Savoie	3013736
 FR.27.70	Département de la Haute-Saône	Departement de la Haute-Saone	3013737
-FR.93.05	Département des Hautes-Alpes	Departement des Hautes-Alpes	3013738
-FR.44.52	Département de la Haute-Marne	Departement de la Haute-Marne	3013757
-FR.84.43	Département de la Haute-Loire	Departement de la Haute-Loire	3013760
-FR.76.31	Département de la Haute-Garonne	Departement de la Haute-Garonne	3013767
+FR.93.05	Hautes-Alpes	Hautes-Alpes	3013738
+FR.44.52	Haute-Marne	Haute-Marne	3013757
+FR.84.43	Haute-Loire	Haute-Loire	3013760
+FR.76.31	Haute-Garonne	Haute-Garonne	3013767
 FR.94.2B	Département de la Haute-Corse	Departement de la Haute-Corse	3013793
-FR.75.33	Département de la Gironde	Departement de la Gironde	3015948
-FR.76.32	Département du Gers	Departement du Gers	3016194
-FR.76.30	Département du Gard	Departement du Gard	3016670
+FR.75.33	Gironde	Gironde	3015948
+FR.76.32	Gers	Gers	3016194
+FR.76.30	Gard	Gard	3016670
 FR.53.29	Département du Finistère	Departement du Finistere	3018471
 FR.24.28	Département d'Eure-et-Loir	Departement d'Eure-et-Loir	3019316
 FR.28.27	Département de l'Eure	Departement de l'Eure	3019317
 FR.11.91	Département de l'Essonne	Departement de l'Essonne	3019599
 FR.84.26	Département de la Drôme	Departement de la Drome	3020781
-FR.27.25	Département du Doubs	Departement du Doubs	3020989
-FR.75.24	Département de la Dordogne	Departement de la Dordogne	3021042
+FR.27.25	Doubs	Doubs	3020989
+FR.75.24	Dordogne	Dordogne	3021042
 FR.75.79	Département des Deux-Sèvres	Departement des Deux-Sevres	3021501
-FR.75.23	Département de la Creuse	Departement de la Creuse	3022516
+FR.75.23	Creuse	Creuse	3022516
 FR.53.22	Département des Côtes-d’Armor	Departement des Cotes-d'Armor	3023414
 FR.27.21	Département de la Côte-d'Or	Departement de la Cote-d'Or	3023423
 FR.94.2A	Département de la Corse-du-Sud	Departement de la Corse-du-Sud	3023514
 FR.75.19	Département de la Corrèze	Departement de la Correze	3023532
-FR.24.18	Département du Cher	Departement du Cher	3025480
-FR.75.17	Département de la Charente-Maritime	Departement de la Charente-Maritime	3026644
-FR.75.16	Département de la Charente	Departement de la Charente	3026646
-FR.84.15	Département du Cantal	Departement du Cantal	3028791
-FR.28.14	Département du Calvados	Departement du Calvados	3029094
+FR.24.18	Cher	Cher	3025480
+FR.75.17	Charente-Maritime	Charente-Maritime	3026644
+FR.75.16	Charente	Charente	3026646
+FR.84.15	Cantal	Cantal	3028791
+FR.28.14	Calvados	Calvados	3029094
 FR.93.13	Département des Bouches-du-Rhône	Departement des Bouches-du-Rhone	3031359
 FR.27.90	Territoire de Belfort	Territoire de Belfort	3033789
-FR.44.67	Département du Bas-Rhin	Departement du Bas-Rhin	3034720
+FR.44.67	Bas-Rhin	Bas-Rhin	3034720
 FR.76.12	Département de l'Aveyron	Departement de l'Aveyron	3035691
 FR.76.11	Département de l'Aude	Departement de l'Aude	3036264
 FR.44.10	Département de l'Aube	Departement de l'Aube	3036420
 FR.76.09	Département de l'Ariège	Departement de l'Ariege	3036965
-FR.44.08	Département des Ardennes	Departement des Ardennes	3037136
+FR.44.08	Ardennes	Ardennes	3037136
 FR.84.07	Département de l'Ardèche	Departement de l'Ardeche	3037147
-FR.93.06	Département des Alpes-Maritimes	Departement des Alpes-Maritimes	3038049
-FR.93.04	Département des Alpes-de-Haute-Provence	Departement des Alpes-de-Haute-Provence	3038050
+FR.93.06	Alpes-Maritimes	Alpes-Maritimes	3038049
+FR.93.04	Alpes-de-Haute-Provence	Alpes-de-Haute-Provence	3038050
 FR.84.03	Département de l'Allier	Departement de l'Allier	3038111
 FR.32.02	Département de l'Aisne	Departement de l'Aisne	3038375
 FR.84.01	Département de l'Ain	Departement de l'Ain	3038422
@@ -13142,7 +13393,6 @@ GE.66.613054	Baghdatis Munitsip’alit’et’i	Baghdatis Munitsip'alit'et'i	613
 GE.71.613064	Mart’vilis Munitsip’alit’et’i	Mart'vilis Munitsip'alit'et'i	613064
 GE.68.613073	Marneulis Munitsip’alit’et’i	Marneulis Munitsip'alit'et'i	613073
 GE.70.613225	Lent’ekhis Munitsip’alit’et’i	Lent'ekhis Munitsip'alit'et'i	613225
-GE.70.613228	Leninskiy Rayon	Leninskiy Rayon	613228
 GE.69.613233	Akhalgoris Munitsip’alit’et’i	Akhalgoris Munitsip'alit'et'i	613233
 GE.65.613310	Lanchkhutis Munitsip’alit’et’i	Lanchkhutis Munitsip'alit'et'i	613310
 GE.67.613341	Lagodekhi	Lagodekhi	613341
@@ -15434,7 +15684,7 @@ ID.32.1608	Kabupaten Ogan Komering Ulu Selatan	Kabupaten Ogan Komering Ulu Selat
 ID.13.6207	Kabupaten Lamandau	Kabupaten Lamandau	9165993
 ID.28.8104	Kabupaten Buru	Kabupaten Buru	9165994
 ID.29.8206	Kabupaten Halmahera Timur	Kabupaten Halmahera Timur	9165995
-ID.22.7407	Kabupaten Wakatobi	Kabupaten Wakatobi	9165996
+ID.22.7407	Wakatobi Regency	Wakatobi Regency	9165996
 ID.22.7403	Kabupaten Konawe	Kabupaten Konawe	9165997
 ID.22.7405	Kabupaten Konawe Selatan	Kabupaten Konawe Selatan	9165998
 ID.28.8107	Kabupaten Seram Bagian Timur	Kabupaten Seram Bagian Timur	9165999
@@ -15574,7 +15824,7 @@ IE.C.24	Roscommon	Roscommon	2961731
 IE.L.23	Uíbh Fhailí	Uibh Fhaili	2962187
 IE.U.22	County Monaghan	County Monaghan	2962567
 IE.L.21	An Mhí	An Mhi	2962661
-IE.C.20	Maigh Eo	Maigh Eo	2962666
+IE.C.20	Mayo County	Mayo County	2962666
 IE.L.19	Lú	Lu	2962793
 IE.L.18	An Longfort	An Longfort	2962839
 IE.C.14	County Leitrim	County Leitrim	2962975
@@ -18152,6 +18402,7 @@ JP.19.1856849	Miura Shi	Miura Shi	1856849
 JP.19.1856851	Miura-gun	Miura-gun	1856851
 JP.29.1856876	Mitsuke Shi	Mitsuke Shi	1856876
 JP.17.1856906	Mitoyo Shi	Mitoyo Shi	1856906
+JP.40.1856942	Mitaka-shi	Mitaka-shi	1856942
 JP.37.1856971	Mishima Shi	Mishima Shi	1856971
 JP.32.1856974	Mishima-gun	Mishima-gun	1856974
 JP.34.1856987	Misato Shi	Misato Shi	1856987
@@ -19344,12 +19595,12 @@ KP.15.1865786	Kangsŏ-guyŏk	Kangso-guyok	1865786
 KP.07.1865966	Yŏnt’an-gun	Yont'an-gun	1865966
 KP.07.1865975	Yŏnsan-gun	Yonsan-gun	1865975
 KP.15.1866047	Nyŏngwŏn-gun	Nyongwon-gun	1866047
-KP.12.1866090	Yongsŏng-guyŏk	Yongsong-guyok	1866090
+KP.12.1866090	Ryongsŏng-guyŏk	Ryongsong-guyok	1866090
 KP.15.1866367	Yonggang-gun	Yonggang-gun	1866367
 KP.11.1866454	Nyŏngbyŏn-gun	Nyongbyon-gun	1866454
 KP.06.1866571	Yŏnan-gun	Yonan-gun	1866571
 KP.11.1866590	Yŏmju-gun	Yomju-gun	1866590
-KP.12.1866614	Yŏkp’o-guyŏk	Yokp'o-guyok	1866614
+KP.12.1866614	Ryŏkp’o-guyŏk	Ryokp'o-guyok	1866614
 KP.03.1866638	Yodŏk-kun	Yodok-kun	1866638
 KP.15.1866790	Yangdŏk-kun	Yangdok-kun	1866790
 KP.09.1866905	Wŏnsan-si	Wonsan-si	1866905
@@ -19364,11 +19615,11 @@ KP.09.1867930	T’ongch’ŏn-gun	T'ongch'on-gun	1867930
 KP.06.1868579	T’aet’an-gun	T'aet'an-gun	1868579
 KP.12.1868593	Taesŏng-guyŏk	Taesong-guyok	1868593
 KP.15.1868812	Taedong-gun	Taedong-gun	1868812
-KP.12.1868813	Taedonggang-guyŏk	Taedonggang-guyok	1868813
+KP.12.1868813	Taedonggang	Taedonggang	1868813
 KP.11.1868849	T’aech’ŏn-gun	T'aech'on-gun	1868849
 KP.12.1868997	Sŭngho-guyŏk	Sungho-guyok	1868997
 KP.15.1869013	Sunch’ŏn-si	Sunch'on-si	1869013
-KP.12.1869019	Sunan-guyŏk	Sunan-guyok	1869019
+KP.12.1869019	Sunan	Sunan	1869019
 KP.15.1869039	Sukch’ŏn-gun	Sukch'on-gun	1869039
 KP.07.1869140	Suan-gun	Suan-gun	1869140
 KP.12.1869227	Sŏsŏng-guyŏk	Sosong-guyok	1869227
@@ -19407,12 +19658,12 @@ KP.11.1872819	Pakch’ŏn-gun	Pakch'on-gun	1872819
 KP.06.1873016	Paech’ŏn-gun	Paech'on-gun	1873016
 KP.06.1873174	Ongjin-gun	Ongjin-gun	1873174
 KP.15.1873193	Onch’ŏn-gun	Onch'on-gun	1873193
-KP.12.1873641	Nangnang-guyŏk	Nangnang-guyok	1873641
+KP.12.1873641	Rangnang	Rangnang	1873641
 KP.03.1873885	Nagwŏn-gun	Nagwon-gun	1873885
 KP.15.1874222	Mundŏk-kun	Mundok-kun	1874222
 KP.09.1874228	Munch’ŏn-si	Munch'on-si	1874228
-KP.12.1874339	Moranbong-guyŏk	Moranbong-guyok	1874339
-KP.12.1874534	Man’gyŏngdae-kuyŏk	Man'gyongdae-kuyok	1874534
+KP.12.1874339	Moranbong	Moranbong	1874339
+KP.12.1874534	Man’gyŏngdae	Man'gyongdae	1874534
 KP.15.1874668	Maengsan-gun	Maengsan-gun	1874668
 KP.11.1875055	Kwaksan-gun	Kwaksan-gun	1875055
 KP.06.1875061	Kwail-gun	Kwail-gun	1875061
@@ -19431,7 +19682,7 @@ KP.12.1876132	Kangnam-gun	Kangnam-gun	1876132
 KP.12.1876156	Kangdong-gun	Kangdong-gun	1876156
 KP.06.1876370	Kaesŏng-si	Kaesong-si	1876370
 KP.06.1876380	Kaep’ung-gun	Kaep'ung-gun	1876380
-KP.13.1876403	Kaech’ŏn-si	Kaech'on-si	1876403
+KP.15.1876403	Kaech’ŏn-si	Kaech'on-si	1876403
 KP.07.1876510	Insan-gun	Insan-gun	1876510
 KP.09.1876674	Ich’ŏn-gun	Ich'on-gun	1876674
 KP.12.1876737	Hyŏngjesan-guyŏk	Hyongjesan-guyok	1876737
@@ -19443,7 +19694,7 @@ KP.03.1877442	Hamju-gun	Hamju-gun	1877442
 KP.03.1877447	Hamhŭng-si	Hamhung-si	1877447
 KP.06.1877609	Haeju-si	Haeju-si	1877609
 KP.15.1877796	Chŭngsan-gun	Chungsan-gun	1877796
-KP.12.1877859	Chung-guyŏk	Chung-guyok	1877859
+KP.12.1877859	Chung	Chung	1877859
 KP.12.1877875	Chunghwa-gun	Chunghwa-gun	1877875
 KP.09.1878166	Ch’ŏrwŏn-gun	Ch'orwon-gun	1878166
 KP.09.1878230	Ch’ŏnnae-gun	Ch'onnae-gun	1878230
@@ -19535,6 +19786,7 @@ KP.15.6258674	Taean-guyŏk	Taean-guyok	6258674
 KP.03.6258675	Sudong-gu	Sudong-gu	6258675
 KP.11.6279118	Sindo-gun	Sindo-gun	6279118
 KP.06.8594115	Yongyŏn-gun	Yongyon-gun	8594115
+KP.12.11791938	Ŭnjŏng-guyŏk	Unjong-guyok	11791938
 KR.06.32330	Yeongwol-gun	Yeongwol-gun	1832256
 KR.11.11030	Yongsan-gu	Yongsan-gu	1832311
 KR.13.31190	Yongin-si	Yongin-si	1832426
@@ -19561,7 +19813,7 @@ KR.11.11120	Eunpyeong-gu	Eunpyeong-gu	1833594
 KR.05.33370	Eumseong-gun	Eumseong-gun	1833704
 KR.14.37430	Ulleung-gun	Ulleung-gun	1833753
 KR.21.26310	Ulju-gun	Ulju-gun	1833760
-KR.14.37420	Uljin-gun	Uljin-gun	1833762
+KR.14.37420	Uljin County	Uljin County	1833762
 KR.14.37320	Uiseong-gun	Uiseong-gun	1833775
 KR.20.38310	Uiryeong-gun	Uiryeong-gun	1833782
 KR.13.31030	Uijeongbu-si	Uijeongbu-si	1833787
@@ -19842,7 +20094,7 @@ KZ.15.1516846	Zhangasemey Aūdany	Zhangasemey Audany	1516846
 KZ.03.1516873	Zhangadala Aūdany	Zhangadala Audany	1516873
 KZ.12.1516894	Zhangaarqa Aūdany	Zhangaarqa Audany	1516894
 KZ.03.1517012	Zhaqsy Aūdany	Zhaqsy Audany	1517012
-KZ.16.1517044	Zerendi Aūdany	Zerendi Audany	1517044
+KZ.03.1517044	Zerendi Aūdany	Zerendi Audany	1517044
 KZ.15.1517057	Zaysan Aūdany	Zaysan Audany	1517057
 KZ.03.1517166	Esil Aūdany	Esil Audany	1517166
 KZ.03.1517189	Ereymentaū Aūdany	Ereymentau Audany	1517189
@@ -25056,6 +25308,9 @@ MX.32.055	Villanueva	Villanueva	8584012
 MX.32.056	Zacatecas	Zacatecas	8584013
 MX.32.057	Trancoso	Trancoso	8584014
 MX.32.058	Santa María de la Paz	Santa Maria de la Paz	8584015
+MX.23.011	Puerto Morelos	Puerto Morelos	11789146
+MX.06.11817166	Municipio de Temósachic	Municipio de Temosachic	11817166
+MX.06.11817584	Doctor Belisario Domínguez	Doctor Belisario Dominguez	11817584
 MY.02.1222381	Langkawi	Langkawi	1222381
 MY.16.1732562	Bahagian Pantai Barat	Bahagian Pantai Barat	1732562
 MY.06.1732585	Temerluh	Temerluh	1732585
@@ -27735,6 +27990,468 @@ NP.00.11621714	Gaushālā	Gaushala	11621714
 NP.00.11621715	Belgāchhi̇̄	Belgachhi	11621715
 NP.00.11621716	Bijalpurā	Bijalpura	11621716
 NP.00.11621717	Hāthi̇̄leṭ	Hathilet	11621717
+NP.00.11762510	Sahorwā	Sahorwa	11762510
+NP.00.11762512	Ekḍārā	Ekdara	11762512
+NP.00.11762513	Halkhori̇̄	Halkhori	11762513
+NP.00.11762514	Ekrahiyā	Ekrahiya	11762514
+NP.00.11762515	Sugā Bhawāni̇̄paṭṭi̇̄	Suga Bhawanipatti	11762515
+NP.00.11762516	Dhirāpur	Dhirapur	11762516
+NP.00.11762517	Sarpallo	Sarpallo	11762517
+NP.00.11762518	Manarā	Manara	11762518
+NP.00.11762519	Sā̃ḍhā	Sadha	11762519
+NP.00.11762520	Kolhuwā Bageyā	Kolhuwa Bageya	11762520
+NP.00.11762521	Ankār	Ankar	11762521
+NP.00.11762522	Nainhī	Nainhi	11762522
+NP.00.11762523	Jaleshwar	Jaleshwar	11762523
+NP.00.11762524	Simardahī	Simardahi	11762524
+NP.00.11762525	Pigaunā	Pigauna	11762525
+NP.00.11762526	Prakaulī Phūlhaṭṭā	Prakauli Phulhatta	11762526
+NP.00.11762527	Mahottarī	Mahottari	11762527
+NP.00.11762528	Ḍāmhī Madai	Damhi Madai	11762528
+NP.00.11762529	Badiyā Manchaurī	Badiya Manchauri	11762529
+NP.00.11762530	Gonarpurā	Gonarpura	11762530
+NP.00.11763196	Bārāhā Pokhari̇̄	Baraha Pokhari	11763196
+NP.00.11763204	Suntale	Suntale	11763204
+NP.00.11763221	Phākṭāṅ	Phaktan	11763221
+NP.00.11763235	Sāunechaur	Saunechaur	11763235
+NP.00.11763246	Dipluṅ	Diplun	11763246
+NP.00.11763251	Mauwāboṭe	Mauwabote	11763251
+NP.00.11763312	Bopuṅ	Bopun	11763312
+NP.00.11763355	Chisāpāni̇̄	Chisapani	11763355
+NP.00.11763356	Pauwāserā	Pauwasera	11763356
+NP.00.11763357	Devi̇̄sthān	Devisthan	11763357
+NP.00.11763358	Kāhule	Kahule	11763358
+NP.00.11763359	Chauḍaṇḍi̇̄	Chaudandi	11763359
+NP.00.11763360	Bālaṅkhā	Balankha	11763360
+NP.00.11763361	Pāṅgchā	Pangcha	11763361
+NP.00.11763383	Belhi̇̄	Belhi	11763383
+NP.00.11763384	Mainhā Sahashrabāhu	Mainha Sahashrabahu	11763384
+NP.00.11763385	Siswā Belhi̇̄	Siswa Belhi	11763385
+NP.00.11763386	Mauwāhā	Mauwaha	11763386
+NP.00.11763387	Kāchan	Kachan	11763387
+NP.00.11763388	Tarahi̇̄	Tarahi	11763388
+NP.00.11763389	Pāto	Pato	11763389
+NP.00.11763390	Khaḍakpur	Khadakpur	11763390
+NP.00.11763391	Kabilāshā	Kabilasha	11763391
+NP.00.11763392	Banaulā	Banaula	11763392
+NP.00.11763393	Nẽgaḍā	Negada	11763393
+NP.00.11763394	Phūlbaḍiyā	Phulbadiya	11763394
+NP.00.11763395	Bode Barsāin	Bode Barsain	11763395
+NP.00.11763396	Phūlkahī	Phulkahi	11763396
+NP.00.11763397	Rautahaṭ	Rautahat	11763397
+NP.00.11763398	Mānrājā	Manraja	11763398
+NP.00.11763399	Nakaṭi̇̄ Rāyapur	Nakati Rayapur	11763399
+NP.00.11763400	Basbalpur	Basbalpur	11763400
+NP.00.11763414	Iṭahari̇̄ Biṣṇapur	Itahari Bisnapur	11763414
+NP.00.11763415	Boriyā	Boriya	11763415
+NP.00.11763416	Simrāhā	Simraha	11763416
+NP.00.11763417	Īnarwā Phulbariyā	Inarwa Phulbariya	11763417
+NP.00.11763418	Rāmpur Jamuwā	Rampur Jamuwa	11763418
+NP.00.11763419	Basbalpur	Basbalpur	11763419
+NP.00.11763420	Arnāhā	Arnaha	11763420
+NP.00.11763421	Bramhapur	Bramhapur	11763421
+NP.00.11763422	Gamhariyā Parwāhā	Gamhariya Parwaha	11763422
+NP.00.11763423	Belahī Chapenā	Belahi Chapena	11763423
+NP.00.11763424	Malekpur	Malekpur	11763424
+NP.00.11763425	Jamunī Madhepurā	Jamuni Madhepura	11763425
+NP.00.11763426	Maleṭh	Maleth	11763426
+NP.00.11763427	Rājbirāj	Rajbiraj	11763427
+NP.00.11764209	Rājpur	Rajpur	11764209
+NP.00.11764261	Tejāpākaḍ	Tejapakad	11764261
+NP.00.11764262	Laukāhā	Laukaha	11764262
+NP.00.11764263	Basantapaṭṭi̇̄	Basantapatti	11764263
+NP.00.11764264	Narkaṭiyā	Narkatiya	11764264
+NP.00.11764265	Rāmpur Khāp	Rampur Khap	11764265
+NP.00.11764266	Rājpur Pharhadawā	Rajpur Pharhadawa	11764266
+NP.00.11764267	Jaṭahārā	Jatahara	11764267
+NP.00.11764268	Jokahā	Jokaha	11764268
+NP.00.11764269	Maṭhiyā	Mathiya	11764269
+NP.00.11764270	Ḍumariyā	Dumariya	11764270
+NP.00.11764271	Bairiyā	Bairiya	11764271
+NP.00.11764272	Akolwā	Akolwa	11764272
+NP.00.11764273	Auraiyā	Auraiya	11764273
+NP.00.11764274	Banjarhā	Banjarha	11764274
+NP.00.11764304	Jathal	Jathal	11764304
+NP.00.11764305	Bālubādi̇̄	Balubadi	11764305
+NP.00.11764306	Baniyāni̇̄	Baniyani	11764306
+NP.00.11764307	Pathari̇̄yā	Pathariya	11764307
+NP.00.11764308	Pāṭhāmāri̇̄	Pathamari	11764308
+NP.00.11764309	Kechanā	Kechana	11764309
+NP.00.11764311	Prithvi̇̄nagar	Prithvinagar	11764311
+NP.00.11764507	Satabari̇̄yā	Satabariya	11764507
+NP.00.11764561	Dharnā	Dharna	11764561
+NP.00.11764562	Lakṣmi̇̄pur	Laksmipur	11764562
+NP.00.11764895	Belā	Bela	11764895
+NP.00.11765769	Hā̃si̇̄pur	Hasipur	11765769
+NP.00.11765770	Sisahaniyā	Sisahaniya	11765770
+NP.00.11765772	Lohārpāni̇̄	Loharpani	11765772
+NP.00.11765773	Tirām	Tiram	11765773
+NP.00.11765820	Gaḍhawā	Gadhawa	11765820
+NP.00.11765821	Gaṅgā Paraspur	Ganga Paraspur	11765821
+NP.00.11765853	Lālmaṭiyā	Lalmatiya	11765853
+NP.00.11765854	Gobarḍihā	Gobardiha	11765854
+NP.00.11765889	Asurkoṭ	Asurkot	11765889
+NP.00.11765891	Pakalā	Pakala	11765891
+NP.00.11765892	Baraulā	Baraula	11765892
+NP.00.11765893	Dāṅbāṅ	Danban	11765893
+NP.00.11765894	Haṁsapur	Hamsapur	11765894
+NP.00.11765895	Bāṅgesāl	Bangesal	11765895
+NP.00.11765936	Siddhārā	Siddhara	11765936
+NP.00.11765937	Jaluke	Jaluke	11765937
+NP.00.11765938	Shiwāpur	Shiwapur	11765938
+NP.00.11765939	Shiwagaḍhi̇̄	Shiwagadhi	11765939
+NP.00.11765955	Koilābās	Koilabas	11765955
+NP.00.11765973	Gugauli̇̄	Gugauli	11765973
+NP.00.11766007	Jaṇḍaul	Jandaul	11766007
+NP.00.11766046	Kimḍā̃ḍā	Kimdada	11766046
+NP.00.11766047	Khilji̇̄	Khilji	11766047
+NP.00.11766048	Sandhikharka	Sandhikharka	11766048
+NP.00.11766049	Nuwākoṭ	Nuwakot	11766049
+NP.00.11766050	Khā̃chi̇̄	Khachi	11766050
+NP.00.11766051	Ḍhikurā	Dhikura	11766051
+NP.00.11766052	Dhanchaur	Dhanchaur	11766052
+NP.00.11766053	Ṭhāḍā	Thada	11766053
+NP.00.11766054	Jukenā	Jukena	11766054
+NP.00.11766055	Sitāpur	Sitapur	11766055
+NP.00.11766056	Haḍiyā	Hadiya	11766056
+NP.00.11766057	Jogi̇̄daha	Jogidaha	11766057
+NP.00.11766058	Ṭheliyā	Theliya	11766058
+NP.00.11766084	Bakdhuwā	Bakdhuwa	11766084
+NP.00.11766156	Rājbirāj	Rajbiraj	11766156
+NP.00.11766157	Dighawā	Dighawa	11766157
+NP.00.11766158	Pakari̇̄	Pakari	11766158
+NP.00.11766159	Pharsaiṭh	Pharsaith	11766159
+NP.00.11766160	Bamangāmā Kaṭṭi̇̄	Bamangama Katti	11766160
+NP.00.11766161	Deuri̇̄ Bharuwā	Deuri Bharuwa	11766161
+NP.00.11766162	Bathanāhā	Bathanaha	11766162
+NP.00.11766163	Prasbani̇̄	Prasbani	11766163
+NP.00.11766164	Bathanāhā	Bathanaha	11766164
+NP.00.11766165	Bhagawatpur	Bhagawatpur	11766165
+NP.00.11766166	Ḍāḍhā	Dadha	11766166
+NP.00.11766167	Trikaul	Trikaul	11766167
+NP.00.11766168	Goiṭhi̇̄	Goithi	11766168
+NP.00.11766169	Ḍiman	Diman	11766169
+NP.00.11766170	Lohajārā	Lohajara	11766170
+NP.00.11766171	Bakdhuwā	Bakdhuwa	11766171
+NP.00.11766172	Mainākaḍeri̇̄	Mainakaderi	11766172
+NP.00.11766173	Madhawāpur	Madhawapur	11766173
+NP.00.11766174	Joginiyā Du’i̇̄	Joginiya Du'i	11766174
+NP.00.11766175	Joginiyā Ēka	Joginiya Eka	11766175
+NP.00.11766188	Trikaul	Trikaul	11766188
+NP.00.11766189	Bairawā	Bairawa	11766189
+NP.00.11766190	Bhārdaha	Bhardaha	11766190
+NP.00.11766191	Badagāmā	Badagama	11766191
+NP.00.11766192	Joginiyā Du’i̇̄	Joginiya Du'i	11766192
+NP.00.11766193	Badagāmā	Badagama	11766193
+NP.00.11766236	Digām	Digam	11766236
+NP.00.11766237	Siddheswar	Siddheswar	11766237
+NP.00.11766238	Somādi̇̄	Somadi	11766238
+NP.00.11766239	Chhaharā	Chhahara	11766239
+NP.00.11766240	Mujhuṅ	Mujhun	11766240
+NP.00.11766241	Thānpāṭi̇̄	Thanpati	11766241
+NP.00.11766242	Ruru	Ruru	11766242
+NP.00.11766243	Khyāhā	Khyaha	11766243
+NP.00.11766244	Pāluṅ Mainādi̇̄	Palun Mainadi	11766244
+NP.00.11766245	Gwādi̇̄	Gwadi	11766245
+NP.00.11766246	Rimuwā	Rimuwa	11766246
+NP.00.11766247	Kari̇̄kot Chaṇḍi̇̄ Bhañjyāṅ	Karikot Chandi Bhanjyan	11766247
+NP.00.11766248	Argeli̇̄	Argeli	11766248
+NP.00.11766249	Deurāli̇̄	Deurali	11766249
+NP.00.11766250	Khasyauli	Khasyauli	11766250
+NP.00.11766251	Bhairavsthān	Bhairavsthan	11766251
+NP.00.11766252	Aslewā	Aslewa	11766252
+NP.00.11766253	Brandi̇̄ Pokhara	Brandi Pokhara	11766253
+NP.00.11766255	Baleṭaksār	Baletaksar	11766255
+NP.00.11766564	Baughā Pokharāthok	Baugha Pokharathok	11766564
+NP.00.11766565	Shri̇̄ Ālamdevi̇̄	Shri Alamdevi	11766565
+NP.00.11766566	Ṭhulo Lumpek	Thulo Lumpek	11766566
+NP.00.11766567	Balighā Gumhā	Baligha Gumha	11766567
+NP.00.11766568	Khāni̇̄gāũ	Khanigau	11766568
+NP.00.11766569	Baughā	Baugha	11766569
+NP.00.11766570	Warāṅdi̇̄	Warandi	11766570
+NP.00.11766571	Tānsen	Tansen	11766571
+NP.00.11766572	Chāppāni̇̄	Chappani	11766572
+NP.00.11766573	Harmi̇̄chaur	Harmichaur	11766573
+NP.00.11766574	Birghā	Birgha	11766574
+NP.00.11766575	Shri̇̄ Kriṣṇa Gaṇḍaki	Shri Krisna Gandaki	11766575
+NP.00.11766576	Yamghā	Yamgha	11766576
+NP.00.11766577	Nāyarnamtales	Nayarnamtales	11766577
+NP.00.11766578	Chirtun Dhārā	Chirtun Dhara	11766578
+NP.00.11766579	Darlāmḍāḍā	Darlamdada	11766579
+NP.00.11766580	Nibuwākharka	Nibuwakharka	11766580
+NP.00.11767029	Rāmpur	Rampur	11767029
+NP.00.11767098	Dharān	Dharan	11767098
+NP.00.11767099	Yāṅsilā	Yansila	11767099
+NP.00.11767101	Pā̃chkanyā	Pachkanya	11767101
+NP.00.11767176	Khānichhāp	Khanichhap	11767176
+NP.00.11767177	Jagatradevi̇̄	Jagatradevi	11767177
+NP.00.11767178	Piḍi̇̄kholā	Pidikhola	11767178
+NP.00.11767179	Pipalḍā̃ḍā	Pipaldada	11767179
+NP.00.11767180	Peiākoṭ	Peiakot	11767180
+NP.00.11767181	Phoksinkoṭ	Phoksinkot	11767181
+NP.00.11767182	Sirsekoṭ	Sirsekot	11767182
+NP.00.11767183	Tin Dobāṭe	Tin Dobate	11767183
+NP.00.11767184	Pakbādi̇̄	Pakbadi	11767184
+NP.00.11767185	Heklān	Heklan	11767185
+NP.00.11767186	Huṅgi̇̄	Hungi	11767186
+NP.00.11767187	Mālungā	Malunga	11767187
+NP.00.11767189	Tulsi̇̄ Bhañjyāṅ	Tulsi Bhanjyan	11767189
+NP.00.11767190	Thum Pokharā	Thum Pokhara	11767190
+NP.00.11767274	Wālin	Walin	11767274
+NP.00.11767276	Gejhā	Gejha	11767276
+NP.00.11767277	Kuwākoṭ	Kuwakot	11767277
+NP.00.11767279	Keware Bhañjyāṅ	Keware Bhanjyan	11767279
+NP.00.11767280	Jagat Bhañjyāṅ	Jagat Bhanjyan	11767280
+NP.00.11767281	Chāpākoṭ	Chapakot	11767281
+NP.00.11767282	Ratnapur	Ratnapur	11767282
+NP.00.11767283	Malyāṅkoṭ	Malyankot	11767283
+NP.00.11767284	Elādi̇̄	Eladi	11767284
+NP.00.11767286	Manakāmanā	Manakamana	11767286
+NP.00.11767352	Chinnebās	Chinnebas	11767352
+NP.00.11767353	Kichanas	Kichanas	11767353
+NP.00.11767354	Sākhar	Sakhar	11767354
+NP.00.11767355	Kyākmī	Kyakmi	11767355
+NP.00.11767356	Magyām Chisāpānī	Magyam Chisapani	11767356
+NP.00.11767358	Chitrebhañjyāṅ	Chitrebhanjyan	11767358
+NP.00.11767359	Kihũ	Kihu	11767359
+NP.00.11767360	Gajarkoṭ	Gajarkot	11767360
+NP.00.11767361	Sekhām	Sekham	11767361
+NP.00.11767431	Siluwā	Siluwa	11767431
+NP.00.11767432	Darchhā	Darchha	11767432
+NP.00.11767433	Galḍhā	Galdha	11767433
+NP.00.11767434	Mityāl	Mityal	11767434
+NP.00.11767435	Jhirubās	Jhirubas	11767435
+NP.00.11767436	Sahālkot	Sahalkot	11767436
+NP.00.11767437	Gai̇̃ḍākoṭ	Gaidakot	11767437
+NP.00.11767478	Beni̇̄maṇi̇̄pur	Benimanipur	11767478
+NP.00.11767479	Dumkibās	Dumkibas	11767479
+NP.00.11767480	Dāunne	Daunne	11767480
+NP.00.11767481	Rupauliyā	Rupauliya	11767481
+NP.00.11767482	Nayā̃ Belhānī	Naya Belhani	11767482
+NP.00.11767483	Prasauni̇̄	Prasauni	11767483
+NP.00.11767488	Phākphok	Phakphok	11767488
+NP.00.11767545	Bā̃jho	Bajho	11767545
+NP.00.11767546	Sākphārā	Sakphara	11767546
+NP.00.11767593	Maṅgalbāre	Mangalbare	11767593
+NP.00.11767594	Ektappā	Ektappa	11767594
+NP.00.11767595	Dhuseni̇̄	Dhuseni	11767595
+NP.00.11767686	Pyāṅ	Pyan	11767686
+NP.00.11767687	Nāmsāliṅ	Namsalin	11767687
+NP.00.11767688	Godak	Godak	11767688
+NP.00.11767689	Sākhejuṅ	Sakhejun	11767689
+NP.00.11767690	Shānti Ḍā̃ḍā	Shanti Dada	11767690
+NP.00.11767691	Sāṅrumbā	Sanrumba	11767691
+NP.00.11767692	Barbote	Barbote	11767692
+NP.00.11767693	Sumbek	Sumbek	11767693
+NP.00.11767721	Baklauri̇̄	Baklauri	11767721
+NP.00.11767722	Siṅgiyā	Singiya	11767722
+NP.00.11767723	Pakali̇̄	Pakali	11767723
+NP.00.11767724	Bhādgāũ Sinuwāri̇̄	Bhadgau Sinuwari	11767724
+NP.00.11767725	Ḍumrāhā	Dumraha	11767725
+NP.00.11767726	Ekambā	Ekamba	11767726
+NP.00.11767758	Shanischare	Shanischare	11767758
+NP.00.11767759	Bayarban	Bayarban	11767759
+NP.00.11767760	Amardaha	Amardaha	11767760
+NP.00.11767761	Hasandaha	Hasandaha	11767761
+NP.00.11767762	Gobindapur	Gobindapur	11767762
+NP.00.11767763	Iṭaharā	Itahara	11767763
+NP.00.11767823	Rājghāṭ	Rajghat	11767823
+NP.00.11767824	Kohabarā	Kohabara	11767824
+NP.00.11767825	Mahārānī Jhoḍā	Maharani Jhoda	11767825
+NP.00.11767826	Topgāchhi̇̄	Topgachhi	11767826
+NP.00.11767827	Gaurādaha	Gauradaha	11767827
+NP.00.11767828	Juropāni̇̄	Juropani	11767828
+NP.00.11768347	Dharampur	Dharampur	11768347
+NP.00.11768348	Baigundhurā	Baigundhura	11768348
+NP.00.11768349	Pā̃chgāchhi̇̄	Pachgachhi	11768349
+NP.00.11768350	Shivagañj	Shivaganj	11768350
+NP.00.11768378	Ḍā̃gibāḍi̇̄	Dagibadi	11768378
+NP.00.11768379	Sharaṇāmati̇̄	Sharanamati	11768379
+NP.00.11768380	Chakchaki̇̄	Chakchaki	11768380
+NP.00.11768381	Ṭā̃ganḍubbā	Tagandubba	11768381
+NP.00.11768382	Goldhāp	Goldhap	11768382
+NP.00.11768383	Chārpāne	Charpane	11768383
+NP.00.11769485	Ghuski̇̄	Ghuski	11769485
+NP.00.11770842	Madhya Harṣāhi̇̄	Madhya Harsahi	11770842
+NP.00.11770843	Dewāngañj	Dewanganj	11770843
+NP.00.11770844	Kaptāngañj	Kaptanganj	11770844
+NP.00.11770845	Sāhebgañj	Sahebganj	11770845
+NP.00.11770846	Amḍuwā	Amduwa	11770846
+NP.00.11770847	Rāmgañj Belgāchhi̇̄yā	Ramganj Belgachhiya	11770847
+NP.00.11770848	Amāhi̇̄ Belhā	Amahi Belha	11770848
+NP.00.11770893	Belkoṭ	Belkot	11770893
+NP.00.11770894	Kumari̇̄	Kumari	11770894
+NP.00.11770895	Chhatre Deurāli̇̄	Chhatre Deurali	11770895
+NP.00.11770896	Chāuthe	Chauthe	11770896
+NP.00.11770897	Kakani̇̄	Kakani	11770897
+NP.00.11770898	Madānpur	Madanpur	11770898
+NP.00.11770899	Chaturāle	Chaturale	11770899
+NP.00.11770999	Nāmṭār	Namtar	11770999
+NP.00.11771049	Bhānumati̇̄	Bhanumati	11771049
+NP.00.11771050	Aruṇodaya	Arunodaya	11771050
+NP.00.11771051	Ghiriṅ Sundhārā	Ghirin Sundhara	11771051
+NP.00.11771052	Sābhun Bhagavati̇̄pur	Sabhun Bhagavatipur	11771052
+NP.00.11771053	Chhāṅ	Chhan	11771053
+NP.00.11771054	Mājhkot	Majhkot	11771054
+NP.00.11771056	Bhimād	Bhimad	11771056
+NP.00.11771203	Rāni̇̄ Pokhari̇̄	Rani Pokhari	11771203
+NP.00.11771204	Koṭ Darbār	Kot Darbar	11771204
+NP.00.11771205	Jāmune	Jamune	11771205
+NP.00.11771792	Bākāmalāṅ	Bakamalan	11771792
+NP.00.11771793	Ruchāṅ	Ruchan	11771793
+NP.00.11771794	Hupsekoṭ	Hupsekot	11771794
+NP.00.11771795	Ḍeḍgāũ	Dedgau	11771795
+NP.00.11771796	Miṭhukaram	Mithukaram	11771796
+NP.00.11771797	Naram	Naram	11771797
+NP.00.11771798	Jaubāri̇̄	Jaubari	11771798
+NP.00.11771815	Rakuwā	Rakuwa	11771815
+NP.00.11771917	Rāmjākoṭ	Ramjakot	11771917
+NP.00.11771918	Bhārati̇̄pur	Bharatipur	11771918
+NP.00.11771919	Buliṅṭār	Bulintar	11771919
+NP.00.11771920	Bhirkoṭ	Bhirkot	11771920
+NP.00.11771921	Ḍāḍājhā̃ri̇̄	Dadajhari	11771921
+NP.00.11772001	Byās	Byas	11772001
+NP.00.11772002	Shivapur	Shivapur	11772002
+NP.00.11772003	Pokhari̇̄ Bhañjyāṅ	Pokhari Bhanjyan	11772003
+NP.00.11772004	Ghāsi̇̄kuwā	Ghasikuwa	11772004
+NP.00.11772005	Keshavṭār	Keshavtar	11772005
+NP.00.11772048	Moli̇̄	Moli	11772048
+NP.00.11772049	Wāksā	Waksa	11772049
+NP.00.11772050	Maṅgalṭār	Mangaltar	11772050
+NP.00.11772051	Baḍahare	Badahare	11772051
+NP.00.11772052	Durchhim	Durchhim	11772052
+NP.00.11772053	Chyāsimṭār	Chyasimtar	11772053
+NP.00.11772054	Bā̃sboṭe	Basbote	11772054
+NP.00.11772067	Bar Bhañjyāṅ	Bar Bhanjyan	11772067
+NP.00.11772119	Bandi̇̄pur	Bandipur	11772119
+NP.00.11772120	Dharampāni̇̄	Dharampani	11772120
+NP.00.11772121	Chyāṅliṅ	Chyanlin	11772121
+NP.00.11772151	Salle	Salle	11772151
+NP.00.11772152	Mahādevsthān	Mahadevsthan	11772152
+NP.00.11772153	Arkhaule	Arkhaule	11772153
+NP.00.11772154	Dhituṅ	Dhitun	11772154
+NP.00.11772155	Lāmi̇̄ḍā̃ḍā	Lamidada	11772155
+NP.00.11772156	Buipā	Buipa	11772156
+NP.00.11772157	Rājāpāni̇̄	Rajapani	11772157
+NP.00.11772158	Bijayakharka	Bijayakharka	11772158
+NP.00.11772159	Nunthalā	Nunthala	11772159
+NP.00.11772177	Koṭthar	Kotthar	11772177
+NP.00.11772214	Ratanpur	Ratanpur	11772214
+NP.00.11772215	Baidi̇̄	Baidi	11772215
+NP.00.11772216	Chhipchhipe	Chhipchhipe	11772216
+NP.00.11772220	Koṭā	Kota	11772220
+NP.00.11772423	Devghāṭ	Devghat	11772423
+NP.00.11772424	Deurāli̇̄	Deurali	11772424
+NP.00.11772425	Chhimkeshwari̇̄	Chhimkeshwari	11772425
+NP.00.11772426	Kabilās	Kabilas	11772426
+NP.00.11772520	Rupāṭār	Rupatar	11772520
+NP.00.11772521	Bārāhā	Baraha	11772521
+NP.00.11772522	Thānāgāũ	Thanagau	11772522
+NP.00.11772523	Lekhgāũ	Lekhgau	11772523
+NP.00.11772524	Īname	Iname	11772524
+NP.00.11772605	Mirkoṭ	Mirkot	11772605
+NP.00.11772606	Dhũwākoṭ	Dhuwakot	11772606
+NP.00.11772607	Deurāli̇̄	Deurali	11772607
+NP.00.11772609	Ā̃bu Khaireni̇̄	Abu Khaireni	11772609
+NP.00.11772610	Manakāmanā	Manakamana	11772610
+NP.00.11772612	Prithvi̇̄ Nārāyaṇ	Prithvi Narayan	11772612
+NP.00.11772613	Bakrān	Bakran	11772613
+NP.00.11772680	Gorakhkāli̇̄	Gorakhkali	11772680
+NP.00.11772681	Buṅkoṭ	Bunkot	11772681
+NP.00.11772682	Rāni̇̄swārā	Raniswara	11772682
+NP.00.11772683	Warkāṅ Bhogṭeni̇̄	Warkan Bhogteni	11772683
+NP.00.11772685	Ghairuṅ	Ghairun	11772685
+NP.00.11772686	Tākluṅ	Taklun	11772686
+NP.00.11772687	Makaisiṅ	Makaisin	11772687
+NP.00.11772688	Phujel	Phujel	11772688
+NP.00.11772689	Nāmjuṅ	Namjun	11772689
+NP.00.11772691	Tāṅglīchok	Tanglichok	11772691
+NP.00.11772727	Chaṇḍi̇̄ Bhañjyāṅ	Chandi Bhanjyan	11772727
+NP.00.11772728	Dāhākhāni̇̄	Dahakhani	11772728
+NP.00.11772729	Dārechok	Darechok	11772729
+NP.00.11772962	Bhumli̇̄chok	Bhumlichok	11772962
+NP.00.11772963	Jogi̇̄mārā	Jogimara	11772963
+NP.00.11772964	Dhusā	Dhusa	11772964
+NP.00.11772965	Kāule	Kaule	11772965
+NP.00.11772966	Darbuṅ	Darbun	11772966
+NP.00.11773134	Khari̇̄	Khari	11773134
+NP.00.11773135	Ḍholā	Dhola	11773135
+NP.00.11773136	Chainpur	Chainpur	11773136
+NP.00.11773137	Salyānṭār	Salyantar	11773137
+NP.00.11773138	Jyāmruṅ	Jyamrun	11773138
+NP.00.11773139	Murali̇̄ Bhañjyāṅ	Murali Bhanjyan	11773139
+NP.00.11773174	Sāṅkos	Sankos	11773174
+NP.00.11773175	Nilkaṇṭha	Nilkantha	11773175
+NP.00.11773176	Tārukā	Taruka	11773176
+NP.00.11773177	Dhuwākoṭ	Dhuwakot	11773177
+NP.00.11773178	Kaṭunje	Katunje	11773178
+NP.00.11773179	Semjuṅ	Semjun	11773179
+NP.00.11773219	Khālṭe	Khalte	11773219
+NP.00.11773220	Sunaulā Bajār	Sunaula Bajar	11773220
+NP.00.11773221	Kalleri̇̄	Kalleri	11773221
+NP.00.11773222	Baireni̇̄	Baireni	11773222
+NP.00.11773223	Piḍā	Pida	11773223
+NP.00.11773245	Tamsariyā	Tamsariya	11773245
+NP.00.11773246	Kolhuwā	Kolhuwa	11773246
+NP.00.11773247	Kumārbarti̇̄	Kumarbarti	11773247
+NP.00.11773248	Agyauli̇̄	Agyauli	11773248
+NP.00.11773249	Kāwāsoti̇̄	Kawasoti	11773249
+NP.00.11773298	Nāmeṭār	Nametar	11773298
+NP.00.11773299	Tāmlichhā	Tamlichha	11773299
+NP.00.11773300	Balamtā	Balamta	11773300
+NP.00.11773301	Batāse	Batase	11773301
+NP.00.11773302	Jā̃te	Jate	11773302
+NP.00.11773303	Lāphāgāũ	Laphagau	11773303
+NP.00.11773331	Meghauli̇̄	Meghauli	11773331
+NP.00.11773332	Gardi̇̄	Gardi	11773332
+NP.00.11773380	Bāmrāṅ	Bamran	11773380
+NP.00.11773381	Chiuri̇̄ḍā̃ḍā	Chiuridada	11773381
+NP.00.11773382	Laphyāṅ	Laphyan	11773382
+NP.00.11773383	Khālle	Khalle	11773383
+NP.00.11773384	Māttimbirtā	Mattimbirta	11773384
+NP.00.11773385	Ṭemmā	Temma	11773385
+NP.00.11773386	Yamkhā	Yamkha	11773386
+NP.00.11773402	Ratanchhā	Ratanchha	11773402
+NP.00.11773574	Nirmali̇̄ Ḍā̃ḍā	Nirmali Dada	11773574
+NP.00.11773575	Khidimā	Khidima	11773575
+NP.00.11773576	Chyān Ḍā̃ḍā	Chyan Dada	11773576
+NP.00.11773577	Lekharka	Lekharka	11773577
+NP.00.11773578	Nāgi̇̄	Nagi	11773578
+NP.00.11773579	Khāwā	Khawa	11773579
+NP.00.11773580	Gogane	Gogane	11773580
+NP.00.11773582	Koṭ	Kot	11773582
+NP.00.11773583	Annapurṇa	Annapurna	11773583
+NP.00.11773597	Mukundapur	Mukundapur	11773597
+NP.00.11773599	Maṅgalpur	Mangalpur	11773599
+NP.00.11773600	Phūlbāri̇̄	Phulbari	11773600
+NP.00.11773601	Shāradānagar	Sharadanagar	11773601
+NP.00.11773602	Amarāpuri̇̄	Amarapuri	11773602
+NP.00.11773603	Guñjanagar	Gunjanagar	11773603
+NP.00.11773630	Gai̇̃ḍākoṭ	Gaidakot	11773630
+NP.00.11773631	Bharatapur	Bharatapur	11773631
+NP.00.11773641	Shivanagar	Shivanagar	11773641
+NP.00.11773642	Dibyanagar	Dibyanagar	11773642
+NP.00.11773643	Pārbati̇̄pur	Parbatipur	11773643
+NP.00.11773644	Shukranagar	Shukranagar	11773644
+NP.00.11773645	Paṭihāni̇̄	Patihani	11773645
+NP.00.11773646	Jagatpur	Jagatpur	11773646
+NP.00.11773664	Gitānagar	Gitanagar	11773664
+NP.00.11773684	Shakti̇̄khor	Shaktikhor	11773684
+NP.00.11773685	Juṭpāni̇̄	Jutpani	11773685
+NP.00.11773686	Piṭhūwā	Pithuwa	11773686
+NP.00.11773687	Pañchakanyā	Panchakanya	11773687
+NP.00.11773688	Chainpur	Chainpur	11773688
+NP.00.11773689	Birendranagar	Birendranagar	11773689
+NP.00.11796041	Chhorambu	Chhorambu	11796041
+NP.00.11796042	Lichki̇̄ Rāmche	Lichki Ramche	11796042
+NP.00.11796043	Simpāni̇̄	Simpani	11796043
+NP.00.11796044	Sapṭeshwar Chhitā Pokhari̇̄	Sapteshwar Chhita Pokhari	11796044
+NP.00.11796045	Ḍā̃ḍāgāũ	Dadagau	11796045
+NP.00.11796046	Indrāyaṇi̇̄ Pokhari̇̄	Indrayani Pokhari	11796046
+NP.00.11796047	Baḍkā Diyāle	Badka Diyale	11796047
+NP.00.11796048	Khoṭāṅ Bajār	Khotan Bajar	11796048
+NP.00.11796049	Chipriṅ	Chiprin	11796049
+NP.00.11796050	Chhitā Pokhari̇̄	Chhita Pokhari	11796050
 NZ.F6.002	Whangarei	Whangarei	2179291
 NZ.E8.025	Whakatane District	Whakatane District	2179374
 NZ.G3.057	Westland District	Westland District	2179466
@@ -27801,82 +28518,83 @@ NZ.G2.047	Wellington City	Wellington City	7910072
 NZ.E8.022	Western Bay of Plenty District	Western Bay of Plenty District	7910073
 NZ.F3.041	Tararua District	Tararua District	11694796
 NZ.E9.068	Waitaki District	Waitaki District	11694798
-PA.07.0743	Distrito de Tonosí	Distrito de Tonosi	3700535
-PA.02.0427	Distrito de Tolé	Distrito de Tole	3700557
-PA.08.0854	Distrito de Taboga	Distrito de Taboga	3700799
-PA.10.0966	Distrito de Soná	Distrito de Sona	3700886
-PA.10.0965	Distrito de Santiago	Distrito de Santiago	3701113
-PA.06.0636	Distrito de Santa María	Distrito de Santa Maria	3701171
-PA.04.0314	Distrito de Santa Isabel	Distrito de Santa Isabel	3701183
-PA.10.0964	Distrito de Santa Fé	Distrito de Santa Fe	3701191
-PA.08.0853	Distrito San Miguelito	Distrito San Miguelito	3701328
-PA.02.0426	Distrito de San Lorenzo	Distrito de San Lorenzo	3701365
-PA.10.0963	Distrito de San Francisco	Distrito de San Francisco	3701474
-PA.02.0425	Distrito de San Félix	Distrito de San Felix	3701489
-PA.13.0852	Distrito de San Carlos	Distrito de San Carlos	3701523
-PA.10.0962	Distrito de Río de Jesús	Distrito de Rio de Jesus	3701878
-PA.02.0424	Distrito de Renacimiento	Distrito de Renacimiento	3701989
-PA.02.0423	Distrito de Remedios	Distrito de Remedios	3701992
-PA.04.0313	Distrito de Portobelo	Distrito de Portobelo	3702573
-PA.07.0742	Distrito de Pocrí	Distrito de Pocri	3702627
-PA.05.0529	Distrito de Pinogana	Distrito de Pinogana	3702816
-PA.06.0635	Distrito de Pesé	Distrito de Pese	3703009
-PA.03.0209	Distrito Penonomé	Distrito Penonome	3703066
-PA.07.0741	Distrito de Pedasí	Distrito de Pedasi	3703237
-PA.06.0634	Distrito de Parita	Distrito de Parita	3703351
-PA.08.0851	Distrito de Panamá	Distrito de Panama	3703439
-PA.03.0208	Distrito de Olá	Distrito de Ola	3703743
-PA.06.0633	Distrito de Ocú	Distrito de Ocu	3703784
-PA.03.0207	Distrito de Natá	Distrito de Nata	3703935
-PA.10.0961	Distrito de Montijo	Distrito de Montijo	3704121
-PA.07.0740	Distrito de Macaracas	Distrito de Macaracas	3704872
-PA.07.0739	Distrito de Los Santos	Distrito de Los Santos	3704962
-PA.06.0632	Distrito de Los Pozos	Distrito de Los Pozos	3705017
-PA.07.0738	Distrito de Las Tablas	Distrito de Las Tablas	3706205
-PA.10.0959	Distrito de Las Palmas	Distrito de Las Palmas	3706289
-PA.06.0631	Distrito de Las Minas	Distrito de Las Minas	3706342
-PA.03.0206	Distrito de La Pintada	Distrito de La Pintada	3706929
-PA.10.0958	Distrito de La Mesa	Distrito de La Mesa	3707217
-PA.13.0850	Distrito de La Chorrera	Distrito de La Chorrera	3707960
-PA.07.0737	Distrito de Guararé	Distrito de Guarare	3708907
-PA.02.0422	Distrito de Gualaca	Distrito de Gualaca	3708946
-PA.04.0312	Distrito de Donoso	Distrito de Donoso	3711599
-PA.02.0421	Distrito de Dolega	Distrito de Dolega	3711616
-PA.02.0420	Distrito de David	Distrito de David	3711666
-PA.04.0310	Distrito de Colón	Distrito de Colon	3712075
-PA.06.0630	Distrito de Chitré	Distrito de Chitre	3712382
+OM.07.11748046	Madha	Madha	11748046
+PA.07.0707	Distrito de Tonosí	Distrito de Tonosi	3700535
+PA.02.0413	Distrito de Tolé	Distrito de Tole	3700557
+PA.08.0811	Distrito de Taboga	Distrito de Taboga	3700799
+PA.10.0911	Distrito de Soná	Distrito de Sona	3700886
+PA.10.0910	Distrito de Santiago	Distrito de Santiago	3701113
+PA.06.0607	Distrito de Santa María	Distrito de Santa Maria	3701171
+PA.04.0305	Distrito de Santa Isabel	Distrito de Santa Isabel	3701183
+PA.10.0909	Distrito de Santa Fé	Distrito de Santa Fe	3701191
+PA.08.0810	Distrito San Miguelito	Distrito San Miguelito	3701328
+PA.02.0412	Distrito de San Lorenzo	Distrito de San Lorenzo	3701365
+PA.10.0908	Distrito de San Francisco	Distrito de San Francisco	3701474
+PA.02.0411	Distrito de San Félix	Distrito de San Felix	3701489
+PA.13.0809	Distrito de San Carlos	Distrito de San Carlos	3701523
+PA.10.0907	Distrito de Río de Jesús	Distrito de Rio de Jesus	3701878
+PA.02.0410	Distrito de Renacimiento	Distrito de Renacimiento	3701989
+PA.02.0409	Distrito de Remedios	Distrito de Remedios	3701992
+PA.04.0304	Distrito de Portobelo	Distrito de Portobelo	3702573
+PA.07.0706	Distrito de Pocrí	Distrito de Pocri	3702627
+PA.05.0502	Distrito de Pinogana	Distrito de Pinogana	3702816
+PA.06.0606	Distrito de Pesé	Distrito de Pese	3703009
+PA.03.0206	Distrito Penonomé	Distrito Penonome	3703066
+PA.07.0705	Distrito de Pedasí	Distrito de Pedasi	3703237
+PA.06.0605	Distrito de Parita	Distrito de Parita	3703351
+PA.08.0808	Distrito de Panamá	Distrito de Panama	3703439
+PA.03.0205	Distrito de Olá	Distrito de Ola	3703743
+PA.06.0604	Distrito de Ocú	Distrito de Ocu	3703784
+PA.03.0204	Distrito de Natá	Distrito de Nata	3703935
+PA.10.0906	Distrito de Montijo	Distrito de Montijo	3704121
+PA.07.0704	Distrito de Macaracas	Distrito de Macaracas	3704872
+PA.07.0703	Distrito de Los Santos	Distrito de Los Santos	3704962
+PA.06.0603	Distrito de Los Pozos	Distrito de Los Pozos	3705017
+PA.07.0702	Distrito de Las Tablas	Distrito de Las Tablas	3706205
+PA.10.0905	Distrito de Las Palmas	Distrito de Las Palmas	3706289
+PA.06.0602	Distrito de Las Minas	Distrito de Las Minas	3706342
+PA.03.0203	Distrito de La Pintada	Distrito de La Pintada	3706929
+PA.10.0904	Distrito de La Mesa	Distrito de La Mesa	3707217
+PA.13.0807	Distrito de La Chorrera	Distrito de La Chorrera	3707960
+PA.07.0701	Distrito de Guararé	Distrito de Guarare	3708907
+PA.02.0408	Distrito de Gualaca	Distrito de Gualaca	3708946
+PA.04.0303	Distrito de Donoso	Distrito de Donoso	3711599
+PA.02.0407	Distrito de Dolega	Distrito de Dolega	3711616
+PA.02.0406	Distrito de David	Distrito de David	3711666
+PA.04.0301	Distrito de Colón	Distrito de Colon	3712075
+PA.06.0601	Distrito de Chitré	Distrito de Chitre	3712382
 PA.01.0103	Distrito Chiriquí Grande	Distrito Chiriqui Grande	3712399
-PA.08.0849	Distrito de Chimán	Distrito de Chiman	3712446
-PA.08.0848	Distrito de Chepo	Distrito de Chepo	3712502
-PA.05.0528	Distrito de Chepigana	Distrito de Chepigana	3712512
+PA.08.0806	Distrito de Chimán	Distrito de Chiman	3712446
+PA.08.0805	Distrito de Chepo	Distrito de Chepo	3712502
+PA.05.0501	Distrito de Chepigana	Distrito de Chepigana	3712512
 PA.01.0102	Distrito de Changuinola	Distrito de Changuinola	3712558
-PA.13.0847	Distrito de Chame	Distrito de Chame	3712575
-PA.04.0311	Distrito de Chagres	Distrito de Chagres	3712596
-PA.13.0846	Distrito de Capira	Distrito de Capira	3713045
-PA.10.0957	Distrito de Cañazas	Distrito de Canazas	3713184
-PA.10.0956	Distrito de Calobre	Distrito de Calobre	3713393
-PA.02.0419	Distrito de Bugaba	Distrito de Bugaba	3713665
-PA.02.0418	Distrito de Boquete	Distrito de Boquete	3713858
-PA.02.0417	Distrito de Boquerón	Distrito de Boqueron	3713866
+PA.13.0804	Distrito de Chame	Distrito de Chame	3712575
+PA.04.0302	Distrito de Chagres	Distrito de Chagres	3712596
+PA.13.0803	Distrito de Capira	Distrito de Capira	3713045
+PA.10.0903	Distrito de Cañazas	Distrito de Canazas	3713184
+PA.10.0902	Distrito de Calobre	Distrito de Calobre	3713393
+PA.02.0405	Distrito de Bugaba	Distrito de Bugaba	3713665
+PA.02.0404	Distrito de Boquete	Distrito de Boquete	3713858
+PA.02.0403	Distrito de Boquerón	Distrito de Boqueron	3713866
 PA.01.0101	Distrito de Bocas del Toro	Distrito de Bocas del Toro	3713955
-PA.02.0416	Distrito de Barú	Distrito de Baru	3714267
-PA.08.0845	Distrito de Balboa	Distrito de Balboa	3714424
-PA.10.0955	Distrito de Atalaya	Distrito de Atalaya	3714595
-PA.13.0844	Distrito Arraiján	Distrito Arraijan	3714635
-PA.03.0205	Distrito de Antón	Distrito de Anton	3714708
-PA.02.0415	Distrito de Alanje	Distrito de Alanje	3714937
-PA.03.0204	Distrito de Aguadulce	Distrito de Aguadulce	3715037
-PA.10.0960	Mariato District	Mariato District	9857610
-PA.11.1068	Sambú	Sambu	9857626
-PA.12.1375	Nole Düima	Nole Dueima	9857644
-PA.12.1374	Müna	Muena	9857648
-PA.11.1067	Cémaco	Cemaco	9862218
-PA.09.1169	El Porvenir	El Porvenir	9862219
-PA.12.1373	Mirono	Mirono	9862220
-PA.12.1372	Kusapín	Kusapin	9862221
-PA.12.1371	Kankintú	Kankintu	9862223
-PA.12.1370	Besiko	Besiko	9862224
-PA.12.1376	Nurun	Nurun	9862226
+PA.02.0402	Distrito de Barú	Distrito de Baru	3714267
+PA.08.0802	Distrito de Balboa	Distrito de Balboa	3714424
+PA.10.0901	Distrito de Atalaya	Distrito de Atalaya	3714595
+PA.13.0801	Distrito Arraiján	Distrito Arraijan	3714635
+PA.03.0202	Distrito de Antón	Distrito de Anton	3714708
+PA.02.0401	Distrito de Alanje	Distrito de Alanje	3714937
+PA.03.0201	Distrito de Aguadulce	Distrito de Aguadulce	3715037
+PA.10.0912	Mariato District	Mariato District	9857610
+PA.11.1102	Sambú	Sambu	9857626
+PA.12.1204	Nole Düima	Nole Dueima	9857644
+PA.12.1203	Müna	Muena	9857648
+PA.11.1101	Cémaco	Cemaco	9862218
+PA.09.1001	El Porvenir	El Porvenir	9862219
+PA.12.1202	Mirono	Mirono	9862220
+PA.12.1207	Kusapín	Kusapin	9862221
+PA.12.1206	Kankintú	Kankintu	9862223
+PA.12.1201	Besiko	Besiko	9862224
+PA.12.1205	Nurun	Nurun	9862226
 PE.24.2403	Provincia de Zarumilla	Provincia de Zarumilla	3690615
 PE.02.0220	Provincia de Yungay	Provincia de Yungay	3690672
 PE.16.1606	Provincia de Ucayali	Provincia de Ucayali	3691097
@@ -28209,57 +28927,31 @@ PG.14.9855507	Markham	Markham	9855507
 PG.20.9855526	National Capital District	National Capital District	9855526
 PH.09.66	Province of  Zamboanga del Sur	Province of  Zamboanga del Sur	1679428
 PH.09.65	Province of Zamboanga del Norte	Province of Zamboanga del Norte	1679429
-PH.09.G7	Zamboanga City	Zamboanga City	1679430
 PH.03.64	Province of Zambales	Province of Zambales	1679435
-PH.40.G6	Trece Martires City	Trece Martires City	1681338
-PH.07.G5	Toledo City	Toledo City	1681598
 PH.14.72	Province of Tawi-Tawi	Province of Tawi-Tawi	1682671
 PH.03.63	Province of Tarlac	Province of Tarlac	1682811
-PH.10.G4	Tangub City	Tangub City	1683112
-PH.07.G3	Tagbilaran City	Tagbilaran City	1684495
-PH.40.G2	Tagaytay City	Tagaytay City	1684552
-PH.08.G1	Tacloban City	Tacloban City	1684711
 PH.13.62	Province of Surigao del Sur	Province of Surigao del Sur	1685214
 PH.13.61	Province of Surigao del Norte	Province of Surigao del Norte	1685215
-PH.13.F9	Surigao City	Surigao City	1685216
 PH.14.60	Province of Sulu	Province of Sulu	1685370
 PH.12.71	Province of Sultan Kudarat	Province of Sultan Kudarat	1685377
 PH.08.59	Province of Southern Leyte	Province of Southern Leyte	1685725
 PH.12.70	Province of South Cotabato	Province of South Cotabato	1685731
 PH.05.58	Province of Sorsogon	Province of Sorsogon	1685754
 PH.07.69	Province of Siquijor	Province of Siquijor	1686065
-PH.06.F8	Silay City	Silay City	1686499
-PH.40.F7	San Pablo City	San Pablo City	1688812
-PH.NCR.M6	San Juan	San Juan	1689358
-PH.03.F6	San Jose City	San Jose City	1689403
-PH.01.F5	San Carlos City	San Carlos City	1690202
-PH.06.F4	San Carlos City	San Carlos City	1690203
 PH.08.55	Province of Samar	Province of Samar	1690649
-PH.06.F3	Roxas City	Roxas City	1691440
 PH.41.54	Province of Romblon	Province of Romblon	1691537
 PH.40.53	Province of Rizal	Province of Rizal	1691591
 PH.02.68	Province of Quirino	Province of Quirino	1691975
-PH.NCR.F2	Quezon City	Quezon City	1692193
 PH.40.H2	Province of Quezon	Province of Quezon	1692194
-PH.41.F1	Puerto Princesa City	Puerto Princesa City	1692682
-PH.NCR.L8	Pasig	Pasig	1694584
-PH.NCR.E9	Pasay City	Pasay City	1694608
 PH.01.51	Province of Pangasinan	Province of Pangasinan	1695357
 PH.03.50	Province of Pampanga	Province of Pampanga	1695848
-PH.03.E8	Palayan City	Palayan City	1696164
 PH.41.49	Province of Palawan	Province of Palawan	1696177
-PH.09.E7	Pagadian City	Pagadian City	1696707
-PH.10.E6	Ozamis City	Ozamis City	1696898
-PH.10.E5	Oroquieta City	Oroquieta City	1697005
-PH.08.E4	Ormoc City	Ormoc City	1697014
-PH.03.E3	Olongapo City	Olongapo City	1697172
 PH.02.48	Province of Nueva Vizcaya	Province of Nueva Vizcaya	1697456
 PH.03.47	Province of Nueva Ecija	Province of Nueva Ecija	1697473
 PH.08.67	Province of Northern Samar	Province of Northern Samar	1697549
 PH.12.57	Province of Cotabato	Province of Cotabato	1697559
-PH.NIR.46	Province of Negros Oriental	Province of Negros Oriental	1697806
-PH.NIR.H3	Province of Negros Occidental	Province of Negros Occidental	1697808
-PH.05.E2	Naga City	Naga City	1698822
+PH.07.46	Province of Negros Oriental	Province of Negros Oriental	1697806
+PH.06.H3	Province of Negros Occidental	Province of Negros Occidental	1697808
 PH.15.44	Mountain Province	Mountain Province	1699175
 PH.10.43	Province of Misamis Oriental	Province of Misamis Oriental	1699492
 PH.10.42	Province of Misamis Occidental	Province of Misamis Occidental	1699493
@@ -28267,67 +28959,41 @@ PH.41.41	Province of Mindoro Oriental	Province of Mindoro Oriental	1699585
 PH.41.40	Province of Mindoro Occidental	Province of Mindoro Occidental	1699586
 PH.05.39	Province of Masbate	Province of Masbate	1700711
 PH.41.38	Province of Marinduque	Province of Marinduque	1700902
-PH.NCR.K9	Marikina	Marikina	1700926
-PH.NCR.D9	City of Manila	City of Manila	1701667
-PH.07.D8	Mandaue City	Mandaue City	1701946
-PH.NCR.K8	Mandaluyong	Mandaluyong	1701968
-PH.NCR.K4	Makati City	Makati City	1703415
 PH.14.56	Province of Maguindanao	Province of Maguindanao	1703701
-PH.40.D6	Lipa City	Lipa City	1706087
 PH.08.37	Province of Leyte	Province of Leyte	1706800
-PH.05.D5	Legaspi City	Legaspi City	1706884
 PH.01.36	Province of La Union	Province of La Union	1707052
-PH.07.D4	Lapu-Lapu City	Lapu-Lapu City	1707266
-PH.01.D3	Laoag City	Laoag City	1707403
 PH.14.35	Province of Lanao del Sur	Province of Lanao del Sur	1707667
 PH.10.34	Province of Lanao del Norte	Province of Lanao del Norte	1707668
 PH.40.33	Province of Laguna	Province of Laguna	1708026
-PH.06.D2	La Carlota City	La Carlota City	1708224
 PH.02.31	Province of Isabela	Province of Isabela	1710515
 PH.06.30	Province of Iloilo	Province of Iloilo	1711004
 PH.01.29	Province of Ilocos Sur	Province of Ilocos Sur	1711032
 PH.01.28	Province of Ilocos Norte	Province of Ilocos Norte	1711034
 PH.15.27	Province of Ifugao	Province of Ifugao	1711331
-PH.10.C7	Gingoog City	Gingoog City	1712873
-PH.12.C6	General Santos City	General Santos City	1713021
 PH.08.23	Province of Eastern Samar	Province of Eastern Samar	1713986
-PH.09.C4	Dipolog City	Dipolog City	1714673
 PH.13.I9	Dinagat Islands	Dinagat Islands	1714796
 PH.11.26	Province of Davao Oriental	Province of Davao Oriental	1715342
 PH.11.25	Province of Davao del Sur	Province of Davao del Sur	1715345
 PH.11.I7	Province of Davao del Norte	Province of Davao del Norte	1715347
-PH.09.C2	Dapitan City	Dapitan City	1715538
-PH.07.C1	Danao City	Danao City	1715775
-PH.01.B9	Dagupan City	Dagupan City	1716190
 PH.12.B8	Cotabato City	Cotabato City	1716770
 PH.11.I6	Compostela Valley	Compostela Valley	1717055
-PH.07.B7	Cebu City	Cebu City	1717506
 PH.07.21	Province of Cebu	Province of Cebu	1717511
-PH.40.B6	Cavite City	Cavite City	1717638
 PH.40.20	Province of Cavite	Province of Cavite	1717639
 PH.05.19	Province of Catanduanes	Province of Catanduanes	1717952
 PH.06.18	Province of Capiz	Province of Capiz	1718641
-PH.07.B5	Canlaon City	Canlaon City	1719051
 PH.10.17	Province of Camiguin	Province of Camiguin	1719694
 PH.05.16	Province of Camarines Sur	Province of Camarines Sur	1719845
 PH.05.15	Province of Camarines Norte	Province of Camarines Norte	1719846
-PH.NCR.B4	Caloocan City	Caloocan City	1720148
-PH.08.B3	Calbayog City	Calbayog City	1720400
 PH.02.14	Province of Cagayan	Province of Cagayan	1721086
-PH.06.B1	Cadiz City	Cadiz City	1721171
-PH.03.A9	Cabanatuan City	Cabanatuan City	1721905
 PH.03.13	Province of Bulacan	Province of Bulacan	1723064
 PH.10.12	Province of Bukidnon	Province of Bukidnon	1723105
 PH.07.11	Province of Bohol	Province of Bohol	1724395
 PH.08.H9	Biliran	Biliran	1725260
 PH.15.10	Province of Benguet	Province of Benguet	1725582
-PH.40.A7	Batangas City	Batangas City	1726277
 PH.40.09	Province of Batangas	Province of Batangas	1726279
 PH.02.08	Province of Batanes	Province of Batanes	1726302
 PH.03.07	Province of Bataan	Province of Bataan	1726347
 PH.14.22	Province of Basilan	Province of Basilan	1726404
-PH.07.A5	Bais City	Bais City	1728769
-PH.15.A4	Baguio City	Baguio City	1728929
 PH.03.G8	Province of Aurora	Province of Aurora	1729926
 PH.06.06	Province of Antique	Province of Antique	1730491
 PH.05.05	Province of Albay	Province of Albay	1731616
@@ -28335,8 +29001,6 @@ PH.06.04	Province of Aklan	Province of Aklan	1731758
 PH.13.03	Province of Agusan del Sur	Province of Agusan del Sur	1731818
 PH.13.02	Province of Agusan del Norte	Province of Agusan del Norte	1731819
 PH.15.01	Province of Abra	Province of Abra	1732380
-PH.10.B2	Chartered City of Cagayan de Oro	Chartered City of Cagayan de Oro	6569685
-PH.10.K6	City of Malaybalay	City of Malaybalay	6569821
 PH.15.32	Kalinga	Kalinga	7115730
 PH.15.H6	Apayao	Apayao	7115731
 PH.09.ZSI	Province of Zamboanga Sibugay	Province of Zamboanga Sibugay	7115981
@@ -28415,7 +29079,7 @@ PK.05.1176514	Jacobabad District	Jacobabad District	1176514
 PK.05.1176732	Hyderabad Division	Hyderabad Division	1176732
 PK.05.1176733	Hyderābād District	Hyderabad District	1176733
 PK.07.1176775	Hunza-Nagar District	Hunza-Nagar District	1176775
-PK.05.1176967	Hazara Division	Hazara Division	1176967
+PK.03.1176967	Hazara Division	Hazara Division	1176967
 PK.02.1177445	Gwādar District	Gwadar District	1177445
 PK.04.1177651	Gujrāt District	Gujrat District	1177651
 PK.04.1177657	Gujranwala Division	Gujranwala Division	1177657
@@ -28509,7 +29173,7 @@ PK.05.9625763	Tando Allahyar District	Tando Allahyar District	9625763
 PK.05.9625902	Tando Mohammad Khan District	Tando Mohammad Khan District	9625902
 PK.05.10300608	Sujawal District	Sujawal District	10300608
 PK.04.10344547	Vehari District	Vehari District	10344547
-PK.02.10983501	Dālbandīn Nok Kundi	Dalbandin Nok Kundi	10983501
+PK.02.10983501	Dalbandin Nok Kundi	Dalbandin Nok Kundi	10983501
 PK.07.11594770	Ghizer District	Ghizer District	11594770
 PK.07.11744817	Astore Division	Astore Division	11744817
 PK.04.11744818	Dera Ghazi Khan Dvision	Dera Ghazi Khan Dvision	11744818
@@ -33317,7 +33981,7 @@ RS.SE.17	Morava	Morava	7581800
 RS.SE.20	Nišava	Nisava	7581801
 RS.SE.24	Pčinja	Pcinja	7581802
 RS.SE.22	Pirot	Pirot	7581803
-RS.SE.10	Danube	Danube	7581804
+RS.SE.10	Podunavlje District	Podunavlje District	7581804
 RS.SE.13	Pomoravlje	Pomoravlje	7581805
 RS.SE.19	Rasina	Rasina	7581806
 RS.SE.18	Raška	Raska	7581807
@@ -33500,7 +34164,9 @@ RU.73.483145	Tetyushskiy Rayon	Tetyushskiy Rayon	483145
 RU.49.483272	Terskiy Rayon	Terskiy Rayon	483272
 RU.22.483273	Terskiy Rayon	Terskiy Rayon	483273
 RU.86.483318	Ternovskiy Rayon	Ternovskiy Rayon	483318
+RU.81.483428	Teren’gul’skiy Rayon	Teren'gul'skiy Rayon	483428
 RU.43.483542	Terbunskiy Rayon	Terbunskiy Rayon	483542
+RU.76.483600	Tëplo-Ogarëvskiy Rayon	Teplo-Ogarevskiy Rayon	483600
 RU.46.483641	Ten’gushevskiy Rayon	Ten'gushevskiy Rayon	483641
 RU.38.483660	Temruksky rayon	Temruksky rayon	483660
 RU.46.483682	Temnikovskiy Rayon	Temnikovskiy Rayon	483682
@@ -33884,6 +34550,7 @@ RU.23.541941	Krasnoznamenskiy Rayon	Krasnoznamenskiy Rayon	541941
 RU.65.542130	Krasnoyarskiy Rayon	Krasnoyarskiy Rayon	542130
 RU.07.542131	Krasnoyarskiy Rayon	Krasnoyarskiy Rayon	542131
 RU.90.542183	Krasnovisherskiy Rayon	Krasnovisherskiy Rayon	542183
+RU.71.542198	Krasnoufimskiy Rayon	Krasnoufimskiy Rayon	542198
 RU.46.542209	Krasnoslobodskiy Rayon	Krasnoslobodskiy Rayon	542209
 RU.66.542231	Krasnosel’skiy Rayon	Krasnosel'skiy Rayon	542231
 RU.37.542232	Krasnosel’skiy Rayon	Krasnosel'skiy Rayon	542232
@@ -33905,6 +34572,7 @@ RU.25.543347	Kozel’skiy Rayon	Kozel'skiy Rayon	543347
 RU.34.543395	Koygorodskiy Rayon	Koygorodskiy Rayon	543395
 RU.46.543435	Kovylkinskiy Rayon	Kovylkinskiy Rayon	543435
 RU.83.543454	Kovrovskiy Rayon	Kovrovskiy Rayon	543454
+RU.51.543493	Koverninskiy Rayon	Koverninskiy Rayon	543493
 RU.49.543505	Kovdorskiy Rayon	Kovdorskiy Rayon	543505
 RU.84.543599	Kotovskiy Rayon	Kotovskiy Rayon	543599
 RU.06.543702	Kotlasskiy Rayon	Kotlasskiy Rayon	543702
@@ -33912,6 +34580,7 @@ RU.84.543723	Kotel’nikovskiy Rayon	Kotel'nikovskiy Rayon	543723
 RU.33.543733	Kotel’nichskiy Rayon	Kotel'nichskiy Rayon	543733
 RU.37.543869	Kostromskoy Rayon	Kostromskoy Rayon	543869
 RU.90.544114	Kosinskiy Rayon	Kosinskiy Rayon	544114
+RU.65.544174	Koshkinskiy Rayon	Koshkinskiy Rayon	544174
 RU.01.544261	Koshekhabl’skiy Rayon	Koshekhabl'skiy Rayon	544261
 RU.34.544396	Kortkerosskiy Rayon	Kortkerosskiy Rayon	544396
 RU.09.544704	Korochanskiy Rayon	Korochanskiy Rayon	544704
@@ -33951,6 +34620,7 @@ RU.42.548376	Kirovskiy Rayon	Kirovskiy Rayon	548376
 RU.33.548394	Kirovo-Chepetskiy Rayon	Kirovo-Chepetskiy Rayon	548394
 RU.42.548441	Kirishskiy Rayon	Kirishskiy Rayon	548441
 RU.85.548455	Kirillovskiy Rayon	Kirillovskiy Rayon	548455
+RU.76.548503	Kireyevskiy Rayon	Kireyevskiy Rayon	548503
 RU.42.548601	Kingiseppskiy Rayon	Kingiseppskiy Rayon	548601
 RU.21.548606	Kineshemskiy Rayon	Kineshemskiy Rayon	548606
 RU.65.548614	Kinel’skiy Rayon	Kinel'skiy Rayon	548614
@@ -34006,6 +34676,8 @@ RU.84.553278	Kamyshinskiy Rayon	Kamyshinskiy Rayon	553278
 RU.73.Kamsko-Ust'inskiy Rayon	Kamsko-Ust’inskiy Rayon	Kamsko-Ust'inskiy Rayon	553346
 RU.83.553388	Kameshkovskiy Rayon	Kameshkovskiy Rayon	553388
 RU.57.553390	Kameshkirskiy Rayon	Kameshkirskiy Rayon	553390
+RU.76.553408	Kamenskiy Rayon	Kamenskiy Rayon	553408
+RU.61.553409	Kamenskiy Rayon	Kamenskiy Rayon	553409
 RU.86.553410	Kamenskiy Rayon	Kamenskiy Rayon	553410
 RU.77.553883	Kalyazinskiy Rayon	Kalyazinskiy Rayon	553883
 RU.08.553930	Kaltasinskiy Rayon	Kaltasinskiy Rayon	553930
@@ -34057,6 +34729,7 @@ RU.41.560992	Glushkovskiy Rayon	Glushkovskiy Rayon	560992
 RU.01.561514	Giaginskiy Rayon	Giaginskiy Rayon	561514
 RU.17.Gergebil'skiy Rayon	Gergebil’skiy Rayon	Gergebil'skiy Rayon	561559
 RU.70.561607	Georgiyevskiy Rayon	Georgiyevskiy Rayon	561607
+RU.60.561678	Gdovskiy Rayon	Gdovskiy Rayon	561678
 RU.55.561697	Gayskiy Rayon	Gayskiy Rayon	561697
 RU.90.561701	Gaynskiy Rayon	Gaynskiy Rayon	561701
 RU.88.561761	Gavrilov-Yamskiy Rayon	Gavrilov-Yamskiy Rayon	561761
@@ -34144,6 +34817,7 @@ RU.88.571633	Breytovskiy Rayon	Breytovskiy Rayon	571633
 RU.10.571745	Brasovskiy Rayon	Brasovskiy Rayon	571745
 RU.17.571887	Botlikhskiy Rayon	Botlikhskiy Rayon	571887
 RU.51.571988	Borskiy Rayon	Borskiy Rayon	571988
+RU.65.571989	Borskiy Rayon	Borskiy Rayon	571989
 RU.25.572058	Borovskiy Rayon	Borovskiy Rayon	572058
 RU.52.572153	Borovichskiy Rayon	Borovichskiy Rayon	572153
 RU.09.572391	Borisovskiy Rayon	Borisovskiy Rayon	572391
@@ -34154,19 +34828,25 @@ RU.41.574359	Bol’shesoldatskiy Rayon	Bol'shesoldatskiy Rayon	574359
 RU.88.574363	Bol’shesel’skiy Rayon	Bol'shesel'skiy Rayon	574363
 RU.51.574377	Bol’shemurashkinskiy Rayon	Bol'shemurashkinskiy Rayon	574377
 RU.46.574403	Bol’sheignatovskiy Rayon	Bol'sheignatovskiy Rayon	574403
+RU.65.574410	Bol’sheglushitskiy Rayon	Bol'sheglushitskiy Rayon	574410
+RU.65.574418	Bol’shechernigovskiy Rayon	Bol'shechernigovskiy Rayon	574418
 RU.51.574426	Bol’sheboldinskiy Rayon	Bol'sheboldinskiy Rayon	574426
 RU.46.574428	Bol’shebereznikovskiy Rayon	Bol'shebereznikovskiy Rayon	574428
 RU.77.575351	Bologovskiy Rayon	Bologovskiy Rayon	575351
+RU.56.575360	Bolkhovskiy Rayon	Bolkhovskiy Rayon	575360
 RU.42.575409	Boksitogorskiy Rayon	Boksitogorskiy Rayon	575409
 RU.86.575452	Bogucharskiy Rayon	Bogucharskiy Rayon	575452
 RU.33.575548	Bogorodskiy Rayon	Bogorodskiy Rayon	575548
 RU.51.575549	Bogorodskiy Rayon	Bogorodskiy Rayon	575549
+RU.65.575758	Bogatovskiy Rayon	Bogatovskiy Rayon	575758
 RU.86.575878	Bobrovskiy Rayon	Bobrovskiy Rayon	575878
 RU.08.576106	Blagoveshchenskiy Rayon	Blagoveshchenskiy Rayon	576106
 RU.08.576124	Blagovarskiy Rayon	Blagovarskiy Rayon	576124
 RU.08.576194	Bizhbulyakskiy Rayon	Bizhbulyakskiy Rayon	576194
 RU.08.576316	Birskiy Rayon	Birskiy Rayon	576316
 RU.77.576565	Bezhetskiy Rayon	Bezhetskiy Rayon	576565
+RU.60.576573	Bezhanitskiy Rayon	Bezhanitskiy Rayon	576573
+RU.65.576588	Bezenchukskiy Rayon	Bezenchukskiy Rayon	576588
 RU.77.577692	Bel’skiy Rayon	Bel'skiy Rayon	577692
 RU.85.577707	Belozërskiy Rayon	Belozerskiy Rayon	577707
 RU.41.577820	Belovskiy Rayon	Belovskiy Rayon	577820
@@ -34175,6 +34855,7 @@ RU.38.577885	Belorechenskiy Rayon	Belorechenskiy Rayon	577885
 RU.28.577920	Belomorskiy Rayon	Belomorskiy Rayon	577920
 RU.33.577939	Belokholunitskiy Rayon	Belokholunitskiy Rayon	577939
 RU.08.577943	Belokatayskiy Rayon	Belokatayskiy Rayon	577943
+RU.61.577953	Belokalitvenskiy Rayon	Belokalitvenskiy Rayon	577953
 RU.38.577983	Beloglinskiy Rayon	Beloglinskiy Rayon	577983
 RU.09.578070	Belgorodskiy Rayon	Belgorodskiy Rayon	578070
 RU.08.578118	Belebeyevskiy Rayon	Belebeyevskiy Rayon	578118
@@ -34205,6 +34886,7 @@ RU.08.580576	Askinskiy Rayon	Askinskiy Rayon	580576
 RU.13.580620	Ashinskiy Rayon	Ashinskiy Rayon	580620
 RU.51.580722	Arzamasskiy Rayon	Arzamasskiy Rayon	580722
 RU.73.580846	Arskiy Rayon	Arskiy Rayon	580846
+RU.76.580867	Arsen’yevskiy Rayon	Arsen'yevskiy Rayon	580867
 RU.08.581029	Arkhangel’skiy Rayon	Arkhangel'skiy Rayon	581029
 RU.68.581175	Ardonskiy Rayon	Ardonskiy Rayon	581175
 RU.51.581181	Ardatovskiy Rayon	Ardatovskiy Rayon	581181
@@ -34241,6 +34923,7 @@ RU.27.584220	Adyge-Khabl’skiy Rayon	Adyge-Khabl'skiy Rayon	584220
 RU.12.584297	Achkhoy-Martanovskiy Rayon	Achkhoy-Martanovskiy Rayon	584297
 RU.08.584324	Abzelilovskiy Rayon	Abzelilovskiy Rayon	584324
 RU.38.584439	Abinskiy Rayon	Abinskiy Rayon	584439
+RU.76.817413	Arsen’yevskiy rayon	Arsen'yevskiy rayon	817413
 RU.01.824962	Takhtamukayskiy Rayon	Takhtamukayskiy Rayon	824962
 RU.07.824964	Gorod Astrakhan’	Gorod Astrakhan'	824964
 RU.09.824989	Gorod Alekseyevka	Gorod Alekseyevka	824989
@@ -34305,6 +34988,7 @@ RU.73.862932	Gorod Buinsk	Gorod Buinsk	862932
 RU.73.862934	Gorod Bavly	Gorod Bavly	862934
 RU.73.862935	Nurlatskiy rayon	Nurlatskiy rayon	862935
 RU.04.1484980	Zonal’nyy Rayon	Zonal'nyy Rayon	1484980
+RU.54.1485023	Znamenskiy Rayon	Znamenskiy Rayon	1485023
 RU.04.1485041	Zmeinogorskiy Rayon	Zmeinogorskiy Rayon	1485041
 RU.53.1485310	Zdvinskiy Rayon	Zdvinskiy Rayon	1485310
 RU.04.1485333	Zav’yalovskiy Rayon	Zav'yalovskiy Rayon	1485333
@@ -34322,6 +35006,7 @@ RU.29.1486255	Yayskiy Rayon	Yayskiy Rayon	1486255
 RU.29.1486297	Yashkinskiy Rayon	Yashkinskiy Rayon	1486297
 RU.87.1486461	Yamal’skiy Rayon	Yamal'skiy Rayon	1486461
 RU.04.1486980	Volchikhinskiy Rayon	Volchikhinskiy Rayon	1486980
+RU.75.1487567	Verkhneketskiy Rayon	Verkhneketskiy Rayon	1487567
 RU.53.1487613	Vengerovskiy Rayon	Vengerovskiy Rayon	1487613
 RU.13.1487759	Varnenskiy Rayon	Varnenskiy Rayon	1487759
 RU.40.1487781	Vargashinskiy Rayon	Vargashinskiy Rayon	1487781
@@ -34342,6 +35027,7 @@ RU.04.1488635	Uglovskiy Rayon	Uglovskiy Rayon	1488635
 RU.53.1488709	Ubinskiy Rayon	Ubinskiy Rayon	1488709
 RU.04.1488739	Tyumentsevskiy Rayon	Tyumentsevskiy Rayon	1488739
 RU.91.1488770	Tyukhtetskiy Rayon	Tyukhtetskiy Rayon	1488770
+RU.54.1488778	Tyukalinskiy Rayon	Tyukalinskiy Rayon	1488778
 RU.29.1488837	Tyazhinskiy Rayon	Tyazhinskiy Rayon	1488837
 RU.91.1488901	Turukhanskiy Rayon	Turukhanskiy Rayon	1488901
 RU.03.1488919	Turochakskiy Rayon	Turochakskiy Rayon	1488919
@@ -34356,13 +35042,17 @@ RU.75.1489419	Tomskiy Rayon	Tomskiy Rayon	1489419
 RU.04.1489502	Togul’skiy Rayon	Togul'skiy Rayon	1489502
 RU.53.1489505	Toguchinskiy Rayon	Toguchinskiy Rayon	1489505
 RU.29.1489552	Tisul’skiy Rayon	Tisul'skiy Rayon	1489552
+RU.54.1489657	Tevrizskiy Rayon	Tevrizskiy Rayon	1489657
+RU.75.1489821	Tegul’detskiy Rayon	Tegul'detskiy Rayon	1489821
 RU.87.1489851	Tazovskiy Rayon	Tazovskiy Rayon	1489851
 RU.20.1489868	Tayshetskiy Rayon	Tayshetskiy Rayon	1489868
 RU.91.1489879	Taymyrsky Dolgano-Nenetsky District	Taymyrsky Dolgano-Nenetsky District	1489879
+RU.54.1489939	Tavricheskiy Rayon	Tavricheskiy Rayon	1489939
 RU.53.1489996	Tatarskiy Rayon	Tatarskiy Rayon	1489996
 RU.31.1490033	Tashtypskiy Rayon	Tashtypskiy Rayon	1490033
 RU.29.1490041	Tashtagol’skiy Rayon	Tashtagol'skiy Rayon	1490041
 RU.91.1490057	Taseyevskiy Rayon	Taseyevskiy Rayon	1490057
+RU.54.1490074	Tarskiy Rayon	Tarskiy Rayon	1490074
 RU.04.1490259	Tal’menskiy Rayon	Tal'menskiy Rayon	1490259
 RU.04.1490357	Tabunskiy Rayon	Tabunskiy Rayon	1490357
 RU.71.1490399	Sysertskiy Rayon	Sysertskiy Rayon	1490399
@@ -34388,7 +35078,9 @@ RU.91.1492400	Sharypovskiy Rayon	Sharypovskiy Rayon	1492400
 RU.40.1492514	Shadrinskiy Rayon	Shadrinskiy Rayon	1492514
 RU.91.1492565	Severo-Yeniseyskiy Rayon	Severo-Yeniseyskiy Rayon	1492565
 RU.53.1492577	Severnyy Rayon	Severnyy Rayon	1492577
+RU.54.1492853	Sedel’nikovskiy Rayon	Sedel'nikovskiy Rayon	1492853
 RU.91.1492889	Sayanskiy Rayon	Sayanskiy Rayon	1492889
+RU.54.1493005	Sargatskiy Rayon	Sargatskiy Rayon	1493005
 RU.40.1493266	Safakulevskiy Rayon	Safakulevskiy Rayon	1493266
 RU.91.1493360	Rybinskiy Rayon	Rybinskiy Rayon	1493360
 RU.04.1493465	Rubtsovskiy Rayon	Rubtsovskiy Rayon	1493465
@@ -34415,14 +35107,17 @@ RU.53.1496101	Ordynskiy Rayon	Ordynskiy Rayon	1496101
 RU.03.1496129	Ongudayskiy Rayon	Ongudayskiy Rayon	1496129
 RU.78.1496141	Omutinskiy Rayon	Omutinskiy Rayon	1496141
 RU.13.1496266	Oktyabr’skiy Rayon	Oktyabr'skiy Rayon	1496266
+RU.54.1496327	Okoneshnikovskiy Rayon	Okoneshnikovskiy Rayon	1496327
 RU.53.1496742	Novosibirskiy Rayon	Novosibirskiy Rayon	1496742
 RU.91.1496769	Novosëlovskiy Rayon	Novoselovskiy Rayon	1496769
 RU.29.1496989	Novokuznetskiy Rayon	Novokuznetskiy Rayon	1496989
 RU.04.1497219	Novichikhinskiy Rayon	Novichikhinskiy Rayon	1497219
 RU.20.1497548	Nizhneudinskiy Rayon	Nizhneudinskiy Rayon	1497548
+RU.54.1497563	Nizhneomskiy Rayon	Nizhneomskiy Rayon	1497563
 RU.91.1497575	Nizhneingashskiy Rayon	Nizhneingashskiy Rayon	1497575
 RU.91.1497938	Nazarovskiy Rayon	Nazarovskiy Rayon	1497938
 RU.87.1498082	Nadymskiy Rayon	Nadymskiy Rayon	1498082
+RU.54.1498204	Muromtsevskiy Rayon	Muromtsevskiy Rayon	1498204
 RU.91.1498313	Motyginskiy Rayon	Motyginskiy Rayon	1498313
 RU.53.1498386	Moshkovskiy Rayon	Moshkovskiy Rayon	1498386
 RU.75.1498492	Molchanovskiy Rayon	Molchanovskiy Rayon	1498492
@@ -34432,10 +35127,12 @@ RU.91.1498690	Minusinskiy Rayon	Minusinskiy Rayon	1498690
 RU.04.1498753	Mikhaylovskiy Rayon	Mikhaylovskiy Rayon	1498753
 RU.03.1499159	Mayminskiy Rayon	Mayminskiy Rayon	1499159
 RU.53.1499244	Maslyaninskiy Rayon	Maslyaninskiy Rayon	1499244
+RU.54.1499276	Mar’yanovskiy Rayon	Mar'yanovskiy Rayon	1499276
 RU.29.1499346	Mariinskiy Rayon	Mariinskiy Rayon	1499346
 RU.91.1499401	Manskiy Rayon	Manskiy Rayon	1499401
 RU.04.1499425	Mamontovskiy Rayon	Mamontovskiy Rayon	1499425
 RU.40.1500033	Makushinskiy Rayon	Makushinskiy Rayon	1500033
+RU.54.1500124	Lyubinskiy Rayon	Lyubinskiy Rayon	1500124
 RU.04.1500386	Loktevskiy Rayon	Loktevskiy Rayon	1500386
 RU.29.1500664	Leninsk-Kuznetskiy Rayon	Leninsk-Kuznetskiy Rayon	1500664
 RU.40.1500740	Lebyazh’yevskiy Rayon	Lebyazh'yevskiy Rayon	1500740
@@ -34448,6 +35145,7 @@ RU.91.1501354	Kuraginskiy Rayon	Kuraginskiy Rayon	1501354
 RU.53.1501362	Kupinskiy Rayon	Kupinskiy Rayon	1501362
 RU.13.1501399	Kunashakskiy Rayon	Kunashakskiy Rayon	1501399
 RU.04.1501455	Kulundinskiy Rayon	Kulundinskiy Rayon	1501455
+RU.54.1501688	Krutinskiy Rayon	Krutinskiy Rayon	1501688
 RU.04.1501693	Krutikhinskiy Rayon	Krutikhinskiy Rayon	1501693
 RU.53.1501989	Krasnozerskiy Rayon	Krasnozerskiy Rayon	1501989
 RU.91.1502062	Krasnoturanskiy Rayon	Krasnoturanskiy Rayon	1502062
@@ -34459,7 +35157,9 @@ RU.29.1502191	Krapivinskiy Rayon	Krapivinskiy Rayon	1502191
 RU.91.1502206	Kozul’skiy Rayon	Kozul'skiy Rayon	1502206
 RU.04.1502386	Kosikhinskiy Rayon	Kosikhinskiy Rayon	1502386
 RU.03.1502421	Kosh-Agachskiy Rayon	Kosh-Agachskiy Rayon	1502421
+RU.54.1502525	Kormilovskiy Rayon	Kormilovskiy Rayon	1502525
 RU.53.1502815	Kolyvanskiy Rayon	Kolyvanskiy Rayon	1502815
+RU.54.1502877	Kolosovskiy Rayon	Kolosovskiy Rayon	1502877
 RU.53.1503053	Kochkovskiy Rayon	Kochkovskiy Rayon	1503053
 RU.53.1503080	Kochenevskiy Rayon	Kochenevskiy Rayon	1503080
 RU.04.1503166	Klyuchevskiy Rayon	Klyuchevskiy Rayon	1503166
@@ -34479,13 +35179,16 @@ RU.91.1504681	Kanskiy Rayon	Kanskiy Rayon	1504681
 RU.71.1504832	Kamenskiy Rayon	Kamenskiy Rayon	1504832
 RU.04.1504833	Kamenskiy Rayon	Kamenskiy Rayon	1504833
 RU.04.1504979	Kalmanskiy Rayon	Kalmanskiy Rayon	1504979
+RU.54.1505070	Kalachinskiy Rayon	Kalachinskiy Rayon	1505070
 RU.29.1505227	Izhmorskiy Rayon	Izhmorskiy Rayon	1505227
 RU.53.1505424	Iskitimskiy Rayon	Iskitimskiy Rayon	1505424
+RU.54.1505437	Isil’kul’skiy Rayon	Isil'kul'skiy Rayon	1505437
 RU.78.1505447	Ishimskiy Rayon	Ishimskiy Rayon	1505447
 RU.78.1505468	Isetskiy Rayon	Isetskiy Rayon	1505468
 RU.91.1505530	Irbeyskiy Rayon	Irbeyskiy Rayon	1505530
 RU.91.1505932	Ilanskiy Rayon	Ilanskiy Rayon	1505932
 RU.91.1505999	Idrinskiy Rayon	Idrinskiy Rayon	1505999
+RU.54.1506349	Gor’kovskiy Rayon	Gor'kovskiy Rayon	1506349
 RU.78.1506420	Golyshmanovskiy Rayon	Golyshmanovskiy Rayon	1506420
 RU.91.1506922	Evenkiyskiy District	Evenkiyskiy District	1506922
 RU.91.1507037	Dzerzhinskiy Rayon	Dzerzhinskiy Rayon	1507037
@@ -34496,16 +35199,20 @@ RU.53.1507674	Chulymskiy Rayon	Chulymskiy Rayon	1507674
 RU.03.1507741	Choyskiy Rayon	Choyskiy Rayon	1507741
 RU.53.1507795	Chistoozernyy Rayon	Chistoozernyy Rayon	1507795
 RU.13.1507924	Chesmenskiy Rayon	Chesmenskiy Rayon	1507924
+RU.54.1508135	Cherlakskiy Rayon	Cherlakskiy Rayon	1508135
 RU.53.1508155	Cherepanovskiy Rayon	Cherepanovskiy Rayon	1508155
 RU.29.1508338	Chebulinskiy Rayon	Chebulinskiy Rayon	1508338
 RU.13.1508346	Chebarkul’skiy Rayon	Chebarkul'skiy Rayon	1508346
 RU.40.1508407	Chastoozerskiy Rayon	Chastoozerskiy Rayon	1508407
 RU.04.1508428	Charyshskiy Rayon	Charyshskiy Rayon	1508428
 RU.53.1508459	Chanovskiy Rayon	Chanovskiy Rayon	1508459
+RU.75.1508481	Chainskiy Rayon	Chainskiy Rayon	1508481
 RU.04.1508527	Bystroistokskiy Rayon	Bystroistokskiy Rayon	1508527
 RU.04.1508628	Burlinskiy Rayon	Burlinskiy Rayon	1508628
 RU.13.1508812	Bredinskiy Rayon	Bredinskiy Rayon	1508812
 RU.91.1509484	Bol’sheuluyskiy Rayon	Bol'sheuluyskiy Rayon	1509484
+RU.54.1509486	Bol’sheukovskiy Rayon	Bol'sheukovskiy Rayon	1509486
+RU.54.1509495	Bol’sherechenskiy Rayon	Bol'sherechenskiy Rayon	1509495
 RU.91.1509505	Bol’shemurtinskiy Rayon	Bol'shemurtinskiy Rayon	1509505
 RU.53.1509820	Bolotninskiy Rayon	Bolotninskiy Rayon	1509820
 RU.91.1509845	Boguchanskiy Rayon	Boguchanskiy Rayon	1509845
@@ -34523,8 +35230,10 @@ RU.29.1510461	Belovskiy Rayon	Belovskiy Rayon	1510461
 RU.04.1510708	Bayevskiy Rayon	Bayevskiy Rayon	1510708
 RU.53.1510911	Barabinskiy Rayon	Barabinskiy Rayon	1510911
 RU.91.1510996	Balakhtinskiy Rayon	Balakhtinskiy Rayon	1510996
+RU.75.1511055	Bakcharskiy Rayon	Bakcharskiy Rayon	1511055
 RU.53.1511087	Baganskiy Rayon	Baganskiy Rayon	1511087
 RU.31.1511300	Askizskiy Rayon	Askizskiy Rayon	1511300
+RU.75.1511308	Asinovkiy Rayon	Asinovkiy Rayon	1511308
 RU.78.1511383	Armizonskiy Rayon	Armizonskiy Rayon	1511383
 RU.13.1511424	Argayashskiy Rayon	Argayashskiy Rayon	1511424
 RU.31.1511730	Altayskiy Rayon	Altayskiy Rayon	1511730
@@ -34543,10 +35252,10 @@ RU.13.1535933	Gorod Verkhniy Ufaley	Gorod Verkhniy Ufaley	1535933
 RU.13.1535934	Yemanzhelinskiy rayon	Yemanzhelinskiy rayon	1535934
 RU.13.1535935	Gorod Karabash	Gorod Karabash	1535935
 RU.13.1535936	Gorod Kopeysk	Gorod Kopeysk	1535936
-RU.13.1535937	Gorod Korkino	Gorod Korkino	1535937
+RU.13.1535937	Korkinskij rayon	Korkinskij rayon	1535937
 RU.13.1535938	Gorod Kyshtym	Gorod Kyshtym	1535938
 RU.13.1535939	Gorod Miass	Gorod Miass	1535939
-RU.13.1535940	Gorod Plast	Gorod Plast	1535940
+RU.13.1535940	Plastovskij rayon	Plastovskij rayon	1535940
 RU.13.1535941	Gorod Yuzhnoural’sk	Gorod Yuzhnoural'sk	1535941
 RU.71.1536221	Polevskoy Gorod	Polevskoy Gorod	1536221
 RU.31.1536883	Chernogorsk Gorod	Chernogorsk Gorod	1536883
@@ -34768,6 +35477,9 @@ RU.46.11238668	Kadoshkinskiy rayon	Kadoshkinskiy rayon	11238668
 RU.49.11238669	Kandalakshskiy rayon	Kandalakshskiy rayon	11238669
 RU.12.11497624	Kurchaloyevskiy rayon	Kurchaloyevskiy rayon	11497624
 RU.12.11497700	Grozny Urban Okrug	Grozny Urban Okrug	11497700
+RU.20.11749372	Bratsk Urban Okrug	Bratsk Urban Okrug	11749372
+RU.61.11764998	Krasnosulinskiy Rayon	Krasnosulinskiy Rayon	11764998
+RU.61.11805539	Rayon Aksayskiy	Rayon Aksayskiy	11805539
 RW.11.52	Nyagatare District	Nyagatare District	7688799
 RW.11.53	Gatsibo District	Gatsibo District	7688800
 RW.11.54	Kayonza District	Kayonza District	7688801
@@ -35500,7 +36212,7 @@ SS.03.373249	Mudīrīyat Junqalī	Mudiriyat Junqali	373249
 SS.05.377888	Mudīrīyat Baḩr al Ghazāl ash Sharqīyah	Mudiriyat Bahr al Ghazal ash Sharqiyah	377888
 SS.02.379350	Al Mudīrīyah al Istiwā’īyah ash Sharqīyah	Al Mudiriyah al Istiwa'iyah ash Sharqiyah	379350
 SS.04.379602	Mudīrīyat al Buḩayrāt	Mudiriyat al Buhayrat	379602
-SS.07.381228	Mudīrīyat A‘ālī an Nīl	Mudiriyat A`ali an Nil	381228
+SS.07.381228	Mudīrīyat A‘ālī an Nīl	Mudiriyat A'ali an Nil	381228
 SS.04.7874619	Shobet	Shobet	7874619
 SS.11550571.7874621	Terkaka	Terkaka	7874621
 SS.11550567.8224935	Magwi County	Magwi County	8224935
@@ -37057,7 +37769,7 @@ TR.31.437215	Kumlu İlçesi	Kumlu Ilcesi	437215
 TR.90.437251	Musabeyli İlçesi	Musabeyli Ilcesi	437251
 TR.83.437252	İslahiye İlçesi	Islahiye Ilcesi	437252
 TR.90.437627	Polateli İlçesi	Polateli Ilcesi	437627
-TR.90.437628	Kilis İlçesi	Kilis Ilcesi	437628
+TR.90.437628	Kilis Merkez	Kilis Merkez	437628
 TR.90.437629	Elbeyli İlçesi	Elbeyli Ilcesi	437629
 TR.83.437630	Şahinbey İlçesi	Sahinbey Ilcesi	437630
 TR.31.437928	İskenderun İlçesi	Iskenderun Ilcesi	437928
@@ -37081,7 +37793,7 @@ TR.21.439825	Bismil İlçesi	Bismil Ilcesi	439825
 TR.76.440476	Beşiri İlçesi	Besiri Ilcesi	440476
 TR.76.440905	Hasankeyf İlçesi	Hasankeyf Ilcesi	440905
 TR.74.440906	Kurtalan İlçesi	Kurtalan Ilcesi	440906
-TR.74.440907	Siirt İlçesi	Siirt Ilcesi	440907
+TR.74.440907	Siirt Merkez	Siirt Merkez	440907
 TR.72.441186	Savur İlçesi	Savur Ilcesi	441186
 TR.72.441187	Yeşilli İlçesi	Yesilli Ilcesi	441187
 TR.72.441188	Ömerli İlçesi	OEmerli Ilcesi	441188
@@ -37089,7 +37801,7 @@ TR.76.441468	Gercüş İlçesi	Gercues Ilcesi	441468
 TR.72.441469	Midyat İlçesi	Midyat Ilcesi	441469
 TR.80.441645	Güçlükonak İlçesi	Guecluekonak Ilcesi	441645
 TR.72.441646	Dargeçit İlçesi	Dargecit Ilcesi	441646
-TR.72.441866	Mardin İlçesi	Mardin Ilcesi	441866
+TR.72.441866	Mardin Merkez	Mardin Merkez	441866
 TR.72.441966	Nusaybin İlçesi	Nusaybin Ilcesi	441966
 TR.80.442034	İdil İlçesi	Idil Ilcesi	442034
 TR.23.6544214	Karakoçan / Elazığ	Karakocan / Elazig	6544214
@@ -37104,7 +37816,7 @@ TR.05.7732078	Merkez	Merkez	7732078
 TR.68.7732081	Altındağ	Altindag	7732081
 TR.68.7732084	Çankaya	Cankaya	7732084
 TR.68.7732107	Gölbaşı	Goelbasi	7732107
-TR.68.7732167	Kazan	Kazan	7732167
+TR.68.7732167	Kahramankazan	Kahramankazan	7732167
 TR.68.7732180	Polatlı	Polatli	7732180
 TR.68.7732181	Sincan İlçesi	Sincan Ilcesi	7732181
 TR.68.7732184	Yenimahalle	Yenimahalle	7732184
@@ -37151,9 +37863,8 @@ TR.34.7732460	Bağcılar	Bagcilar	7732460
 TR.34.7732461	Bakırköy	Bakirkoey	7732461
 TR.34.7732462	Beyoğlu	Beyoglu	7732462
 TR.34.7732464	Çatalca	Catalca	7732464
-TR.34.7732466	Eminönü	Eminoenue	7732466
 TR.34.7732467	Esenler	Esenler	7732467
-TR.34.7732469	Eyüp	Eyuep	7732469
+TR.34.7732469	Eyüpsultan	Eyuepsultan	7732469
 TR.34.7732471	Gaziosmanpaşa	Gaziosmanpasa	7732471
 TR.34.7732474	Güngören	Guengoeren	7732474
 TR.34.7732501	Kadıköy	Kadikoey	7732501
@@ -37212,7 +37923,6 @@ TR.54.7732953	Merkez	Merkez	7732953
 TR.55.7732956	Bafra	Bafra	7732956
 TR.55.7732982	Merkez	Merkez	7732982
 TR.63.7732984	Merkez	Merkez	7732984
-TR.80.7732987	Merkez	Merkez	7732987
 TR.58.7732989	Merkez	Merkez	7732989
 TR.58.7732990	Zara	Zara	7732990
 TR.59.7732991	Çerkezköy	Cerkezkoey	7732991
@@ -37230,7 +37940,6 @@ TR.66.7733004	Sarıkaya	Sarikaya	7733004
 TR.85.7733006	Ereğli	Eregli	7733006
 TR.57.7733028	Merkez	Merkez	7733028
 TR.68.7733221	Keçiören	Kecioeren	7733221
-TR.09.7733222	Efeler	Efeler	7733222
 TR.10.7733225	Marmara İlçesi	Marmara Ilcesi	7733225
 TR.82.7733226	Şabanözü	Sabanoezue	7733226
 TR.23.7733228	Ağın	Agin	7733228
@@ -37266,10 +37975,9 @@ TR.28.7911037	Dereli	Dereli	7911037
 TR.07.7911038	Kumluca	Kumluca	7911038
 TR.65.7911042	Muradiye	Muradiye	7911042
 TR.57.7911054	Ayancık	Ayancik	7911054
-TR.81.7911055	Kozan İlçesi	Kozan Ilcesi	7911055
+TR.81.7911055	Kozan	Kozan	7911055
 TR.71.7932392	Cihanbeyli District	Cihanbeyli District	7932392
-TR.73.7932394	Eskil District	Eskil District	7932394
-TR.38.7932395	Yahyali District	Yahyali District	7932395
+TR.38.7932395	Yahyali	Yahyali	7932395
 TR.34.8521527	Adalar	Adalar	8521527
 TR.34.8521528	Arnavutköy	Arnavutkoey	8521528
 TR.34.8521529	Ataşehir	Atasehir	8521529
@@ -37358,7 +38066,6 @@ TR.25.8631379	Köprüköy İlçesi	Koepruekoey Ilcesi	8631379
 TR.25.8631380	Tortum İlçesi	Tortum Ilcesi	8631380
 TR.25.8631381	Oltu İlçesi	Oltu Ilcesi	8631381
 TR.25.8631382	Pasinler İlçesi	Pasinler Ilcesi	8631382
-TR.25.8631383	Ilıca İlçesi	Ilica Ilcesi	8631383
 TR.25.8631384	Tekman İlçesi	Tekman Ilcesi	8631384
 TR.25.8631386	Karayazı İlçesi	Karayazi Ilcesi	8631386
 TR.25.8631387	Hınıs İlçesi	Hinis Ilcesi	8631387
@@ -37553,15 +38260,15 @@ TR.38.8631784	Talas İlçesi	Talas Ilcesi	8631784
 TR.38.8631787	Hacılar İlçesi	Hacilar Ilcesi	8631787
 TR.38.8631788	Felahiye İlçesi	Felahiye Ilcesi	8631788
 TR.38.8631789	Özvatan İlçesi	OEzvatan Ilcesi	8631789
-TR.81.8631795	Yumurtalık İlçesi	Yumurtalik Ilcesi	8631795
-TR.81.8631903	Saimbeyli İlçesi	Saimbeyli Ilcesi	8631903
-TR.81.8631904	Tufanbeyli İlçesi	Tufanbeyli Ilcesi	8631904
-TR.81.8631905	Feke İlçesi	Feke Ilcesi	8631905
-TR.81.8631906	Aladağ İlçesi	Aladag Ilcesi	8631906
-TR.81.8631907	Pozantı İlçesi	Pozanti Ilcesi	8631907
-TR.81.8631908	İmamoğlu İlçesi	Imamoglu Ilcesi	8631908
-TR.81.8631909	Karaisalı İlçesi	Karaisali Ilcesi	8631909
-TR.81.8631910	Karataş İlçesi	Karatas Ilcesi	8631910
+TR.81.8631795	Yumurtalık	Yumurtalik	8631795
+TR.81.8631903	Saimbeyli	Saimbeyli	8631903
+TR.81.8631904	Tufanbeyli	Tufanbeyli	8631904
+TR.81.8631905	Feke	Feke	8631905
+TR.81.8631906	Aladağ	Aladag	8631906
+TR.81.8631907	Pozantı	Pozanti	8631907
+TR.81.8631908	İmamoğlu	Imamoglu	8631908
+TR.81.8631909	Karaisalı	Karaisali	8631909
+TR.81.8631910	Karataş	Karatas	8631910
 TR.73.8631911	Altunhisar İlçesi	Altunhisar Ilcesi	8631911
 TR.73.8631912	Çamardı İlçesi	Camardi Ilcesi	8631912
 TR.73.8631913	Çiftlik İlçesi	Ciftlik Ilcesi	8631913
@@ -37999,37 +38706,22 @@ TR.65.9550890	Tuşpa	Tuspa	9550890
 TR.65.9550938	İpekyolu	Ipekyolu	9550938
 TR.68.9551354	Pursaklar	Pursaklar	9551354
 TR.72.9552222	Artuklu	Artuklu	9552222
-TR.81.9552711	Sarıçam İlçesi	Saricam Ilcesi	9552711
-TR.81.9552840	Çukurova İlçesi	Cukurova Ilcesi	9552840
+TR.81.9552711	Sarıçam	Saricam	9552711
+TR.81.9552840	Çukurova	Cukurova	9552840
 TR.85.9553115	Kozlu	Kozlu	9553115
 TR.85.9553975	Kilimli	Kilimli	9553975
-TR.09.9564466	Efeler İlçesi	Efeler Ilcesi	9564466
+TR.09.9564466	Efeler	Efeler	9564466
 TR.59.9564781	Ergene	Ergene	9564781
 TR.25.9565016	Palandöken	Palandoeken	9565016
 TR.21.9565090	Kayapınar	Kayapinar	9565090
 TR.21.9565135	Bağlar	Baglar	9565135
 TR.21.9565316	Yenişehir	Yenisehir	9565316
 TR.21.9565377	Sur	Sur	9565377
-TR.23.9613510	Karakoçan İlçesi	Karakocan Ilcesi	9613510
-TR.34.10253863	Gazi Osmanpaşa İlçe	Gazi Osmanpasa Ilce	10253863
-TR.25.10330935	Dadaşkent İlçesi	Dadaskent Ilcesi	10330935
-TR.25.10330937	Odunpazarı İlçesi	Odunpazari Ilcesi	10330937
-TR.25.10330997	Kazımkarabekir İlçesi	Kazimkarabekir Ilcesi	10330997
-TR.16.10346864	Osmangazi İlçesi	Osmangazi Ilcesi	10346864
-TR.61.10861436	Ortahisar İlçesi	Ortahisar Ilcesi	10861436
-TR.76.10903227	Taşmış İlçesi	Tasmis Ilcesi	10903227
-TR.45.10910315	Yunus Emre İlçesi	Yunus Emre Ilcesi	10910315
 TR.10.10910316	Karesi İlçesi	Karesi Ilcesi	10910316
-TR.59.10910317	Ergene İlçesi	Ergene Ilcesi	10910317
-TR.41.10910318	Başiskelesi İlçesi	Basiskelesi Ilcesi	10910318
-TR.41.10910319	İzmit İlçesi	Izmit Ilcesi	10910319
-TR.41.10910320	Kartepe İlçesi	Kartepe Ilcesi	10910320
-TR.54.10910800	Arife İlçesi	Arife Ilcesi	10910800
-TR.65.10911387	Tusba İlçesi	Tusba Ilcesi	10911387
-TR.46.10911389	Dulkadınoğlu İlçesi	Dulkadinoglu Ilcesi	10911389
-TR.31.10911402	Defne İlçesi	Defne Ilcesi	10911402
-TR.32.10911755	Toroslar İlçesi	Toroslar Ilcesi	10911755
-TR.41.11235394	Bekirpaşa İlçesi	Bekirpasa Ilcesi	11235394
+TR.04.11778423	Ağrı	Agri	11778423
+TR.08.11789075	Kemalpaşa	Kemalpasa	11789075
+TR.75.11789076	Sultanhanı	Sultanhani	11789076
+TR.68.11791803	Kazan İlçesi	Kazan Ilcesi	11791803
 TT.SGE.3573559	Ward of Valencia	Ward of Valencia	3573559
 TT.SGE.3573575	Ward of Turure	Ward of Turure	3573575
 TT.03.3573589	Ward of Trinity	Ward of Trinity	3573589
@@ -38081,12 +38773,12 @@ TW.04.ILA	Yilan	Yilan	1674197
 TW.04.HUA	Hualien	Hualien	1674502
 TW.04.HSQ	Hsinchu	Hsinchu	1675103
 TW.04.HSZ	Hsinchu County	Hsinchu County	1675107
-TW.01.1676511	Kinmen County	Kinmen County	1676511
+TW.01.KIN	Kinmen County	Kinmen County	1676511
 TW.04.CYI	Chiayi	Chiayi	1678834
 TW.04.CYQ	Chiayi County	Chiayi County	1678835
 TW.04.CHA	Changhua	Changhua	1679134
 TW.04.KEE	Keelung	Keelung	6724654
-TW.01.6724655	Lienchiang	Lienchiang	6724655
+TW.01.LIE	Lienchiang	Lienchiang	6724655
 TW.02.KHH	Kaohsiung	Kaohsiung	9613373
 TW.04.TXG	Taichung City	Taichung City	9613500
 TZ.13.5401	Wete District	Wete District	148841

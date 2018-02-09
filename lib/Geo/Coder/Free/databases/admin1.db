@@ -445,6 +445,12 @@ BW.05	Kgatleng	Kgatleng	933654
 BW.04	Kgalagadi	Kgalagadi	933657
 BW.03	Ghanzi	Ghanzi	933758
 BW.01	Central	Central	933851
+BW.13	City of Francistown	City of Francistown	11778168
+BW.14	Gaborone	Gaborone	11778169
+BW.15	Jwaneng	Jwaneng	11778170
+BW.16	Lobatse	Lobatse	11778171
+BW.17	Selibe Phikwe	Selibe Phikwe	11778172
+BW.18	Sowa Town	Sowa Town	11778173
 BY.07	Vitebsk	Vitebsk	620134
 BY.06	Mogilev	Mogilev	625073
 BY.05	Minsk	Minsk	625142
@@ -580,18 +586,18 @@ CK.11695425	Rarotonga	Rarotonga	11695425
 CL.01	Valparaíso	Valparaiso	3868621
 CL.15	Tarapacá	Tarapaca	3870116
 CL.12	Santiago Metropolitan	Santiago Metropolitan	3873544
-CL.11	Maule	Maule	3880306
-CL.14	Los Lagos	Los Lagos	3881974
-CL.08	O'Higgins	O'Higgins	3883281
-CL.07	Coquimbo	Coquimbo	3893623
+CL.11	Maule Region	Maule Region	3880306
+CL.14	Los Lagos Region	Los Lagos Region	3881974
+CL.08	O'Higgins Region	O'Higgins Region	3883281
+CL.07	Coquimbo Region	Coquimbo Region	3893623
 CL.06	Biobío	Biobio	3898380
 CL.05	Atacama	Atacama	3899191
 CL.04	Araucanía	Araucania	3899463
 CL.03	Antofagasta	Antofagasta	3899537
-CL.02	Aisén	Aisen	3900333
-CL.10	Magallanes	Magallanes	4036650
+CL.02	Aysén	Aysen	3900333
+CL.10	Region of Magallanes	Region of Magallanes	4036650
 CL.16	Arica y Parinacota	Arica y Parinacota	6693562
-CL.17	Los Ríos	Los Rios	6693563
+CL.17	Los Ríos Region	Los Rios Region	6693563
 CM.09	South-West	South-West	2221788
 CM.14	South	South	2221789
 CM.08	West	West	2222934
@@ -1344,7 +1350,7 @@ IN.39	Uttarakhand	Uttarakhand	1444366
 IQ.02	Basra	Basra	89341
 IQ.16	Wāsiţ	Wasit	89693
 IQ.18	Salah ad Din	Salah ad Din	91695
-IQ.15	Nīnawá	Ninawa	92877
+IQ.15	Nineveh	Nineveh	92877
 IQ.14	Maysan	Maysan	93540
 IQ.12	Karbalāʼ	Muhafazat Karbala'	94823
 IQ.11	Arbīl	Arbil	95445
@@ -1766,35 +1772,35 @@ LU.CL	Clervaux	Clervaux	2960683
 LU.CA	Capellen	Capellen	2960696
 LV.33	Ventspils Rajons	Ventspils Rajons	454307
 LV.32	Ventspils	Ventspils	454311
-LV.31	Valmieras Rajons	Valmieras Rajons	454564
+LV.31	Valmiera	Valmiera	454564
 LV.30	Valka	Valka	454571
-LV.29	Tukuma Rajons	Tukuma Rajons	454771
+LV.29	Tukuma novads	Tukuma novads	454771
 LV.28	Talsi Municipality	Talsi Municipality	454968
 LV.27	Saldus Rajons	Saldus Rajons	455888
 LV.25	Riga	Riga	456173
-LV.24	Rēzeknes Rajons	Rezeknes Rajons	456197
+LV.24	Rēzeknes Novads	Rezeknes Novads	456197
 LV.23	Rēzekne	Rezekne	456203
 LV.22	Preiļu novads	Preilu novads	456528
 LV.21	Ogre	Ogre	457061
 LV.20	Madona Municipality	Madona Municipality	457712
-LV.19	Ludzas Rajons	Ludzas Rajons	457773
-LV.18	Limbažu Rajons	Limbazu Rajons	457889
+LV.19	Ludzas novads	Ludzas novads	457773
+LV.18	Limbažu novads	Limbazu novads	457889
 LV.16	Liepāja	Liepaja	457955
-LV.15	Kuldīgas Rajons	Kuldigas Rajons	458459
-LV.14	Krāslavas Rajons	Kraslavas Rajons	458621
+LV.15	Kuldīgas novads	Kuldigas novads	458459
+LV.14	Krāslavas novads	Kraslavas novads	458621
 LV.13	Jūrmala	Jurmala	459202
-LV.12	Jelgavas Rajons	Jelgavas Rajons	459278
+LV.12	Jelgavas novads	Jelgavas novads	459278
 LV.11	Jelgava	Jelgava	459281
 LV.10	Jēkabpils Municipality	Jekabpils Municipality	459282
-LV.09	Gulbenes Rajons	Gulbenes Rajons	459664
-LV.08	Dobeles Rajons	Dobeles Rajons	460311
+LV.09	Gulbenes novads	Gulbenes novads	459664
+LV.08	Dobeles novads	Dobeles novads	460311
 LV.07	Daugavpils municipality	Daugavpils municipality	460410
 LV.06	Daugavpils	Daugavpils	460414
 LV.05	Cēsu Rajons	Cesu Rajons	460569
 LV.04	Bauskas Rajons	Bauskas Rajons	461112
-LV.03	Balvu Rajons	Balvu Rajons	461160
+LV.03	Balvu Novads	Balvu Novads	461160
 LV.02	Alūksnes Novads	Aluksnes Novads	461525
-LV.01	Aizkraukles Rajons	Aizkraukles Rajons	461613
+LV.01	Aizkraukles novads	Aizkraukles novads	461613
 LV.60	Dundaga	Dundaga	7628298
 LV.40	Alsunga	Alsunga	7628299
 LV.A5	Pāvilostas	Pavilostas	7628300
@@ -1894,7 +1900,7 @@ LY.75	Sabhā	Sabha	2212774
 LY.74	Sha‘bīyat Nālūt	Sha`biyat Nalut	2214432
 LY.73	Murzuq	Murzuq	2214602
 LY.72	Mişrātah	Misratah	2214845
-LY.71	Sha‘bīyat Ghāt	Sha`biyat Ghat	2217350
+LY.71	Sha‘bīyat Ghāt	Sha'biyat Ghat	2217350
 LY.68	Az Zāwiyah	Az Zawiyah	2218972
 LY.78	Ash Shāţiʼ	Sha'biyat Wadi ash Shati'	2219413
 LY.64	Al Jufrah	Al Jufrah	2219944
@@ -2464,7 +2470,6 @@ NP.MR	Mid Western	Mid Western	7289706
 NP.CR	Central Region	Central Region	7289707
 NP.ER	Eastern Region	Eastern Region	7289708
 NP.WR	Western Region	Western Region	7289709
-NP.00		Patheka	11205571
 NR.14	Yaren	Yaren	2110418
 NR.13	Uaboe	Uaboe	2110420
 NR.12	Nibok	Nibok	2110423
@@ -2590,7 +2595,6 @@ PH.09	Zamboanga Peninsula	Zamboanga Peninsula	7521308
 PH.11	Davao	Davao	7521309
 PH.05	Bicol	Bicol	7521310
 PH.NCR	Metro Manila	Metro Manila	7521311
-PH.NIR	Negros Island Region	Negros Island Region	11353110
 PK.08	Islāmābād	Islamabad	1162015
 PK.05	Sindh	Sindh	1164807
 PK.04	Punjab	Punjab	1167710
@@ -2758,6 +2762,7 @@ QA.06	Baladīyat ar Rayyān	Baladiyat ar Rayyan	389469
 QA.01	Baladīyat ad Dawḩah	Baladiyat ad Dawhah	389470
 QA.10	Al Wakrah	Al Wakrah	389472
 QA.13	Baladīyat az̧ Z̧a‘āyin	Baladiyat az Za`ayin	8030540
+QA.14	Al-Shahaniya	Al-Shahaniya	11777514
 RE.RE	Réunion	Reunion	6690283
 RO.40	Vrancea	Vrancea	662447
 RO.39	Vâlcea	Valcea	662892
