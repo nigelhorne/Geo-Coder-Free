@@ -381,7 +381,7 @@ Lots of lookups fail at the moment.
 
 =head1 SEE ALSO
 
-VWF, Maxmind and geonames.
+VWF, MaxMind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 
@@ -390,6 +390,9 @@ Copyright 2017-2018 Nigel Horne.
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
 must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
+
+This product includes GeoLite2 data created by MaxMind, available from
+http://www.maxmind.com
 
 =cut
 
