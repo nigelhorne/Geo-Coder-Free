@@ -206,8 +206,7 @@ sub geocode {
 	my @regions;
 	# TODO:  Locale::CA for Canadian provinces
 	if(($country =~ /^(United States|USA|US)$/) && (length($county) > 2)) {
-		my $us = Locale::US->new();
-		if(my $twoletterstate = $us->{state2code}{uc($county)}) {
+		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 			$county = $twoletterstate;
 		}
 	}
