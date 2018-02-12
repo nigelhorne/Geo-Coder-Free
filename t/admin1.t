@@ -5,6 +5,8 @@
 use strict;
 use warnings;
 use Test::Most tests => 5;
+use lib 't/lib';
+use MyLogger;
 
 BEGIN {
 	use_ok('Geo::Coder::Free::DB::admin1');
@@ -19,50 +21,4 @@ CITIES: {
 
 	$england = $admin1->fetchrow_hashref({ asciiname => 'England' });
 	ok($england->{concatenated_codes} eq 'GB.ENG');
-}
-
-package MyLogger;
-
-sub new {
-	my ($proto, %args) = @_;
-
-	my $class = ref($proto) || $proto;
-
-	return bless { }, $class;
-}
-
-sub info {
-	my $self = shift;
-	my $message = shift;
-
-	if($ENV{'TEST_VERBOSE'}) {
-		::diag($message);
-	}
-}
-
-sub trace {
-	my $self = shift;
-	my $message = shift;
-
-	if($ENV{'TEST_VERBOSE'}) {
-		::diag($message);
-	}
-}
-
-sub debug {
-	my $self = shift;
-	my $message = shift;
-
-	if($ENV{'TEST_VERBOSE'}) {
-		::diag($message);
-	}
-}
-
-sub AUTOLOAD {
-	our $AUTOLOAD;
-	my $param = $AUTOLOAD;
-
-	unless($param eq 'MyLogger::DESTROY') {
-		::diag("Need to define $param");
-	}
 }
