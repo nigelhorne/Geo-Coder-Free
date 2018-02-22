@@ -378,6 +378,10 @@ it under the same terms as Perl itself.
 
 Lots of lookups fail at the moment.
 
+=head1 TODO
+
+Add support for a local copy of results.openaddresses.io.
+
 =head1 SEE ALSO
 
 VWF, MaxMind and geonames.
