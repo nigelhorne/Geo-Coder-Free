@@ -6,6 +6,7 @@ use warnings;
 use Geo::Coder::Free::DB::admin1;
 use Geo::Coder::Free::DB::admin2;
 use Geo::Coder::Free::DB::cities;
+use Geo::Coder::Free::DB::OpenAddr;
 use Module::Info;
 use Carp;
 use Error::Simple;
@@ -52,6 +53,7 @@ Refer to the source URL for licencing information for these files
 cities.csv is from https://www.maxmind.com/en/free-world-cities-database
 admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt
 admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt
+openaddress data can be downloaded from http://results.openaddresses.io/
 
 See also http://download.geonames.org/export/dump/allCountries.zip
 
@@ -82,6 +84,12 @@ sub new {
 		directory => File::Spec->catfile($directory, 'databases'),
 		cache => CHI->new(driver => 'Memory', datastore => { })
 	});
+
+	# TODO: This has not been written yet, so it isn't documented
+	if(my $openaddr = $param{'openaddr'}) {
+		die "Can't find the directory $openaddr" if((!-d $openaddr) || (!-r $openaddr));
+		return bless { openaddr => $openaddr}, $class;
+	}
 
 	return bless { }, $class;
 }
@@ -158,6 +166,21 @@ sub geocode {
 	}
 
 	if($country) {
+		if($self->{openaddr}) {
+			my $openaddr_db;
+			my $countrydir = File::Spec->catfile($self->{openaddr}, uc($country));
+			if($county && (-d $countrydir)) {
+				my $countydir = File::Spec->catfile($countrydir, uc($county));
+				if(-d $countydir) {
+					$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir);
+				}
+			} else {
+				$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
+			}
+			if($openaddr_db) {
+				die "TBD";
+			}
+		}
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
 		} elsif($admin1cache{$country} && !defined($state)) {
