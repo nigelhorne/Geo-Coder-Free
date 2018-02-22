@@ -168,9 +168,20 @@ sub geocode {
 	if($country) {
 		if($self->{openaddr}) {
 			my $openaddr_db;
-			my $countrydir = File::Spec->catfile($self->{openaddr}, uc($country));
-			if($county && (-d $countrydir)) {
-				my $countydir = File::Spec->catfile($countrydir, uc($county));
+			my $countrydir = File::Spec->catfile($self->{openaddr}, lc($country));
+			if($state && (-d $countrydir)) {
+				# TODO:  Locale::CA for Canadian provinces
+				if(($state =~ /^(United States|USA|US)$/) && (length($state) > 2)) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						$state = $twoletterstate;
+					}
+				}
+				my $statedir = File::Spec->catfile($countrydir, lc($state));
+				if(-d $statedir) {
+					$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir);
+				}
+			} elsif($county && (-d $countrydir)) {
+				my $countydir = File::Spec->catfile($countrydir, lc($county));
 				if(-d $countydir) {
 					$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir);
 				}
