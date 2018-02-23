@@ -155,10 +155,6 @@ sub geocode {
 		if($location =~ /^St\.? (.+)/) {
 			$location = "Saint $1";
 		}
-		if(($country eq 'UK') || ($country eq 'United Kingdom')) {
-			$country = 'Great Britain';
-			$concatenated_codes = 'GB';
-		}
 	} elsif($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),\s*(Canada|United States|USA|US)?$/) {
 		$location = $1;
 		$county = $2;
@@ -193,8 +189,12 @@ sub geocode {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
 		return;
 	}
+	if(($country eq 'UK') || ($country eq 'United Kingdom')) {
+		$country = 'Great Britain';
+		$concatenated_codes = 'GB';
+	}
 
-	if($country) {
+	if($country && country2code($country)) {
 		if($self->{openaddr}) {
 			my $openaddr_db;
 			my $countrydir = File::Spec->catfile($self->{openaddr}, lc(country2code($country)));
