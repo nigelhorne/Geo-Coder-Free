@@ -24,6 +24,7 @@ t/admin2.t
 t/cities.t
 t/lib/MyLogger.pm
 t/lookup.t
+t/openaddr.t
 t/pod-cm.t
 t/pod.t
 t/spelling.t

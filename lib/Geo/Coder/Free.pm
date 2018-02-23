@@ -13,6 +13,7 @@ use Error::Simple;
 use File::Spec;
 use Locale::US;
 use CHI;
+use Locale::Country;
 
 our %admin1cache;
 our %admin2cache;
@@ -40,10 +41,14 @@ our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
-      use Geo::Coder::Free;
+    use Geo::Coder::Free;
 
-      my $geocoder = Geo::Coder::Free->new();
-      my $location = $geocoder->geocode(location => 'Ramsgate, Kent, UK');
+    my $geocoder = Geo::Coder::Free->new();
+    my $location = $geocoder->geocode(location => 'Ramsgate, Kent, UK');
+
+    # Use a local download of http://results.openaddresses.io/
+    my $openaddr_geocoder = Geo::Coder::Freee->new(openaddr => $ENV{'OPENADDR_HOME'});
+    $location = $openaddr_geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
 =head1 DESCRIPTION
 
@@ -122,6 +127,10 @@ sub geocode {
 	my $location = $param{location}
 		or Carp::croak("Usage: geocode(location => \$location)");
 
+	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
+		$location = "$1, Washington, DC, $2";
+	}
+
 	if($known_locations{$location}) {
 		return $known_locations{$location};
 	}
@@ -130,6 +139,7 @@ sub geocode {
 	my $state;
 	my $country;
 	my $country_code;
+	my $street;
 	my $concatenated_codes;
 
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
@@ -160,37 +170,125 @@ sub geocode {
 		$state =~ s/\s$//g;
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
+	} elsif($self->{openaddr}) {
+		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(Canada|United States|USA|US)?$/) {
+			$street = $1;
+			$location = $2;
+			$county = $3;
+			$state = $4;
+			$country = $5;
+			$location =~ s/^\s//g;
+			$location =~ s/\s$//g;
+			$county =~ s/^\s//g;
+			$county =~ s/\s$//g;
+			$state =~ s/^\s//g;
+			$state =~ s/\s$//g;
+			$country =~ s/^\s//g;
+			$country =~ s/\s$//g;
+		} else {
+			# TODO: Parse full postal address
+			die 'TODO - add support for full addresses on openaddr';
+		}
 	} else {
-		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
+		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
 		return;
 	}
 
 	if($country) {
 		if($self->{openaddr}) {
 			my $openaddr_db;
-			my $countrydir = File::Spec->catfile($self->{openaddr}, lc($country));
+			my $countrydir = File::Spec->catfile($self->{openaddr}, lc(country2code($country)));
+			# TODO:  Don't use statewide if the county can be determined, since that file will be much smaller
 			if($state && (-d $countrydir)) {
 				# TODO:  Locale::CA for Canadian provinces
 				if(($state =~ /^(United States|USA|US)$/) && (length($state) > 2)) {
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
 						$state = $twoletterstate;
 					}
+				} elsif($country =~ /^(United States|USA|US)$/) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						$state = $twoletterstate;
+					}
+					my $l = length($state);
+					if($l > 2) {
+						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+							$state = $twoletterstate;
+						}
+					} elsif($l == 2) {
+						$state = lc($state);
+					}
 				}
-				my $statedir = File::Spec->catfile($countrydir, lc($state));
+				my $statedir = File::Spec->catfile($countrydir, $state);
 				if(-d $statedir) {
-					$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir);
+					$openaddr_db = $self->{$statedir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir, table => 'statewide');
+					if($location) {
+						$self->{$statedir} = $openaddr_db;
+						my $rc;
+						if($street) {
+							$rc = $openaddr_db->fetchrow_hashref('street' => uc($street), 'city' => uc($location));
+						} else {
+							$rc = $openaddr_db->fetchrow_hashref('city' => uc($location));
+						}
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+						if($location =~ /^(\d+)\s+(.+)$/) {
+							$rc = $openaddr_db->fetchrow_hashref('number' => $1, 'street' => uc($2), 'city' => uc($county));
+						} else {
+							$rc = $openaddr_db->fetchrow_hashref('street' => uc($location), 'city' => uc($county));
+						}
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+					die $statedir;
 				}
 			} elsif($county && (-d $countrydir)) {
+				my $is_state;
+				if($country =~ /^(United States|USA|US)$/) {
+					my $l = length($county);
+					if($l > 2) {
+						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
+							$county = $twoletterstate;
+							$is_state = 1;
+						}
+					} elsif($l == 2) {
+						$county = lc($county);
+						$is_state = 1;
+					}
+				}
 				my $countydir = File::Spec->catfile($countrydir, lc($county));
 				if(-d $countydir) {
-					$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir);
+					if($is_state) {
+						$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => 'statewide');
+						$self->{$countydir} = $openaddr_db;
+						if($location) {
+							my $rc = $openaddr_db->fetchrow_hashref('city' => uc($location));
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+						}
+						die;
+					} else {
+						$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir);
+						die $countydir;
+					}
 				}
 			} else {
 				$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
+						die;
 			}
 			if($openaddr_db) {
+				# Store the handle in $self.
 				die "TBD";
 			}
+			die;
 		}
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
@@ -412,13 +510,13 @@ it under the same terms as Perl itself.
 
 Lots of lookups fail at the moment.
 
-=head1 TODO
+The openaddresses.io code has yet to be compeleted.  There are die()s where the code path has yet to be written.
 
-Add support for a local copy of results.openaddresses.io.
+The MaxMind data only contains cities.  The openaddresses data doesn't cover the globe.
 
 =head1 SEE ALSO
 
-VWF, MaxMind and geonames.
+VWF, openaddresses, MaxMind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -45,7 +45,8 @@ sub new {
 	return bless {
 		logger => $args{'logger'} || $logger,
 		directory => $args{'directory'} || $directory,
-		cache => $args{'cache'} || $cache
+		cache => $args{'cache'} || $cache,
+		table => $args{'table'}
 	}, $class;
 }
 
@@ -85,7 +86,7 @@ sub _open {
 		((ref($_[0]) eq 'HASH') ? %{$_[0]} : @_)
 	);
 
-	my $table = ref($self);
+	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
 
 	if($self->{'logger'}) {
@@ -217,7 +218,7 @@ sub selectall_hash {
 	my $self = shift;
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
-	my $table = ref($self);
+	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
 
 	$self->_open() if(!$self->{$table});
@@ -270,10 +271,10 @@ sub fetchrow_hashref {
 	my $self = shift;
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
-	my $table = ref($self);
+	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
 
-	$self->_open() if(!$self->{table});
+	$self->_open() if(!$self->{$table});
 
 	my $query = "SELECT DISTINCT * FROM $table";
 	my @args;
@@ -300,7 +301,7 @@ sub execute {
 	my $self = shift;
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
-	my $table = ref($self);
+	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
 
 	$self->_open() if(!$self->{table});
@@ -342,7 +343,7 @@ sub AUTOLOAD {
 
 	my $self = shift or return undef;
 
-	my $table = ref($self);
+	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
 
 	$self->_open() if(!$self->{$table});

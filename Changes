@@ -3,6 +3,7 @@ Revision history for Geo-Coder-Free
 0.06
 	Fix Github issue 14
 	Updated to latest MaxMind databases
+	Started support for a local copy of results.openaddresses.io
 
 0.05	Sun Jan 28 17:33:33 EST 2018
 	Fix http://www.cpantesters.org/cpan/report/b10c956b-6bf9-1014-9a47-dc46d49c4260
