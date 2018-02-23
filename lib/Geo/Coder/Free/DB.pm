@@ -10,7 +10,18 @@ package Geo::Coder::Free::DB;
 #	must apply in writing for a licence for use from Nigel Horne at the
 #	above e-mail.
 
-# Read-only access to databases
+# Abstract class giving read-only access to CSV, XML and SQLite databases
+
+# You can then access the files in $directory/foo.csv via this class:
+
+# package MyPackageName::DB::foo;
+
+# use Geo::Coder::Free::DB
+
+# our @ISA = ('Geo::Coder::Free::DB');
+
+# 1;
+
 
 use warnings;
 use strict;
@@ -44,9 +55,9 @@ sub new {
 
 	return bless {
 		logger => $args{'logger'} || $logger,
-		directory => $args{'directory'} || $directory,
+		directory => $args{'directory'} || $directory,	# The directory conainting the tables in XML, SQLite or CSV format
 		cache => $args{'cache'} || $cache,
-		table => $args{'table'}
+		table => $args{'table'}	# The name of the file containing the table, defaults to the class name
 	}, $class;
 }
 
