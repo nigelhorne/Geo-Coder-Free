@@ -2,9 +2,11 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 36;
+use Test::Most tests => 40;
 use Test::Number::Delta;
 use Test::Carp;
+use lib 't/lib';
+use MyLogger;
 
 BEGIN {
 	use_ok('Geo::Coder::Free');
@@ -15,12 +17,19 @@ OPENADDR: {
 		if($ENV{'OPENADDR_HOME'}) {
 			diag('This will take some time and memory');
 
+			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+
 			my $geocoder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 
 			my $location = $geocoder->geocode('Indianapolis, Indiana, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 38.62, 1e-2);
 			delta_within($location->{longitude}, -87.18, 1e-2);
+
+			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
+			ok(defined($location));
+			delta_within($location->{latitude}, 53.55, 1e-2);
+			delta_within($location->{longitude}, -113.53, 1e-2);
 
 			$location = $geocoder->geocode('Silver Spring, Maryland, USA');
 			ok(defined($location));
@@ -83,7 +92,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 35;
+			skip 'OPENADDR_HOME not defined', 39;
 		}
 	}
 }

@@ -2,9 +2,11 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 66;
+use Test::Most tests => 70;
 use Test::Number::Delta;
 use Test::Carp;
+use lib 't/lib';
+use MyLogger;
 
 BEGIN {
 	use_ok('Geo::Coder::Free');
@@ -12,6 +14,8 @@ BEGIN {
 
 LOOKUP: {
 	diag('This may take some time and consume a lot of memory if the database is not SQLite');
+
+	Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
 
 	my $geocoder = new_ok('Geo::Coder::Free');
 
@@ -120,6 +124,11 @@ LOOKUP: {
 	ok(defined($location));
 	delta_within($location->{latitude}, 51.15, 1e-2);
 	delta_within($location->{longitude}, 1.27, 1e-2);
+
+	$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
+	ok(defined($location));
+	delta_within($location->{latitude}, 53.55, 1e-2);
+	delta_within($location->{longitude}, -113.5, 1e-2);
 
 	my @locations = $geocoder->geocode(location => 'Temple Ewell, Kent, England');
 	ok(defined($locations[0]));

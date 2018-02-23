@@ -11,6 +11,7 @@ use Module::Info;
 use Carp;
 use Error::Simple;
 use File::Spec;
+use Locale::CA;
 use Locale::US;
 use CHI;
 use Locale::Country;
@@ -194,8 +195,8 @@ sub geocode {
 		$concatenated_codes = 'GB';
 	}
 
-	if($country && country2code($country)) {
-		if($self->{openaddr}) {
+	if($country) {
+		if($self->{openaddr} && country2code($country)) {
 			my $openaddr_db;
 			my $countrydir = File::Spec->catfile($self->{openaddr}, lc(country2code($country)));
 			# TODO:  Don't use statewide if the county can be determined, since that file will be much smaller
@@ -249,30 +250,63 @@ sub geocode {
 				}
 			} elsif($county && (-d $countrydir)) {
 				my $is_state;
+				my $table;
 				if($country =~ /^(United States|USA|US)$/) {
 					my $l = length($county);
 					if($l > 2) {
 						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 							$county = $twoletterstate;
 							$is_state = 1;
+							$table = 'statewide';
 						}
 					} elsif($l == 2) {
 						$county = lc($county);
 						$is_state = 1;
+						$table = 'statewide';
+					}
+				} elsif($country eq 'Canada') {
+					my $l = length($county);
+					if($l > 2) {
+						if(my $province = Locale::CA->new()->{province2code}{uc($county)}) {
+							$county = $province;
+							$is_state = 1;
+							$table = 'province';
+						}
+					} elsif($l == 2) {
+						$county = lc($county);
+						$is_state = 1;
+						$table = 'province';
+					}
+					my $city_file = 'city_of_' . lc($location);
+					# FIXME:  allow SQLite file
+					if(-r File::Spec->catfile($countrydir, lc($county), "$city_file.csv")) {
+						$table = $city_file;
+						$location = '';	# Get the first location in the city.  Anyone will do
 					}
 				}
 				my $countydir = File::Spec->catfile($countrydir, lc($county));
 				if(-d $countydir) {
 					if($is_state) {
-						$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => 'statewide');
-						$self->{$countydir} = $openaddr_db;
-						if($location) {
+						# FIXME - self->{$countydir} can point to a town in Canada
+						$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => $table);
+						if(defined($location)) {
+							if($location eq '') {
+								# Get the first location in the city.  Anyone will do
+								my $rc = $openaddr_db->execute('SELECT DISTINCT LAT, LON FROM city_of_edmonton WHERE city IS NULL');
+								if($rc && defined($rc->{'LAT'})) {
+									$rc->{'latitude'} = $rc->{'LAT'};
+									$rc->{'longitude'} = $rc->{'LON'};
+									return $rc;
+								}
+							}
 							my $rc = $openaddr_db->fetchrow_hashref('city' => uc($location));
 							if($rc && defined($rc->{'lat'})) {
 								$rc->{'latitude'} = $rc->{'lat'};
 								$rc->{'longitude'} = $rc->{'lon'};
+								$self->{$countydir} = $openaddr_db;
 								return $rc;
 							}
+						die;
 						}
 						die;
 					} else {
@@ -285,7 +319,6 @@ sub geocode {
 						die;
 			}
 			if($openaddr_db) {
-				# Store the handle in $self.
 				die "TBD";
 			}
 			die;
@@ -336,14 +369,17 @@ sub geocode {
 	my @admin2s;
 	my $region;
 	my @regions;
-	# TODO:  Locale::CA for Canadian provinces
 	if(($country =~ /^(United States|USA|US)$/) && (length($county) > 2)) {
 		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 			$county = $twoletterstate;
 		}
+	} elsif(($country eq 'Canada') && (length($county) > 2)) {
+		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($county)}) {
+			$county = $twoletterstate;
+		}
 	}
-	if($county =~ /^[A-Z]{2}/) {
-		# Canadian province or US state
+	if(($county =~ /^[A-Z]{2}/) && ($country =~ /^(United States|USA|US)$/)) {
+		# US state. Not Canadian province.
 		$region = $county;
 	} else {
 		if($county && $admin1cache{$county}) {
@@ -396,8 +432,13 @@ sub geocode {
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
-				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-					$region = $admin2->{'concatenated_codes'};
+				my $concat = $admin2->{'concatenated_codes'};
+				if($concat =~ /^CA\.(\d\d)\./) {
+					# Canadian provinces are not stored in the same way as US states
+					$region = $1;
+					last;
+				} elsif($concat =~ $concatenated_codes) {
+					$region = $concat;
 					last;
 				}
 			}
