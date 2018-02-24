@@ -301,8 +301,20 @@ sub fetchrow_hashref {
 	if($self->{'logger'}) {
 		$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
 	}
+	my $key = "fetchrow $query " . join(', ', @args);
+	my $c;
+	if($c = $self->{cache}) {
+		if(my $rc = $c->get($key)) {
+			return $rc;
+		}
+	}
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute(@args) || throw Error::Simple("$query: @args");
+	if($c) {
+		my $rc = $sth->fetchrow_hashref();
+		$c->set($key, $rc, '1 hour');
+		return $rc;
+	}
 	return $sth->fetchrow_hashref();
 }
 
