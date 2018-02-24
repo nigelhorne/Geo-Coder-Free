@@ -403,7 +403,7 @@ sub geocode {
 			$county = $twoletterstate;
 		}
 	}
-	if(($county =~ /^[A-Z]{2}/) && ($country =~ /^(United States|USA|US)$/)) {
+	if(defined($county) && ($county =~ /^[A-Z]{2}/) && ($country =~ /^(United States|USA|US)$/)) {
 		# US state. Not Canadian province.
 		$region = $county;
 	} else {
