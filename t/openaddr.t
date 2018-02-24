@@ -31,6 +31,9 @@ OPENADDR: {
 			delta_within($location->{latitude}, 53.55, 1e-2);
 			delta_within($location->{longitude}, -113.53, 1e-2);
 
+			$location = $geocoder->geocode('London, England');
+			ok(defined($location));
+
 			$location = $geocoder->geocode('Silver Spring, Maryland, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 38.99, 1e-2);

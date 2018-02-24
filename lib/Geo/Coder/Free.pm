@@ -170,7 +170,8 @@ sub geocode {
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
 	} elsif($self->{openaddr}) {
-		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
+		# if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
+		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*([\w\s]+)?$/) {
 			$street = $1;
 			$location = $2;
 			$county = $3;
@@ -184,7 +185,8 @@ sub geocode {
 			$state =~ s/\s$//g;
 			$country =~ s/^\s//g;
 			$country =~ s/\s$//g;
-		} elsif($location =~ /^([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
+		# } elsif($location =~ /^([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
+		} elsif($location =~ /^([\w\s]+),([\w\s]+),([\w\s]+),\s*([\w\s]+)?$/) {
 			$location = $1;
 			$county = $2;
 			$state = $3;
@@ -195,6 +197,13 @@ sub geocode {
 			$county =~ s/\s$//g;
 			$state =~ s/^\s//g;
 			$state =~ s/\s$//g;
+			$country =~ s/^\s//g;
+			$country =~ s/\s$//g;
+		} elsif($location =~ /^([\w\s]+),\s*([\w\s]+)?$/) {
+			$location = $1;
+			$country = $2;
+			$location =~ s/^\s//g;
+			$location =~ s/\s$//g;
 			$country =~ s/^\s//g;
 			$country =~ s/\s$//g;
 		} else {
