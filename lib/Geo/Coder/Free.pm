@@ -206,6 +206,10 @@ sub geocode {
 			$location =~ s/\s$//g;
 			$country =~ s/^\s//g;
 			$country =~ s/\s$//g;
+			if(!country2code($country)) {
+				$county = $country;
+				$country = undef;
+			}
 		} else {
 			# TODO: Parse full postal address
 			die 'TODO - add support for full addresses on openaddr';
@@ -214,7 +218,7 @@ sub geocode {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
 		return;
 	}
-	if(($country eq 'UK') || ($country eq 'United Kingdom')) {
+	if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom'))) {
 		$country = 'Great Britain';
 		$concatenated_codes = 'GB';
 	}
