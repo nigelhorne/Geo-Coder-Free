@@ -11,6 +11,7 @@ use Module::Info;
 use Carp;
 use Error::Simple;
 use File::Spec;
+use File::pfopen;
 use Locale::CA;
 use Locale::US;
 use CHI;
@@ -285,7 +286,7 @@ sub geocode {
 				if(-d $countydir) {
 					if($table && $is_state) {
 						# FIXME:  allow SQLite file
-						if(-r File::Spec->catfile($countydir, "$table.csv")) {
+						if(File::pfopen::pfopen($countydir, $table, 'csv:db:csv.db:db.gz:xml:sql')) {
 							# FIXME - self->{$countydir} can point to a town in Canada
 							$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => $table);
 							$self->{$countydir} = $openaddr_db;
