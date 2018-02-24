@@ -277,38 +277,38 @@ sub geocode {
 						$is_state = 1;
 						$table = 'province';
 					}
-					my $city_file = 'city_of_' . lc($location);
-					# FIXME:  allow SQLite file
-					if(-r File::Spec->catfile($countrydir, lc($county), "$city_file.csv")) {
-						$table = $city_file;
-						$location = '';	# Get the first location in the city.  Anyone will do
-					}
+					$table = 'city_of_' . lc($location);
+					$location = '';	# Get the first location in the city.  Anyone will do
 				}
 				my $countydir = File::Spec->catfile($countrydir, lc($county));
 				if(-d $countydir) {
-					if($is_state) {
-						# FIXME - self->{$countydir} can point to a town in Canada
-						$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => $table);
-						if(defined($location)) {
-							if($location eq '') {
-								# Get the first location in the city.  Anyone will do
-								my $rc = $openaddr_db->execute('SELECT DISTINCT LAT, LON FROM city_of_edmonton WHERE city IS NULL');
-								if($rc && defined($rc->{'LAT'})) {
-									$rc->{'latitude'} = $rc->{'LAT'};
-									$rc->{'longitude'} = $rc->{'LON'};
+					if($table && $is_state) {
+						# FIXME:  allow SQLite file
+						if(-r File::Spec->catfile($countydir, "$table.csv")) {
+							# FIXME - self->{$countydir} can point to a town in Canada
+							$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => $table);
+							$self->{$countydir} = $openaddr_db;
+							if(defined($location)) {
+								if($location eq '') {
+									# Get the first location in the city.  Anyone will do
+									my $rc = $openaddr_db->execute('SELECT DISTINCT LAT, LON FROM city_of_edmonton WHERE city IS NULL');
+									if($rc && defined($rc->{'LAT'})) {
+										$rc->{'latitude'} = $rc->{'LAT'};
+										$rc->{'longitude'} = $rc->{'LON'};
+										return $rc;
+									}
+								}
+								my $rc = $openaddr_db->fetchrow_hashref('city' => uc($location));
+								if($rc && defined($rc->{'lat'})) {
+									$rc->{'latitude'} = $rc->{'lat'};
+									$rc->{'longitude'} = $rc->{'lon'};
 									return $rc;
 								}
+								$openaddr_db = undef;
+							} else {
+								die;
 							}
-							my $rc = $openaddr_db->fetchrow_hashref('city' => uc($location));
-							if($rc && defined($rc->{'lat'})) {
-								$rc->{'latitude'} = $rc->{'lat'};
-								$rc->{'longitude'} = $rc->{'lon'};
-								$self->{$countydir} = $openaddr_db;
-								return $rc;
-							}
-						die;
 						}
-						die;
 					} else {
 						$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir);
 						die $countydir;
@@ -321,7 +321,8 @@ sub geocode {
 			if($openaddr_db) {
 				die "TBD";
 			}
-			die;
+			# Not found in openaddresses, look in MaxMind.
+			# This is often true of counties in North America. TODO - can that be fixed?
 		}
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
