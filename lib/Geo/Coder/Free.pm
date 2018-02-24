@@ -184,6 +184,19 @@ sub geocode {
 			$state =~ s/\s$//g;
 			$country =~ s/^\s//g;
 			$country =~ s/\s$//g;
+		} elsif($location =~ /^([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
+			$location = $1;
+			$county = $2;
+			$state = $3;
+			$country = $4;
+			$location =~ s/^\s//g;
+			$location =~ s/\s$//g;
+			$county =~ s/^\s//g;
+			$county =~ s/\s$//g;
+			$state =~ s/^\s//g;
+			$state =~ s/\s$//g;
+			$country =~ s/^\s//g;
+			$country =~ s/\s$//g;
 		} else {
 			# TODO: Parse full postal address
 			die 'TODO - add support for full addresses on openaddr';
