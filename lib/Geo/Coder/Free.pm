@@ -15,6 +15,7 @@ use Locale::CA;
 use Locale::US;
 use CHI;
 use Locale::Country;
+use Geo::StreetAddress::US;
 
 our %admin1cache;
 our %admin2cache;
@@ -168,7 +169,7 @@ sub geocode {
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
 	} elsif($self->{openaddr}) {
-		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(Canada|United States|USA|US)?$/) {
+		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
 			$street = $1;
 			$location = $2;
 			$county = $3;
