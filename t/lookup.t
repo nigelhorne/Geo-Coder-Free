@@ -31,7 +31,7 @@ LOOKUP: {
 			$location = $geocoder->geocode('London, England');
 			ok(defined($location));
 		};
-	};
+	}
 
 	$location = $geocoder->geocode('Lambeth, London, England');
 	ok(defined($location));

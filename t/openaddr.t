@@ -38,7 +38,7 @@ OPENADDR: {
 					$location = $geocoder->geocode('London, England');
 					ok(defined($location));
 				};
-			};
+			}
 
 			$location = $geocoder->geocode('Silver Spring, Maryland, USA');
 			ok(defined($location));
