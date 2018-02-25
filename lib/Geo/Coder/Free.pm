@@ -214,7 +214,8 @@ sub geocode {
 			}
 		} else {
 			# TODO: Parse full postal address
-			die 'TODO - add support for full addresses on openaddr';
+			Carp::croak(__PACKAGE__, "Can't parse '$location'");
+			return;
 		}
 	} else {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
