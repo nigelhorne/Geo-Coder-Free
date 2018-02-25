@@ -220,11 +220,6 @@ sub geocode {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
 		return;
 	}
-	if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom') || ($country eq 'England'))) {
-		$country = 'Great Britain';
-		$concatenated_codes = 'GB';
-	}
-
 	if($country) {
 		if($self->{openaddr} && country2code($country)) {
 			my $openaddr_db;
@@ -354,6 +349,11 @@ sub geocode {
 			# Not found in openaddresses, look in MaxMind.
 			# This is often true of counties in North America. TODO - can that be fixed?
 		}
+		if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom') || ($country eq 'England'))) {
+			$country = 'Great Britain';
+			$concatenated_codes = 'GB';
+		}
+
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
 		} elsif($admin1cache{$country} && !defined($state)) {
