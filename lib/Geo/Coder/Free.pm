@@ -218,7 +218,7 @@ sub geocode {
 		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
 		return;
 	}
-	if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom'))) {
+	if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom') || ($country eq 'England'))) {
 		$country = 'Great Britain';
 		$concatenated_codes = 'GB';
 	}
