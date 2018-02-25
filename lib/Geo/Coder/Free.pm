@@ -169,7 +169,7 @@ sub geocode {
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
 	} elsif($location =~ /^[\w\s-],[\w\s-]/) {
-		Carp::croak(__PACKAGE__, "Can't parse and handle $location");
+		Carp::croak(__PACKAGE__, ": can't parse and handle $location");
 		return;
 	} elsif($self->{openaddr}) {
 		# if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
