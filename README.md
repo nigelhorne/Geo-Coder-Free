@@ -27,11 +27,11 @@ Version 0.05
 
 Geo::Coder::Free provides an interface to free databases.
 
-Refer to the source URL for licencing information for these files
-cities.csv is from https://www.maxmind.com/en/free-world-cities-database
-admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt
-admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt
-openaddress data can be downloaded from http://results.openaddresses.io/
+Refer to the source URL for licencing information for these files:
+cities.csv is from https://www.maxmind.com/en/free-world-cities-database;
+admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt;
+admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt;
+openaddress data can be downloaded from http://results.openaddresses.io/.
 
 See also http://download.geonames.org/export/dump/allCountries.zip
 
@@ -43,6 +43,9 @@ gunzip cities.csv and run it through the db2sql script to create an SQLite file.
 ## new
 
     $geocoder = Geo::Coder::Free->new();
+
+Takes one optional parameter, openaddr, which is the base directory of
+the OpenAddresses data downloaded from http://results.openaddresses.io.
 
 ## geocode
 
@@ -76,9 +79,17 @@ it under the same terms as Perl itself.
 
 Lots of lookups fail at the moment.
 
-The openaddresses.io code has yet to be compeleted.  There are die()s where the code path has yet to be written.
+The openaddresses.io code has yet to be compeleted.
+There are die()s where the code path has yet to be written.
 
-The MaxMind data only contains cities.  The openaddresses data doesn't cover the globe.
+The MaxMind data only contains cities.
+The openaddresses data doesn't cover the globe.
+
+Can't parse and handle "London, England".
+
+Openaddresses look up is slow.
+If you rebuild the csv databases as SQLite it will be much quicker.
+This should work, but I haven't tested it yet.
 
 # SEE ALSO
 

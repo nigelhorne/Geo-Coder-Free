@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 41;
+use Test::Most tests => 43;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -99,9 +99,13 @@ OPENADDR: {
 			does_croak(sub {
 				$location = $geocoder->reverse_geocode();
 			});
+
+			does_carp(sub {
+				$geocoder = new_ok('Geo::Coder::Free' => [ openaddr => 'not/there' ]);
+			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 40;
+			skip 'OPENADDR_HOME not defined', 42;
 		}
 	}
 }

@@ -56,11 +56,11 @@ our $VERSION = '0.05';
 
 Geo::Coder::Free provides an interface to free databases.
 
-Refer to the source URL for licencing information for these files
-cities.csv is from https://www.maxmind.com/en/free-world-cities-database
-admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt
-admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt
-openaddress data can be downloaded from http://results.openaddresses.io/
+Refer to the source URL for licencing information for these files:
+cities.csv is from https://www.maxmind.com/en/free-world-cities-database;
+admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt;
+admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt;
+openaddress data can be downloaded from http://results.openaddresses.io/.
 
 See also http://download.geonames.org/export/dump/allCountries.zip
 
@@ -72,6 +72,9 @@ gunzip cities.csv and run it through the db2sql script to create an SQLite file.
 =head2 new
 
     $geocoder = Geo::Coder::Free->new();
+
+Takes one optional parameter, openaddr, which is the base directory of
+the OpenAddresses data downloaded from http://results.openaddresses.io.
 
 =cut
 
@@ -92,9 +95,9 @@ sub new {
 		cache => CHI->new(driver => 'Memory', datastore => { })
 	});
 
-	# TODO: This has not been written yet, so it isn't documented
 	if(my $openaddr = $param{'openaddr'}) {
-		die "Can't find the directory $openaddr" if((!-d $openaddr) || (!-r $openaddr));
+		Carp::carp "Can't find the directory $openaddr"
+			if((!-d $openaddr) || (!-r $openaddr));
 		return bless { openaddr => $openaddr}, $class;
 	}
 
@@ -230,7 +233,7 @@ sub geocode {
 				$country = undef;
 			}
 		} else {
-			# TODO: Parse full postal address
+			# For example, just a country or state has been given
 			Carp::croak(__PACKAGE__, "Can't parse '$location'");
 			return;
 		}
