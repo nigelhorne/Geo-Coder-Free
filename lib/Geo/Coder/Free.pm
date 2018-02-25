@@ -16,7 +16,6 @@ use Locale::CA;
 use Locale::US;
 use CHI;
 use Locale::Country;
-use Geo::StreetAddress::US;
 
 our %admin1cache;
 our %admin2cache;
@@ -169,6 +168,9 @@ sub geocode {
 		$state =~ s/\s$//g;
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
+	} elsif($location =~ /^[\w\s-],[\w\s-]/) {
+		Carp::croak(__PACKAGE__, "Can't parse and handle $location");
+		return;
 	} elsif($self->{openaddr}) {
 		# if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
 		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*([\w\s]+)?$/) {
@@ -580,9 +582,13 @@ it under the same terms as Perl itself.
 
 Lots of lookups fail at the moment.
 
-The openaddresses.io code has yet to be compeleted.  There are die()s where the code path has yet to be written.
+The openaddresses.io code has yet to be compeleted.
+There are die()s where the code path has yet to be written.
 
-The MaxMind data only contains cities.  The openaddresses data doesn't cover the globe.
+The MaxMind data only contains cities.
+The openaddresses data doesn't cover the globe.
+
+Can't parse and handle "London, England".
 
 =head1 SEE ALSO
 
