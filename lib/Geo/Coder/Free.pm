@@ -172,6 +172,23 @@ sub geocode {
 		Carp::croak(__PACKAGE__, ": can't parse and handle $location");
 		return;
 	} elsif($self->{openaddr}) {
+		if($location =~ /,\s*([\w\s]+)$/) {
+			$country = $1;
+			if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom') || ($country eq 'England'))) {
+				$country = 'Great Britain';
+			}
+			if(my $c = country2code($country)) {
+				my $openaddr_db;
+				my $countrydir = File::Spec->catfile($self->{openaddr}, lc($c));
+				if((!(-d $countrydir)) || !(-r $countrydir)) {
+					# Carp::croak(__PACKAGE__, ": unsupported country $country");
+					return;
+				}
+			} else {
+				Carp::croak(__PACKAGE__, ": unknown country $country");
+				return;
+			}
+		}
 		# if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*(US|USA|United States|Canada)?$/) {
 		if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),([\w\s]+),\s*([\w\s]+)?$/) {
 			$street = $1;
