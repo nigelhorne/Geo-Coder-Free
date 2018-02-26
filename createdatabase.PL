@@ -33,6 +33,8 @@ my %zipcodes = (
 	'46259' => { city => 'Indianapolis', county => 'Marion' },
 	'47001' => { city => 'Aurora', county => 'Dearborn' },
 	'47864' => { city => 'New Lebanon', county => 'Sullivan' },
+	'59276' => { city => 'Whitetail', county => 'Daniels' },
+	'59645' => { city => 'White Sulphur Springs', county => 'Meagher' },
 	'80011' => { city => 'Aurora', county => 'Arapahoe' },
 	'80015' => { city => 'Aurora', county => 'Arapahoe' },
 	'80016' => { city => 'Aurora', county => 'Arapahoe' },
@@ -98,6 +100,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$| = 1;
 			printf "%-70s\r", $f;
 			$| = 0;
+			print "\n";
 			my @components = split(/\//, $f);
 			if(my $country = $components[0]) {
 				my $query;
@@ -148,12 +151,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								my $res = $ua->get("http://api.zippopotam.us/us/$zip");
 								my $rc = JSON->new()->utf8()->decode($res->content());
 								if(!defined($rc)) {
-									print "\n", Data::Dumper->new([\$row])->Dump();
+									# print "\n", Data::Dumper->new([\$row])->Dump();
 									next;
 								}
 								my $place = @{$rc->{'places'}}[0];
 								if(!$place) {
-									print "\n", Data::Dumper->new([\$row])->Dump();
+									# print "\n", Data::Dumper->new([\$row])->Dump();
 									next;
 								}
 								$city = $place->{'place name'};
