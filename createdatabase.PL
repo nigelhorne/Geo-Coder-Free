@@ -2,8 +2,68 @@
 
 use strict;
 use warnings;
-
+use autodie qw(:all);
 use File::Copy;
+use DBI;
+use Text::xSV::Slurp;
+use Data::Dumper;
+use JSON;
+use LWP::UserAgent::Throttled;
+
+my %zipcodes = (
+	'04350' => { city => 'Litchfield', county => 'Kennebec' },
+	'04410' => { city => 'Bradford', county => 'Penobscot' },
+	'04490' => { city => 'Topsfield', county => 'Washington' },
+	'04653' => { city => 'Bass Harbor', county => 'Hancock' },
+	'04654' => { city => 'Machias', county => 'Washington' },
+	'04664' => { city => 'Sullivan', county => 'Hancock' },
+	'04674' => { city => 'Seal Cove', county => 'Hancock' },
+	'04677' => { city => 'Sorrento', county => 'Hancock' },
+	'04679' => { city => 'Southwest Harbor', county => 'Hancock' },
+	'04681' => { city => 'Stonington', county => 'Hancock' },
+	'04685' => { city => 'Swans Island', county => 'Hancock' },
+	'04787' => { city => 'Westfield', county => 'Aroostook' },
+	'04984' => { city => 'Temple', county => 'Franklin' },
+	'32346' => { city => 'Panacea', county => 'Wakulla' },
+	'46204' => { city => 'Indianapolis', county => 'Marion' },
+	'46206' => { city => 'Indianapolis', county => 'Marion' },
+	'46222' => { city => 'Indianapolis', county => 'Marion' },
+	'46231' => { city => 'Indianapolis', county => 'Marion' },
+	'46282' => { city => 'Indianapolis', county => 'Marion' },
+	'46259' => { city => 'Indianapolis', county => 'Marion' },
+	'47001' => { city => 'Aurora', county => 'Dearborn' },
+	'47864' => { city => 'New Lebanon', county => 'Sullivan' },
+	'80011' => { city => 'Aurora', county => 'Arapahoe' },
+	'80015' => { city => 'Aurora', county => 'Arapahoe' },
+	'80016' => { city => 'Aurora', county => 'Arapahoe' },
+	'80018' => { city => 'Aurora', county => 'Arapahoe' },
+	'80131' => { city => 'Louviers', county => 'Douglas' },
+	'80118' => { city => 'Larkspur', county => 'Douglas' },
+	'80202' => { city => 'Denver', county => 'Adams' },
+	'80218' => { city => 'Denver', county => 'Adams' },
+	'80221' => { city => 'Denver', county => 'Adams' },
+	'80222' => { city => 'Denver', county => 'Adams' },
+	'80230' => { city => 'Denver', county => 'Adams' },
+	'80233' => { city => 'Denver', county => 'Adams' },
+	'80234' => { city => 'Denver', county => 'Adams' },
+	'80236' => { city => 'Denver', county => 'Adams' },
+	'80241' => { city => 'Denver', county => 'Adams' },
+	'80293' => { city => 'Denver', county => 'Adams' },
+	'80294' => { city => 'Denver', county => 'Adams' },
+	'81501' => { city => 'Grand Junction', county => 'Mesa' },
+	'81507' => { city => 'Grand Junction', county => 'Mesa' },
+	'81432' => { city => 'Ridgway', county => 'Ouray' },
+	'80513' => { city => 'Berthoud', county => 'Larimer' },
+	'80516' => { city => 'Erie', county => 'Weld' },
+	'80550' => { city => 'Windsor', county => 'Weld' },
+	'80610' => { city => 'Auld', county => 'Weld' },
+	'80615' => { city => 'Eaton', county => 'Weld' },
+	'80631' => { city => 'Greeley', county => 'Weld' },
+	'80634' => { city => 'Greeley', county => 'Weld' },
+	'80642' => { city => 'Hudson', county => 'Weld' },
+	'80645' => { city => 'La Salle', county => 'Weld' },
+	'80650' => { city => 'Pierce', county => 'Weld' },
+);
 
 if(!-r 'lib/Geo/Coder/Free/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -13,4 +73,174 @@ if(!-r 'lib/Geo/Coder/Free/databases/cities.sql') {
 		copy('lib/Geo/Coder/Free/databases/cities.sql', 'blib/lib/Geo/Coder/Free/databases/cities.sql')
 			or die "Can't copy SQLite file to blib";
 	}
+}
+
+if(my $oa = $ENV{'OPENADDR_HOME'}) {
+	# Import openaddresses.io data into an SQLite database
+	# TODO: download and unzip the files from results.openaddresses.io
+	# TODO: only US data is supported at the moment
+	my $sqlite_file = "$oa/openaddresses.sql";
+	if(!-r $sqlite_file) {
+		if(!-d $oa) {
+			mkdir $oa;
+		}
+		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
+		$ua->throttle({ 'api.zippopotam.us' => 1 });
+		$ua->env_proxy(1);
+
+		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0 });
+		$dbh->prepare('CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char, country char NOT NULL)')->execute();
+
+		foreach my $csv_file (create_tree($oa)) {
+			# next unless($csv_file =~ /statewide/);
+			my $f = $csv_file;
+			$f =~ s/^$oa\///;
+			$| = 1;
+			printf "%-70s\r", $f;
+			$| = 0;
+			my @components = split(/\//, $f);
+			if(my $country = $components[0]) {
+				my $query;
+				if($country eq 'us') {
+					my $state = uc($components[1]);
+					my $file = $components[2];
+
+					my @data = @{xsv_slurp(
+						shape => 'aoh',
+						text_csv => {
+							# sep_char => $sep_char,
+							allow_loose_quotes => 1,
+							blank_is_undef => 1,
+							empty_is_undef => 1,
+							binary => 1,
+							escape_char => '\\',
+						},
+						file => $csv_file
+					)};
+					foreach my $row(@data) {
+						my $city = $row->{'CITY'};
+						my $county;
+						my $query;
+						if(defined($city) && ($file ne 'statewide.csv')) {
+							if($file =~ /^(.+)_borough.csv$/) {
+								$city = $1;
+							} else {
+								$county = $file;
+								$county =~ s/\.csv$//;
+							}
+						} else {
+							if(!defined($city)) {
+								if($file =~ /^city_of_(.+).csv$/) {
+									$city = $1;
+								} elsif($file =~ /^(.+)_borough.csv$/) {
+									$city = $1;
+								}
+							}
+							if((!defined($city)) && ($file ne 'statewide.csv')) {
+								$city = $file;
+							}
+							my $zip = $row->{'POSTCODE'};
+							if((!defined($city)) && defined($zip) && (my $info = $zipcodes{$zip})) {
+								$city = $info->{'city'};
+								$county = $info->{'county'};
+							}
+							if((!defined($city)) && defined($zip) && ($zip =~ /^(\d{5})/)) {
+								$zip = $1;
+								my $res = $ua->get("http://api.zippopotam.us/us/$zip");
+								my $rc = JSON->new()->utf8()->decode($res->content());
+								if(!defined($rc)) {
+									print "\n", Data::Dumper->new([\$row])->Dump();
+									next;
+								}
+								my $place = @{$rc->{'places'}}[0];
+								if(!$place) {
+									print "\n", Data::Dumper->new([\$row])->Dump();
+									next;
+								}
+								$city = $place->{'place name'};
+								$zipcodes{$zip} = { 'city' => $city };
+								# print "$zip => $city\n";
+								my $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+									') VALUES (' .
+									"'" . $place->{'latitude'} . "'," .
+									"'" . $place->{'longitude'} . "'," .
+									"'$city'," .
+									# "'" . $place->{'state abbreviation'} . "'," .
+									"'$state'," .
+									"'US')";
+								# print "$zip => $query\n";
+								$dbh->prepare($query)->execute();
+							}
+							if(!defined($city)) {
+								next if(!$zip);
+								next if($zip !~ /^\d{5}/);
+								# print "\n", Data::Dumper->new([\$row])->Dump();
+								$dbh->disconnect();
+								die $csv_file;
+							}
+						}
+						$city =~ s/\.csv$//;
+						$city = uc($city);
+						$city =~ s/_/ /g;
+						my $street = $row->{'STREET'};
+						if($street) {
+							$street = uc($street);
+						}
+						if($file =~ /^(.+)_county.csv$/) {
+							$county = $1;
+						}
+						if($county) {
+							$county =~ s/\s+County$//i;
+						}
+						my %columns = (
+							'COUNTRY' => 'US',
+							'CITY' => $city,
+							'STATE' => $state,
+							'COUNTY' => $county,
+							'STREET' => $street
+						);
+						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
+							$columns{$c} = delete $row->{$c};
+						}
+						foreach my $column(keys %columns) {
+							if(!defined($columns{$column})) {
+								delete $columns{$column};
+							}
+						}
+						$query = 'INSERT OR REPLACE INTO openaddresses(' .
+							join(',', sort keys %columns) .
+							') VALUES (';
+						foreach my $column(sort keys %columns) {
+							$columns{$column} =~ s/'/''/g;
+							$query .= "'" . $columns{$column} . "',";
+						}
+						$query =~ s/,$//;
+						$query .= ')';
+					}
+				}
+				if($query) {
+					# print "$query\n";
+					$dbh->prepare($query)->execute();
+				}
+			}
+		}
+		print ' ' x 70, "\r";
+		$dbh->commit();
+		$dbh->disconnect();
+	}
+}
+
+sub create_tree {
+	my $where = shift;
+	my @list = shift || ();
+
+	foreach my $file(<"$where/*">) {
+		next if($file =~ /summary$/);
+		if(-d $file) {
+			push(@list, create_tree($file, @list));
+		} elsif(($file =~ /\.csv$/) && (-f $file)) {
+			push(@list, $file);
+		}
+	}
+	return @list;
 }

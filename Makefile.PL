@@ -15,6 +15,9 @@ WriteMakefile(
 		'App::csv2sqlite' => 0,
 		'File::Copy' => 0,
 		'DBD::SQLite' => 0,
+		'autodie' => 0,
+		'JSON' => 0,
+		'LWP::UserAgent::Throttled' => 0,
 	},
 	TEST_REQUIRES => {
 		'Test::Most' => 0,
