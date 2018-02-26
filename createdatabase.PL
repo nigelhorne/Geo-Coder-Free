@@ -120,7 +120,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
-						my $query;
 						if(defined($city) && ($file ne 'statewide.csv')) {
 							if($file =~ /^(.+)_borough.csv$/) {
 								$city = $1;
@@ -160,7 +159,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
-								my $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
