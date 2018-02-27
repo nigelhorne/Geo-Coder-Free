@@ -67,12 +67,12 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 
-if(!-r 'lib/Geo/Coder/Free/databases/cities.sql') {
+if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
 		or warn "Can't create the SQLite database - expect poor performance";
 
-	if(-r 'lib/Geo/Coder/Free/databases/cities.sql') {
-		copy('lib/Geo/Coder/Free/databases/cities.sql', 'blib/lib/Geo/Coder/Free/databases/cities.sql')
+	if(-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
+		copy('lib/Geo/Coder/Free/MaxMind/databases/cities.sql', 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql')
 			or die "Can't copy SQLite file to blib";
 	}
 }
@@ -92,6 +92,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0 });
 		$dbh->prepare('CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char, country char NOT NULL)')->execute();
+
+		print "This will take some time. Make a cup of tea.\n";
 
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);

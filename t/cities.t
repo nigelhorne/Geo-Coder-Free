@@ -10,11 +10,12 @@ use lib 't/lib';
 use MyLogger;
 
 BEGIN {
-	use_ok('Geo::Coder::Free::DB::cities');
+	use_ok('Geo::Coder::Free::DB::MaxMind::cities');
 }
 
 CITIES: {
-	Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
+	Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/MaxMind/databases');
+
 	my $cities = new_ok('Geo::Coder::Free::DB::cities' => [logger => new_ok('MyLogger')]);
 
 	# diag($cities->population(Country => 'gb', City => 'ramsgate'));

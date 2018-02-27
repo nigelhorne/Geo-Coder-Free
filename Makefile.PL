@@ -38,13 +38,25 @@ WriteMakefile(
 		'File::Temp' => 0,
 		'Module::Info' => 0,
 		'File::Spec' => 0,
-		'Error::Simple' => 0,
 		'CHI' => 0,
 	},
 	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean		=> { FILES => 'Geo-Coder-Free-*' },
 	# META_ADD => {
-		# provides => {}
+		# provides => {
+			# 'Geo::Coder::Free' => {
+				# version => '0.05',
+				# file => 'Free.pm',
+			# },
+			# 'Geo::Coder::Free::MaxMind' => {
+				# version => '0.01',
+				# file => 'MaxMind.pm',
+			# },
+			# 'Geo::Coder::Free::OpenAddresses' => {
+				# version => '0.01',
+				# file => 'OpenAddresses.pm',
+			# }
+		# }
 	# },
 	META_MERGE		=> {
 		'meta-spec' => { version => 2 },
