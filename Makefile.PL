@@ -16,6 +16,7 @@ WriteMakefile(
 		'File::Copy' => 0,
 		'DBD::SQLite' => 0,
 		'autodie' => 0,
+		'IPC::System::Simple' => 0,
 		'JSON' => 0,
 		'LWP::UserAgent::Throttled' => 0,
 	},
