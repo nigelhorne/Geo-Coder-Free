@@ -16,7 +16,7 @@ perl:
   # - "5.8"	# cover doesn't work with this version
 
 before_install:
-  cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp Gzip::Faster
+  cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp Gzip::Faster autodie
 
 install:
   - cpanm -v --installdeps --notest .
