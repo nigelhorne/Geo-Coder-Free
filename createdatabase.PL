@@ -109,6 +109,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					my $state = uc($components[1]);
 					my $file = $components[2];
 
+					# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
+					open(my $pin, '-|', "grep -v \\\\\\\\ $csv_file");
+
 					my @data = @{xsv_slurp(
 						shape => 'aoh',
 						text_csv => {
@@ -117,15 +120,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							blank_is_undef => 1,
 							empty_is_undef => 1,
 							binary => 1,
-							# escape_char => '\\',
+							# escape_char => '\\',	# Put back once issue 3905 has been fixed
 						},
-						file => $csv_file
+						# file => $csv_file
+						handle => $pin
 					)};
+					close $pin;
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
 						if(defined($city) && ($file ne 'statewide.csv')) {
-							if($file =~ /^(.+)_borough.csv$/) {
+							if($file =~ /^city_of_(.+).csv$/) {
+								$city = $1;
+							} elsif($file =~ /^town_of_(.+).csv$/) {
+								$city = $1;
+							} elsif($file =~ /^(.+)_borough.csv$/) {
 								$city = $1;
 							} else {
 								$county = $file;
@@ -134,6 +143,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						} else {
 							if(!defined($city)) {
 								if($file =~ /^city_of_(.+).csv$/) {
+									$city = $1;
+								} elsif($file =~ /^town_of_(.+).csv$/) {
 									$city = $1;
 								} elsif($file =~ /^(.+)_borough.csv$/) {
 									$city = $1;
@@ -219,11 +230,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						$query =~ s/,$//;
 						$query .= ')';
+						if($query) {
+							# print "$query\n";
+							$dbh->prepare($query)->execute();
+						}
 					}
-				}
-				if($query) {
-					# print "$query\n";
-					$dbh->prepare($query)->execute();
 				}
 			}
 		}
