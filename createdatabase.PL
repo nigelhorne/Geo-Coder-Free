@@ -95,6 +95,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
+			# next unless($csv_file =~ /us\/ne\/dawes/);
 			my $f = $csv_file;
 			$f =~ s/^$oa\///;
 			$| = 1;
@@ -116,7 +117,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							blank_is_undef => 1,
 							empty_is_undef => 1,
 							binary => 1,
-							escape_char => '\\',
+							# escape_char => '\\',
 						},
 						file => $csv_file
 					)};
