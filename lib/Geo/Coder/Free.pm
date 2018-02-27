@@ -82,8 +82,7 @@ sub geocode {
 	my $self = shift;
 
 	if($self->{'openaddr'}) {
-		my $rc = $self->{'openaddr'}->geocode(@_);
-		if($rc) {
+		if(my $rc = $self->{'openaddr'}->geocode(@_)) {
 			return $rc;
 		}
 	}
