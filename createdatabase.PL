@@ -129,7 +129,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
-						if(defined($city) && ($file ne 'statewide.csv')) {
+						if(defined($city) && ($file !~ /^statewide/)) {
 							if($file =~ /^city_of_(.+).csv$/) {
 								$city = $1;
 							} elsif($file =~ /^town_of_(.+).csv$/) {
@@ -139,6 +139,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							} else {
 								$county = $file;
 								$county =~ s/\.csv$//;
+								$county =~ s/.county//;
 							}
 						} else {
 							if(!defined($city)) {
@@ -150,7 +151,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									$city = $1;
 								}
 							}
-							if((!defined($city)) && ($file ne 'statewide.csv')) {
+							if((!defined($city)) && ($file !~ /^statewide/)) {
 								$city = $file;
 							}
 							my $zip = $row->{'POSTCODE'};
