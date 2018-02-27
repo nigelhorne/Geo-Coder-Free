@@ -1,5 +1,8 @@
 package Geo::Coder::Free;
 
+# The code is starting to look messy.
+# To help I should separate the maxmind and geonames database handling from the openaddresses handling
+
 use strict;
 use warnings;
 
@@ -7,6 +10,7 @@ use Geo::Coder::Free::DB::admin1;
 use Geo::Coder::Free::DB::admin2;
 use Geo::Coder::Free::DB::cities;
 use Geo::Coder::Free::DB::OpenAddr;
+use Geo::Coder::Free::DB::openaddresses;
 use Module::Info;
 use Carp;
 use Error::Simple;
@@ -160,6 +164,10 @@ sub geocode {
 		if($location =~ /^St\.? (.+)/) {
 			$location = "Saint $1";
 		}
+		if(($country =~ /^(United States|USA|US)$/)) {
+			$state = $county;
+			$county = undef;
+		}
 	} elsif($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+),\s*(Canada|United States|USA|US)?$/) {
 		$location = $1;
 		$county = $2;
@@ -242,9 +250,11 @@ sub geocode {
 		return;
 	}
 	if($country) {
-		if($self->{openaddr} && country2code($country)) {
+		my $countrycode = country2code($country);
+		if($self->{openaddr} && $countrycode) {
+			$countrycode = lc($countrycode);
 			my $openaddr_db;
-			my $countrydir = File::Spec->catfile($self->{openaddr}, lc(country2code($country)));
+			my $countrydir = File::Spec->catfile($self->{openaddr}, $countrycode);
 			# TODO:  Don't use statewide if the county can be determined, since that file will be much smaller
 			if($state && (-d $countrydir)) {
 				# TODO:  Locale::CA for Canadian provinces
@@ -267,15 +277,26 @@ sub geocode {
 				}
 				my $statedir = File::Spec->catfile($countrydir, $state);
 				if(-d $statedir) {
-					$openaddr_db = $self->{$statedir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir, table => 'statewide');
+					if($countrycode eq 'us') {
+						$openaddr_db = $self->{openaddr_db} ||
+							Geo::Coder::Free::DB::openaddresses->new(
+								directory => $self->{openaddr},
+								cache => CHI->new(driver => 'Memory', datastore => { })
+							);
+						$self->{openaddr_db} = $openaddr_db;
+					} else {
+						$openaddr_db = $self->{$statedir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir, table => 'statewide');
+					}
 					if($location) {
 						$self->{$statedir} = $openaddr_db;
-						my $rc;
+						my %args = (city => uc($location));
 						if($street) {
-							$rc = $openaddr_db->fetchrow_hashref('street' => uc($street), 'city' => uc($location));
-						} else {
-							$rc = $openaddr_db->fetchrow_hashref('city' => uc($location));
+							$args{'street'} = uc($street);
 						}
+						if($state) {
+							$args{'state'} = uc($state);
+						}
+						my $rc = $openaddr_db->fetchrow_hashref(%args);
 						if($rc && defined($rc->{'lat'})) {
 							$rc->{'latitude'} = $rc->{'lat'};
 							$rc->{'longitude'} = $rc->{'lon'};
@@ -331,8 +352,17 @@ sub geocode {
 					if($table && $is_state) {
 						# FIXME:  allow SQLite file
 						if(File::pfopen::pfopen($countydir, $table, 'csv:db:csv.db:db.gz:xml:sql')) {
-							# FIXME - self->{$countydir} can point to a town in Canada
-							$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => $table);
+							if($countrycode eq 'us') {
+								$openaddr_db = $self->{openaddr_db} ||
+									Geo::Coder::Free::DB::openaddresses->new(
+										directory => $self->{openaddr},
+										cache => CHI->new(driver => 'Memory', datastore => { })
+									);
+								$self->{openaddr_db} = $openaddr_db;
+							} else {
+								# FIXME - self->{$countydir} can point to a town in Canada
+								$openaddr_db = $self->{$countydir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $countydir, table => $table);
+							}
 							$self->{$countydir} = $openaddr_db;
 							if(defined($location)) {
 								if($location eq '') {
@@ -390,9 +420,9 @@ sub geocode {
 				require Locale::Country;
 				if($state) {
 					if($state =~ /^[A-Z]{2}$/) {
-						$concatenated_codes = uc(Locale::Country::country2code($country)) . ".$state";
+						$concatenated_codes = uc($countrycode) . ".$state";
 					} else {
-						$concatenated_codes = uc(Locale::Country::country2code($country));
+						$concatenated_codes = uc($countrycode);
 						$country_code = $concatenated_codes;
 						my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
 						foreach my $admin1(@admin1s) {
@@ -403,8 +433,8 @@ sub geocode {
 						}
 					}
 					$admin1cache{$state} = $concatenated_codes;
-				} elsif(my $rc = Locale::Country::country2code($country)) {
-					$concatenated_codes = uc($rc);
+				} elsif($countrycode) {
+					$concatenated_codes = uc($countrycode);
 					$admin1cache{$country} = $concatenated_codes;
 				} elsif(Locale::Country::code2country($country)) {
 					$concatenated_codes = uc($country);
@@ -421,9 +451,9 @@ sub geocode {
 	my @admin2s;
 	my $region;
 	my @regions;
-	if(($country =~ /^(United States|USA|US)$/) && (length($county) > 2)) {
-		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
-			$county = $twoletterstate;
+	if(($country =~ /^(United States|USA|US)$/) && (length($state) > 2)) {
+		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+			$state = $twoletterstate;
 		}
 	} elsif(($country eq 'Canada') && (length($county) > 2)) {
 		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($county)}) {

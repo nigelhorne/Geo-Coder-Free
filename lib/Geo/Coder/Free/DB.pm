@@ -251,12 +251,19 @@ sub selectall_hash {
 		push @args, $params{$c1};
 	}
 	if($self->{'logger'}) {
-		$self->{'logger'}->debug("selectall_hash $query: " . join(', ', @args));
+		if(defined($args[0])) {
+			$self->{'logger'}->debug("selectall_hash $query: " . join(', ', @args));
+		} else {
+			$self->{'logger'}->debug("selectall_hash $query");
+		}
 	}
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute(@args) || throw Error::Simple("$query: @args");
 
-	my $key = "$query " . join(', ', @args);
+	my $key = $query;
+	if(defined($args[0])) {
+		$key .= ' ' . join(', ', @args);
+	}
 	my $c;
 	if($c = $self->{cache}) {
 		if(my $rc = $c->get($key)) {
