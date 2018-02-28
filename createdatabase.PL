@@ -66,6 +66,7 @@ my %zipcodes = (
 	'80645' => { city => 'La Salle', county => 'Weld' },
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
+my %postcodes = ();
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -94,7 +95,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		# TODO: Work out a good key
 		$dbh->prepare('CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char, country char NOT NULL)')->execute();
 
-		print "This will take some time. Best to do it last thing at night and go to sleep, it should be ready in the morning.\n";
+		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
@@ -108,10 +109,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			my @components = split(/\//, $f);
 			if(my $country = $components[0]) {
 				my $query;
-				if($country eq 'us') {
-					my $state = uc($components[1]);
-					my $file = $components[2];
+				my $state = uc($components[1]);
+				my $file = $components[2];
 
+				if($country eq 'us') {
 					# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
 					open(my $pin, '-|', "grep -v \\\\\\\\ $csv_file");
 
@@ -208,12 +209,145 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						if($county) {
 							$county =~ s/\s+County$//i;
+							$county = uc($county);
+							$county =~ s/_/ /g;
+							if(uc($county) eq uc($city)) {
+								$county = undef;
+							}
 						}
 						my %columns = (
 							'COUNTRY' => 'US',
 							'CITY' => uc($city),
 							'STATE' => $state,
-							'COUNTY' => uc($county),
+							'COUNTY' => $county,
+							'STREET' => $street
+						);
+						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
+							$columns{$c} = delete $row->{$c};
+						}
+						foreach my $column(keys %columns) {
+							if(!defined($columns{$column})) {
+								delete $columns{$column};
+							}
+						}
+						$query = 'INSERT OR REPLACE INTO openaddresses(' .
+							join(',', sort keys %columns) .
+							') VALUES (';
+						foreach my $column(sort keys %columns) {
+							$columns{$column} =~ s/'/''/g;
+							$query .= "'" . $columns{$column} . "',";
+						}
+						$query =~ s/,$//;
+						$query .= ')';
+						if($query) {
+							# print "$query\n";
+							$dbh->prepare($query)->execute();
+						}
+					}
+				} elsif($country eq 'ca') {
+					# TODO: remove duplication with the US code
+					my @data = @{xsv_slurp(
+						shape => 'aoh',
+						text_csv => {
+							# sep_char => $sep_char,
+							allow_loose_quotes => 1,
+							blank_is_undef => 1,
+							empty_is_undef => 1,
+							binary => 1,
+							escape_char => '\\',	# Put back once issue 3905 has been fixed
+						},
+						file => $csv_file
+					)};
+					foreach my $row(@data) {
+						my $city = $row->{'CITY'};
+						my $county;
+						if(defined($city) && ($file !~ /^province/)) {
+							if($file =~ /^city_of_(.+).csv$/) {
+								$city = $1;
+							} elsif($file =~ /^town_of_(.+).csv$/) {
+								$city = $1;
+							} elsif($file =~ /^(.+)_borough.csv$/) {
+								$city = $1;
+							} else {
+								$county = $file;
+								$county =~ s/\.csv$//;
+							}
+						} else {
+							if(!defined($city)) {
+								if($file =~ /^city_of_(.+).csv$/) {
+									$city = $1;
+								} elsif($file =~ /^town_of_(.+).csv$/) {
+									$city = $1;
+								} elsif($file =~ /^(.+)_borough.csv$/) {
+									$city = $1;
+								}
+							}
+							if((!defined($city)) && ($file !~ /^province/)) {
+								$city = $file;
+							}
+							my $postcode = $row->{'POSTCODE'};
+							if((!defined($city)) && defined($postcode) && (my $info = $postcodes{$postcode})) {
+								$city = $info->{'city'};
+								$county = $info->{'county'};
+							}
+							if((!defined($city)) && defined($postcode) && ($postcode =~ /^(\[A-Z]\d[A-Z])/)) {
+								$postcode = $1;
+								my $res = $ua->get("http://api.zippopotam.us/ca/$postcode");
+								my $rc = JSON->new()->utf8()->decode($res->content());
+								if(!defined($rc)) {
+									# print "\n", Data::Dumper->new([\$row])->Dump();
+									next;
+								}
+								my $place = @{$rc->{'places'}}[0];
+								if(!$place) {
+									# print "\n", Data::Dumper->new([\$row])->Dump();
+									next;
+								}
+								$city = $place->{'place name'};
+								$postcodes{$postcode} = { 'city' => $city };
+								# print "$zip => $city\n";
+								$query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+									') VALUES (' .
+									"'" . $place->{'latitude'} . "'," .
+									"'" . $place->{'longitude'} . "'," .
+									"'$city'," .
+									# "'" . $place->{'province abbreviation'} . "'," .
+									"'$state'," .
+									"'CA')";
+								# print "$postcode => $query\n";
+								$dbh->prepare($query)->execute();
+							}
+							if(!defined($city)) {
+								next if(!$postcode);
+								next if($postcode !~ /^[A-Z]\d[A-Z]/);
+								# print "\n", Data::Dumper->new([\$row])->Dump();
+								$dbh->disconnect();
+								die $csv_file;
+							}
+						}
+						$city =~ s/\.csv$//;
+						$city = uc($city);
+						$city =~ s/_/ /g;
+						my $street = $row->{'STREET'};
+						if($street) {
+							$street = uc($street);
+						}
+						if($file =~ /^(.+)_county.csv$/) {
+							$county = $1;
+						}
+						if($county) {
+							$county =~ s/\s+County$//i;
+							$county = uc($county);
+							$county =~ s/_/ /g;
+							if(uc($county) eq uc($city)) {
+								$county = undef;
+							}
+						}
+						my %columns = (
+							'COUNTRY' => 'CA',
+							'CITY' => uc($city),
+							'STATE' => $state,
+							'COUNTY' => $county,
 							'STREET' => $street
 						);
 						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
