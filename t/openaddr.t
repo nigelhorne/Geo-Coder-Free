@@ -29,7 +29,7 @@ OPENADDR: {
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
 			delta_within($location->{latitude}, 53.55, 1e-2);
-			delta_within($location->{longitude}, -113.50, 1e-2);
+			delta_within($location->{longitude}, -113.53, 1e-2);
 
 			TODO: {
 				local $TODO = "Don't know how to parse 'London, England'";
@@ -83,13 +83,13 @@ OPENADDR: {
 
 			$location = $geocoder->geocode({ location => 'Rockville, Montgomery County, MD, USA' });
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.05, 1e-2);
-			delta_within($location->{longitude}, -77.11, 1e-2);
+			delta_within($location->{latitude}, 39.07, 1e-2);
+			delta_within($location->{longitude}, -77.10, 1e-2);
 
 			$location = $geocoder->geocode(location => 'Rockville, Montgomery County, Maryland, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.05, 1e-2);
-			delta_within($location->{longitude}, -77.11, 1e-2);
+			delta_within($location->{latitude}, 39.07, 1e-2);
+			delta_within($location->{longitude}, -77.10, 1e-2);
 
 			$location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 			delta_within($location->{latitude}, 38.90, 1e-2);

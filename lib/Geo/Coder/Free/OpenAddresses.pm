@@ -136,6 +136,8 @@ sub geocode {
 	my $concatenated_codes;
 	my $openaddr_db;
 
+	# ::diag($location);
+
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;
 		$state = $2;
@@ -143,6 +145,7 @@ sub geocode {
 		$country = $3;
 		$country =~ s/\s$//g;
 		if(my $c = country2code($country)) {
+		# ::diag($c);
 			if($c eq 'us') {
 				$openaddr_db = $self->{openaddr_db} ||
 					Geo::Coder::Free::DB::openaddresses->new(
@@ -241,11 +244,111 @@ sub geocode {
 					}
 					warn "Can't yet parse US location '$location'";
 				}
+			} elsif($c eq 'ca') {
+				$openaddr_db = $self->{openaddr_db} ||
+					Geo::Coder::Free::DB::openaddresses->new(
+						directory => $self->{openaddr},
+						cache => CHI->new(driver => 'Memory', datastore => {})
+					);
+				if(length($state) > 2) {
+					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+						$state = $twoletterstate;
+					}
+				}
+				if($city !~ /,/) {
+					# Simple case looking up a city in a state in Canada
+					if($self->{openaddr_db} = $openaddr_db) {
+						my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'CA');
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+				# } elsif(my $href = Geo::StreetAddress::CA->parse_address("$city, $state")) {
+				} elsif(my $href = 0) {
+					# Well formed, simple street address in Canada
+					if($self->{openaddr_db} = $openaddr_db) {
+						my %args = (state => $state, country => 'CA');
+						if($href->{city}) {
+							$args{city} = uc($href->{city});
+						}
+						if($href->{number}) {
+							$args{number} = $href->{number};
+						}
+						if($street = $href->{street}) {
+							if(my $type = $href->{type}) {
+								if($type eq 'Ave') {
+									$type = 'AVENUE';
+								} elsif($type eq 'St') {
+									$type = 'STREET'
+								} else {
+									warn("Add type $type");
+								}
+								$street .= " $type";
+							}
+							if($href->{suffix}) {
+								$street .= ' ' . $href->{suffix};
+							}
+						}
+						if($street) {
+							$args{street} = uc($street);
+						}
+						my $rc = $openaddr_db->fetchrow_hashref(%args);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+					warn "Fast lookup of Canadian location' $location' failed";
+				} else {
+					if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
+						my $rc;
+						# Perhaps it just has the street's name?
+						# Rockville Pike, Rockville, MD, USA
+						my $first = uc($1);
+						my $second = uc($2);
+						if($first =~ /^(\w+\s\w+)$/) {
+							my $rc = $openaddr_db->fetchrow_hashref(
+								street => $first,
+								city => $second,
+								state => $state,
+								country => 'CA'
+							);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+						}
+						# Perhaps it's a city in a county?
+						# Silver Spring, Montgomery County, MD, USA
+						$second =~ s/\s+COUNTY$//;
+						$rc = $openaddr_db->fetchrow_hashref(
+							city => $first,
+							county => $second,
+							state => $state,
+							country => 'CA'
+						) || $openaddr_db->fetchrow_hashref(
+							city => $first,
+							state => $state,
+							country => 'CA',
+						);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+					warn "Can't yet parse Canadian location '$location'";
+				}
 			}
 		}
 	}
 
 	# Not been able to find in the SQLite file, look in the CSV files.
+	# ::diag("FALL THROUGH $location");
 
 	# TODO: this is horrible.  Is there an easier way?  Now that MaxMind is handled elsewhere, I hope so
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
