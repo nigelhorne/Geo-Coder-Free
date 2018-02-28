@@ -34,6 +34,7 @@ WriteMakefile(
 		'Locale::CA' => 0,
 		'Locale::US' => 0,
 		'Text::xSV::Slurp' => 0,
+		'Geo::StreetAddress::US' => 0,
 		'Gzip::Faster' => 0,
 		'File::Temp' => 0,
 		'Module::Info' => 0,

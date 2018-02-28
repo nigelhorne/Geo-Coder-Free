@@ -13,6 +13,7 @@ use Locale::CA;
 use Locale::US;
 use CHI;
 use Locale::Country;
+use Geo::StreetAddress::US;
 
 our %admin1cache;
 our %admin2cache;
@@ -133,6 +134,118 @@ sub geocode {
 	my $country_code;
 	my $street;
 	my $concatenated_codes;
+	my $openaddr_db;
+
+	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
+		my $city = $1;
+		$state = $2;
+		$state =~ s/\s$//g;
+		$country = $3;
+		$country =~ s/\s$//g;
+		if(my $c = country2code($country)) {
+			if($c eq 'us') {
+				$openaddr_db = $self->{openaddr_db} ||
+					Geo::Coder::Free::DB::openaddresses->new(
+						directory => $self->{openaddr},
+						cache => CHI->new(driver => 'Memory', datastore => {})
+					);
+				if(length($state) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						$state = $twoletterstate;
+					}
+				}
+				if($city !~ /,/) {
+					# Simple case looking up a city in a state in the US
+					if($self->{openaddr_db} = $openaddr_db) {
+						my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'US');
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
+					# Well formed, simple street address in the US
+					if($self->{openaddr_db} = $openaddr_db) {
+						my %args = (state => $state, country => 'US');
+						if($href->{city}) {
+							$args{city} = uc($href->{city});
+						}
+						if($href->{number}) {
+							$args{number} = $href->{number};
+						}
+						if($street = $href->{street}) {
+							if(my $type = $href->{type}) {
+								if($type eq 'Ave') {
+									$type = 'AVENUE';
+								} elsif($type eq 'St') {
+									$type = 'STREET'
+								} else {
+									warn("Add type $type");
+								}
+								$street .= " $type";
+							}
+							if($href->{suffix}) {
+								$street .= ' ' . $href->{suffix};
+							}
+						}
+						if($street) {
+							$args{street} = uc($street);
+						}
+						my $rc = $openaddr_db->fetchrow_hashref(%args);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+					warn "Fast lookup of US location' $location' failed";
+				} else {
+					if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
+						my $rc;
+						# Perhaps it just has the street's name?
+						# Rockville Pike, Rockville, MD, USA
+						my $first = uc($1);
+						my $second = uc($2);
+						if($first =~ /^(\w+\s\w+)$/) {
+							my $rc = $openaddr_db->fetchrow_hashref(
+								street => $first,
+								city => $second,
+								state => $state,
+								country => 'US'
+							);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+						}
+						# Perhaps it's a city in a county?
+						# Silver Spring, Montgomery County, MD, USA
+						$second =~ s/\s+COUNTY$//;
+						$rc = $openaddr_db->fetchrow_hashref(
+							city => $first,
+							county => $second,
+							state => $state,
+							country => 'US'
+						) || $openaddr_db->fetchrow_hashref(
+							city => $first,
+							state => $state,
+							country => 'US'
+						);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
+					warn "Can't yet parse US location '$location'";
+				}
+			}
+		}
+	}
+
+	# Not been able to find in the SQLite file, look in the CSV files.
 
 	# TODO: this is horrible.  Is there an easier way?  Now that MaxMind is handled elsewhere, I hope so
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
@@ -164,7 +277,7 @@ sub geocode {
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
 	} elsif($location =~ /^[\w\s-],[\w\s-]/) {
-		Carp::croak(__PACKAGE__, ": can't parse and handle $location");
+		Carp::croak(__PACKAGE__, ": Can't parse and handle $location");
 		return;
 	} elsif($location =~ /,\s*([\w\s]+)$/) {
 		$country = $1;
@@ -172,7 +285,6 @@ sub geocode {
 			$country = 'Great Britain';
 		}
 		if(my $c = country2code($country)) {
-			my $openaddr_db;
 			my $countrydir = File::Spec->catfile($self->{openaddr}, lc($c));
 			if((!(-d $countrydir)) || !(-r $countrydir)) {
 				# Carp::croak(__PACKAGE__, ": unsupported country $country");
@@ -198,7 +310,6 @@ sub geocode {
 		$street =~ s/\s$//g;
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
-		::diag('11111111111111111');
 	} elsif($location =~ /^([\w\s]+),([\w\s]+),([\w\s]+),\s*([\w\s]+)?$/) {
 		$location = $1;
 		$county = $2;
@@ -235,7 +346,6 @@ sub geocode {
 	return if(!defined($countrycode));	# FIXME: give warning
 
 	$countrycode = lc($countrycode);
-	my $openaddr_db;
 	my $countrydir = File::Spec->catfile($self->{openaddr}, $countrycode);
 	# TODO:  Don't use statewide if the county can be determined, since that file will be much smaller
 	if($state && (-d $countrydir)) {
@@ -259,36 +369,42 @@ sub geocode {
 		}
 		my $statedir = File::Spec->catfile($countrydir, $state);
 		if(-d $statedir) {
-			if($countrycode eq 'us') {
-				$openaddr_db = $self->{openaddr_db} ||
-					Geo::Coder::Free::DB::openaddresses->new(
-						directory => $self->{openaddr},
-						cache => CHI->new(driver => 'Memory', datastore => { })
-					);
-				$self->{openaddr_db} = $openaddr_db;
-			} else {
+			# if($countrycode eq 'us') {
+				# $openaddr_db = $self->{openaddr_db} ||
+					# Geo::Coder::Free::DB::openaddresses->new(
+						# directory => $self->{openaddr},
+						# cache => CHI->new(driver => 'Memory', datastore => { })
+					# );
+				# $self->{openaddr_db} = $openaddr_db;
+			# } else {
 				$openaddr_db = $self->{$statedir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir, table => 'statewide');
-			}
+			# }
 			if($location) {
 				$self->{$statedir} = $openaddr_db;
 				my %args = (city => uc($location));
 				if($street) {
 					$args{'street'} = uc($street);
 				}
-				if($state) {
-					$args{'state'} = uc($state);
-				}
+				# if($state) {
+					# $args{'state'} = uc($state);
+				# }
 				my $rc = $openaddr_db->fetchrow_hashref(%args);
 				if($rc && defined($rc->{'lat'})) {
 					$rc->{'latitude'} = $rc->{'lat'};
 					$rc->{'longitude'} = $rc->{'lon'};
 					return $rc;
 				}
-				if($location =~ /^(\d+)\s+(.+)$/) {
-					$rc = $openaddr_db->fetchrow_hashref('number' => $1, 'street' => uc($2), 'city' => uc($county));
-				} else {
-					$rc = $openaddr_db->fetchrow_hashref('street' => uc($location), 'city' => uc($county));
+				%args = ();
+				if($county) {
+					$args{'city'} = uc($county);
 				}
+				if($location =~ /^(\d+)\s+(.+)$/) {
+					$args{'number'} = $1;
+					$args{'street'} = $2;
+				} else {
+					$args{'street'} = uc($location);
+				}
+				$rc = $openaddr_db->fetchrow_hashref(%args);
 				if($rc && defined($rc->{'lat'})) {
 					$rc->{'latitude'} = $rc->{'lat'};
 					$rc->{'longitude'} = $rc->{'lon'};

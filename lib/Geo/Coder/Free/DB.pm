@@ -306,7 +306,11 @@ sub fetchrow_hashref {
 	}
 	# $query .= ' ORDER BY entry';
 	if($self->{'logger'}) {
-		$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
+		if(defined($args[0])) {
+			$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
+		} else {
+			$self->{'logger'}->debug("fetchrow_hashref $query");
+		}
 	}
 	my $key = "fetchrow $query " . join(', ', @args);
 	my $c;

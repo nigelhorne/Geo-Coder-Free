@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 39;
+use Test::Most tests => 42;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -29,7 +29,7 @@ OPENADDR: {
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
 			delta_within($location->{latitude}, 53.55, 1e-2);
-			delta_within($location->{longitude}, -113.53, 1e-2);
+			delta_within($location->{longitude}, -113.50, 1e-2);
 
 			TODO: {
 				local $TODO = "Don't know how to parse 'London, England'";
@@ -83,12 +83,12 @@ OPENADDR: {
 
 			$location = $geocoder->geocode({ location => 'Rockville, Montgomery County, MD, USA' });
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{latitude}, 39.05, 1e-2);
 			delta_within($location->{longitude}, -77.11, 1e-2);
 
 			$location = $geocoder->geocode(location => 'Rockville, Montgomery County, Maryland, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{latitude}, 39.05, 1e-2);
 			delta_within($location->{longitude}, -77.11, 1e-2);
 
 			$location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
@@ -111,7 +111,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 38;
+			skip 'OPENADDR_HOME not defined', 41;
 		}
 	}
 }

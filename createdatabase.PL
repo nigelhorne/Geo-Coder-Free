@@ -91,9 +91,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0 });
+		# TODO: Work out a good key
 		$dbh->prepare('CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char, country char NOT NULL)')->execute();
 
-		print "This will take some time. Make a cup of tea.\n";
+		print "This will take some time. Best to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
@@ -103,7 +104,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$| = 1;
 			printf "%-70s\r", $f;
 			$| = 0;
-			print "\n";
+			# print "\n";
 			my @components = split(/\//, $f);
 			if(my $country = $components[0]) {
 				my $query;
@@ -141,7 +142,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							} else {
 								$county = $file;
 								$county =~ s/\.csv$//;
-								$county =~ s/.county//;
 							}
 						} else {
 							if(!defined($city)) {
@@ -211,9 +211,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						my %columns = (
 							'COUNTRY' => 'US',
-							'CITY' => $city,
+							'CITY' => uc($city),
 							'STATE' => $state,
-							'COUNTY' => $county,
+							'COUNTY' => uc($county),
 							'STREET' => $street
 						);
 						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
