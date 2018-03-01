@@ -136,7 +136,6 @@ sub geocode {
 	my $concatenated_codes;
 	my $openaddr_db;
 
-	# ::diag($location);
 
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;
@@ -144,14 +143,14 @@ sub geocode {
 		$state =~ s/\s$//g;
 		$country = $3;
 		$country =~ s/\s$//g;
-		if(my $c = country2code($country)) {
-		# ::diag($c);
+		$openaddr_db = $self->{openaddr_db} ||
+			Geo::Coder::Free::DB::openaddresses->new(
+				directory => $self->{openaddr},
+				cache => CHI->new(driver => 'Memory', datastore => {})
+			);
+		$self->{openaddr_db} = $openaddr_db;
+		if($openaddr_db && (my $c = country2code($country))) {
 			if($c eq 'us') {
-				$openaddr_db = $self->{openaddr_db} ||
-					Geo::Coder::Free::DB::openaddresses->new(
-						directory => $self->{openaddr},
-						cache => CHI->new(driver => 'Memory', datastore => {})
-					);
 				if(length($state) > 2) {
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
 						$state = $twoletterstate;
@@ -159,48 +158,47 @@ sub geocode {
 				}
 				if($city !~ /,/) {
 					# Simple case looking up a city in a state in the US
-					if($self->{openaddr_db} = $openaddr_db) {
-						my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'US');
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
-						}
+					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'US');
+					if($rc && defined($rc->{'lat'})) {
+						$rc->{'latitude'} = $rc->{'lat'};
+						$rc->{'longitude'} = $rc->{'lon'};
+						return $rc;
 					}
 				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
 					# Well formed, simple street address in the US
-					if($self->{openaddr_db} = $openaddr_db) {
-						my %args = (state => $state, country => 'US');
-						if($href->{city}) {
-							$args{city} = uc($href->{city});
-						}
-						if($href->{number}) {
-							$args{number} = $href->{number};
-						}
-						if($street = $href->{street}) {
-							if(my $type = $href->{type}) {
-								if($type eq 'Ave') {
-									$type = 'AVENUE';
-								} elsif($type eq 'St') {
-									$type = 'STREET'
-								} else {
-									warn("Add type $type");
-								}
-								$street .= " $type";
+					my %args = (state => $state, country => 'US');
+					if($href->{city}) {
+						$args{city} = uc($href->{city});
+					}
+					if($href->{number}) {
+						$args{number} = $href->{number};
+					}
+					if($street = $href->{street}) {
+						if(my $type = $href->{type}) {
+							if($type eq 'Ave') {
+								$type = 'AVENUE';
+							} elsif($type eq 'St') {
+								$type = 'STREET'
+							} else {
+								warn("Add type $type");
 							}
-							if($href->{suffix}) {
-								$street .= ' ' . $href->{suffix};
-							}
+							$street .= " $type";
 						}
-						if($street) {
-							$args{street} = uc($street);
+						if($href->{suffix}) {
+							$street .= ' ' . $href->{suffix};
 						}
-						my $rc = $openaddr_db->fetchrow_hashref(%args);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
+					}
+					if($street) {
+						if(my $prefix = $href->{prefix}) {
+							$street = "$prefix $street";
 						}
+						$args{street} = uc($street);
+					}
+					my $rc = $openaddr_db->fetchrow_hashref(%args);
+					if($rc && defined($rc->{'lat'})) {
+						$rc->{'latitude'} = $rc->{'lat'};
+						$rc->{'longitude'} = $rc->{'lon'};
+						return $rc;
 					}
 					warn "Fast lookup of US location' $location' failed";
 				} else {
@@ -241,15 +239,53 @@ sub geocode {
 							$rc->{'longitude'} = $rc->{'lon'};
 							return $rc;
 						}
+					} elsif($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
+						if(my $href = Geo::StreetAddress::US->parse_address("$1, $2, $state")) {
+							# Street, City, County
+							# 105 S. West Street, Spencer, Owen, Indiana, USA
+							$county = $3;
+							$county =~ s/\s*county$//i;
+							my %args = (county => uc($county), state => $state, country => 'US');
+							if($href->{city}) {
+								$args{city} = uc($href->{city});
+							}
+							if($href->{number}) {
+								$args{number} = $href->{number};
+							}
+							if($street = $href->{street}) {
+								if(my $type = $href->{type}) {
+									if($type eq 'Ave') {
+										$type = 'AVENUE';
+									} elsif($type eq 'St') {
+										$type = 'STREET'
+									} else {
+										warn("Add type $type");
+									}
+									$street .= " $type";
+								}
+								if($href->{suffix}) {
+									$street .= ' ' . $href->{suffix};
+								}
+							}
+							if($street) {
+								if(my $prefix = $href->{prefix}) {
+									$street = "$prefix $street";
+								}
+								$args{street} = uc($street);
+							}
+							my $rc = $openaddr_db->fetchrow_hashref(%args);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+							return;	 # Not found
+						}
+						die $city;
 					}
 					warn "Can't yet parse US location '$location'";
 				}
 			} elsif($c eq 'ca') {
-				$openaddr_db = $self->{openaddr_db} ||
-					Geo::Coder::Free::DB::openaddresses->new(
-						directory => $self->{openaddr},
-						cache => CHI->new(driver => 'Memory', datastore => {})
-					);
 				if(length($state) > 2) {
 					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
 						$state = $twoletterstate;
@@ -257,49 +293,48 @@ sub geocode {
 				}
 				if($city !~ /,/) {
 					# Simple case looking up a city in a state in Canada
-					if($self->{openaddr_db} = $openaddr_db) {
-						my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'CA');
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
-						}
+					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'CA');
+					if($rc && defined($rc->{'lat'})) {
+						$rc->{'latitude'} = $rc->{'lat'};
+						$rc->{'longitude'} = $rc->{'lon'};
+						return $rc;
 					}
 				# } elsif(my $href = Geo::StreetAddress::CA->parse_address("$city, $state")) {
 				} elsif(my $href = 0) {
 					# Well formed, simple street address in Canada
-					if($self->{openaddr_db} = $openaddr_db) {
-						my %args = (state => $state, country => 'CA');
-						if($href->{city}) {
-							$args{city} = uc($href->{city});
-						}
-						if($href->{number}) {
-							$args{number} = $href->{number};
-						}
-						if($street = $href->{street}) {
-							if(my $type = $href->{type}) {
-								if($type eq 'Ave') {
-									$type = 'AVENUE';
-								} elsif($type eq 'St') {
-									$type = 'STREET'
-								} else {
-									warn("Add type $type");
-								}
-								$street .= " $type";
+					my %args = (state => $state, country => 'CA');
+					if($href->{city}) {
+						$args{city} = uc($href->{city});
+					}
+					if($href->{number}) {
+						$args{number} = $href->{number};
+					}
+					if($street = $href->{street}) {
+						if(my $type = $href->{type}) {
+							if($type eq 'Ave') {
+								$type = 'AVENUE';
+							} elsif($type eq 'St') {
+								$type = 'STREET'
+							} else {
+								warn("Add type $type");
 							}
-							if($href->{suffix}) {
-								$street .= ' ' . $href->{suffix};
-							}
+							$street .= " $type";
 						}
-						if($street) {
-							$args{street} = uc($street);
+						if($href->{suffix}) {
+							$street .= ' ' . $href->{suffix};
 						}
-						my $rc = $openaddr_db->fetchrow_hashref(%args);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
+					}
+					if($street) {
+						if(my $prefix = $href->{prefix}) {
+							$street = "$prefix $street";
 						}
+						$args{street} = uc($street);
+					}
+					my $rc = $openaddr_db->fetchrow_hashref(%args);
+					if($rc && defined($rc->{'lat'})) {
+						$rc->{'latitude'} = $rc->{'lat'};
+						$rc->{'longitude'} = $rc->{'lon'};
+						return $rc;
 					}
 					warn "Fast lookup of Canadian location' $location' failed";
 				} else {

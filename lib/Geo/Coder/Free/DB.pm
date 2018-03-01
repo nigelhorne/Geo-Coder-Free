@@ -292,8 +292,7 @@ sub fetchrow_hashref {
 
 	$self->_open() if(!$self->{$table});
 
-	# Only want one row, so use distinct
-	my $query = "SELECT DISTINCT * FROM $table";
+	my $query = "SELECT * FROM $table";
 	my @args;
 	foreach my $c1(keys(%params)) {
 		if(scalar(@args) == 0) {
@@ -304,7 +303,8 @@ sub fetchrow_hashref {
 		$query .= " $c1 = ?";
 		push @args, $params{$c1};
 	}
-	# $query .= ' ORDER BY entry';
+	# $query .= ' ORDER BY entry LIMIT 1';
+	$query .= ' LIMIT 1';
 	if($self->{'logger'}) {
 		if(defined($args[0])) {
 			$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
@@ -414,6 +414,9 @@ sub AUTOLOAD {
 		push @args, $params{$c1};
 	}
 	$query .= " ORDER BY $column";
+	if(!wantarray) {
+		$query .= ' LIMIT 1';
+	}
 	if($self->{'logger'}) {
 		if(scalar(@args) && $args[0]) {
 			$self->{'logger'}->debug("AUTOLOAD $query: " . join(', ', @args));

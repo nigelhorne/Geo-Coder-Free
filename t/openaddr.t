@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 42;
+use Test::Most tests => 44;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -25,6 +25,11 @@ OPENADDR: {
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.77, 1e-2);
 			delta_within($location->{longitude}, -86.30, 1e-2);
+
+			# This place does exist, but isn't in Openaddresses
+			my $ogeocoder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
+			$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
+			ok(defined(!$location));
 
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
@@ -111,7 +116,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 41;
+			skip 'OPENADDR_HOME not defined', 43;
 		}
 	}
 }

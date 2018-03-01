@@ -162,10 +162,10 @@ sub geocode {
 		$country =~ s/^\s//g;
 		$country =~ s/\s$//g;
 	} elsif($location =~ /^[\w\s-],[\w\s-]/) {
-		Carp::croak(__PACKAGE__, ": can't parse and handle $location");
+		Carp::carp(__PACKAGE__, ": can't parse and handle $location");
 		return;
 	} else {
-		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses when openaddr is not given');
+		Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
 		return;
 	}
 	if($country) {
