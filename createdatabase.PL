@@ -178,7 +178,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
-								$query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
@@ -230,7 +231,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						$query = 'INSERT OR REPLACE INTO openaddresses(' .
+						# $query = 'INSERT OR REPLACE INTO openaddresses(' .
+						$query = 'INSERT INTO openaddresses(' .
 							join(',', sort keys %columns) .
 							') VALUES (';
 						foreach my $column(sort keys %columns) {
@@ -306,7 +308,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$postcodes{$postcode} = { 'city' => $city };
 								# print "$zip => $city\n";
-								$query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
@@ -358,7 +361,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						$query = 'INSERT OR REPLACE INTO openaddresses(' .
+						# $query = 'INSERT OR REPLACE INTO openaddresses(' .
+						$query = 'INSERT INTO openaddresses(' .
 							join(',', sort keys %columns) .
 							') VALUES (';
 						foreach my $column(sort keys %columns) {
