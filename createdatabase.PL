@@ -114,22 +114,37 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 				if($country eq 'us') {
 					# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
-					open(my $pin, '-|', "grep -v \\\\\\\\ $csv_file");
+					my @data;
+					if($csv_file =~ /us\/ne\/dawes/) {
+						open(my $pin, '-|', "grep -v \\\\\\\\ $csv_file");
 
-					my @data = @{xsv_slurp(
-						shape => 'aoh',
-						text_csv => {
-							# sep_char => $sep_char,
-							allow_loose_quotes => 1,
-							blank_is_undef => 1,
-							empty_is_undef => 1,
-							binary => 1,
-							# escape_char => '\\',	# Put back once issue 3905 has been fixed
-						},
-						# file => $csv_file
-						handle => $pin
-					)};
-					close $pin;
+						@data = @{xsv_slurp(
+							shape => 'aoh',
+							text_csv => {
+								# sep_char => $sep_char,
+								allow_loose_quotes => 1,
+								blank_is_undef => 1,
+								empty_is_undef => 1,
+								binary => 1,
+								# escape_char => '\\',	# Put back once issue 3905 has been fixed
+							},
+							handle => $pin
+						)};
+						close $pin;
+					} else {
+						@data = @{xsv_slurp(
+							shape => 'aoh',
+							text_csv => {
+								# sep_char => $sep_char,
+								allow_loose_quotes => 1,
+								blank_is_undef => 1,
+								empty_is_undef => 1,
+								binary => 1,
+								# escape_char => '\\',	# Put back once issue 3905 has been fixed
+							},
+							file => $csv_file
+						)};
+					}
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
@@ -215,13 +230,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$county = undef;
 							}
 						}
+						$city = uc($city);
+						if(($city eq 'FW') && ($state eq 'IN')) {
+							$city = 'FORT WAYNE';
+							$county = 'ALLEN';
+						}
 						my %columns = (
 							'COUNTRY' => 'US',
-							'CITY' => uc($city),
+							'CITY' => $city,
 							'STATE' => $state,
 							'COUNTY' => $county,
 							'STREET' => $street
 						);
+						if($street) {
+							$row->{'STREET'} =~ s/\s\s+/ /g;
+						}
 						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
 							$columns{$c} = delete $row->{$c};
 						}
@@ -350,6 +373,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							'COUNTY' => $county,
 							'STREET' => $street
 						);
+						if($street) {
+							$row->{'STREET'} =~ s/\s\s+/ /g;
+						}
 						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
 							$columns{$c} = delete $row->{$c};
 						}
