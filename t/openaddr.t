@@ -31,6 +31,9 @@ OPENADDR: {
 			$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
 			ok(defined(!$location));
 
+			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
+			ok(defined($location));
+
 			$location = $ogeocoder->geocode('106 Wells Street, Fort Wayne, Allen, Indiana, USA');
 			ok(defined($location));
 

@@ -215,6 +215,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						$city =~ s/\.csv$//;
 						$city = uc($city);
+						$city =~ s/\s+BORO$//;
+						$city =~ s/\s+TWP$//;
 						$city =~ s/_/ /g;
 						my $street = $row->{'STREET'};
 						if($street) {
@@ -353,6 +355,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						$city =~ s/\.csv$//;
 						$city = uc($city);
+						$city =~ s/\s+BORO$//;
+						$city =~ s/\s+TWP$//;
 						$city =~ s/_/ /g;
 						my $street = $row->{'STREET'};
 						if($street) {
