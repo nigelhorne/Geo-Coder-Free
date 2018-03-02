@@ -202,44 +202,7 @@ sub geocode {
 					}
 					warn "Fast lookup of US location' $location' failed";
 				} else {
-					if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
-						my $rc;
-						# Perhaps it just has the street's name?
-						# Rockville Pike, Rockville, MD, USA
-						my $first = uc($1);
-						my $second = uc($2);
-						if($first =~ /^(\w+\s\w+)$/) {
-							my $rc = $openaddr_db->fetchrow_hashref(
-								street => $first,
-								city => $second,
-								state => $state,
-								country => 'US'
-							);
-							if($rc && defined($rc->{'lat'})) {
-								$rc->{'latitude'} = $rc->{'lat'};
-								$rc->{'longitude'} = $rc->{'lon'};
-								return $rc;
-							}
-						}
-						# Perhaps it's a city in a county?
-						# Silver Spring, Montgomery County, MD, USA
-						$second =~ s/\s+COUNTY$//;
-						$rc = $openaddr_db->fetchrow_hashref(
-							city => $first,
-							county => $second,
-							state => $state,
-							country => 'US'
-						) || $openaddr_db->fetchrow_hashref(
-							city => $first,
-							state => $state,
-							country => 'US'
-						);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
-						}
-					} elsif($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
+					if($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
 						if(my $href = Geo::StreetAddress::US->parse_address("$1, $2, $state")) {
 							# Street, City, County
 							# 105 S. West Street, Spencer, Owen, Indiana, USA
@@ -282,6 +245,43 @@ sub geocode {
 							return;	 # Not found
 						}
 						die $city;
+					} elsif($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
+						my $rc;
+						# Perhaps it just has the street's name?
+						# Rockville Pike, Rockville, MD, USA
+						my $first = uc($1);
+						my $second = uc($2);
+						if($first =~ /^(\w+\s\w+)$/) {
+							my $rc = $openaddr_db->fetchrow_hashref(
+								street => $first,
+								city => $second,
+								state => $state,
+								country => 'US'
+							);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+						}
+						# Perhaps it's a city in a county?
+						# Silver Spring, Montgomery County, MD, USA
+						$second =~ s/\s+COUNTY$//;
+						$rc = $openaddr_db->fetchrow_hashref(
+							city => $first,
+							county => $second,
+							state => $state,
+							country => 'US'
+						) || $openaddr_db->fetchrow_hashref(
+							city => $first,
+							state => $state,
+							country => 'US'
+						);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
 					}
 					warn "Can't yet parse US location '$location'";
 				}
