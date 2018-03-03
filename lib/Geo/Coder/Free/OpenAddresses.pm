@@ -272,15 +272,24 @@ sub geocode {
 							county => $second,
 							state => $state,
 							country => 'US'
-						) || $openaddr_db->fetchrow_hashref(
-							city => $first,
-							state => $state,
-							country => 'US'
 						);
 						if($rc && defined($rc->{'lat'})) {
 							$rc->{'latitude'} = $rc->{'lat'};
 							$rc->{'longitude'} = $rc->{'lon'};
 							return $rc;
+						}
+						# Not all the database has the county
+						if($second) {
+							$rc = $openaddr_db->fetchrow_hashref(
+								city => $first,
+								state => $state,
+								country => 'US'
+							);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
 						}
 					}
 					warn "Can't yet parse US location '$location'";

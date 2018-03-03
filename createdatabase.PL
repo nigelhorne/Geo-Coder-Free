@@ -228,18 +228,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
+						$city = uc($city);
 						if($county) {
 							$county =~ s/\s+County$//i;
 							$county = uc($county);
 							$county =~ s/_/ /g;
-							if(uc($county) eq uc($city)) {
+							if($county eq $city) {
 								$county = undef;
 							}
 						}
-						$city = uc($city);
-						if(($city eq 'FW') && ($state eq 'IN')) {
-							$city = 'FORT WAYNE';
-							$county = 'ALLEN';
+						if($state eq 'IN') {
+							if($city eq 'FW') {
+								$city = 'FORT WAYNE';
+								$county = 'ALLEN';
+							} elsif(defined($county) && ($county eq 'LAPORTE')) {
+								$county = 'LA PORTE';
+							}
 						}
 						my %columns = (
 							'COUNTRY' => 'US',
