@@ -88,19 +88,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(!-d $oa) {
 			mkdir $oa;
 		}
-		foreach my $file(<"$oa/*">) {
-			if(-d $file) {
-				my @components = split(/\//, $file);
-				# TODO: Work out a good key
-				my $country = uc(pop @components);
-				# Put country_ at the start so as not to use
-				# reserved words e.g. IS
-				$dbh->prepare("CREATE TABLE country_$country(lat integer, lon integer, number char, street char, city char, county char, state char)")->execute();
-			}
-		}
 		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
+
+		# TODO: Work out a good key
+		$dbh->prepare("CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char not null, country char not null)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -200,14 +193,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
-								# $query = "INSERT OR REPLACE INTO country_US('LAT','LON','CITY','STATE'" .
-								$query = "INSERT INTO country_US('LAT','LON','CITY','STATE'" .
+								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
 									"'$city'," .
 									# "'" . $place->{'state abbreviation'} . "'," .
-									"'$state')";
+									"'$state', 'US')";
 								# print "$zip => $query\n";
 								$dbh->prepare($query)->execute();
 							}
@@ -252,6 +245,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						my %columns = (
+							'COUNTRY' => 'US',
 							'CITY' => $city,
 							'STATE' => $state,
 							'COUNTY' => $county,
@@ -268,8 +262,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						# $query = 'INSERT OR REPLACE INTO country_US(' .
-						$query = 'INSERT INTO country_US(' .
+						# $query = 'INSERT OR REPLACE INTO openaddresses(' .
+						$query = 'INSERT INTO openaddresses(' .
 							join(',', sort keys %columns) .
 							') VALUES (';
 						foreach my $column(sort keys %columns) {
@@ -345,14 +339,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$postcodes{$postcode} = { 'city' => $city };
 								# print "$zip => $city\n";
-								# $query = "INSERT OR REPLACE INTO country_CA('LAT','LON','CITY','STATE'" .
-								$query = "INSERT INTO country_CA('LAT','LON','CITY','STATE'" .
+								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
 									"'$city'," .
 									# "'" . $place->{'province abbreviation'} . "'," .
-									"'$state')";
+									"'$state', 'CA')";
 								# print "$postcode => $query\n";
 								$dbh->prepare($query)->execute();
 							}
@@ -388,8 +382,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						my %columns = (
-							'CITY' => uc($city),
+							'COUNTRY' => 'CA',
 							'STATE' => $state,
+							'CITY' => uc($city),
 							'COUNTY' => $county,
 							'STREET' => $street
 						);
@@ -404,8 +399,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						# $query = 'INSERT OR REPLACE INTO country_CA(' .
-						$query = 'INSERT INTO country_CA(' .
+						# $query = 'INSERT OR REPLACE INTO openaddresses(' .
+						$query = 'INSERT INTO openaddresses(' .
 							join(',', sort keys %columns) .
 							') VALUES (';
 						foreach my $column(sort keys %columns) {

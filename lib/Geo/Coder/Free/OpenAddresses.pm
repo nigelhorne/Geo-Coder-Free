@@ -136,7 +136,6 @@ sub geocode {
 	my $concatenated_codes;
 	my $openaddr_db;
 
-
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;
 		$state = $2;
@@ -612,7 +611,7 @@ sub geocode {
 					if(defined($location)) {
 						if($location eq '') {
 							# Get the first location in the city.  Anyone will do
-							my $rc = $openaddr_db->execute('SELECT DISTINCT LAT, LON FROM city_of_edmonton WHERE city IS NULL');
+							my $rc = $openaddr_db->execute("SELECT DISTINCT LAT, LON FROM $table WHERE city IS NULL");
 							if($rc && defined($rc->{'LAT'})) {
 								$rc->{'latitude'} = $rc->{'LAT'};
 								$rc->{'longitude'} = $rc->{'LON'};
