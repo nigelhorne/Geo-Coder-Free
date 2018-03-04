@@ -194,7 +194,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
 								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
-								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE'" .
+								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
@@ -227,7 +227,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
-						$city = uc($city);
 						if($county) {
 							$county =~ s/\s+County$//i;
 							$county = uc($county);
