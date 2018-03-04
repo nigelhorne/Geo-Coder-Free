@@ -29,7 +29,7 @@ OPENADDR: {
 			# This place does exist, but isn't in Openaddresses
 			my $ogeocoder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 			$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
-			ok(defined(!$location));
+			ok(defined($location));
 
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));

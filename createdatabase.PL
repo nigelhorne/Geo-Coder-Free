@@ -253,7 +253,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($street) {
 							$row->{'STREET'} =~ s/\s\s+/ /g;
 						}
-						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
+						foreach my $c('LAT', 'LON', 'NUMBER') {
 							$columns{$c} = delete $row->{$c};
 						}
 						foreach my $column(keys %columns) {
@@ -390,7 +390,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($street) {
 							$row->{'STREET'} =~ s/\s\s+/ /g;
 						}
-						foreach my $c('LAT', 'LON', 'NUMBER', 'STREET') {
+						foreach my $c('LAT', 'LON', 'NUMBER') {
 							$columns{$c} = delete $row->{$c};
 						}
 						foreach my $column(keys %columns) {
