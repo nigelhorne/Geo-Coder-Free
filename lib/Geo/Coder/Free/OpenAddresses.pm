@@ -586,6 +586,7 @@ sub geocode {
 					$rc->{'longitude'} = $rc->{'lon'};
 					return $rc;
 				}
+				return;
 			}
 			die $statedir;
 		}

@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 44;
+use Test::Most tests => 51;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -41,8 +41,9 @@ OPENADDR: {
 			delta_within($location->{latitude}, 41.09, 1e-2);
 			delta_within($location->{longitude}, -85.14, 1e-2);
 
+			# Clay township isn't in Openaddresses
 			$location = $ogeocoder->geocode(location => 'Clay, Owen, Indiana, USA');
-			ok(defined($location));
+			ok(!defined($location));
 
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
@@ -129,7 +130,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 43;
+			skip 'OPENADDR_HOME not defined', 50;
 		}
 	}
 }
