@@ -103,6 +103,12 @@ sub new {
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
 
+When looking for a house number in a street, if that address isn't found but that
+street is found, a place in the street is given.
+So "106 Wells Street, Fort Wayne, Allen, Indiana, USA" isn't found, a match for
+"Wells Street, Fort Wayne, Allen, Indiana, USA" will be given instead.
+Arguably that's incorrect, but it is the behaviour I want.
+
 =cut
 
 sub geocode {
@@ -199,6 +205,14 @@ sub geocode {
 						$rc->{'longitude'} = $rc->{'lon'};
 						return $rc;
 					}
+					if(delete $args{'number'}) {
+						$rc = $openaddr_db->fetchrow_hashref(%args);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+					}
 					warn "Fast lookup of US location' $location' failed";
 				} else {
 					if($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
@@ -240,6 +254,14 @@ sub geocode {
 								$rc->{'latitude'} = $rc->{'lat'};
 								$rc->{'longitude'} = $rc->{'lon'};
 								return $rc;
+							}
+							if(delete $args{'number'}) {
+								$rc = $openaddr_db->fetchrow_hashref(%args);
+								if($rc && defined($rc->{'lat'})) {
+									$rc->{'latitude'} = $rc->{'lat'};
+									$rc->{'longitude'} = $rc->{'lon'};
+									return $rc;
+								}
 							}
 							return;	 # Not found
 						}
@@ -343,6 +365,14 @@ sub geocode {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
 						return $rc;
+					}
+					if(delete $args{'number'}) {
+						$rc = $openaddr_db->fetchrow_hashref(%args);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
 					}
 					warn "Fast lookup of Canadian location' $location' failed";
 				} else {

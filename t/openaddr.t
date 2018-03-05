@@ -29,13 +29,17 @@ OPENADDR: {
 			# This place does exist, but isn't in Openaddresses
 			my $ogeocoder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 			$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
-			ok(defined($location));
+			ok(!defined($location));
 
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));
+			ok(ref($location) eq 'HASH');
 
 			$location = $ogeocoder->geocode('106 Wells Street, Fort Wayne, Allen, Indiana, USA');
 			ok(defined($location));
+			ok(ref($location) eq 'HASH');
+			delta_within($location->{latitude}, 41.09, 1e-2);
+			delta_within($location->{longitude}, -85.14, 1e-2);
 
 			$location = $ogeocoder->geocode(location => 'Clay, Owen, Indiana, USA');
 			ok(defined($location));
