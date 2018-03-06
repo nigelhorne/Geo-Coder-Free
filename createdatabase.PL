@@ -227,8 +227,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
-						if((!defined($county)) && ($row->{'REGION'})) {
-							$county = $row->{'REGION'};
+						if((!defined($county)) && ($row->{'DISTRICT'}) && ($row->{'DISTRICT'} ne $state)) {
+							$county = $row->{'DISTRICT'};
 						}
 						if($county) {
 							$county =~ s/\s+County$//i;
@@ -375,8 +375,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
-						if((!defined($county)) && ($row->{'REGION'})) {
-							$county = $row->{'REGION'};
+						if((!defined($county)) && ($row->{'DISTRICT'}) && ($row->{'DISTRICT'} ne $state)) {
+							$county = $row->{'DISTRICT'};
 						}
 						if($county) {
 							$county =~ s/\s+County$//i;
@@ -415,7 +415,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$query =~ s/,$//;
 						$query .= ')';
 						if($query) {
-							# print "$query\n";
 							$dbh->prepare($query)->execute();
 						}
 					}

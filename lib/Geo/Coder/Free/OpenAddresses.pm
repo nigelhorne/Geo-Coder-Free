@@ -130,7 +130,7 @@ sub geocode {
 	my $location = $param{location}
 		or Carp::croak("Usage: geocode(location => \$location)");
 
-	::diag($location);
+	# ::diag($location);
 
 	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
 		$location = "$1, Washington, DC, $2";
@@ -335,7 +335,6 @@ sub geocode {
 						$state = $twoletterstate;
 					}
 				}
-				::diag(">>>>>>> province: $state");
 				if($city !~ /,/) {
 					# Simple case looking up a city in a state in Canada
 					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'CA');
@@ -444,7 +443,7 @@ sub geocode {
 	}
 
 	# Not been able to find in the SQLite file, look in the CSV files.
-	::diag("FALL THROUGH $location");
+	# ::diag("FALL THROUGH $location");
 
 	# TODO: this is horrible.  Is there an easier way?  Now that MaxMind is handled elsewhere, I hope so
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
@@ -564,8 +563,7 @@ sub geocode {
 		}
 		my $statedir = File::Spec->catfile($countrydir, $state);
 		if(-d $statedir) {
-::diag('1111111111');
-			# if($countrycode eq 'us') {
+			if($countrycode eq 'us') {
 				# $openaddr_db = $self->{openaddr_db} ||
 					# Geo::Coder::Free::DB::openaddresses->new(
 						# directory => $self->{openaddr},
@@ -574,7 +572,9 @@ sub geocode {
 				# $self->{openaddr_db} = $openaddr_db;
 			# } else {
 				$openaddr_db = $self->{$statedir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir, table => 'statewide');
-			# }
+			} elsif($countrycode eq 'ca') {
+				$openaddr_db = $self->{$statedir} || Geo::Coder::Free::DB::OpenAddr->new(directory => $statedir, table => 'province');
+			}
 			if($location) {
 				$self->{$statedir} = $openaddr_db;
 				my %args = (city => uc($location));
@@ -611,7 +611,6 @@ sub geocode {
 			die $statedir;
 		}
 	} elsif($county && (-d $countrydir)) {
-::diag('22222222222');
 		my $is_state;
 		my $table;
 		if($country =~ /^(United States|USA|US)$/) {
@@ -687,7 +686,6 @@ sub geocode {
 			}
 		}
 	} else {
-::diag('333333333333');
 		$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
 		die $param{location};
 	}
