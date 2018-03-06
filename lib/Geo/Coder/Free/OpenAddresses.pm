@@ -3,8 +3,8 @@ package Geo::Coder::Free::OpenAddresses;
 use strict;
 use warnings;
 
-use Geo::Coder::Free::DB::OpenAddr;
-use Geo::Coder::Free::DB::openaddresses;
+use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
+use Geo::Coder::Free::DB::openaddresses;	# The original CSV files
 use Module::Info;
 use Carp;
 use File::Spec;
@@ -52,9 +52,13 @@ our $VERSION = '0.01';
 Geo::Coder::Free::OpenAddresses provides an interface to the free geolocation database at http://openadresses.io
 
 Refer to the source URL for licencing information for these files:
-openaddress data can be downloaded from http://results.openaddresses.io/.
 
-To significantly speed this up use the provided createdatabases.PL script which ingests the data into an SQLite database.
+To install:
+
+1. download the data from http://results.openaddresses.io/. You will find licencing information on that page.
+2. unzip the data into a directory.
+3. point the environment variable OPENADDR_HOME to that directory and save in the profile of your choice.
+4. run the createdatabases.PL script which imports the data into an SQLite datebase.  This process will take some time.
 
 =head1 METHODS
 
@@ -720,7 +724,7 @@ This should work, but I haven't tested it yet.
 
 =head1 SEE ALSO
 
-VWF, openaddresses, MaxMind and geonames.
+VWF, openaddresses.
 
 =head1 LICENSE AND COPYRIGHT
 
