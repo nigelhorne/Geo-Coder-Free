@@ -41,6 +41,10 @@ OPENADDR: {
 			delta_within($location->{latitude}, 41.09, 1e-2);
 			delta_within($location->{longitude}, -85.14, 1e-2);
 
+			$location = $geocoder->geocode({location => 'Westmorland, New Brunswick, Canada'});
+			ok(defined($location));
+			ok(ref($location) eq 'HASH');
+
 			# Clay township isn't in Openaddresses
 			$location = $ogeocoder->geocode(location => 'Clay, Owen, Indiana, USA');
 			ok(!defined($location));

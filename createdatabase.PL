@@ -227,6 +227,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
+						if((!defined($county)) && ($row->{'REGION'})) {
+							$county = $row->{'REGION'};
+						}
 						if($county) {
 							$county =~ s/\s+County$//i;
 							$county = uc($county);
@@ -371,6 +374,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
+						}
+						if((!defined($county)) && ($row->{'REGION'})) {
+							$county = $row->{'REGION'};
 						}
 						if($county) {
 							$county =~ s/\s+County$//i;

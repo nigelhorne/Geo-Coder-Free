@@ -92,7 +92,7 @@ sub new {
 		Carp::carp "Can't find the directory $openaddr"
 			if((!-d $openaddr) || (!-r $openaddr));
 		return bless { openaddr => $openaddr}, $class;
-	} 
+	}
 	Carp::croak(__PACKAGE__ . ": usage: new(openaddr => '/path/to/openaddresses')");
 }
 
@@ -129,6 +129,8 @@ sub geocode {
 
 	my $location = $param{location}
 		or Carp::croak("Usage: geocode(location => \$location)");
+
+	::diag($location);
 
 	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
 		$location = "$1, Washington, DC, $2";
@@ -168,6 +170,14 @@ sub geocode {
 				if($city !~ /,/) {
 					# Simple case looking up a city in a state in the US
 					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'US');
+					if($rc && defined($rc->{'lat'})) {
+						$rc->{'latitude'} = $rc->{'lat'};
+						$rc->{'longitude'} = $rc->{'lon'};
+						return $rc;
+					}
+					# Or perhaps it's a county?
+					# Allen, Indiana, USA
+					$rc = $openaddr_db->fetchrow_hashref(county => uc($city), state => $state, country => 'US');
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
@@ -325,9 +335,18 @@ sub geocode {
 						$state = $twoletterstate;
 					}
 				}
+				::diag(">>>>>>> province: $state");
 				if($city !~ /,/) {
 					# Simple case looking up a city in a state in Canada
 					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'CA');
+					if($rc && defined($rc->{'lat'})) {
+						$rc->{'latitude'} = $rc->{'lat'};
+						$rc->{'longitude'} = $rc->{'lon'};
+						return $rc;
+					}
+					# Or perhaps it's a county?
+					# Westmorland, New Brunsick, Canada
+					$rc = $openaddr_db->fetchrow_hashref(county => uc($city), state => $state, country => 'CA');
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
@@ -425,7 +444,7 @@ sub geocode {
 	}
 
 	# Not been able to find in the SQLite file, look in the CSV files.
-	# ::diag("FALL THROUGH $location");
+	::diag("FALL THROUGH $location");
 
 	# TODO: this is horrible.  Is there an easier way?  Now that MaxMind is handled elsewhere, I hope so
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
@@ -532,23 +551,20 @@ sub geocode {
 		# TODO:  Locale::CA for Canadian provinces
 		if(($state =~ /^(United States|USA|US)$/) && (length($state) > 2)) {
 			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-				$state = $twoletterstate;
+				$state = lc($twoletterstate);
 			}
 		} elsif($country =~ /^(United States|USA|US)$/) {
-			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-				$state = $twoletterstate;
+			$state = lc($state);
+		} elsif(($state eq 'Canada') && (length($state) > 2)) {
+			if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+				$state = lc($twoletterstate);
 			}
-			my $l = length($state);
-			if($l > 2) {
-				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-					$state = $twoletterstate;
-				}
-			} elsif($l == 2) {
-				$state = lc($state);
-			}
+		} elsif($country eq 'Canada') {
+			$state = lc($state);
 		}
 		my $statedir = File::Spec->catfile($countrydir, $state);
 		if(-d $statedir) {
+::diag('1111111111');
 			# if($countrycode eq 'us') {
 				# $openaddr_db = $self->{openaddr_db} ||
 					# Geo::Coder::Free::DB::openaddresses->new(
@@ -595,6 +611,7 @@ sub geocode {
 			die $statedir;
 		}
 	} elsif($county && (-d $countrydir)) {
+::diag('22222222222');
 		my $is_state;
 		my $table;
 		if($country =~ /^(United States|USA|US)$/) {
@@ -670,11 +687,9 @@ sub geocode {
 			}
 		}
 	} else {
+::diag('333333333333');
 		$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
 		die $param{location};
-	}
-	if($openaddr_db) {
-		die "TBD";
 	}
 }
 
