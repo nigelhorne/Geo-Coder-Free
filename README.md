@@ -28,6 +28,10 @@ Version 0.05
 Geo::Coder::Free provides an interface to free databases by acting as a front-end to
 Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 
+The cgi-bin directory contains a simple DIY geocoding website:
+
+    curl 'http://localhost/~user/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW,+Washington+DC,+USA'
+
 # METHODS
 
 ## new
@@ -36,6 +40,10 @@ Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 
 Takes one optional parameter, openaddr, which is the base directory of
 the OpenAddresses data downloaded from http://results.openaddresses.io.
+
+Takes one optional parameter, directory,
+which tells the library where to find the MaxMind and GeoNames files admin1db, admin2.db and cities.\[sql|csv.gz\].
+If that parameter isn't given, the module will attempt to find the databases, but that can't be guaranteed.
 
 ## geocode
 

@@ -36,6 +36,10 @@ our $VERSION = '0.05';
 Geo::Coder::Free provides an interface to free databases by acting as a front-end to
 Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 
+The cgi-bin directory contains a simple DIY geocoding website:
+
+    curl 'http://localhost/~user/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW,+Washington+DC,+USA'
+
 =head1 METHODS
 
 =head2 new
