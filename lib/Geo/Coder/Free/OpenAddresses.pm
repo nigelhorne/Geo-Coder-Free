@@ -143,9 +143,7 @@ sub geocode {
 	my $county;
 	my $state;
 	my $country;
-	my $country_code;
 	my $street;
-	my $concatenated_codes;
 	my $openaddr_db;
 
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {

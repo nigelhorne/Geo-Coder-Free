@@ -130,7 +130,6 @@ sub geocode {
 	my $state;
 	my $country;
 	my $country_code;
-	my $street;
 	my $concatenated_codes;
 
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
