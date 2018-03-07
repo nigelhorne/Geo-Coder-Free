@@ -24,9 +24,10 @@ t/admin1.t
 t/admin2.t
 t/cities.t
 t/lib/MyLogger.pm
-t/lookup.t
+t/maxmind.t
 t/openaddr.t
 t/pod-cm.t
 t/pod.t
 t/spelling.t
 t/strict.t
+typhoon/openaddresses.ddl

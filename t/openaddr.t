@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 51;
+use Test::Most tests => 53;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -134,7 +134,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 50;
+			skip 'OPENADDR_HOME not defined', 52;
 		}
 	}
 }

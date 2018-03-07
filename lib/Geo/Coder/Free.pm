@@ -131,8 +131,8 @@ The openaddresses data doesn't cover the globe.
 Can't parse and handle "London, England".
 
 Openaddresses look up is slow.
-If you rebuild the csv databases as SQLite it will be much quicker.
-This should work, but I haven't tested it yet.
+See L<Geo::Coder::Free::OpenAddresses> for instructions on improving the speed by
+storing the data in an SQLite database.
 
 =head1 SEE ALSO
 

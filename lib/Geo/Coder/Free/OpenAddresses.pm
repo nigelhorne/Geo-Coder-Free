@@ -726,14 +726,11 @@ Lots of lookups fail at the moment.
 The openaddresses.io code has yet to be compeleted.
 There are die()s where the code path has yet to be written.
 
-The MaxMind data only contains cities.
 The openaddresses data doesn't cover the globe.
 
 Can't parse and handle "London, England".
 
-Openaddresses look up is slow.
-If you rebuild the csv databases as SQLite it will be much quicker.
-This should work, but I haven't tested it yet.
+Currently only searches US and Canadian data.
 
 =head1 SEE ALSO
 
@@ -746,9 +743,6 @@ Copyright 2017-2018 Nigel Horne.
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
 must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
-
-This product includes GeoLite2 data created by MaxMind, available from
-http://www.maxmind.com
 
 =cut
 
