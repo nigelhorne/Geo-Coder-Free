@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 53;
+use Test::Most tests => 55;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
