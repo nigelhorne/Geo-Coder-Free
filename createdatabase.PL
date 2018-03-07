@@ -92,6 +92,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
+		$dbh->do('PRAGMA synchronous = OFF');
+
 		# TODO: Work out a good key
 		$dbh->prepare("CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char not null, country char not null)")->execute();
 

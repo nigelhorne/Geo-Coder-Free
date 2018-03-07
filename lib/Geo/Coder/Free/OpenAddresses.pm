@@ -545,7 +545,6 @@ sub geocode {
 	my $countrydir = File::Spec->catfile($self->{openaddr}, $countrycode);
 	# TODO:  Don't use statewide if the county can be determined, since that file will be much smaller
 	if($state && (-d $countrydir)) {
-		# TODO:  Locale::CA for Canadian provinces
 		if(($state =~ /^(United States|USA|US)$/) && (length($state) > 2)) {
 			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
 				$state = lc($twoletterstate);
