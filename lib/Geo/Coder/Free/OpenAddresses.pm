@@ -195,7 +195,7 @@ sub geocode {
 							if($type eq 'Ave') {
 								$type = 'AVENUE';
 							} elsif($type eq 'St') {
-								$type = 'STREET'
+								$type = 'STREET';
 							} else {
 								warn("Add type $type");
 							}
@@ -245,7 +245,7 @@ sub geocode {
 									if($type eq 'Ave') {
 										$type = 'AVENUE';
 									} elsif($type eq 'St') {
-										$type = 'STREET'
+										$type = 'STREET';
 									} else {
 										warn("Add type $type");
 									}
@@ -364,7 +364,7 @@ sub geocode {
 							if($type eq 'Ave') {
 								$type = 'AVENUE';
 							} elsif($type eq 'St') {
-								$type = 'STREET'
+								$type = 'STREET';
 							} else {
 								warn("Add type $type");
 							}
