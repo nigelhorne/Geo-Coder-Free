@@ -41,7 +41,6 @@ use Geo::Coder::Free::Config;
 my $info = CGI::Info->new();
 my $tmpdir = $info->tmpdir();
 my $script_dir = $info->script_dir();
-my $config;
 
 my @suffixlist = ('.pl', '.fcgi');
 my $script_name = basename($info->script_name(), @suffixlist);
@@ -63,12 +62,13 @@ use Geo::Coder::Free::Display::query;
 # use Geo::Coder::Free::DB::Maxmind;
 use Geo::Coder::Free::DB::openaddresses;
 
-die "Set OPENADDR_HOME" if(!$ENV{'OPENADDR_HOME'});
+my $config = Geo::Coder::Free::Config->new({ logger => $logger, info => $info });
+die "Set OPENADDR_HOME" if($config->OPENADDR_HOME());
 
 my $database_dir = "$script_dir/../lib/Geo/Coder/Free/MaxMind/databases";
 Geo::Coder::Free::DB::init({ directory => $database_dir, logger => $logger });
 
-my $openaddresses = Geo::Coder::Free::DB::openaddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
+my $openaddresses = Geo::Coder::Free::DB::openaddresses->new($config->OPENADDR_HOME());
 if($@) {
 	$logger->error($@);
 	die $@;
@@ -176,7 +176,6 @@ sub doit
 	$logger->debug('In doit - domain is ', $info->domain_name());
 
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
-	$config ||= Geo::Coder::Free::Config->new({ logger => $logger, info => $info });
 	$infocache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Info');
 
 	my $options = {
