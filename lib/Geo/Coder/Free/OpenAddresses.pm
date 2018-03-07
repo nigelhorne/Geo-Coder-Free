@@ -15,9 +15,6 @@ use CHI;
 use Locale::Country;
 use Geo::StreetAddress::US;
 
-our %admin1cache;
-our %admin2cache;
-
 #  Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
 my %known_locations = (
@@ -66,8 +63,10 @@ To install:
 
     $geocoder = Geo::Coder::Free::OpenAddresses->new();
 
-Takes one parameter, openaddr, which is the base directory of
+Takes an optional parameter openaddr, which is the base directory of
 the OpenAddresses data downloaded from http://results.openaddresses.io.
+
+Takes an optional parameter cache, which points to an object that understands get() and set() messages to store data in
 
 =cut
 
@@ -78,20 +77,10 @@ sub new {
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
 
-	# Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
-
-	my $directory = Module::Info->new_from_loaded(__PACKAGE__)->file();
-	$directory =~ s/\.pm$//;
-
-	Geo::Coder::Free::DB::init({
-		directory => File::Spec->catfile($directory, 'databases'),
-		cache => CHI->new(driver => 'Memory', datastore => { })
-	});
-
 	if(my $openaddr = $param{'openaddr'}) {
 		Carp::carp "Can't find the directory $openaddr"
 			if((!-d $openaddr) || (!-r $openaddr));
-		return bless { openaddr => $openaddr}, $class;
+		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
 	}
 	Carp::croak(__PACKAGE__ . ": usage: new(openaddr => '/path/to/openaddresses')");
 }
@@ -155,7 +144,7 @@ sub geocode {
 		$openaddr_db = $self->{openaddr_db} ||
 			Geo::Coder::Free::DB::openaddresses->new(
 				directory => $self->{openaddr},
-				cache => CHI->new(driver => 'Memory', datastore => {})
+				cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 			);
 		$self->{openaddr_db} = $openaddr_db;
 		if($openaddr_db && (my $c = country2code($country))) {
@@ -196,6 +185,8 @@ sub geocode {
 								$type = 'AVENUE';
 							} elsif($type eq 'St') {
 								$type = 'STREET';
+							} elsif($type eq 'Pike') {
+								$type = 'PIKE';
 							} else {
 								warn("Add type $type");
 							}
@@ -246,6 +237,8 @@ sub geocode {
 										$type = 'AVENUE';
 									} elsif($type eq 'St') {
 										$type = 'STREET';
+									} elsif($type eq 'Pike') {
+										$type = 'PIKE';
 									} else {
 										warn("Add type $type");
 									}
@@ -365,6 +358,8 @@ sub geocode {
 								$type = 'AVENUE';
 							} elsif($type eq 'St') {
 								$type = 'STREET';
+							} elsif($type eq 'Pike') {
+								$type = 'PIKE';
 							} else {
 								warn("Add type $type");
 							}
@@ -564,7 +559,7 @@ sub geocode {
 				# $openaddr_db = $self->{openaddr_db} ||
 					# Geo::Coder::Free::DB::openaddresses->new(
 						# directory => $self->{openaddr},
-						# cache => CHI->new(driver => 'Memory', datastore => { })
+						# cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 					# );
 				# $self->{openaddr_db} = $openaddr_db;
 			# } else {
@@ -648,7 +643,7 @@ sub geocode {
 						$openaddr_db = $self->{openaddr_db} ||
 							Geo::Coder::Free::DB::openaddresses->new(
 								directory => $self->{openaddr},
-								cache => CHI->new(driver => 'Memory', datastore => { })
+								cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 							);
 						$self->{openaddr_db} = $openaddr_db;
 					} else {

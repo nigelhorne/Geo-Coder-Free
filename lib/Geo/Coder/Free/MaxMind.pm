@@ -65,8 +65,9 @@ gunzip cities.csv and run it through the db2sql script to create an SQLite file.
 
     $geocoder = Geo::Coder::Free::MaxMind->new();
 
-Takes one optional parameter, openaddr, which is the base directory of
-the OpenAddresses data downloaded from http://results.openaddresses.io.
+Takes one optional parameter, directory,
+which tells the library where to find the files admin1db, admin2.db and cities.[sql|csv.gz].
+If that parameter isn't given, the module will attempt to find the databases, but that can't be guaranteed
 
 =cut
 
@@ -79,12 +80,12 @@ sub new {
 
 	# Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
 
-	my $directory = Module::Info->new_from_loaded(__PACKAGE__)->file();
+	my $directory = $param{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
 	$directory =~ s/\.pm$//;
 
 	Geo::Coder::Free::DB::init({
 		directory => File::Spec->catfile($directory, 'databases'),
-		cache => CHI->new(driver => 'Memory', datastore => { })
+		cache => $param{cache} || CHI->new(driver => 'Memory', datastore => {})
 	});
 
 	return bless { }, $class;

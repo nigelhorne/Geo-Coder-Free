@@ -245,7 +245,7 @@ sub selectall_hash {
 
 	my $query = "SELECT * FROM $table";
 	my @args;
-	foreach my $c1(keys(%params)) {
+	foreach my $c1(sort keys(%params)) {	# sort so that the key is always the same
 		if(scalar(@args) == 0) {
 			$query .= ' WHERE';
 		} else {
@@ -298,7 +298,7 @@ sub fetchrow_hashref {
 
 	my $query = "SELECT * FROM $table";
 	my @args;
-	foreach my $c1(keys(%params)) {
+	foreach my $c1(sort keys(%params)) {	# sort so that the key is always the same
 		if(scalar(@args) == 0) {
 			$query .= ' WHERE';
 		} else {

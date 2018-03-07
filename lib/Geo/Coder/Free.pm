@@ -45,6 +45,10 @@ Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 Takes one optional parameter, openaddr, which is the base directory of
 the OpenAddresses data downloaded from http://results.openaddresses.io.
 
+Takes one optional parameter, directory,
+which tells the library where to find the MaxMind and GeoNames files admin1db, admin2.db and cities.[sql|csv.gz].
+If that parameter isn't given, the module will attempt to find the databases, but that can't be guaranteed.
+
 =cut
 
 sub new {
@@ -55,11 +59,14 @@ sub new {
 	return unless($class);
 
 	my $rc = {
-		maxmind => Geo::Coder::Free::MaxMind->new()
+		maxmind => Geo::Coder::Free::MaxMind->new(%param)
 	};
 
-	if(my $openaddr = $param{'openaddr'}) {
-		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(openaddr => $openaddr);
+	if($param{'openaddr'}) {
+		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(%param);
+	}
+	if(my $cache = $param{'cache'}) {
+		$rc->{'cache'} = $cache;
 	}
 
 	return bless $rc, $class;
