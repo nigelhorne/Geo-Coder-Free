@@ -63,12 +63,12 @@ use Geo::Coder::Free::Display::query;
 use Geo::Coder::Free::DB::openaddresses;
 
 my $config = Geo::Coder::Free::Config->new({ logger => $logger, info => $info });
-die "Set OPENADDR_HOME" if($config->OPENADDR_HOME());
+die "Set OPENADDR_HOME" if(!$config->OPENADDR_HOME());
 
 my $database_dir = "$script_dir/../lib/Geo/Coder/Free/MaxMind/databases";
 Geo::Coder::Free::DB::init({ directory => $database_dir, logger => $logger });
 
-my $openaddresses = Geo::Coder::Free::DB::openaddresses->new($config->OPENADDR_HOME());
+my $openaddresses = Geo::Coder::Free::DB::openaddresses->new(openaddr => $config->OPENADDR_HOME());
 if($@) {
 	$logger->error($@);
 	die $@;
@@ -257,7 +257,7 @@ sub doit
 	}
 
 	$geocoder ||= Geo::Coder::Free->new(
-		openaddr => $ENV{'OPENADDR_HOME'},
+		openaddr => $config->OPENADDR_HOME(),
 		cache => create_disc_cache(config => $config, logger => $logger, namespace => $script_name, root_dir => $cachedir)
 	);
 

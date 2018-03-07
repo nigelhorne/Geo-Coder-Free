@@ -148,7 +148,7 @@ sub new {
 		}
 	};
 	if($@ || !defined($config)) {
-		die "Geo::Coder::Freeuration error: $@" . $path . '/' . $info->domain_name();
+		die "Configuration error: $@" . $path . '/' . $info->domain_name();
 	}
 
 	Template::Filters->use_html_entities();

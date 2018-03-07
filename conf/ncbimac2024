@@ -18,3 +18,4 @@ links_database: bb-links
 # cache: driver=Memcached server=127.0.0.1,192.168.1.2
 disc_cache: driver=File, root_dir=/tmp/cache
 memory_cache: driver=File, root_dir=/tmp/cache
+OPENADDR_HOME: /Users/hornenj/Downloads/openaddr
