@@ -6,7 +6,7 @@
 
 # Geo::Coder::Free
 
-Provides a geocoding functionality using free databases of towns
+Provides a geocoding functionality using free databases
 
 # VERSION
 
@@ -25,18 +25,8 @@ Version 0.05
 
 # DESCRIPTION
 
-Geo::Coder::Free provides an interface to free databases.
-
-Refer to the source URL for licencing information for these files:
-cities.csv is from https://www.maxmind.com/en/free-world-cities-database;
-admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt;
-admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt;
-openaddress data can be downloaded from http://results.openaddresses.io/.
-
-See also http://download.geonames.org/export/dump/allCountries.zip
-
-To significantly speed this up,
-gunzip cities.csv and run it through the db2sql script to create an SQLite file.
+Geo::Coder::Free provides an interface to free databases by acting as a front-end to
+Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 
 # METHODS
 
@@ -88,8 +78,8 @@ The openaddresses data doesn't cover the globe.
 Can't parse and handle "London, England".
 
 Openaddresses look up is slow.
-If you rebuild the csv databases as SQLite it will be much quicker.
-This should work, but I haven't tested it yet.
+See [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo::Coder::Free::OpenAddresses) for instructions on improving the speed by
+storing the data in an SQLite database.
 
 # SEE ALSO
 
