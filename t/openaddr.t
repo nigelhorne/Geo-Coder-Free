@@ -138,7 +138,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 52;
+			skip 'OPENADDR_HOME not defined', 54;
 		}
 	}
 }
