@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 55;
+use Test::Most tests => 58;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -122,6 +122,11 @@ OPENADDR: {
 			delta_within($location->{latitude}, 38.90, 1e-2);
 			delta_within($location->{longitude}, -77.04, 1e-2);
 
+			$location = $geocoder->geocode(location => 'Greene County, Indiana, USA');
+			ok(defined($location));
+			delta_ok($location->{latitude}, 39.04);
+			delta_ok($location->{longitude}, -86.96);
+
 			# my $address = $geocoder->reverse_geocode(latlng => '51.50,-0.13');
 			# like($address->{'city'}, qr/^London$/i, 'test reverse');
 
@@ -138,7 +143,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 54;
+			skip 'OPENADDR_HOME not defined', 57;
 		}
 	}
 }
