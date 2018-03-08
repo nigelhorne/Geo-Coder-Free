@@ -84,15 +84,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# TODO: only US data is supported at the moment
 	my $sqlite_file = "$oa/openaddresses.sql";
 	if(!-r $sqlite_file) {
-		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0 });
+		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
 		if(!-d $oa) {
 			mkdir $oa;
 		}
 		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
-
-		$dbh->do('PRAGMA synchronous = OFF');
 
 		# TODO: Work out a good key
 		$dbh->prepare("CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char not null, country char not null)")->execute();
