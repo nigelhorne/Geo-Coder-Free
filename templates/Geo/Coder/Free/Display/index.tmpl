@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<meta http-equiv="Content-Language" content="en-gb">
+		<meta name="robots" content="INDEX,FOLLOW">
+		<meta name="language" content="ENGLISH">
+		<meta name="object" content="Index">
+		<meta name="owner" content="Nigel Horne">
+		<meta name="Author" content="Nigel Horne">
+		[% IF twitter %]
+			<meta name="twitter:site" content="@[% twitter %]">
+			[% IF SiteTitle %]
+				<meta name="twitter:title" content="[% SiteTitle.join(' ') %]">
+			[% END %]
+		[% END %]
+		<title>
+			[% IF title %]
+				[% title %]
+			[% ELSE %]
+				Geocoding website based on openaddresses
+			[% END %]
+		</title>
+		[% IF description %]
+			<meta name="description" content="[% description %]" />
+		[% ELSE %]
+			<meta name="description" content="Coming Soon - an openaddresses.io based geocoding website" />
+		[% END %]
+	</head>
+	<body>
+		<h1>Geocoding website based on openaddresses</h1>
+		Coming soon!
+	</body>
+</html>
