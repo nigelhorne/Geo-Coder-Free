@@ -183,11 +183,11 @@ sub geocode {
 					if($street = $href->{street}) {
 						if(my $type = $href->{type}) {
 							if($type eq 'Ave') {
-								$type = 'AVENUE';
+								$type = 'AVE';
 							} elsif($type eq 'St') {
-								$type = 'STREET';
+								$type = 'ST';
 							} elsif($type eq 'Rd') {
-								$type = 'ROAD';
+								$type = 'RD';
 							} elsif($type eq 'Pike') {
 								$type = 'PIKE';
 							} else {
@@ -245,11 +245,11 @@ sub geocode {
 							if($street = $href->{street}) {
 								if(my $type = $href->{type}) {
 									if($type eq 'Ave') {
-										$type = 'AVENUE';
+										$type = 'AVE';
 									} elsif($type eq 'St') {
-										$type = 'STREET';
+										$type = 'ST';
 									} elsif($type eq 'Rd') {
-										$type = 'ROAD';
+										$type = 'RD';
 									} elsif($type eq 'Pike') {
 										$type = 'PIKE';
 									} else {
@@ -376,11 +376,11 @@ sub geocode {
 					if($street = $href->{street}) {
 						if(my $type = $href->{type}) {
 							if($type eq 'Ave') {
-								$type = 'AVENUE';
+								$type = 'AVE';
 							} elsif($type eq 'St') {
-								$type = 'STREET';
+								$type = 'ST';
 							} elsif($type eq 'Rd') {
-								$type = 'ROAD';
+								$type = 'RD';
 							} elsif($type eq 'Pike') {
 								$type = 'PIKE';
 							} else {

@@ -220,12 +220,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						my $street = $row->{'STREET'};
 						if($street) {
 							$street = uc($street);
-							if($street =~ /(.+)\s+ST$/) {
-								$street = "$1 STREET";
-							} elsif($street =~ /(.+)\s+RD$/) {
-								$street = "$1 ROAD";
-							} elsif($street =~ /(.+)\s+AVE$/) {
-								$street = "$1 AVENUE";
+							if($street =~ /(.+)\s+STREET$/) {
+								$street = "$1 ST";
+							} elsif($street =~ /(.+)\s+ROAD$/) {
+								$street = "$1 RD";
+							} elsif($street =~ /(.+)\s+AVENUE$/) {
+								$street = "$1 AVE";
 							}
 						}
 						if($file =~ /^(.+)_county.csv$/) {
@@ -372,12 +372,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						my $street = $row->{'STREET'};
 						if($street) {
 							$street = uc($street);
-							if($street =~ /(.+)\s+ST$/) {
-								$street = "$1 STREET";
-							} elsif($street =~ /(.+)\s+RD$/) {
-								$street = "$1 ROAD";
-							} elsif($street =~ /(.+)\s+AVE$/) {
-								$street = "$1 AVENUE";
+							if($street =~ /(.+)\s+STREET$/) {
+								$street = "$1 ST";
+							} elsif($street =~ /(.+)\s+ROAD$/) {
+								$street = "$1 RD";
+							} elsif($street =~ /(.+)\s+AVENUE$/) {
+								$street = "$1 AVE";
 							}
 						}
 						if($file =~ /^(.+)_county.csv$/) {
