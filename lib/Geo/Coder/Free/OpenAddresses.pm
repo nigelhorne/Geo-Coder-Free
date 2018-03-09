@@ -185,6 +185,8 @@ sub geocode {
 								$type = 'AVENUE';
 							} elsif($type eq 'St') {
 								$type = 'STREET';
+							} elsif($type eq 'Rd') {
+								$type = 'ROAD';
 							} elsif($type eq 'Pike') {
 								$type = 'PIKE';
 							} else {
@@ -207,6 +209,14 @@ sub geocode {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
 						return $rc;
+					}
+					if(delete $args{'county'}) {
+						$rc = $openaddr_db->fetchrow_hashref(%args);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
 					}
 					if(delete $args{'number'}) {
 						$rc = $openaddr_db->fetchrow_hashref(%args);
@@ -237,6 +247,8 @@ sub geocode {
 										$type = 'AVENUE';
 									} elsif($type eq 'St') {
 										$type = 'STREET';
+									} elsif($type eq 'Rd') {
+										$type = 'ROAD';
 									} elsif($type eq 'Pike') {
 										$type = 'PIKE';
 									} else {
@@ -259,6 +271,14 @@ sub geocode {
 								$rc->{'latitude'} = $rc->{'lat'};
 								$rc->{'longitude'} = $rc->{'lon'};
 								return $rc;
+							}
+							if(delete $args{'county'}) {
+								$rc = $openaddr_db->fetchrow_hashref(%args);
+								if($rc && defined($rc->{'lat'})) {
+									$rc->{'latitude'} = $rc->{'lat'};
+									$rc->{'longitude'} = $rc->{'lon'};
+									return $rc;
+								}
 							}
 							if(delete $args{'number'}) {
 								$rc = $openaddr_db->fetchrow_hashref(%args);
@@ -342,7 +362,7 @@ sub geocode {
 						$rc->{'longitude'} = $rc->{'lon'};
 						return $rc;
 					}
-				# } elsif(my $href = Geo::StreetAddress::CA->parse_address("$city, $state")) {
+				# } elsif(my $href = Geo::StreetAddress::Canada->parse_address("$city, $state")) {
 				} elsif(my $href = 0) {
 					# Well formed, simple street address in Canada
 					my %args = (state => $state, country => 'CA');
@@ -358,6 +378,8 @@ sub geocode {
 								$type = 'AVENUE';
 							} elsif($type eq 'St') {
 								$type = 'STREET';
+							} elsif($type eq 'Rd') {
+								$type = 'ROAD';
 							} elsif($type eq 'Pike') {
 								$type = 'PIKE';
 							} else {
@@ -380,6 +402,14 @@ sub geocode {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
 						return $rc;
+					}
+					if(delete $args{'county'}) {
+						$rc = $openaddr_db->fetchrow_hashref(%args);
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
 					}
 					if(delete $args{'number'}) {
 						$rc = $openaddr_db->fetchrow_hashref(%args);

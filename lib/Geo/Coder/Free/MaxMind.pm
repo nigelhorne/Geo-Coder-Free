@@ -186,37 +186,34 @@ sub geocode {
 			if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
 				$concatenated_codes = $admin1->{'concatenated_codes'};
 				$admin1cache{$country} = $concatenated_codes;
-			} else {
-				require Locale::Country;
-				if($state) {
-					if($state =~ /^[A-Z]{2}$/) {
-						$concatenated_codes = uc($countrycode) . ".$state";
-					} else {
-						$concatenated_codes = uc($countrycode);
-						$country_code = $concatenated_codes;
-						my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
-						foreach my $admin1(@admin1s) {
-							if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
-								$concatenated_codes = $admin1->{'concatenated_codes'};
-								last;
-							}
+			} elsif($state) {
+				if($state =~ /^[A-Z]{2}$/) {
+					$concatenated_codes = uc($countrycode) . ".$state";
+				} else {
+					$concatenated_codes = uc($countrycode);
+					$country_code = $concatenated_codes;
+					my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
+					foreach my $admin1(@admin1s) {
+						if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
+							$concatenated_codes = $admin1->{'concatenated_codes'};
+							last;
 						}
 					}
-					$admin1cache{$state} = $concatenated_codes;
-				} elsif($countrycode) {
-					$concatenated_codes = uc($countrycode);
-					$admin1cache{$country} = $concatenated_codes;
-				} elsif(Locale::Country::code2country($country)) {
-					$concatenated_codes = uc($country);
-					$admin1cache{$country} = $concatenated_codes;
 				}
+				$admin1cache{$state} = $concatenated_codes;
+			} elsif($countrycode) {
+				$concatenated_codes = uc($countrycode);
+				$admin1cache{$country} = $concatenated_codes;
+			} elsif(Locale::Country::code2country($country)) {
+				$concatenated_codes = uc($country);
+				$admin1cache{$country} = $concatenated_codes;
 			}
 		}
 	}
 	return unless(defined($concatenated_codes));
 
 	if(!defined($self->{'admin2'})) {
-		$self->{'admin2'} = Geo::Coder::Free::DB::admin2->new() or die "Can't open the admin1 database";
+		$self->{'admin2'} = Geo::Coder::Free::DB::admin2->new() or die "Can't open the admin2 database";
 	}
 	my @admin2s;
 	my $region;

@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 58;
+use Test::Most tests => 55;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -25,6 +25,18 @@ OPENADDR: {
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.77, 1e-2);
 			delta_within($location->{longitude}, -86.30, 1e-2);
+
+			# $location = $geocoder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
+			# delta_ok($location->{latt}, 46.67);
+			# delta_ok($location->{longt}, -64.87);
+
+			$location = $geocoder->geocode('1363 Kelly Road, Coal City, Owen, Indiana, USA');
+			delta_ok($location->{latitude}, 39.27);
+			delta_ok($location->{longitude}, -87.03);
+
+			$location = $geocoder->geocode(location => '6502 SW. 102nd Avenue, Bushnell, Florida, USA');
+			delta_ok($location->{latitude}, 28.61);
+			delta_ok($location->{longitude}, -82.21);
 
 			# This place does exist, but isn't in Openaddresses
 			my $ogeocoder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
@@ -122,10 +134,12 @@ OPENADDR: {
 			delta_within($location->{latitude}, 38.90, 1e-2);
 			delta_within($location->{longitude}, -77.04, 1e-2);
 
+			# Exists, but isn't in the database
 			$location = $geocoder->geocode(location => 'Greene County, Indiana, USA');
-			ok(defined($location));
-			delta_ok($location->{latitude}, 39.04);
-			delta_ok($location->{longitude}, -86.96);
+			ok(!defined($location));
+			# ok(defined($location));
+			# delta_ok($location->{latitude}, 39.04);
+			# delta_ok($location->{longitude}, -86.96);
 
 			# my $address = $geocoder->reverse_geocode(latlng => '51.50,-0.13');
 			# like($address->{'city'}, qr/^London$/i, 'test reverse');
@@ -143,7 +157,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 57;
+			skip 'OPENADDR_HOME not defined', 54;
 		}
 	}
 }
