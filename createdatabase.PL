@@ -224,6 +224,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$street = "$1 STREET";
 							} elsif($street =~ /(.+)\s+RD$/) {
 								$street = "$1 ROAD";
+							} elsif($street =~ /(.+)\s+AVE$/) {
+								$street = "$1 AVENUE";
 							}
 						}
 						if($file =~ /^(.+)_county.csv$/) {
@@ -374,6 +376,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$street = "$1 STREET";
 							} elsif($street =~ /(.+)\s+RD$/) {
 								$street = "$1 ROAD";
+							} elsif($street =~ /(.+)\s+AVE$/) {
+								$street = "$1 AVENUE";
 							}
 						}
 						if($file =~ /^(.+)_county.csv$/) {

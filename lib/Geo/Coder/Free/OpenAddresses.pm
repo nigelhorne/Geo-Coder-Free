@@ -172,6 +172,7 @@ sub geocode {
 					}
 				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
 					# Well formed, simple street address in the US
+					# ::diag(Data::Dumper->new([\$href])->Dump());
 					my %args = (state => $state, country => 'US');
 					if($href->{city}) {
 						$args{city} = uc($href->{city});

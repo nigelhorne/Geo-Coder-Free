@@ -31,8 +31,8 @@ OPENADDR: {
 			# delta_ok($location->{longt}, -64.87);
 
 			$location = $geocoder->geocode('1363 Kelly Road, Coal City, Owen, Indiana, USA');
-			delta_ok($location->{latitude}, 39.27);
-			delta_ok($location->{longitude}, -87.03);
+			delta_within($location->{latitude}, 39.27, 1e-2);
+			delta_within($location->{longitude}, -87.03, 1e-2);
 
 			$location = $geocoder->geocode(location => '6502 SW. 102nd Avenue, Bushnell, Florida, USA');
 			delta_ok($location->{latitude}, 28.61);
