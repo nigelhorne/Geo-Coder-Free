@@ -181,18 +181,7 @@ sub geocode {
 						$args{number} = $href->{number};
 					}
 					if($street = $href->{street}) {
-						if(my $type = $href->{type}) {
-							if($type eq 'Ave') {
-								$type = 'AVE';
-							} elsif($type eq 'St') {
-								$type = 'ST';
-							} elsif($type eq 'Rd') {
-								$type = 'RD';
-							} elsif($type eq 'Pike') {
-								$type = 'PIKE';
-							} else {
-								warn("Add type $type");
-							}
+						if(my $type = $self->_normalize($href->{'type'})) {
 							$street .= " $type";
 						}
 						if($href->{suffix}) {
@@ -243,18 +232,7 @@ sub geocode {
 								$args{number} = $href->{number};
 							}
 							if($street = $href->{street}) {
-								if(my $type = $href->{type}) {
-									if($type eq 'Ave') {
-										$type = 'AVE';
-									} elsif($type eq 'St') {
-										$type = 'ST';
-									} elsif($type eq 'Rd') {
-										$type = 'RD';
-									} elsif($type eq 'Pike') {
-										$type = 'PIKE';
-									} else {
-										warn("Add type $type");
-									}
+								if(my $type = $self->_normalize($href->{'type'})) {
 									$street .= " $type";
 								}
 								if($href->{suffix}) {
@@ -374,18 +352,7 @@ sub geocode {
 						$args{number} = $href->{number};
 					}
 					if($street = $href->{street}) {
-						if(my $type = $href->{type}) {
-							if($type eq 'Ave') {
-								$type = 'AVE';
-							} elsif($type eq 'St') {
-								$type = 'ST';
-							} elsif($type eq 'Rd') {
-								$type = 'RD';
-							} elsif($type eq 'Pike') {
-								$type = 'PIKE';
-							} else {
-								warn("Add type $type");
-							}
+						if(my $type = $self->_normalize($href->{'type'})) {
 							$street .= " $type";
 						}
 						if($href->{suffix}) {
@@ -712,6 +679,24 @@ sub geocode {
 		$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
 		die $param{location};
 	}
+}
+
+sub _normalize {
+	my ($self, $type) = @_;
+
+	$type = uc($type);
+
+	if($type eq 'AVENUE') {
+		return 'AVE';
+	} elsif($type eq 'STREET') {
+		return 'ST';
+	} elsif($type eq 'ROAD') {
+		return 'RD';
+	} elsif($type eq 'PIKE') {
+		return 'PIKE';
+	}
+
+	warn("Add type $type");
 }
 
 =head2 reverse_geocode
