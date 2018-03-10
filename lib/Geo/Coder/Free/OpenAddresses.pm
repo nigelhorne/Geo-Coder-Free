@@ -686,11 +686,11 @@ sub _normalize {
 
 	$type = uc($type);
 
-	if($type eq 'AVENUE') {
+	if(($type eq 'AVENUE') || ($type eq 'AVE')) {
 		return 'AVE';
-	} elsif($type eq 'STREET') {
+	} elsif(($type eq 'STREET') || ($type eq 'ST')) {
 		return 'ST';
-	} elsif($type eq 'ROAD') {
+	} elsif(($type eq 'ROAD') || ($type eq 'RD')) {
 		return 'RD';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';

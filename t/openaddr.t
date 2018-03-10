@@ -35,8 +35,8 @@ OPENADDR: {
 			delta_within($location->{longitude}, -87.03, 1e-2);
 
 			$location = $geocoder->geocode(location => '6502 SW. 102nd Avenue, Bushnell, Florida, USA');
-			delta_ok($location->{latitude}, 28.61);
-			delta_ok($location->{longitude}, -82.21);
+			delta_within($location->{latitude}, 28.61, 1e-2);
+			delta_within($location->{longitude}, -82.21, 1e-2);
 
 			# This place does exist, but isn't in Openaddresses
 			my $ogeocoder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
@@ -62,8 +62,9 @@ OPENADDR: {
 			ok(ref($location) eq 'HASH');
 
 			# Clay township isn't in Openaddresses
-			$location = $ogeocoder->geocode(location => 'Clay, Owen, Indiana, USA');
-			ok(!defined($location));
+			$location = $ogeocoder->geocode(location => 'Clay City, Owen, Indiana, USA');
+			ok(defined($location));
+			ok(ref($location) eq 'HASH');
 
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
