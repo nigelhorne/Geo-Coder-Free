@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 61;
+use Test::Most tests => 63;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -140,8 +140,8 @@ OPENADDR: {
 			delta_within($location->{longitude}, -77.04, 1e-2);
 
 			$location = $geocoder->geocode('548 4th Street, San Francisco, CA, USA');
-			delta_ok($location->{latitude}, 37.778907);
-			delta_ok($location->{longitute}, -122.39760);
+			delta_within($location->{latitude}, 37.778907, 1e-2);
+			delta_within($location->{longitute}, -122.39760, 1e-2);
 
 			# ok(defined($location));
 			# delta_ok($location->{latitude}, 39.04);
@@ -163,7 +163,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 60;
+			skip 'OPENADDR_HOME not defined', 62;
 		}
 	}
 }
