@@ -43,6 +43,10 @@ OPENADDR: {
 			$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
 			ok(!defined($location));
 
+			# This place exists, but I can't find the lat/long
+			$location = $geocoder->geocode(location => 'Greene County, Indiana, USA');
+			ok(!defined($location));
+
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));
 			ok(ref($location) eq 'HASH');
@@ -135,9 +139,10 @@ OPENADDR: {
 			delta_within($location->{latitude}, 38.90, 1e-2);
 			delta_within($location->{longitude}, -77.04, 1e-2);
 
-			# Exists, but isn't in the database
-			$location = $geocoder->geocode(location => 'Greene County, Indiana, USA');
-			ok(!defined($location));
+			$location = $geocoder->geocode('548 4th Street, San Francisco, CA, USA');
+			delta_ok($location->{latitude}, 37.778907);
+			delta_ok($location->{longitute}, -122.39760);
+
 			# ok(defined($location));
 			# delta_ok($location->{latitude}, 39.04);
 			# delta_ok($location->{longitude}, -86.96);

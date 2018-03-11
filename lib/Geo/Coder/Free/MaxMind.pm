@@ -132,12 +132,13 @@ sub geocode {
 	my $country;
 	my $country_code;
 	my $concatenated_codes;
+	my ($first, $second, $third);
 
 	if($location =~ /^([\w\s\-]+)?,([\w\s]+),([\w\s]+)?$/) {
 		# Turn 'Ramsgate, Kent, UK' into 'Ramsgate'
-		$location = $1;
-		$county = $2;
-		$country = $3;
+		$first = $location = $1;
+		$second = $county = $2;
+		$third = $country = $3;
 		$location =~ s/\-/ /g;
 		$county =~ s/^\s//g;
 		$county =~ s/\s$//g;
@@ -348,6 +349,16 @@ sub geocode {
 			$city = $self->{'cities'}->fetchrow_hashref($options);
 			last if(defined($city));
 		}
+		# if((!defined($city)) && defined($first)) {
+			# # e.g. Greene County, Indiana, USA
+			# my @admin2s = $self->{'admin2'}->selectall_hash(asciiname => $first);
+			# if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
+				# foreach my $admin2(@admin2s) {
+					# my $concat = $admin2->{'concatenated_codes'};
+					# ::diag($concat);
+				# }
+			# }
+		# }
 	}
 
 	if(defined($city) && defined($city->{'Latitude'})) {
