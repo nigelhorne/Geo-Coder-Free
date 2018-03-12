@@ -155,16 +155,20 @@ sub geocode {
 					}
 				}
 				if($city !~ /,/) {
+					$city = uc($city);
 					# Simple case looking up a city in a state in the US
-					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'US');
-					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = $rc->{'lat'};
-						$rc->{'longitude'} = $rc->{'lon'};
-						return $rc;
+					my $rc;
+					if($city !~ /^\sCOUNTY$/) {
+						$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'US');
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
 					}
 					# Or perhaps it's a county?
 					# Allen, Indiana, USA
-					$rc = $openaddr_db->fetchrow_hashref(county => uc($city), state => $state, country => 'US');
+					$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'US');
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};

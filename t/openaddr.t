@@ -141,7 +141,7 @@ OPENADDR: {
 
 			$location = $geocoder->geocode('548 4th Street, San Francisco, CA, USA');
 			delta_within($location->{latitude}, 37.778907, 1e-2);
-			delta_within($location->{longitute}, -122.39760, 1e-2);
+			delta_within($location->{longitude}, -122.39760, 1e-2);
 
 			# ok(defined($location));
 			# delta_ok($location->{latitude}, 39.04);
