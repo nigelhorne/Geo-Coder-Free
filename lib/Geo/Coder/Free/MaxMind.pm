@@ -182,7 +182,7 @@ sub geocode {
 			$concatenated_codes = $admin1cache{$country};
 		} else {
 			if(!defined($self->{'admin1'})) {
-				$self->{'admin1'} = Geo::Coder::Free::DB::admin1->new() or die "Can't open the admin1 database";
+				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new() or die "Can't open the admin1 database";
 			}
 			if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
 				$concatenated_codes = $admin1->{'concatenated_codes'};
@@ -214,7 +214,7 @@ sub geocode {
 	return unless(defined($concatenated_codes));
 
 	if(!defined($self->{'admin2'})) {
-		$self->{'admin2'} = Geo::Coder::Free::DB::admin2->new() or die "Can't open the admin2 database";
+		$self->{'admin2'} = Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
 	}
 	my @admin2s;
 	my $region;
@@ -306,7 +306,7 @@ sub geocode {
 	}
 
 	if(!defined($self->{'cities'})) {
-		$self->{'cities'} = Geo::Coder::Free::DB::cities->new();
+		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new();
 	}
 
 	my $options = { City => lc($location) };
