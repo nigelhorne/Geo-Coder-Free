@@ -1,4 +1,4 @@
-package Geo::Coder::Free::DB::admin2;
+package Geo::Coder::Free::DB::MaxMind::admin2;
 
 use strict;
 use warnings;

@@ -1,4 +1,4 @@
-package Geo::Coder::Free::DB::cities;
+package Geo::Coder::Free::DB::MaxMind::cities;
 
 use strict;
 use warnings;
