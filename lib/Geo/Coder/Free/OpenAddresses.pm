@@ -731,6 +731,9 @@ Nigel Horne <njh@bandsman.co.uk>
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+The contents of lib/Geo/Coder/Free/OpenAddresses/databases comes from
+https://github.com/openaddresses/openaddresses/tree/master/us-data.
+
 =head1 BUGS
 
 Lots of lookups fail at the moment.

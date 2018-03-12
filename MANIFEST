@@ -4,6 +4,8 @@ Changes
 conf/ncbimac2024
 conf/page.l4pconf
 createdatabase.PL
+css/style.css
+index.html
 lib/Geo/Coder/Free.pm
 lib/Geo/Coder/Free/bin/db2sql
 lib/Geo/Coder/Free/Config.pm
@@ -21,6 +23,9 @@ lib/Geo/Coder/Free/MaxMind/databases/admin1.db
 lib/Geo/Coder/Free/MaxMind/databases/admin2.db
 lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz
 lib/Geo/Coder/Free/OpenAddresses.pm
+lib/Geo/Coder/Free/OpenAddresses/databases/codes.txt
+lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt
+lib/Geo/Coder/Free/OpenAddresses/databases/states.txt
 lib/Geo/Coder/Free/Utils.pm
 LICENSE
 Makefile.PL
@@ -38,5 +43,6 @@ t/pod-cm.t
 t/pod.t
 t/spelling.t
 t/strict.t
+templates/Geo/Coder/Free/Display/index.tmpl
 templates/Geo/Coder/Free/Display/query.txt
 typhoon/openaddresses.ddl

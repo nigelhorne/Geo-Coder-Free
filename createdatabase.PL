@@ -9,6 +9,7 @@ use Text::xSV::Slurp;
 use Data::Dumper;
 use JSON;
 use LWP::UserAgent::Throttled;
+use Locale::US;
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -81,7 +82,8 @@ if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# Import openaddresses.io data into an SQLite database
 	# TODO: download and unzip the files from results.openaddresses.io
-	# TODO: only US data is supported at the moment
+	# TODO: only US and Canadian data is supported at the moment
+
 	my $sqlite_file = "$oa/openaddresses.sql";
 	if(!-r $sqlite_file) {
 		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
@@ -96,6 +98,71 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$dbh->prepare("CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char not null, country char not null)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
+
+
+		my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
+		if(-r $filename) {
+			# Import counties and states from https://github.com/openaddresses/openaddresses/tree/master/us-data
+			printf "%-70s\r", $filename;
+			my %state_fips;
+
+			my @data = @{xsv_slurp(
+				shape => 'aoh',
+				text_csv => {
+					sep_char => "\t",
+					allow_loose_quotes => 1,
+					blank_is_undef => 1,
+					empty_is_undef => 1,
+					binary => 1,
+				},
+				file => $filename
+			)};
+			foreach my $row(@data) {
+				# print Data::Dumper->new([\$row])->Dump();
+				my $state;
+				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
+					die $row->{'Name'};
+				}
+				my $query = "INSERT INTO openaddresses('LAT','LON','STATE','COUNTRY'" .
+					') VALUES (' .
+					"'" . $row->{'Latitude'} . "'," .
+					"'" . $row->{'Longitude'} . "'," .
+					"'$state', 'US')";
+				$dbh->prepare($query)->execute();
+				# print "$query\n";
+				$state_fips{$row->{'State FIPS'}} = $state;
+			}
+
+			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
+			printf "%-70s\r", $filename;
+
+			@data = @{xsv_slurp(
+				shape => 'aoh',
+				text_csv => {
+					sep_char => "\t",
+					allow_loose_quotes => 1,
+					blank_is_undef => 1,
+					empty_is_undef => 1,
+					binary => 1,
+				},
+				file => $filename
+			)};
+			foreach my $row(@data) {
+				# print Data::Dumper->new([\$row])->Dump();
+				my $state = $state_fips{$row->{'State FIPS'}};
+				die $row->{'Name'} unless(defined($state));
+				my $county = $row->{'Name'};
+				$county =~ s/'/''/g;	# O'Brien County, IA
+				my $query = "INSERT INTO openaddresses('LAT','LON','COUNTY','STATE','COUNTRY'" .
+					') VALUES (' .
+					"'" . $row->{'Latitude'} . "'," .
+					"'" . $row->{'Longitude'} . "'," .
+					"'" . uc($county) . "'," .
+					"'$state', 'US')";
+				# print "$query\n";
+				$dbh->prepare($query)->execute();
+			}
+		}
 
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
@@ -281,10 +348,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						$query =~ s/,$//;
 						$query .= ')';
-						if($query) {
-							# print "$query\n";
-							$dbh->prepare($query)->execute();
-						}
+
+						# print "$query\n";
+						$dbh->prepare($query)->execute();
 					}
 				} elsif($country eq 'ca') {
 					# TODO: remove duplication with the US code
@@ -428,13 +494,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						$query =~ s/,$//;
 						$query .= ')';
-						if($query) {
-							$dbh->prepare($query)->execute();
-						}
+
+						$dbh->prepare($query)->execute();
 					}
 				}
 			}
 		}
+
 		print ' ' x 70, "\r";
 		$dbh->commit();
 		$dbh->disconnect();
