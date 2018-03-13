@@ -267,7 +267,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
 								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
-								my $digest = Digest::CRC:: .rc64($row->{'Latitude'} . $row->{'Longitude'} . $city . $state . 'US');
+								my $digest = Digest::CRC::crc64($row->{'Latitude'} . $row->{'Longitude'} . $city . $state . 'US');
 								$query = "INSERT INTO openaddresses('CRC64','LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'$digest'," .
