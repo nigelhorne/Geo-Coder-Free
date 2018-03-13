@@ -28,8 +28,10 @@ WriteMakefile(
 	},
 	PREREQ_PM => {
 		'DBI' => 0,
+		'Digest::CRC' => 0,
 		'File::pfopen' => '0.02',
 		'DBD::CSV' => 0,
+		'Encode' => 0,
 		'Locale::Country' => 0,
 		'Locale::CA' => 0,
 		'Locale::US' => 0,

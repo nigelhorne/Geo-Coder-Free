@@ -10,6 +10,8 @@ use Data::Dumper;
 use JSON;
 use LWP::UserAgent::Throttled;
 use Locale::US;
+use Digest::CRC;
+use Encode;
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -95,7 +97,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		# TODO: Work out a good key
-		$dbh->prepare("CREATE TABLE openaddresses(lat integer, lon integer, number char, street char, city char, county char, state char not null, country char not null)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(crc64 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -123,8 +125,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
 					die $row->{'Name'};
 				}
-				my $query = "INSERT INTO openaddresses('LAT','LON','STATE','COUNTRY'" .
+				my $digest = Digest::CRC::crc64($row->{'Latitude'} . $row->{'Longitude'} . $state . 'US');
+				my $query = "INSERT INTO openaddresses('CRC64','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
+					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
 					"'" . $row->{'Longitude'} . "'," .
 					"'$state', 'US')";
@@ -151,13 +155,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# print Data::Dumper->new([\$row])->Dump();
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
-				my $county = $row->{'Name'};
+				my $county = uc($row->{'Name'});
 				$county =~ s/'/''/g;	# O'Brien County, IA
-				my $query = "INSERT INTO openaddresses('LAT','LON','COUNTY','STATE','COUNTRY'" .
+				my $digest = Digest::CRC::crc64($row->{'Latitude'} . $row->{'Longitude'} . $county . $state . 'US');
+				my $query = "INSERT INTO openaddresses('CRC64','LAT','LON','COUNTY','STATE','COUNTRY'" .
 					') VALUES (' .
+					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
 					"'" . $row->{'Longitude'} . "'," .
-					"'" . uc($county) . "'," .
+					"'$county'," .
 					"'$state', 'US')";
 				# print "$query\n";
 				$dbh->prepare($query)->execute();
@@ -261,8 +267,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
 								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
-								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
+								my $digest = Digest::CRC:: .rc64($row->{'Latitude'} . $row->{'Longitude'} . $city . $state . 'US');
+								$query = "INSERT INTO openaddresses('CRC64','LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
+									"'$digest'," .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
 									"'$city'," .
@@ -338,16 +346,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						# $query = 'INSERT OR REPLACE INTO openaddresses(' .
-						$query = 'INSERT INTO openaddresses(' .
+						my $digest = Digest::CRC::crc64(join('', map { Encode::encode_utf8($columns{$_}) } sort keys %columns));
+						# TODO: instead of INSERT OR REPLACE, give a warning for duplicates and just INSERT
+						$query = 'INSERT OR REPLACE INTO openaddresses(' .
 							join(',', sort keys %columns) .
-							') VALUES (';
+							',CRC64) VALUES (';
 						foreach my $column(sort keys %columns) {
 							$columns{$column} =~ s/'/''/g;
 							$query .= "'" . $columns{$column} . "',";
 						}
-						$query =~ s/,$//;
-						$query .= ')';
+						$query .= "'$digest')";
 
 						# print "$query\n";
 						$dbh->prepare($query)->execute();
@@ -414,7 +422,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$postcodes{$postcode} = { 'city' => $city };
 								# print "$zip => $city\n";
-								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'" . $place->{'latitude'} . "'," .
@@ -484,17 +491,18 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						# $query = 'INSERT OR REPLACE INTO openaddresses(' .
-						$query = 'INSERT INTO openaddresses(' .
+						my $digest = Digest::CRC::crc64(join('', map { Encode::encode_utf8($columns{$_}) } sort keys %columns));
+						# TODO: instead of INSERT OR REPLACE, give a warning for duplicates and just INSERT
+						$query = 'INSERT OR REPLACE INTO openaddresses(' .
 							join(',', sort keys %columns) .
-							') VALUES (';
+							',CRC64) VALUES (';
 						foreach my $column(sort keys %columns) {
 							$columns{$column} =~ s/'/''/g;
 							$query .= "'" . $columns{$column} . "',";
 						}
-						$query =~ s/,$//;
-						$query .= ')';
+						$query .= "'$digest')";
 
+						# print "$query\n";
 						$dbh->prepare($query)->execute();
 					}
 				}
