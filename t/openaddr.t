@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 64;
+use Test::Most tests => 67;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -52,9 +52,11 @@ OPENADDR: {
 			$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
 			ok(!defined($location));
 
-			# This place exists, but I can't find the lat/long
 			$location = $geocoder->geocode(location => 'Greene County, Indiana, USA');
-			ok(!defined($location));
+			ok(defined($location));
+			ok(ref($location) eq 'HASH');
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -87.04, 1e-2);
 
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));
@@ -172,7 +174,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 63;
+			skip 'OPENADDR_HOME not defined', 66;
 		}
 	}
 }
