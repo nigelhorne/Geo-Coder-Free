@@ -28,7 +28,7 @@ WriteMakefile(
 	},
 	PREREQ_PM => {
 		'DBI' => 0,
-		'Digest::CRC' => 0,
+		'Digest::MD5' => 0,
 		'File::pfopen' => '0.02',
 		'DBD::CSV' => 0,
 		'Encode' => 0,

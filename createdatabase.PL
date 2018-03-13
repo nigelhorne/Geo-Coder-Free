@@ -10,7 +10,7 @@ use Data::Dumper;
 use JSON;
 use LWP::UserAgent::Throttled;
 use Locale::US;
-use Digest::CRC;
+use Digest::MD5;
 use Encode;
 
 my %zipcodes = (
@@ -97,7 +97,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		# TODO: Work out a good key
-		$dbh->prepare("CREATE TABLE openaddresses(crc64 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -125,8 +125,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
 					die $row->{'Name'};
 				}
-				my $digest = Digest::CRC::crc64($row->{'Latitude'} . $row->{'Longitude'} . $state . 'US');
-				my $query = "INSERT INTO openaddresses('CRC64','LAT','LON','STATE','COUNTRY'" .
+				my $digest = Digest::MD5::md5_base64($row->{'Latitude'}, $row->{'Longitude'}, $state, 'US');
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
@@ -157,8 +157,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
 				$county =~ s/'/''/g;	# O'Brien County, IA
-				my $digest = Digest::CRC::crc64($row->{'Latitude'} . $row->{'Longitude'} . $county . $state . 'US');
-				my $query = "INSERT INTO openaddresses('CRC64','LAT','LON','COUNTY','STATE','COUNTRY'" .
+				my $digest = Digest::MD5::md5_base64($row->{'Latitude'}, $row->{'Longitude'}, $county, $state, 'US');
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTY','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
@@ -267,8 +267,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
 								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
-								my $digest = Digest::CRC::crc64($row->{'Latitude'} . $row->{'Longitude'} . $city . $state . 'US');
-								$query = "INSERT INTO openaddresses('CRC64','LAT','LON','CITY','STATE','COUNTRY'" .
+								my $digest = Digest::MD5::md5_base64($place->{'latitude'}, $place->{'longitude'}, $city, $state, 'US');
+								$query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'$digest'," .
 									"'" . $place->{'latitude'} . "'," .
@@ -346,11 +346,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						my $digest = Digest::CRC::crc64(join('', map { Encode::encode_utf8($columns{$_}) } sort keys %columns));
+						my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns{$_}) } sort keys %columns);
 						# TODO: instead of INSERT OR REPLACE, give a warning for duplicates and just INSERT
 						$query = 'INSERT OR REPLACE INTO openaddresses(' .
 							join(',', sort keys %columns) .
-							',CRC64) VALUES (';
+							',MD5) VALUES (';
 						foreach my $column(sort keys %columns) {
 							$columns{$column} =~ s/'/''/g;
 							$query .= "'" . $columns{$column} . "',";
@@ -491,11 +491,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						my $digest = Digest::CRC::crc64(join('', map { Encode::encode_utf8($columns{$_}) } sort keys %columns));
+						my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns{$_}) } sort keys %columns);
 						# TODO: instead of INSERT OR REPLACE, give a warning for duplicates and just INSERT
 						$query = 'INSERT OR REPLACE INTO openaddresses(' .
 							join(',', sort keys %columns) .
-							',CRC64) VALUES (';
+							',MD5) VALUES (';
 						foreach my $column(sort keys %columns) {
 							$columns{$column} =~ s/'/''/g;
 							$query .= "'" . $columns{$column} . "',";
