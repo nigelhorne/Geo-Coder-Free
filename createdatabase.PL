@@ -266,16 +266,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
-								# $query = "INSERT OR REPLACE INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
 								my $digest = Digest::MD5::md5_base64($place->{'latitude'}, $place->{'longitude'}, $city, $state, 'US');
-								$query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT OR REPLACE INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'$digest'," .
 									"'" . $place->{'latitude'} . "'," .
 									"'" . $place->{'longitude'} . "'," .
-									"'$city'," .
-									# "'" . $place->{'state abbreviation'} . "'," .
-									"'$state', 'US')";
+									"'$city','$state','US')";
 								# print "$zip => $query\n";
 								$dbh->prepare($query)->execute();
 							}
