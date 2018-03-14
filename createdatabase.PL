@@ -125,7 +125,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
 					die $row->{'Name'};
 				}
-				my $digest = Digest::MD5::md5_base64($row->{'Latitude'}, $row->{'Longitude'}, $state, 'US');
+				my $digest = Digest::MD5::md5_base64($state, 'US');
 				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
@@ -157,7 +157,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
 				$county =~ s/'/''/g;	# O'Brien County, IA
-				my $digest = Digest::MD5::md5_base64($row->{'Latitude'}, $row->{'Longitude'}, $county, $state, 'US');
+				my $digest = Digest::MD5::md5_base64($county, $state, 'US');
 				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTY','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
@@ -266,7 +266,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $place->{'place name'};
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
-								my $digest = Digest::MD5::md5_base64($place->{'latitude'}, $place->{'longitude'}, $city, $state, 'US');
+								my $digest = Digest::MD5::md5_base64($city, $state, 'US');
 								$query = "INSERT OR REPLACE INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'$digest'," .
