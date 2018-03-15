@@ -263,7 +263,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									# print "\n", Data::Dumper->new([\$row])->Dump();
 									next;
 								}
-								$city = $place->{'place name'};
+								$city = uc($place->{'place name'});
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
 								my $digest = Digest::MD5::md5_base64($city, $state, 'US');
@@ -416,7 +416,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									# print "\n", Data::Dumper->new([\$row])->Dump();
 									next;
 								}
-								$city = $place->{'place name'};
+								$city = uc($place->{'place name'});
 								$postcodes{$postcode} = { 'city' => $city };
 								# print "$zip => $city\n";
 								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .

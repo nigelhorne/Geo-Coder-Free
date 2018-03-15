@@ -14,6 +14,8 @@ use Locale::US;
 use CHI;
 use Locale::Country;
 use Geo::StreetAddress::US;
+use Digest::MD5;
+use Encode;
 
 #  Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
@@ -154,11 +156,15 @@ sub geocode {
 						$state = $twoletterstate;
 					}
 				}
+				my $rc;
+
 				if($city !~ /,/) {
 					$city = uc($city);
 					# Simple case looking up a city in a state in the US
-					my $rc;
 					if($city !~ /^\sCOUNTY$/) {
+						if($rc = $self->_get(uc("$city$state") . 'US')) {
+							return $rc;
+						}
 						$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'US');
 						if($rc && defined($rc->{'lat'})) {
 							$rc->{'latitude'} = $rc->{'lat'};
@@ -170,8 +176,8 @@ sub geocode {
 					# Allen, Indiana, USA
 					$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'US');
 					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = $rc->{'lat'};
-						$rc->{'longitude'} = $rc->{'lon'};
+						$rc->{'latitude'} = delete $rc->{'lat'};
+						$rc->{'longitude'} = delete $rc->{'lon'};
 						return $rc;
 					}
 				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
@@ -296,6 +302,9 @@ sub geocode {
 						# Perhaps it's a city in a county?
 						# Silver Spring, Montgomery County, MD, USA
 						$second =~ s/\s+COUNTY$//;
+						if($rc = $self->_get("$first$second$state" . 'US')) {
+							return $rc;
+						}
 						$rc = $openaddr_db->fetchrow_hashref(
 							city => $first,
 							county => $second,
@@ -309,6 +318,9 @@ sub geocode {
 						}
 						# Not all the database has the county
 						if($second) {
+							if($rc = $self->_get("$first$state" . 'US')) {
+								return $rc;
+							}
 							$rc = $openaddr_db->fetchrow_hashref(
 								city => $first,
 								state => $state,
@@ -329,9 +341,14 @@ sub geocode {
 						$state = $twoletterstate;
 					}
 				}
+				my $rc;
 				if($city !~ /,/) {
 					# Simple case looking up a city in a state in Canada
-					my $rc = $openaddr_db->fetchrow_hashref(city => uc($city), state => $state, country => 'CA');
+					$city = uc($city);
+					if($rc = $self->_get("$city$state" . 'CA')) {
+						return $rc;
+					}
+					$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'CA');
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
@@ -339,7 +356,7 @@ sub geocode {
 					}
 					# Or perhaps it's a county?
 					# Westmorland, New Brunsick, Canada
-					$rc = $openaddr_db->fetchrow_hashref(county => uc($city), state => $state, country => 'CA');
+					$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'CA');
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
@@ -400,7 +417,10 @@ sub geocode {
 						my $first = uc($1);
 						my $second = uc($2);
 						if($first =~ /^(\w+\s\w+)$/) {
-							my $rc = $openaddr_db->fetchrow_hashref(
+							if($rc = $self->_get("$first$second$state" . 'CA')) {
+								return $rc;
+							}
+							$rc = $openaddr_db->fetchrow_hashref(
 								street => $first,
 								city => $second,
 								state => $state,
@@ -415,6 +435,12 @@ sub geocode {
 						# Perhaps it's a city in a county?
 						# Silver Spring, Montgomery County, MD, USA
 						$second =~ s/\s+COUNTY$//;
+						if($rc = $self->_get("$first$second$state" . 'CA')) {
+							return $rc;
+						}
+						if($rc = $self->_get("$first$state" . 'CA')) {
+							return $rc;
+						}
 						$rc = $openaddr_db->fetchrow_hashref(
 							city => $first,
 							county => $second,
@@ -682,6 +708,27 @@ sub geocode {
 	} else {
 		$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
 		die $param{location};
+	}
+}
+
+sub _get {
+	my ($self, $location) = @_;
+
+	$location =~ s/,\s*//g;
+	my $digest = Digest::MD5::md5_base64(uc($location));
+	my $openaddr_db = $self->{openaddr_db} ||
+		Geo::Coder::Free::DB::openaddresses->new(
+			directory => $self->{openaddr},
+			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
+		);
+	$self->{openaddr_db} = $openaddr_db;
+	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
+	# ::diag("$location: $digest");
+	if($rc && defined($rc->{'lat'})) {
+		$rc->{'latitude'} = delete $rc->{'lat'};
+		$rc->{'longitude'} = delete $rc->{'lon'};
+		# ::diag(Data::Dumper->new([\$rc])->Dump());
+		return $rc;
 	}
 }
 
