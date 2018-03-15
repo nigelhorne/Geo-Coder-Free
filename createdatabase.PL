@@ -267,7 +267,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
 								my $digest = Digest::MD5::md5_base64($city, $state, 'US');
-								$query = "INSERT OR REPLACE INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
+								$query = "INSERT OR IGNORE INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
 									') VALUES (' .
 									"'$digest'," .
 									"'" . $place->{'latitude'} . "'," .
@@ -335,7 +335,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($street) {
 							$row->{'STREET'} =~ s/\s\s+/ /g;
 						}
-						foreach my $c('LAT', 'LON', 'NUMBER') {
+						foreach my $c('LAT', 'LON') {
 							$columns{$c} = delete $row->{$c};
 						}
 						foreach my $column(keys %columns) {
@@ -343,19 +343,18 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns{$_}) } sort keys %columns);
-						# TODO: instead of INSERT OR REPLACE, give a warning for duplicates and just INSERT
-						$query = 'INSERT OR REPLACE INTO openaddresses(' .
-							join(',', sort keys %columns) .
-							',MD5) VALUES (';
-						foreach my $column(sort keys %columns) {
-							$columns{$column} =~ s/'/''/g;
-							$query .= "'" . $columns{$column} . "',";
+						insert($dbh, \%columns);
+						if(delete($columns{'NUMBER'})) {
+							# Match somewhere in the street when number isn't known
+							insert($dbh, \%columns);
+							if(delete($columns{'STREET'})) {
+								# Match somewhere in the city when street isn't known
+								# TODO:  Work out a way to only do this once
+								#	Could maintain a list of hashes and remove
+								#	it all when starting a new state
+								insert($dbh, \%columns);
+							}
 						}
-						$query .= "'$digest')";
-
-						# print "$query\n";
-						$dbh->prepare($query)->execute();
 					}
 				} elsif($country eq 'ca') {
 					# TODO: remove duplication with the US code
@@ -488,19 +487,18 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								delete $columns{$column};
 							}
 						}
-						my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns{$_}) } sort keys %columns);
-						# TODO: instead of INSERT OR REPLACE, give a warning for duplicates and just INSERT
-						$query = 'INSERT OR REPLACE INTO openaddresses(' .
-							join(',', sort keys %columns) .
-							',MD5) VALUES (';
-						foreach my $column(sort keys %columns) {
-							$columns{$column} =~ s/'/''/g;
-							$query .= "'" . $columns{$column} . "',";
+						insert($dbh, \%columns);
+						if(delete($columns{'NUMBER'})) {
+							# Match somewhere in the street when number isn't known
+							insert($dbh, \%columns);
+							if(delete($columns{'STREET'})) {
+								# Match somewhere in the city when street isn't known
+								# TODO:  Work out a way to only do this once
+								#	Could maintain a list of hashes and remove
+								#	it all when starting a new province
+								insert($dbh, \%columns);
+							}
 						}
-						$query .= "'$digest')";
-
-						# print "$query\n";
-						$dbh->prepare($query)->execute();
 					}
 				}
 			}
@@ -525,4 +523,22 @@ sub create_tree {
 		}
 	}
 	return @list;
+}
+
+sub insert {
+	my ($dbh, $columns) = @_;
+
+	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
+	my $query = 'INSERT OR IGNORE INTO openaddresses(' .
+		join(',', sort keys %{$columns}) .
+		',MD5) VALUES (';
+	foreach my $column(sort keys %{$columns}) {
+		$columns->{$column} =~ s/'/''/g;
+		$query .= "'" . $columns->{$column} . "',";
+	}
+	$query .= "'$digest')";
+
+	# print "$query\n";
+	$dbh->prepare($query)->execute();
 }
