@@ -422,16 +422,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								}
 								$city = uc($place->{'place name'});
 								$postcodes{$postcode} = { 'city' => $city };
-								# print "$zip => $city\n";
-								$query = "INSERT INTO openaddresses('LAT','LON','CITY','STATE','COUNTRY'" .
-									') VALUES (' .
-									"'" . $place->{'latitude'} . "'," .
-									"'" . $place->{'longitude'} . "'," .
-									"'$city'," .
-									# "'" . $place->{'province abbreviation'} . "'," .
-									"'$state', 'CA')";
+								# print "$postcode => $city\n";
+								my %columns = (
+									'COUNTRY' => 'CA',
+									'STATE' => $state,
+									'CITY' => $city,
+									'LAT' => $place->{'latitude'},
+									'LON' => $place->{'longitude'},
+								);
+								if($county) {
+									$columns{'COUNTY'} = $county;
+								}
 								# print "$postcode => $query\n";
-								$dbh->prepare($query)->execute();
+								insert($dbh, \%columns);
 							}
 							if(!defined($city)) {
 								next if(!$postcode);
@@ -533,12 +536,14 @@ sub create_tree {
 sub insert {
 	my ($dbh, $columns) = @_;
 
+	# print Data::Dumper->new([$columns])->Dump();
 	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	if(my $state = $columns->{'STATE'}) {
 		$state = uc($state);
 		if((!defined($current_state)) || ($state ne $current_state)) {
 			$current_state = $state;
 			%state_md5s = ();
+			# print "new state $state\n";
 		} elsif(defined($current_state)) {
 			if(exists($state_md5s{$digest})) {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
@@ -547,8 +552,14 @@ sub insert {
 			$state_md5s{$digest} = 1;
 		}
 	}
+	my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
+	my $sth = $dbh->prepare($q);
+	$sth->execute();
+	while(my $href = $sth->fetchrow_hashref()) {
+		print Data::Dumper->new([$href])->Dump();
+	}
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
-	my $query = 'INSERT OR IGNORE INTO openaddresses(' .
+	my $query = 'INSERT INTO openaddresses(' .
 		join(',', sort keys %{$columns}) .
 		',MD5) VALUES (';
 	foreach my $column(sort keys %{$columns}) {
