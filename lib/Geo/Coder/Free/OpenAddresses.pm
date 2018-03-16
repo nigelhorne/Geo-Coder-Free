@@ -162,7 +162,7 @@ sub geocode {
 					$city = uc($city);
 					# Simple case looking up a city in a state in the US
 					if($city !~ /^\sCOUNTY$/) {
-						if($rc = $self->_get(uc("$city$state") . 'US')) {
+						if($rc = $self->_get("$city$state" . 'US')) {
 							return $rc;
 						}
 						$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'US');
@@ -185,7 +185,7 @@ sub geocode {
 					# ::diag(Data::Dumper->new([\$href])->Dump());
 					my %args = (state => $state, country => 'US');
 					if($href->{city}) {
-						$args{city} = uc($href->{city});
+						$city = $args{city} = uc($href->{city});
 					}
 					if($href->{number}) {
 						$args{number} = $href->{number};
@@ -203,6 +203,14 @@ sub geocode {
 							$street = "$prefix $street";
 						}
 						$args{street} = uc($street);
+						if($href->{'number'}) {
+							if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
+								return $rc;
+							}
+							if($rc = $self->_get("$street$city$state" . 'US')) {
+								return $rc;
+							}
+						}
 					}
 					my $rc = $openaddr_db->fetchrow_hashref(%args);
 					if($rc && defined($rc->{'lat'})) {
@@ -232,11 +240,12 @@ sub geocode {
 						if(my $href = Geo::StreetAddress::US->parse_address("$1, $2, $state")) {
 							# Street, City, County
 							# 105 S. West Street, Spencer, Owen, Indiana, USA
+							# ::diag(Data::Dumper->new([\$href])->Dump());
 							$county = $3;
 							$county =~ s/\s*county$//i;
 							my %args = (county => uc($county), state => $state, country => 'US');
 							if($href->{city}) {
-								$args{city} = uc($href->{city});
+								$city = $args{city} = uc($href->{city});
 							}
 							if($href->{number}) {
 								$args{number} = $href->{number};
@@ -248,12 +257,28 @@ sub geocode {
 								if($href->{suffix}) {
 									$street .= ' ' . $href->{suffix};
 								}
-							}
-							if($street) {
 								if(my $prefix = $href->{prefix}) {
 									$street = "$prefix $street";
 								}
 								$args{street} = uc($street);
+								if($href->{'number'}) {
+									if($county) {
+										if($rc = $self->_get($href->{'number'} . "$street$city$county$state" . 'US')) {
+											return $rc;
+										}
+									}
+									if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
+										return $rc;
+									}
+									if($county) {
+										if($rc = $self->_get("$street$city$county$state" . 'US')) {
+											return $rc;
+										}
+									}
+									if($rc = $self->_get("$street$city$state" . 'US')) {
+										return $rc;
+									}
+								}
 							}
 							my $rc = $openaddr_db->fetchrow_hashref(%args);
 							if($rc && defined($rc->{'lat'})) {
@@ -722,8 +747,8 @@ sub _get {
 			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 		);
 	$self->{openaddr_db} = $openaddr_db;
-	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
 	# ::diag("$location: $digest");
+	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
 	if($rc && defined($rc->{'lat'})) {
 		$rc->{'latitude'} = delete $rc->{'lat'};
 		$rc->{'longitude'} = delete $rc->{'lon'};

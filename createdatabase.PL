@@ -70,6 +70,8 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 my %postcodes = ();
+my $current_state;
+my %state_md5s;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -266,15 +268,18 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = uc($place->{'place name'});
 								$zipcodes{$zip} = { 'city' => $city };
 								# print "$zip => $city\n";
-								my $digest = Digest::MD5::md5_base64($city, $state, 'US');
-								$query = "INSERT OR IGNORE INTO openaddresses('MD5','LAT','LON','CITY','STATE','COUNTRY'" .
-									') VALUES (' .
-									"'$digest'," .
-									"'" . $place->{'latitude'} . "'," .
-									"'" . $place->{'longitude'} . "'," .
-									"'$city','$state','US')";
+								my %columns = (
+									'COUNTRY' => 'US',
+									'STATE' => $state,
+									'CITY' => $city,
+									'LAT' => $place->{'latitude'},
+									'LON' => $place->{'longitude'},
+								);
+								if($county) {
+									$columns{'COUNTY'} = $county;
+								}
 								# print "$zip => $query\n";
-								$dbh->prepare($query)->execute();
+								insert($dbh, \%columns);
 							}
 							if(!defined($city)) {
 								next if(!$zip);
@@ -335,7 +340,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($street) {
 							$row->{'STREET'} =~ s/\s\s+/ /g;
 						}
-						foreach my $c('LAT', 'LON') {
+						foreach my $c('LAT', 'LON', 'NUMBER') {
 							$columns{$c} = delete $row->{$c};
 						}
 						foreach my $column(keys %columns) {
@@ -529,6 +534,19 @@ sub insert {
 	my ($dbh, $columns) = @_;
 
 	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+	if(my $state = $columns->{'STATE'}) {
+		$state = uc($state);
+		if((!defined($current_state)) || ($state ne $current_state)) {
+			$current_state = $state;
+			%state_md5s = ();
+		} elsif(defined($current_state)) {
+			if(exists($state_md5s{$digest})) {
+				# print "Ignore ", join(',', values(%{$columns})), "\n";
+				return;
+			}
+			$state_md5s{$digest} = 1;
+		}
+	}
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	my $query = 'INSERT OR IGNORE INTO openaddresses(' .
 		join(',', sort keys %{$columns}) .
