@@ -175,6 +175,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
+
+			# Handle https://github.com/openaddresses/openaddresses/issues/3928
+			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
+			next if($csv_file =~ /ca\/ab\/airdrie.csv/);
+
 			my $f = $csv_file;
 			$f =~ s/^$oa\///;
 			$| = 1;
@@ -552,13 +557,14 @@ sub insert {
 			$state_md5s{$digest} = 1;
 		}
 	}
-	my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
-	my $sth = $dbh->prepare($q);
-	$sth->execute();
-	while(my $href = $sth->fetchrow_hashref()) {
-		print Data::Dumper->new([$href])->Dump();
-	}
+	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
+	# my $sth = $dbh->prepare($q);
+	# $sth->execute();
+	# while(my $href = $sth->fetchrow_hashref()) {
+		# print Data::Dumper->new([$href])->Dump();
+	# }
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
+	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 	my $query = 'INSERT INTO openaddresses(' .
 		join(',', sort keys %{$columns}) .
 		',MD5) VALUES (';
