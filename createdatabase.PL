@@ -541,16 +541,17 @@ sub create_tree {
 sub insert {
 	my ($dbh, $columns) = @_;
 
-	# print Data::Dumper->new([$columns])->Dump();
+	# print Data::Dumper->new([$columns])->Dump() if($columns->{'STATE'} eq 'MB');
 	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	if(my $state = $columns->{'STATE'}) {
+		# print "Looking for digest $digest\n" if($columns->{'STATE'} eq 'MB');
 		$state = uc($state);
 		if((!defined($current_state)) || ($state ne $current_state)) {
 			$current_state = $state;
-			%state_md5s = ();
+			%state_md5s = ( $digest => 1 );
 			# print "new state $state\n";
 		} elsif(defined($current_state)) {
-			if(exists($state_md5s{$digest})) {
+			if($state_md5s{$digest}) {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
 				return;
 			}
@@ -574,6 +575,6 @@ sub insert {
 	}
 	$query .= "'$digest')";
 
-	# print "$query\n";
+	# print "$query\n" if($columns->{'STATE'} eq 'MB');
 	$dbh->prepare($query)->execute();
 }
