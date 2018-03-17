@@ -98,8 +98,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# TODO: Work out a good key
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -128,12 +128,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					die $row->{'Name'};
 				}
 				my $digest = Digest::MD5::md5_base64($state, 'US');
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
-					"'" . $row->{'Longitude'} . "'," .
-					"'$state', 'US')";
+					"'" . $row->{'Longitude'} . "')";
 				$dbh->prepare($query)->execute();
 				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
@@ -160,13 +159,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $county = uc($row->{'Name'});
 				$county =~ s/'/''/g;	# O'Brien County, IA
 				my $digest = Digest::MD5::md5_base64($county, $state, 'US');
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTY','STATE','COUNTRY'" .
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
-					"'" . $row->{'Longitude'} . "'," .
-					"'$county'," .
-					"'$state', 'US')";
+					"'" . $row->{'Longitude'} . "')";
 				# print "$query\n";
 				$dbh->prepare($query)->execute();
 			}
@@ -175,6 +172,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
+			next unless($csv_file =~ /us\/in\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -348,11 +346,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						foreach my $c('LAT', 'LON', 'NUMBER') {
 							$columns{$c} = delete $row->{$c};
 						}
-						foreach my $column(keys %columns) {
-							if(!defined($columns{$column})) {
-								delete $columns{$column};
-							}
-						}
 						insert($dbh, \%columns);
 						if(delete($columns{'NUMBER'})) {
 							# Match somewhere in the street when number isn't known
@@ -495,11 +488,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						foreach my $c('LAT', 'LON', 'NUMBER') {
 							$columns{$c} = delete $row->{$c};
 						}
-						foreach my $column(keys %columns) {
-							if(!defined($columns{$column})) {
-								delete $columns{$column};
-							}
-						}
 						insert($dbh, \%columns);
 						if(delete($columns{'NUMBER'})) {
 							# Match somewhere in the street when number isn't known
@@ -541,10 +529,18 @@ sub create_tree {
 sub insert {
 	my ($dbh, $columns) = @_;
 
-	# print Data::Dumper->new([$columns])->Dump() if($columns->{'STATE'} eq 'MB');
+	foreach my $column(keys %{$columns}) {
+		if(!defined($columns->{$column})) {
+			delete $columns->{$column};
+		} elsif($columns->{$column} =~ /^\s+$/) {
+			delete $columns->{$column};
+		}
+	}
+
+	# print Data::Dumper->new([$columns])->Dump();
 	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	if(my $state = $columns->{'STATE'}) {
-		# print "Looking for digest $digest\n" if($columns->{'STATE'} eq 'MB');
+		# print "Looking for digest $digest\n";
 		$state = uc($state);
 		if((!defined($current_state)) || ($state ne $current_state)) {
 			$current_state = $state;
@@ -566,15 +562,17 @@ sub insert {
 	# }
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
-	my $query = 'INSERT INTO openaddresses(' .
-		join(',', sort keys %{$columns}) .
-		',MD5) VALUES (';
-	foreach my $column(sort keys %{$columns}) {
-		$columns->{$column} =~ s/'/''/g;
-		$query .= "'" . $columns->{$column} . "',";
-	}
-	$query .= "'$digest')";
+	my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
+		') VALUES (' .
+		"'$digest'," .
+		$columns->{'LAT'} . ',' .
+		$columns->{'LON'} . ')';
+	# foreach my $column(sort keys %{$columns}) {
+		# $columns->{$column} =~ s/'/''/g;
+		# $query .= "'" . $columns->{$column} . "',";
+	# }
+	# $query .= "'$digest')";
 
-	# print "$query\n" if($columns->{'STATE'} eq 'MB');
+	# print "$query\n";
 	$dbh->prepare($query)->execute();
 }
