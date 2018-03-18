@@ -103,7 +103,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
-
 		my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 		if(-r $filename) {
 			# Import counties and states from https://github.com/openaddresses/openaddresses/tree/master/us-data
@@ -347,14 +346,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$columns{$c} = delete $row->{$c};
 						}
 						insert($dbh, \%columns);
+						if(delete($columns{'COUNTY'})) {
+							insert($dbh, \%columns);
+						}
 						if(delete($columns{'NUMBER'})) {
 							# Match somewhere in the street when number isn't known
 							insert($dbh, \%columns);
 							if(delete($columns{'STREET'})) {
 								# Match somewhere in the city when street isn't known
-								# TODO:  Work out a way to only do this once
-								#	Could maintain a list of hashes and remove
-								#	it all when starting a new state
 								insert($dbh, \%columns);
 							}
 						}
@@ -489,6 +488,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$columns{$c} = delete $row->{$c};
 						}
 						insert($dbh, \%columns);
+						if(delete($columns{'COUNTY'})) {
+							insert($dbh, \%columns);
+						}
 						if(delete($columns{'NUMBER'})) {
 							# Match somewhere in the street when number isn't known
 							insert($dbh, \%columns);
