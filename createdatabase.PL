@@ -99,7 +99,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR PRIMARY KEY, lat INTEGER, lon INTEGER)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
