@@ -99,7 +99,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
 
 		# Don't use a key for now, since creating the table is a
 		# lot slower (days as against hours)
@@ -178,7 +177,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			next unless($csv_file =~ /us\/in\//);
+			# next unless($csv_file =~ /us\/in\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -321,7 +320,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$county = $1;
 						}
 						if((!defined($county)) && ($row->{'DISTRICT'}) && ($row->{'DISTRICT'} ne $state)) {
-							$county = $row->{'DISTRICT'};
+							if($row->{'DISTRICT'} !~ /^\d+$/) {
+								$county = $row->{'DISTRICT'};
+							}
 						}
 						if($county) {
 							$county =~ s/\s+County$//i;
@@ -471,7 +472,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$county = $1;
 						}
 						if((!defined($county)) && ($row->{'DISTRICT'}) && ($row->{'DISTRICT'} ne $state)) {
-							$county = $row->{'DISTRICT'};
+							if($row->{'DISTRICT'} !~ /^\d+$/) {
+								$county = $row->{'DISTRICT'};
+							}
 						}
 						if($county) {
 							$county =~ s/\s+County$//i;
@@ -518,6 +521,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$dbh->commit();
 		$dbh->disconnect();
 	}
+
+	# TODO:  Import the Maxmind databases
 }
 
 sub create_tree {
@@ -546,8 +551,22 @@ sub insert {
 		}
 	}
 
-	# print Data::Dumper->new([$columns])->Dump();
-	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+	# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
+
+	my $lat = $columns->{'LAT'};
+	my $lon = $columns->{'LON'};
+
+	die unless(defined($lat) && defined($lon));
+
+	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+	#  QKaenxe2rwPqJ8emvd6aNw
+	my $digest;
+	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+		$digest .= $columns->{$column} if($columns->{$column});
+	}
+	# print "$digest\n" if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
+	$digest = Digest::MD5::md5_base64($digest);
+
 	if(my $state = $columns->{'STATE'}) {
 		# print "Looking for digest $digest\n";
 		$state = uc($state);
@@ -572,16 +591,13 @@ sub insert {
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 	my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
-		') VALUES (' .
-		"'$digest'," .
-		$columns->{'LAT'} . ',' .
-		$columns->{'LON'} . ')';
+		") VALUES ('$digest',$lat,$lon)";
 	# foreach my $column(sort keys %{$columns}) {
 		# $columns->{$column} =~ s/'/''/g;
 		# $query .= "'" . $columns->{$column} . "',";
 	# }
 	# $query .= "'$digest')";
 
-	print "$query\n" if(uc($columns{'CITY'}) eq 'INDIANAPOLIS');
+	# print "$query\n" if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
 	$dbh->prepare($query)->execute();
 }
