@@ -104,7 +104,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		# lot slower (days as against hours)
 		# Of course it also slows down the searches a lot, so the
 		# ey will need to be put in at some time
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
 		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
@@ -340,29 +341,32 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$county = 'LA PORTE';
 							}
 						}
-						my %columns = (
-							'COUNTRY' => 'US',
-							'CITY' => $city,
-							'STATE' => $state,
-							'COUNTY' => $county,
-							'STREET' => $street
-						);
-						if($street) {
-							$row->{'STREET'} =~ s/\s\s+/ /g;
-						}
-						foreach my $c('LAT', 'LON', 'NUMBER') {
-							$columns{$c} = delete $row->{$c};
-						}
-						insert($dbh, \%columns);
-						if(delete($columns{'COUNTY'})) {
+						if($city) {
+							# Counties and states alone have already been read in
+							my %columns = (
+								'COUNTRY' => 'US',
+								'CITY' => $city,
+								'STATE' => $state,
+								'COUNTY' => $county,
+								'STREET' => $street
+							);
+							if($street) {
+								$row->{'STREET'} =~ s/\s\s+/ /g;
+							}
+							foreach my $c('LAT', 'LON', 'NUMBER') {
+								$columns{$c} = delete $row->{$c};
+							}
 							insert($dbh, \%columns);
-						}
-						if(delete($columns{'NUMBER'})) {
-							# Match somewhere in the street when number isn't known
-							insert($dbh, \%columns);
-							if(delete($columns{'STREET'})) {
-								# Match somewhere in the city when street isn't known
+							if(delete($columns{'COUNTY'})) {
 								insert($dbh, \%columns);
+							}
+							if(delete($columns{'NUMBER'})) {
+								# Match somewhere in the street when number isn't known
+								insert($dbh, \%columns);
+								if(delete($columns{'STREET'})) {
+									# Match somewhere in the city when street isn't known
+									insert($dbh, \%columns);
+								}
 							}
 						}
 					}
@@ -564,7 +568,7 @@ sub insert {
 	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
-	# print "$digest\n" if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
+	# print "$digest\n";
 	$digest = Digest::MD5::md5_base64(Encode::encode_utf8($digest));
 
 	if(my $state = $columns->{'STATE'}) {
@@ -586,6 +590,7 @@ sub insert {
 	my $sth = $dbh->prepare($q);
 	$sth->execute();
 	while(my $href = $sth->fetchrow_hashref()) {
+		print Data::Dumper->new([$columns])->Dump();
 		print Data::Dumper->new([$href])->Dump();
 	}
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
@@ -598,6 +603,6 @@ sub insert {
 	# }
 	# $query .= "'$digest')";
 
-	print "$query\n";
+	# print "$query\n";
 	$dbh->prepare($query)->execute();
 }
