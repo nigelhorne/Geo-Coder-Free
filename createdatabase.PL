@@ -104,8 +104,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		# lot slower (days as against hours)
 		# Of course it also slows down the searches a lot, so the
 		# ey will need to be put in at some time
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -582,12 +582,12 @@ sub insert {
 			$state_md5s{$digest} = 1;
 		}
 	}
-	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
-	# my $sth = $dbh->prepare($q);
-	# $sth->execute();
-	# while(my $href = $sth->fetchrow_hashref()) {
-		# print Data::Dumper->new([$href])->Dump();
-	# }
+	my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
+	my $sth = $dbh->prepare($q);
+	$sth->execute();
+	while(my $href = $sth->fetchrow_hashref()) {
+		print Data::Dumper->new([$href])->Dump();
+	}
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 	my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
@@ -598,6 +598,6 @@ sub insert {
 	# }
 	# $query .= "'$digest')";
 
-	# print "$query\n" if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
+	print "$query\n";
 	$dbh->prepare($query)->execute();
 }
