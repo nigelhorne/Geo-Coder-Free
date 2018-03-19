@@ -178,7 +178,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/in\//);
+			# next unless($csv_file =~ /us\/al\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -284,11 +284,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									'LAT' => $place->{'latitude'},
 									'LON' => $place->{'longitude'},
 								);
-								if($county) {
+								if($city) {
+									# Counties and states alone have already been read in
 									$columns{'COUNTY'} = $county;
+									# print "$zip => $query\n";
+									insert($dbh, \%columns);
 								}
-								# print "$zip => $query\n";
-								insert($dbh, \%columns);
 							}
 							if(!defined($city)) {
 								next if(!$zip);
@@ -341,7 +342,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$county = 'LA PORTE';
 							}
 						}
-						if($city) {
+						if($city && ($city ne ' ')) {
 							# Counties and states alone have already been read in
 							my %columns = (
 								'COUNTRY' => 'US',
@@ -586,13 +587,15 @@ sub insert {
 			$state_md5s{$digest} = 1;
 		}
 	}
-	my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
-	my $sth = $dbh->prepare($q);
-	$sth->execute();
-	while(my $href = $sth->fetchrow_hashref()) {
-		print Data::Dumper->new([$columns])->Dump();
-		print Data::Dumper->new([$href])->Dump();
-	}
+	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
+	# my $sth = $dbh->prepare($q);
+	# $sth->execute();
+	# while(my $href = $sth->fetchrow_hashref()) {
+		# my @call_details = caller(0);
+		# print "line " . $call_details[2], "\n";
+		# print Data::Dumper->new([$columns])->Dump();
+		# print Data::Dumper->new([$href])->Dump();
+	# }
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 	my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
