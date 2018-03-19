@@ -565,7 +565,7 @@ sub insert {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
 	# print "$digest\n" if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
-	$digest = Digest::MD5::md5_base64($digest);
+	$digest = Digest::MD5::md5_base64(Encode::encode_utf8($digest));
 
 	if(my $state = $columns->{'STATE'}) {
 		# print "Looking for digest $digest\n";
