@@ -98,9 +98,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR PRIMARY KEY, lat INTEGER, lon INTEGER)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state char NOT NULL, country char NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+
+		# Don't use a key for now, since creating the table is a
+		# lot slower (days as against hours)
+		# Of course it also slows down the searches a lot, so the
+		# ey will need to be put in at some time
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
