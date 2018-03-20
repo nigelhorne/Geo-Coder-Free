@@ -178,7 +178,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/al\//);
+			# next unless($csv_file =~ /us\/ca\/orange/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -321,8 +321,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
-						if((defined($city)) && (!defined($county))) {
-							if($city =~ /(.+)\s*COUNTY$/i) {
+						if(!defined($county)) {
+							if($city =~ /(.+)\s+COUNTY$/i) {
 								$county = $1;
 								$city = undef;
 							}
@@ -333,11 +333,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						if($county) {
-							$county =~ s/\s+County$//i;
 							$county = uc($county);
 							$county =~ s/_/ /g;
-							if($city && ($county eq $city)) {
-								$county = undef;
+							$county =~ s/\s+COUNTY$//;
+							if($city) {
+								if(($city eq $county) || ($city eq "$county COUNTY")) {
+									$city = undef;
+								} elsif($county eq "$city COUNTY") {
+									$county = undef;
+								}
 							}
 						}
 						if($state eq 'IN') {
@@ -482,8 +486,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
-						if((defined($city)) && (!defined($county))) {
-							if($city =~ /(.+)\s*COUNTY$/i) {
+						if(!defined($county)) {
+							if($city =~ /(.+)\s+COUNTY$/i) {
 								$county = $1;
 								$city = undef;
 							}
@@ -494,11 +498,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						if($county) {
-							$county =~ s/\s+County$//i;
 							$county = uc($county);
 							$county =~ s/_/ /g;
-							if($city && ($county eq $city)) {
-								$county = undef;
+							$county =~ s/\s+COUNTY$//;
+							if($city) {
+								if(($city eq $county) || ($city eq "$county COUNTY")) {
+									$city = undef;
+								} elsif($county eq "$city COUNTY") {
+									$county = undef;
+								}
 							}
 						}
 						my %columns = (
