@@ -116,7 +116,7 @@ sub _open {
 			sqlite_open_flags => SQLITE_OPEN_READONLY,
 		});
 		$dbh->do('PRAGMA synchronous = OFF');
-		$dbh->do('PRAGMA cache_size = 63366');
+		$dbh->do('PRAGMA cache_size = 65536');
 		if($self->{'logger'}) {
 			$self->{'logger'}->debug("read in $table from SQLite $slurp_file");
 		}

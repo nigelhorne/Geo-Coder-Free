@@ -91,6 +91,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	my $sqlite_file = "$oa/openaddresses.sql";
 	if(!-r $sqlite_file) {
 		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
+		$dbh->do('PRAGMA cache_size = 65536');
 		if(!-d $oa) {
 			mkdir $oa;
 		}
@@ -179,6 +180,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
+			next unless($csv_file =~ /us\/fl\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -189,7 +191,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$| = 1;
 			printf "%-70s\r", $f;
 			$| = 0;
-			# print "\n";
+			print "\n";
 			my @components = split(/\//, $f);
 			if(my $country = $components[0]) {
 				my $query;
@@ -602,7 +604,6 @@ sub insert {
 	die unless(defined($lat) && defined($lon));
 
 	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
-	#  QKaenxe2rwPqJ8emvd6aNw
 	my $digest;
 	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 		$digest .= $columns->{$column} if($columns->{$column});
@@ -617,7 +618,7 @@ sub insert {
 			$current_state = $state;
 			%state_md5s = ( $digest => 1 );
 			# print "new state $state\n";
-		} elsif(defined($current_state)) {
+		} else {
 			if($state_md5s{$digest}) {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
 				return;
@@ -625,15 +626,15 @@ sub insert {
 			$state_md5s{$digest} = 1;
 		}
 	}
-	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
-	# my $sth = $dbh->prepare($q);
-	# $sth->execute();
-	# while(my $href = $sth->fetchrow_hashref()) {
-		# my @call_details = caller(0);
-		# print "line " . $call_details[2], "\n";
-		# print Data::Dumper->new([$columns])->Dump();
-		# print Data::Dumper->new([$href])->Dump();
-	# }
+	my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
+	my $sth = $dbh->prepare($q);
+	$sth->execute();
+	while(my $href = $sth->fetchrow_hashref()) {
+		my @call_details = caller(0);
+		print "line " . $call_details[2], "\n";
+		print Data::Dumper->new([$columns])->Dump();
+		print Data::Dumper->new([$href])->Dump();
+	}
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 	my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
