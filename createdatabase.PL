@@ -178,7 +178,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (create_tree($oa)) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/ca\/orange/);
+			# next unless($csv_file =~ /us\/ca\/sonoma/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -303,6 +303,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$city = uc($city);
 						$city =~ s/\s+BORO$//;
 						$city =~ s/\s+TWP$//;
+						$city =~ s/^TOWN\s+OF\s+//;
+						$city =~ s/^CITY\s+OF\s+//;
 						$city =~ s/_/ /g;
 						my $street = $row->{'STREET'};
 						if($street) {
@@ -337,6 +339,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$county =~ s/_/ /g;
 							$county =~ s/\s+COUNTY$//;
 							if($city) {
+								if($city =~ /\s+COUNTY$/i) {
+									my $tmp = $city;
+									$city = $county;
+									$county = $tmp;
+								}
+				print "1: $city/$county\n";
 								if(($city eq $county) || ($city eq "$county COUNTY")) {
 									$city = undef;
 								} elsif($county eq "$city COUNTY") {
@@ -468,6 +476,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$city = uc($city);
 						$city =~ s/\s+BORO$//;
 						$city =~ s/\s+TWP$//;
+						$city =~ s/^TOWN\s+OF\s+//;
+						$city =~ s/^CITY\s+OF\s+//;
 						$city =~ s/_/ /g;
 						my $street = $row->{'STREET'};
 						if($street) {
@@ -502,6 +512,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$county =~ s/_/ /g;
 							$county =~ s/\s+COUNTY$//;
 							if($city) {
+								if($city =~ /\s+COUNTY$/i) {
+									my $tmp = $city;
+									$city = $county;
+									$county = $tmp;
+								}
 								if(($city eq $county) || ($city eq "$county COUNTY")) {
 									$city = undef;
 								} elsif($county eq "$city COUNTY") {
