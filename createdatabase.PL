@@ -321,6 +321,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
+						if((defined($city)) && (!defined($county))) {
+							if($city =~ /(.+)\s*COUNTY$/i) {
+								$county = $1;
+								$city = undef;
+							}
+						}
 						if((!defined($county)) && ($row->{'DISTRICT'}) && ($row->{'DISTRICT'} ne $state)) {
 							if($row->{'DISTRICT'} !~ /^\d+$/) {
 								$county = $row->{'DISTRICT'};
@@ -330,7 +336,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$county =~ s/\s+County$//i;
 							$county = uc($county);
 							$county =~ s/_/ /g;
-							if($county eq $city) {
+							if($city && ($county eq $city)) {
 								$county = undef;
 							}
 						}
@@ -476,6 +482,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($file =~ /^(.+)_county.csv$/) {
 							$county = $1;
 						}
+						if((defined($city)) && (!defined($county))) {
+							if($city =~ /(.+)\s*COUNTY$/i) {
+								$county = $1;
+								$city = undef;
+							}
+						}
 						if((!defined($county)) && ($row->{'DISTRICT'}) && ($row->{'DISTRICT'} ne $state)) {
 							if($row->{'DISTRICT'} !~ /^\d+$/) {
 								$county = $row->{'DISTRICT'};
@@ -485,14 +497,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$county =~ s/\s+County$//i;
 							$county = uc($county);
 							$county =~ s/_/ /g;
-							if(uc($county) eq uc($city)) {
+							if($city && ($county eq $city)) {
 								$county = undef;
 							}
 						}
 						my %columns = (
 							'COUNTRY' => 'CA',
 							'STATE' => $state,
-							'CITY' => uc($city),
+							'CITY' => $city,
 							'COUNTY' => $county,
 							'STREET' => $street
 						);
