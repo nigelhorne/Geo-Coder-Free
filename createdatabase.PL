@@ -344,7 +344,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									$city = $county;
 									$county = $tmp;
 								}
-				print "1: $city/$county\n";
 								if(($city eq $county) || ($city eq "$county COUNTY")) {
 									$city = undef;
 								} elsif($county eq "$city COUNTY") {
