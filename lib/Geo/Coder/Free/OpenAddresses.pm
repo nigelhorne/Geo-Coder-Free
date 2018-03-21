@@ -769,7 +769,7 @@ sub _normalize {
 	} elsif(($type eq 'ROAD') || ($type eq 'RD')) {
 		return 'RD';
 	} elsif(($type eq 'COURT') || ($type eq 'CT')) {
-		$street = 'CT';
+		return 'CT';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';
 	}
