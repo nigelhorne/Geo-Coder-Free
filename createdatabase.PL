@@ -180,7 +180,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			# next unless($csv_file =~ /us\/fl\//);
+			# next unless($csv_file =~ /us\/il\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -363,7 +363,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$county = 'LA PORTE';
 							}
 						}
-						if($city && ($city ne ' ')) {
+						if($city && ($city !~ /^\s+$/)) {
 							# Counties and states alone have already been read in
 							my %columns = (
 								'COUNTRY' => 'US',
@@ -626,15 +626,15 @@ sub insert {
 			$state_md5s{$digest} = 1;
 		}
 	}
-	my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
-	my $sth = $dbh->prepare($q);
-	$sth->execute();
-	while(my $href = $sth->fetchrow_hashref()) {
-		my @call_details = caller(0);
-		print "line " . $call_details[2], "\n";
-		print Data::Dumper->new([$columns])->Dump();
-		print Data::Dumper->new([$href])->Dump();
-	}
+	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
+	# my $sth = $dbh->prepare($q);
+	# $sth->execute();
+	# while(my $href = $sth->fetchrow_hashref()) {
+		# my @call_details = caller(0);
+		# print "line " . $call_details[2], "\n";
+		# print Data::Dumper->new([$columns])->Dump();
+		# print Data::Dumper->new([$href])->Dump();
+	# }
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 	my $query = "INSERT INTO openaddresses('MD5','LAT','LON'" .
