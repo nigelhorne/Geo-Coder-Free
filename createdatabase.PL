@@ -180,7 +180,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			next unless($csv_file =~ /us\/fl\//);
+			# next unless($csv_file =~ /us\/fl\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -348,10 +348,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									$city = $county;
 									$county = $tmp;
 								}
-								if(($city eq $county) || ($city eq "$county COUNTY")) {
+								if(($city eq $county) ||
+								   ($city eq "$county COUNTY") ||
+								   ($county eq "$city COUNTY")) {
 									$city = undef;
-								} elsif($county eq "$city COUNTY") {
-									$county = undef;
 								}
 							}
 						}
@@ -522,10 +522,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									$city = $county;
 									$county = $tmp;
 								}
-								if(($city eq $county) || ($city eq "$county COUNTY")) {
+								if(($city eq $county) ||
+								   ($city eq "$county COUNTY") ||
+								   ($county eq "$city COUNTY")) {
 									$city = undef;
-								} elsif($county eq "$city COUNTY") {
-									$county = undef;
 								}
 							}
 						}
