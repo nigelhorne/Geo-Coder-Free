@@ -609,7 +609,7 @@ sub insert {
 
 	die unless(defined($lat) && defined($lon));
 
-	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	my $digest;
 	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 		$digest .= $columns->{$column} if($columns->{$column});

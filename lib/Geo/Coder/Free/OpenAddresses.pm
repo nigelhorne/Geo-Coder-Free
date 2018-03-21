@@ -212,7 +212,7 @@ sub geocode {
 							}
 						}
 					}
-					my $rc = $openaddr_db->fetchrow_hashref(%args);
+					$rc = $openaddr_db->fetchrow_hashref(%args);
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
@@ -280,7 +280,7 @@ sub geocode {
 									}
 								}
 							}
-							my $rc = $openaddr_db->fetchrow_hashref(%args);
+							$rc = $openaddr_db->fetchrow_hashref(%args);
 							if($rc && defined($rc->{'lat'})) {
 								$rc->{'latitude'} = $rc->{'lat'};
 								$rc->{'longitude'} = $rc->{'lon'};
@@ -411,7 +411,7 @@ sub geocode {
 						}
 						$args{street} = uc($street);
 					}
-					my $rc = $openaddr_db->fetchrow_hashref(%args);
+					$rc = $openaddr_db->fetchrow_hashref(%args);
 					if($rc && defined($rc->{'lat'})) {
 						$rc->{'latitude'} = $rc->{'lat'};
 						$rc->{'longitude'} = $rc->{'lon'};
@@ -436,7 +436,6 @@ sub geocode {
 					warn "Fast lookup of Canadian location' $location' failed";
 				} else {
 					if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
-						my $rc;
 						# Perhaps it just has the street's name?
 						# Rockville Pike, Rockville, MD, USA
 						my $first = uc($1);
