@@ -306,13 +306,12 @@ sub geocode {
 						}
 						die $city;
 					} elsif($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
-						my $rc;
 						# Perhaps it just has the street's name?
 						# Rockville Pike, Rockville, MD, USA
 						my $first = uc($1);
 						my $second = uc($2);
-						if($first =~ /^(\w+\s\w+)$/) {
-							my $rc = $openaddr_db->fetchrow_hashref(
+						if($first =~ /^\w+\s\w+$/) {
+							$rc = $openaddr_db->fetchrow_hashref(
 								street => $first,
 								city => $second,
 								state => $state,
@@ -440,7 +439,7 @@ sub geocode {
 						# Rockville Pike, Rockville, MD, USA
 						my $first = uc($1);
 						my $second = uc($2);
-						if($first =~ /^(\w+\s\w+)$/) {
+						if($first =~ /^\w+\s\w+$/) {
 							if($rc = $self->_get("$first$second$state" . 'CA')) {
 								return $rc;
 							}
