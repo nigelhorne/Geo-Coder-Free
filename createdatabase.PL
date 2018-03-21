@@ -71,6 +71,7 @@ my %zipcodes = (
 );
 my %postcodes = ();
 my $current_state;
+my %global_md5s;
 my %state_md5s;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
@@ -143,6 +144,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$dbh->prepare($query)->execute();
 				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
+				$global_md5s{$digest} = 1;
 			}
 
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
@@ -173,6 +175,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					"'" . $row->{'Longitude'} . "')";
 				# print "$query\n";
 				$dbh->prepare($query)->execute();
+				$global_md5s{$digest} = 1;
 			}
 		}
 
@@ -180,7 +183,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			# next unless($csv_file =~ /us\/il\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -321,6 +323,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$street = "$1 AVE";
 							} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
 								$street = "$1 AVE $2";
+							} elsif($street =~ /(.+)\s+CT$/) {
+								$street = "$1 COURT";
 							}
 							$street =~ s/^0+//;	# Turn 04th St into 4th St
 						}
@@ -495,6 +499,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$street = "$1 AVE";
 							} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
 								$street = "$1 AVE $2";
+							} elsif($street =~ /(.+)\s+CT$/) {
+								$street = "$1 COURT";
 							}
 							$street =~ s/^0+//;	# Turn 04th St into 4th St
 						}
@@ -603,13 +609,14 @@ sub insert {
 
 	die unless(defined($lat) && defined($lon));
 
-	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+	my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	my $digest;
 	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
 	# print "$digest\n";
 	$digest = Digest::MD5::md5_base64(Encode::encode_utf8($digest));
+	# print "$digest\n";
 
 	if(my $state = $columns->{'STATE'}) {
 		# print "Looking for digest $digest\n";
@@ -619,7 +626,7 @@ sub insert {
 			%state_md5s = ( $digest => 1 );
 			# print "new state $state\n";
 		} else {
-			if($state_md5s{$digest}) {
+			if($state_md5s{$digest} || $global_md5s{$digest}) {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
 				return;
 			}

@@ -768,6 +768,8 @@ sub _normalize {
 		return 'ST';
 	} elsif(($type eq 'ROAD') || ($type eq 'RD')) {
 		return 'RD';
+	} elsif(($type eq 'COURT') || ($type eq 'CT')) {
+		$street = 'CT';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';
 	}
