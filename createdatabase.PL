@@ -360,7 +360,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						if($state eq 'IN') {
-							if($city eq 'FW') {
+							if(defined($city) && ($city eq 'FW')) {
 								$city = 'FORT WAYNE';
 								$county = 'ALLEN';
 							} elsif(defined($county) && ($county eq 'LAPORTE')) {
