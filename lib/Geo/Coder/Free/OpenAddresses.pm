@@ -37,6 +37,7 @@ Version 0.01
 =cut
 
 our $VERSION = '0.01';
+our $OLDCODE = 0;
 
 =head1 SYNOPSIS
 
@@ -165,20 +166,24 @@ sub geocode {
 						if($rc = $self->_get("$city$state" . 'US')) {
 							return $rc;
 						}
-						$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'US');
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
+						if($OLDCODE) {
+							$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'US');
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
 						}
 					}
-					# Or perhaps it's a county?
-					# Allen, Indiana, USA
-					$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'US');
-					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = delete $rc->{'lat'};
-						$rc->{'longitude'} = delete $rc->{'lon'};
-						return $rc;
+					if($OLDCODE) {
+						# Or perhaps it's a county?
+						# Allen, Indiana, USA
+						$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'US');
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = delete $rc->{'lat'};
+							$rc->{'longitude'} = delete $rc->{'lon'};
+							return $rc;
+						}
 					}
 				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
 					# Well formed, simple street address in the US
@@ -212,26 +217,28 @@ sub geocode {
 							}
 						}
 					}
-					$rc = $openaddr_db->fetchrow_hashref(%args);
-					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = $rc->{'lat'};
-						$rc->{'longitude'} = $rc->{'lon'};
-						return $rc;
-					}
-					if(delete $args{'county'}) {
+					if($OLDCODE) {
 						$rc = $openaddr_db->fetchrow_hashref(%args);
 						if($rc && defined($rc->{'lat'})) {
 							$rc->{'latitude'} = $rc->{'lat'};
 							$rc->{'longitude'} = $rc->{'lon'};
 							return $rc;
 						}
-					}
-					if(delete $args{'number'}) {
-						$rc = $openaddr_db->fetchrow_hashref(%args);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
+						if(delete $args{'county'}) {
+							$rc = $openaddr_db->fetchrow_hashref(%args);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+						}
+						if(delete $args{'number'}) {
+							$rc = $openaddr_db->fetchrow_hashref(%args);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
 						}
 					}
 					warn "Fast lookup of US location' $location' failed";
@@ -280,47 +287,54 @@ sub geocode {
 									}
 								}
 							}
-							$rc = $openaddr_db->fetchrow_hashref(%args);
-							if($rc && defined($rc->{'lat'})) {
-								$rc->{'latitude'} = $rc->{'lat'};
-								$rc->{'longitude'} = $rc->{'lon'};
-								return $rc;
-							}
-							if(delete $args{'county'}) {
+							if($OLDCODE) {
 								$rc = $openaddr_db->fetchrow_hashref(%args);
 								if($rc && defined($rc->{'lat'})) {
 									$rc->{'latitude'} = $rc->{'lat'};
 									$rc->{'longitude'} = $rc->{'lon'};
 									return $rc;
 								}
-							}
-							if(delete $args{'number'}) {
-								$rc = $openaddr_db->fetchrow_hashref(%args);
-								if($rc && defined($rc->{'lat'})) {
-									$rc->{'latitude'} = $rc->{'lat'};
-									$rc->{'longitude'} = $rc->{'lon'};
-									return $rc;
+								if(delete $args{'county'}) {
+									$rc = $openaddr_db->fetchrow_hashref(%args);
+									if($rc && defined($rc->{'lat'})) {
+										$rc->{'latitude'} = $rc->{'lat'};
+										$rc->{'longitude'} = $rc->{'lon'};
+										return $rc;
+									}
+								}
+								if(delete $args{'number'}) {
+									$rc = $openaddr_db->fetchrow_hashref(%args);
+									if($rc && defined($rc->{'lat'})) {
+										$rc->{'latitude'} = $rc->{'lat'};
+										$rc->{'longitude'} = $rc->{'lon'};
+										return $rc;
+									}
 								}
 							}
 							return;	 # Not found
 						}
-						die $city;
+						die $city;	# TODO: do something here
 					} elsif($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
 						# Perhaps it just has the street's name?
 						# Rockville Pike, Rockville, MD, USA
 						my $first = uc($1);
 						my $second = uc($2);
-						if($first =~ /^\w+\s\w+$/) {
-							$rc = $openaddr_db->fetchrow_hashref(
-								street => $first,
-								city => $second,
-								state => $state,
-								country => 'US'
-							);
-							if($rc && defined($rc->{'lat'})) {
-								$rc->{'latitude'} = $rc->{'lat'};
-								$rc->{'longitude'} = $rc->{'lon'};
-								return $rc;
+						if($rc = $self->_get("$first$second$state" . 'US')) {
+							return $rc;
+						}
+						if($OLDCODE) {
+							if($first =~ /^\w+\s\w+$/) {
+								$rc = $openaddr_db->fetchrow_hashref(
+									street => $first,
+									city => $second,
+									state => $state,
+									country => 'US'
+								);
+								if($rc && defined($rc->{'lat'})) {
+									$rc->{'latitude'} = $rc->{'lat'};
+									$rc->{'longitude'} = $rc->{'lon'};
+									return $rc;
+								}
 							}
 						}
 						# Perhaps it's a city in a county?
@@ -329,24 +343,10 @@ sub geocode {
 						if($rc = $self->_get("$first$second$state" . 'US')) {
 							return $rc;
 						}
-						$rc = $openaddr_db->fetchrow_hashref(
-							city => $first,
-							county => $second,
-							state => $state,
-							country => 'US'
-						);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
-						}
-						# Not all the database has the county
-						if($second) {
-							if($rc = $self->_get("$first$state" . 'US')) {
-								return $rc;
-							}
+						if($OLDCODE) {
 							$rc = $openaddr_db->fetchrow_hashref(
 								city => $first,
+								county => $second,
 								state => $state,
 								country => 'US'
 							);
@@ -356,8 +356,27 @@ sub geocode {
 								return $rc;
 							}
 						}
+						# Not all the database has the county
+						if($second) {
+							if($rc = $self->_get("$first$state" . 'US')) {
+								return $rc;
+							}
+							if($OLDCODE) {
+								$rc = $openaddr_db->fetchrow_hashref(
+									city => $first,
+									state => $state,
+									country => 'US'
+								);
+								if($rc && defined($rc->{'lat'})) {
+									$rc->{'latitude'} = $rc->{'lat'};
+									$rc->{'longitude'} = $rc->{'lon'};
+									return $rc;
+								}
+							}
+						}
 					}
-					warn "Can't yet parse US location '$location'";
+					# warn "Can't yet parse US location '$location'";
+					return;
 				}
 			} elsif($c eq 'ca') {
 				if(length($state) > 2) {
@@ -372,19 +391,21 @@ sub geocode {
 					if($rc = $self->_get("$city$state" . 'CA')) {
 						return $rc;
 					}
-					$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'CA');
-					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = $rc->{'lat'};
-						$rc->{'longitude'} = $rc->{'lon'};
-						return $rc;
-					}
-					# Or perhaps it's a county?
-					# Westmorland, New Brunsick, Canada
-					$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'CA');
-					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = $rc->{'lat'};
-						$rc->{'longitude'} = $rc->{'lon'};
-						return $rc;
+					if($OLDCODE) {
+						$rc = $openaddr_db->fetchrow_hashref(city => $city, state => $state, country => 'CA');
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
+						# Or perhaps it's a county?
+						# Westmorland, New Brunsick, Canada
+						$rc = $openaddr_db->fetchrow_hashref(county => $city, state => $state, country => 'CA');
+						if($rc && defined($rc->{'lat'})) {
+							$rc->{'latitude'} = $rc->{'lat'};
+							$rc->{'longitude'} = $rc->{'lon'};
+							return $rc;
+						}
 					}
 				# } elsif(my $href = Geo::StreetAddress::Canada->parse_address("$city, $state")) {
 				} elsif(my $href = 0) {
@@ -410,26 +431,28 @@ sub geocode {
 						}
 						$args{street} = uc($street);
 					}
-					$rc = $openaddr_db->fetchrow_hashref(%args);
-					if($rc && defined($rc->{'lat'})) {
-						$rc->{'latitude'} = $rc->{'lat'};
-						$rc->{'longitude'} = $rc->{'lon'};
-						return $rc;
-					}
-					if(delete $args{'county'}) {
+					if($OLDCODE) {
 						$rc = $openaddr_db->fetchrow_hashref(%args);
 						if($rc && defined($rc->{'lat'})) {
 							$rc->{'latitude'} = $rc->{'lat'};
 							$rc->{'longitude'} = $rc->{'lon'};
 							return $rc;
 						}
-					}
-					if(delete $args{'number'}) {
-						$rc = $openaddr_db->fetchrow_hashref(%args);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
+						if(delete $args{'county'}) {
+							$rc = $openaddr_db->fetchrow_hashref(%args);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
+						}
+						if(delete $args{'number'}) {
+							$rc = $openaddr_db->fetchrow_hashref(%args);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
 						}
 					}
 					warn "Fast lookup of Canadian location' $location' failed";
@@ -439,20 +462,22 @@ sub geocode {
 						# Rockville Pike, Rockville, MD, USA
 						my $first = uc($1);
 						my $second = uc($2);
-						if($first =~ /^\w+\s\w+$/) {
-							if($rc = $self->_get("$first$second$state" . 'CA')) {
-								return $rc;
-							}
-							$rc = $openaddr_db->fetchrow_hashref(
-								street => $first,
-								city => $second,
-								state => $state,
-								country => 'CA'
-							);
-							if($rc && defined($rc->{'lat'})) {
-								$rc->{'latitude'} = $rc->{'lat'};
-								$rc->{'longitude'} = $rc->{'lon'};
-								return $rc;
+						if($rc = $self->_get("$first$second$state" . 'CA')) {
+							return $rc;
+						}
+						if($OLDCODE) {
+							if($first =~ /^\w+\s\w+$/) {
+								$rc = $openaddr_db->fetchrow_hashref(
+									street => $first,
+									city => $second,
+									state => $state,
+									country => 'CA'
+								);
+								if($rc && defined($rc->{'lat'})) {
+									$rc->{'latitude'} = $rc->{'lat'};
+									$rc->{'longitude'} = $rc->{'lon'};
+									return $rc;
+								}
 							}
 						}
 						# Perhaps it's a city in a county?
@@ -464,20 +489,22 @@ sub geocode {
 						if($rc = $self->_get("$first$state" . 'CA')) {
 							return $rc;
 						}
-						$rc = $openaddr_db->fetchrow_hashref(
-							city => $first,
-							county => $second,
-							state => $state,
-							country => 'CA'
-						) || $openaddr_db->fetchrow_hashref(
-							city => $first,
-							state => $state,
-							country => 'CA',
-						);
-						if($rc && defined($rc->{'lat'})) {
-							$rc->{'latitude'} = $rc->{'lat'};
-							$rc->{'longitude'} = $rc->{'lon'};
-							return $rc;
+						if($OLDCODE) {
+							$rc = $openaddr_db->fetchrow_hashref(
+								city => $first,
+								county => $second,
+								state => $state,
+								country => 'CA'
+							) || $openaddr_db->fetchrow_hashref(
+								city => $first,
+								state => $state,
+								country => 'CA',
+							);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
+								return $rc;
+							}
 						}
 					}
 					warn "Can't yet parse Canadian location '$location'";
@@ -485,6 +512,8 @@ sub geocode {
 			}
 		}
 	}
+
+	return unless($OLDCODE);
 
 	# Not been able to find in the SQLite file, look in the CSV files.
 	# ::diag("FALL THROUGH $location");
