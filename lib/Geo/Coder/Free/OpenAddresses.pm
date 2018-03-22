@@ -138,6 +138,48 @@ sub geocode {
 	my $street;
 	my $openaddr_db;
 
+	if($location =~ /(.+),?\s*(United States|USA|US)$/) {
+		if(my $href = Geo::StreetAddress::US->parse_address($1)) {
+			$state = $href->{'state'};
+			if(length($state) > 2) {
+				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					$state = $twoletterstate;
+				}
+			}
+			my %args = (state => $state, country => 'US');
+			my $city;
+			if($href->{city}) {
+				$city = $args{city} = uc($href->{city});
+			}
+			if($href->{number}) {
+				$args{number} = $href->{number};
+			}
+			if($street = $href->{street}) {
+				if(my $type = $self->_normalize($href->{'type'})) {
+					$street .= " $type";
+				}
+				if($href->{suffix}) {
+					$street .= ' ' . $href->{suffix};
+				}
+			}
+			if($street) {
+				if(my $prefix = $href->{prefix}) {
+					$street = "$prefix $street";
+				}
+				$args{street} = uc($street);
+				my $rc;
+				if($href->{'number'}) {
+					if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
+						return $rc;
+					}
+				}
+				if($rc = $self->_get("$street$city$state" . 'US')) {
+					return $rc;
+				}
+			}
+		}
+	}
+
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;
 		$state = $2;
@@ -218,9 +260,9 @@ sub geocode {
 							if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
 								return $rc;
 							}
-							if($rc = $self->_get("$street$city$state" . 'US')) {
-								return $rc;
-							}
+						}
+						if($rc = $self->_get("$street$city$state" . 'US')) {
+							return $rc;
 						}
 					}
 					if($OLDCODE) {

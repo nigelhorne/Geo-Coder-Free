@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 70;
+use Test::Most tests => 74;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -141,6 +141,12 @@ OPENADDR: {
 			delta_within($location->{latitude}, 39.00, 1e-2);
 			delta_within($location->{longitude}, -77.10, 1e-2);
 
+			$location = $geocoder->geocode('8600 Rockville Pike Bethesda MD 20894 USA');
+			ok(defined($location));
+			ok(ref($location) eq 'HASH');
+			delta_within($location->{latitude}, 39.00, 1e-2);
+			delta_within($location->{longitude}, -77.10, 1e-2);
+
 			$location = $geocoder->geocode({ location => 'Rockville, Montgomery County, MD, USA' });
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.05, 1e-2);
@@ -179,7 +185,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 69;
+			skip 'OPENADDR_HOME not defined', 73;
 		}
 	}
 }
