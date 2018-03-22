@@ -17,7 +17,7 @@ use Locale::Country;
 our %admin1cache;
 our %admin2cache;
 
-#  Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
+# Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
 my %known_locations = (
 	'Newport Pagnell, Buckinghamshire, England' => {
@@ -50,11 +50,11 @@ our $VERSION = '0.01';
 Geo::Coder::Free::MaxMind provides an interface to free databases.
 
 Refer to the source URL for licencing information for these files:
-cities.csv is from https://www.maxmind.com/en/free-world-cities-database;
-admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt;
-admin2.db is from http://download.geonames.org/export/dump/admin2Codes.txt;
+cities.csv is from L<https://www.maxmind.com/en/free-world-cities-database>;
+admin1.db is from L<http://download.geonames.org/export/dump/admin1CodesASCII.txt>;
+admin2.db is from L<http://download.geonames.org/export/dump/admin2Codes.txt>;
 
-See also http://download.geonames.org/export/dump/allCountries.zip
+See also L<http://download.geonames.org/export/dump/allCountries.zip>
 
 To significantly speed this up,
 gunzip cities.csv and run it through the db2sql script to create an SQLite file.

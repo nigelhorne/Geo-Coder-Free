@@ -47,7 +47,7 @@ The cgi-bin directory contains a simple DIY geocoding website:
     $geocoder = Geo::Coder::Free->new();
 
 Takes one optional parameter, openaddr, which is the base directory of
-the OpenAddresses data downloaded from http://results.openaddresses.io.
+the OpenAddresses data downloaded from L<http://results.openaddresses.io>.
 
 Takes one optional parameter, directory,
 which tells the library where to find the MaxMind and GeoNames files admin1db, admin2.db and cities.[sql|csv.gz].
@@ -141,9 +141,8 @@ The openaddresses data doesn't cover the globe.
 
 Can't parse and handle "London, England".
 
-Openaddresses look up is slow.
-See L<Geo::Coder::Free::OpenAddresses> for instructions on improving the speed by
-storing the data in an SQLite database.
+See L<Geo::Coder::Free::OpenAddresses> for instructions creating its SQLite database from
+L<http://results.openaddresses.io/>.
 
 =head1 SEE ALSO
 
@@ -158,7 +157,7 @@ All other users (including Commercial, Charity, Educational, Government)
 must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
 
 This product includes GeoLite2 data created by MaxMind, available from
-http://www.maxmind.com
+L<http://www.maxmind.com>.
 
 =cut
 

@@ -444,6 +444,7 @@ BW.06	Kweneng	Kweneng	933562
 BW.05	Kgatleng	Kgatleng	933654
 BW.04	Kgalagadi	Kgalagadi	933657
 BW.03	Ghanzi	Ghanzi	933758
+BW.12	Chobe	Chobe	933840
 BW.01	Central	Central	933851
 BW.13	City of Francistown	City of Francistown	11778168
 BW.14	Gaborone	Gaborone	11778169
@@ -1287,6 +1288,7 @@ IL.04	Haifa	Haifa	294800
 IL.03	Northern District	Northern District	294824
 IL.02	Central District	Central District	294904
 IL.01	Southern District	Southern District	294952
+IL.WE	Judea and Samaria Area	Judea and Samaria Area	11821181
 IM.9782164	Andreas	Andreas	9782164
 IM.9782165	Arbory	Arbory	9782165
 IM.9782166	Ballaugh	Ballaugh	9782166
@@ -1660,7 +1662,7 @@ KZ.16	Soltüstik Qazaqstan	Soltustik Qazaqstan	1519367
 KZ.11	Pavlodar	Pavlodar	1520239
 KZ.14	Qyzylorda	Qyzylorda	1521406
 KZ.13	Qostanay	Qostanay	1521671
-KZ.12	Qaraghandy	Qaraghandy	1523401
+KZ.12	Karaganda	Karaganda	1523401
 KZ.17	Zhambyl	Zhambyl	1524444
 KZ.10	Ongtüstik Qazaqstan	Ongtustik Qazaqstan	1524787
 KZ.02	Almaty Qalasy	Almaty Qalasy	1526395
@@ -3284,7 +3286,7 @@ SS.11550564	Twic	Twic	11550564
 SS.11550565	Wau	Wau	11550565
 SS.11550566	Gbudwe	Gbudwe	11550566
 SS.11550567	Imatong	Imatong	11550567
-SS.11550569	Jubek	Jubek	11550569
+SS.11550569	Juba	Juba	11550569
 SS.11550570	Maridi	Maridi	11550570
 SS.11550571	Terekeka	Terekeka	11550571
 SS.11550573	Boma	Boma	11550573
