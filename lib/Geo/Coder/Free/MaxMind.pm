@@ -127,6 +127,8 @@ sub geocode {
 		return $known_locations{$location};
 	}
 
+	return unless($location =~ /,/);	# Not well formed, or an attempt to the the location of an entire country
+
 	my $county;
 	my $state;
 	my $country;
