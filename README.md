@@ -30,7 +30,7 @@ Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 
 The cgi-bin directory contains a simple DIY geocoding website:
 
-    curl 'http://localhost/~user/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW,+Washington+DC,+USA'
+    curl 'http://localhost/~user/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
 
 # METHODS
 
