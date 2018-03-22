@@ -325,6 +325,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$street = "$1 AVE $2";
 							} elsif($street =~ /(.+)\s+CT$/) {
 								$street = "$1 COURT";
+							} elsif($street =~ /(.+)\s+CIRCLE$/) {
+								$street = "$1 CIR";
 							}
 							$street =~ s/^0+//;	# Turn 04th St into 4th St
 						}
@@ -465,11 +467,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									'LAT' => $place->{'latitude'},
 									'LON' => $place->{'longitude'},
 								);
-								if($county) {
+								if($city) {
+									# Counties and states alone have already been read in
 									$columns{'COUNTY'} = $county;
+									# print "$postcode => $query\n";
+									insert($dbh, \%columns);
 								}
-								# print "$postcode => $query\n";
-								insert($dbh, \%columns);
 							}
 							if(!defined($city)) {
 								next if(!$postcode);
@@ -501,6 +504,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$street = "$1 AVE $2";
 							} elsif($street =~ /(.+)\s+CT$/) {
 								$street = "$1 COURT";
+							} elsif($street =~ /(.+)\s+CIRCLE$/) {
+								$street = "$1 CIR";
 							}
 							$street =~ s/^0+//;	# Turn 04th St into 4th St
 						}
