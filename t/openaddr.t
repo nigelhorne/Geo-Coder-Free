@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 67;
+use Test::Most tests => 70;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -126,21 +126,20 @@ OPENADDR: {
 			delta_within($location->{latitude}, 39.03, 1e-2);
 			delta_within($location->{longitude}, -77.05, 1e-2);
 
-			TODO: {
-				local $TODO = "This used to work, now it doesn't";
-
-				eval {
-					$location = $geocoder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
-					ok(defined($location));
-					delta_within($location->{latitude}, 39.06, 1e-2);
-					delta_within($location->{longitude}, -77.12, 1e-2);
-				};
-			}
+			$location = $geocoder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
+			ok(defined($location));
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -77.12, 1e-2);
 
 			$location = $geocoder->geocode('Rockville Pike, Rockville, MD, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.06, 1e-2);
 			delta_within($location->{longitude}, -77.12, 1e-2);
+
+			$location = $geocoder->geocode('8600 Rockville Pike, Bethesda, MD 20894, USA');
+			ok(defined($location));
+			delta_within($location->{latitude}, 39.00, 1e-2);
+			delta_within($location->{longitude}, -77.10, 1e-2);
 
 			$location = $geocoder->geocode({ location => 'Rockville, Montgomery County, MD, USA' });
 			ok(defined($location));
@@ -180,7 +179,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 66;
+			skip 'OPENADDR_HOME not defined', 69;
 		}
 	}
 }

@@ -188,6 +188,12 @@ sub geocode {
 				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
 					# Well formed, simple street address in the US
 					# ::diag(Data::Dumper->new([\$href])->Dump());
+					$state = $href->{'state'};
+					if(length($state) > 2) {
+						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+							$state = $twoletterstate;
+						}
+					}
 					my %args = (state => $state, country => 'US');
 					if($href->{city}) {
 						$city = $args{city} = uc($href->{city});
@@ -250,6 +256,12 @@ sub geocode {
 							# ::diag(Data::Dumper->new([\$href])->Dump());
 							$county = $3;
 							$county =~ s/\s*county$//i;
+							$state = $href->{'state'};
+							if(length($state) > 2) {
+								if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+									$state = $twoletterstate;
+								}
+							}
 							my %args = (county => uc($county), state => $state, country => 'US');
 							if($href->{city}) {
 								$city = $args{city} = uc($href->{city});
@@ -410,6 +422,12 @@ sub geocode {
 				# } elsif(my $href = Geo::StreetAddress::Canada->parse_address("$city, $state")) {
 				} elsif(my $href = 0) {
 					# Well formed, simple street address in Canada
+					$state = $href->{'province'};
+					if(length($state) > 2) {
+						if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+							$state = $twoletterstate;
+						}
+					}
 					my %args = (state => $state, country => 'CA');
 					if($href->{city}) {
 						$args{city} = uc($href->{city});
@@ -775,6 +793,9 @@ sub _get {
 		);
 	$self->{openaddr_db} = $openaddr_db;
 	# ::diag("$location: $digest");
+	# my @call_details = caller(0);
+	# print "line " . $call_details[2], "\n";
+	# print("$location: $digest\n");
 	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
 	if($rc && defined($rc->{'lat'})) {
 		$rc->{'latitude'} = delete $rc->{'lat'};
