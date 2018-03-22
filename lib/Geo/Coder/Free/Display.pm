@@ -250,7 +250,7 @@ sub set_cookie {
 }
 
 sub http {
-	my ($self, $params) = @_;
+	my $self = shift;
 
 	# TODO: Only session cookies as the moment
 	my $cookies = $self->{_cookies};

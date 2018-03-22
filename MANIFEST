@@ -43,6 +43,9 @@ t/pod-cm.t
 t/pod.t
 t/spelling.t
 t/strict.t
+t/unused.t
+t/used.t
+t/vars.t
 templates/Geo/Coder/Free/Display/index.tmpl
 templates/Geo/Coder/Free/Display/query.txt
 typhoon/openaddresses.ddl
