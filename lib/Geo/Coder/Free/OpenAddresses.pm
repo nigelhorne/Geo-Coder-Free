@@ -146,13 +146,9 @@ sub geocode {
 					$state = $twoletterstate;
 				}
 			}
-			my %args = (state => $state, country => 'US');
 			my $city;
 			if($href->{city}) {
-				$city = $args{city} = uc($href->{city});
-			}
-			if($href->{number}) {
-				$args{number} = $href->{number};
+				$city = uc($href->{city});
 			}
 			if($street = $href->{street}) {
 				if(my $type = $self->_normalize($href->{'type'})) {
@@ -166,7 +162,6 @@ sub geocode {
 				if(my $prefix = $href->{prefix}) {
 					$street = "$prefix $street";
 				}
-				$args{street} = uc($street);
 				my $rc;
 				if($href->{'number'}) {
 					if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
