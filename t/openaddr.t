@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 75;
+use Test::Most tests => 76;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -168,6 +168,9 @@ OPENADDR: {
 			$location = $geocoder->geocode('At sea or abroad');
 			ok(!defined($location));
 
+			$location = $ogeocoder->geocode('Vessels, Misc Ships At sea or abroad, England');
+			ok(!defined($location));
+
 			# ok(defined($location));
 			# delta_ok($location->{latitude}, 39.04);
 			# delta_ok($location->{longitude}, -86.96);
@@ -188,7 +191,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 74;
+			skip 'OPENADDR_HOME not defined', 75;
 		}
 	}
 }
