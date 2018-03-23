@@ -138,8 +138,11 @@ sub geocode {
 	my $street;
 	my $openaddr_db;
 
-	if($location =~ /(.+),?\s*(United States|USA|US)$/) {
-		if(my $href = Geo::StreetAddress::US->parse_address($1)) {
+	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+		my $foo = $1;
+		$foo =~ s/,/ /g;
+		$foo =~ s/\s\s+/ /g;
+		if(my $href = Geo::StreetAddress::US->parse_address($foo)) {
 			$state = $href->{'state'};
 			if(length($state) > 2) {
 				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
@@ -854,7 +857,7 @@ sub _normalize {
 	} elsif(($type eq 'ROAD') || ($type eq 'RD')) {
 		return 'RD';
 	} elsif(($type eq 'COURT') || ($type eq 'CT')) {
-		return 'CT';
+		return 'COURT';
 	} elsif(($type eq 'CIR') || ($type eq 'CIRCLE')) {
 		return 'CIR';
 	} elsif($type eq 'PIKE') {

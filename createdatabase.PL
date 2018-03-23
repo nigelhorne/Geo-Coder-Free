@@ -183,6 +183,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
+			# next unless($csv_file =~ /us\/md\/frederick/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -369,7 +370,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$county = 'LA PORTE';
 							}
 						}
-						if($city && ($city !~ /^\s+$/)) {
+						if(($city && ($city !~ /^\s+$/)) || $county) {
 							# Counties and states alone have already been read in
 							my %columns = (
 								'COUNTRY' => 'US',
@@ -616,6 +617,7 @@ sub insert {
 
 	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	my $digest;
+	# print Data::Dumper->new([$columns])->Dump();
 	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
