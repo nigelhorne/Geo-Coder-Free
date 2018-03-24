@@ -133,7 +133,7 @@ it under the same terms as Perl itself.
 
 Lots of lookups fail at the moment.
 
-The openaddresses.io code has yet to be compeleted.
+The openaddresses.io code has yet to be completed.
 There are die()s where the code path has yet to be written.
 
 The MaxMind data only contains cities.

@@ -860,6 +860,8 @@ sub _normalize {
 		return 'COURT';
 	} elsif(($type eq 'CIR') || ($type eq 'CIRCLE')) {
 		return 'CIR';
+	} elsif(($type eq 'FT') || ($type eq 'FORT')) {
+		return 'FORT';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';
 	}
