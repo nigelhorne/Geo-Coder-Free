@@ -106,7 +106,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		# lot slower (days as against hours)
 		# Of course it also slows down the searches a lot, so the
 		# ey will need to be put in at some time
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, country char(2) NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
 		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
@@ -135,11 +135,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					die $row->{'Name'};
 				}
 				my $digest = Digest::MD5::md5_base64($state, 'US');
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTRY'" .
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
-					"'" . $row->{'Longitude'} . "','US')";
+					"'" . $row->{'Longitude'} . "'," .
+					"'$state','US')";
 				$dbh->prepare($query)->execute();
 				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
@@ -167,11 +168,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $county = uc($row->{'Name'});
 				$county =~ s/'/''/g;	# O'Brien County, IA
 				my $digest = Digest::MD5::md5_base64($county, $state, 'US');
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTRY'" .
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
-					"'" . $row->{'Longitude'} . "','US')";
+					"'" . $row->{'Longitude'} . "'," .
+					"'$state','US')";
 				# print "$query\n";
 				$dbh->prepare($query)->execute();
 				$global_md5s{$digest} = 1;
@@ -638,6 +640,8 @@ sub insert {
 			}
 			$state_md5s{$digest} = 1;
 		}
+	} else {
+		die;
 	}
 	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
 	# my $sth = $dbh->prepare($q);
@@ -650,10 +654,11 @@ sub insert {
 	# }
 	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
 	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
-	my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTRY'" .
-		") VALUES ('$digest',$lat,$lon,'" .
-		$columns->{'COUNTRY'} .
-		"')";
+	my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
+		") VALUES ('$digest',$lat,$lon," .
+		"'$columns->{'STATE'}'," .
+		"'$columns->{'COUNTRY'}'" .
+		")";
 	# foreach my $column(sort keys %{$columns}) {
 		# $columns->{$column} =~ s/'/''/g;
 		# $query .= "'" . $columns->{$column} . "',";
