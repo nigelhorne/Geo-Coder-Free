@@ -73,6 +73,7 @@ my %postcodes = ();
 my $current_state;
 my %global_md5s;
 my %state_md5s;
+my %queued_commits;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -568,8 +569,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 				}
 			}
+			flush_queue($dbh);
 		}
-
 		print ' ' x 70, "\r";
 		$dbh->commit();
 		$dbh->disconnect();
@@ -628,6 +629,7 @@ sub insert {
 			$current_state = $state;
 			%state_md5s = ( $digest => 1 );
 			# print "new state $state\n";
+			flush_queue($dbh);	# Shouldn't be needed
 		} else {
 			if($state_md5s{$digest} || $global_md5s{$digest}) {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
@@ -647,19 +649,9 @@ sub insert {
 		# print Data::Dumper->new([$columns])->Dump();
 		# print Data::Dumper->new([$href])->Dump();
 	# }
-	# TODO: instead of INSERT OR IGNORE, give a warning for duplicates and just INSERT
-	# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
-	my $query = 'INSERT INTO openaddresses(' .
-		join(',', sort keys %{$columns}) .
-		',MD5) VALUES (';
-	foreach my $column(sort keys %{$columns}) {
-		$columns->{$column} =~ s/'/''/g;
-		$query .= "'" . $columns->{$column} . "',";
-	}
-	$query .= "'$digest')";
 
-	# print "$query\n";
-	$dbh->prepare($query)->execute();
+	# All of the file's values are combined into one large INSERT INTO
+	$queued_commits{$digest} = $columns;
 
 	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /\s/)) {
 		my $s = $columns->{'STREET'};	# Should use a 'local' variable I guess
@@ -674,18 +666,53 @@ sub insert {
 			return;
 		}
 		$state_md5s{$digest} = 1;
-		$query = 'INSERT INTO openaddresses(' .
-			join(',', sort keys %{$columns}) .
-			',MD5) VALUES (';
-		foreach my $column(sort keys %{$columns}) {
-			$columns->{$column} =~ s/'/''/g;
-			$query .= "'" . $columns->{$column} . "',";
-		}
-		$query .= "'$digest')";
-
-		# print "$query\n";
-		$dbh->prepare($query)->execute();
+		$queued_commits{$digest} = $columns;
 
 		$columns->{'STREET'} = $s;
+	}
+}
+
+# All of the file's values are combined into one large INSERT INTO
+# Be aware of https://github.com/openaddresses/openaddresses/issues/3928
+sub flush_queue
+{
+	my $dbh = shift;
+
+	# print "flush\n";
+
+	my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
+
+	my $query;
+	foreach my $md5(keys %queued_commits) {
+		if(!defined($query)) {
+			$query = 'INSERT INTO openaddresses(';
+			foreach my $column(@columns) {
+				$query .= "$column,";
+			};
+			$query .= 'MD5) VALUES (';
+		} else {
+			$query .= ',(';
+		}
+
+		my $row = $queued_commits{$md5};
+		foreach my $column(@columns) {
+			if($row->{$column}) {
+				$row->{$column} =~ s/'/''/g;
+				if(($column eq 'LAT') || ($column eq 'LON')) {
+					$query .= $row->{$column} . ',';
+				} else {
+					$query .= "'" . $row->{$column} . "',";
+				}
+			} else {
+				$query .= 'NULL,';
+			}
+		}
+		$query .= "'$md5')";
+	}
+
+	if($query) {
+		# print "$query\n";
+		$dbh->prepare($query)->execute();
+		%queued_commits = ();
 	}
 }
