@@ -712,7 +712,7 @@ sub flush_queue
 	}
 
 	if($query) {
-		print "$query\n";
+		# print "$query\n";
 		$dbh->prepare($query)->execute();
 		%queued_commits = ();
 	}
