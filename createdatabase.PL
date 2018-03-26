@@ -395,6 +395,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								}
 							}
 						}
+						flush_data();
 					}
 				} elsif($country eq 'ca') {
 					# TODO: remove duplication with the US code
@@ -566,10 +567,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								insert($dbh, \%columns);
 							}
 						}
+						flush_queue($dbh);
 					}
 				}
 			}
-			flush_queue($dbh);
 		}
 		print ' ' x 70, "\r";
 		$dbh->commit();
@@ -650,7 +651,7 @@ sub insert {
 		# print Data::Dumper->new([$href])->Dump();
 	# }
 
-	# All of the file's values are combined into one large INSERT INTO
+	# All of the place's values are combined into one large INSERT INTO
 	$queued_commits{$digest} = $columns;
 
 	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /\s/)) {
@@ -672,7 +673,7 @@ sub insert {
 	}
 }
 
-# All of the file's values are combined into one large INSERT INTO
+# All of the place's values are combined into one INSERT INTO
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
@@ -711,7 +712,7 @@ sub flush_queue
 	}
 
 	if($query) {
-		# print "$query\n";
+		print "$query\n";
 		$dbh->prepare($query)->execute();
 		%queued_commits = ();
 	}
