@@ -395,7 +395,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								}
 							}
 						}
-						flush_data();
+						flush_queue($dbh);
 					}
 				} elsif($country eq 'ca') {
 					# TODO: remove duplication with the US code
