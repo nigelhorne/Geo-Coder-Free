@@ -660,4 +660,32 @@ sub insert {
 
 	# print "$query\n";
 	$dbh->prepare($query)->execute();
+
+	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /\s/)) {
+		my $s = $columns->{'STREET'};	# Should use a 'local' variable I guess
+		$columns->{'STREET'} =~ s/\s+//g;
+		$digest = '';
+		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+			$digest .= $columns->{$column} if($columns->{$column});
+		}
+		$digest = Digest::MD5::md5_base64(Encode::encode_utf8($digest));
+		if($columns->{'STATE'} && ($state_md5s{$digest} || $global_md5s{$digest})) {
+			# print "Ignore ", join(',', values(%{$columns})), "\n";
+			return;
+		}
+		$state_md5s{$digest} = 1;
+		$query = 'INSERT INTO openaddresses(' .
+			join(',', sort keys %{$columns}) .
+			',MD5) VALUES (';
+		foreach my $column(sort keys %{$columns}) {
+			$columns->{$column} =~ s/'/''/g;
+			$query .= "'" . $columns->{$column} . "',";
+		}
+		$query .= "'$digest')";
+
+		# print "$query\n";
+		$dbh->prepare($query)->execute();
+
+		$columns->{'STREET'} = $s;
+	}
 }

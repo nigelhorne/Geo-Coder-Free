@@ -138,11 +138,21 @@ sub geocode {
 	my $street;
 	my $openaddr_db;
 
+	if($location !~ /,/) {
+		if($location =~ /^(.+?)\s+(United States|USA|US)$/i) {
+			my $l = $1;
+			$l =~ s/\s+//g;
+			if(my $rc = $self->_get($l . 'US')) {
+				return $rc;
+			}
+		}
+	}
+
 	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
-		my $foo = $1;
-		$foo =~ s/,/ /g;
-		$foo =~ s/\s\s+/ /g;
-		if(my $href = Geo::StreetAddress::US->parse_address($foo)) {
+		my $l = $1;
+		$l =~ s/,/ /g;
+		$l =~ s/\s\s+/ /g;
+		if(my $href = Geo::StreetAddress::US->parse_address($l)) {
 			$state = $href->{'state'};
 			if(length($state) > 2) {
 				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
