@@ -419,21 +419,19 @@ sub geocode {
 							}
 						}
 						# Not all the database has the county
-						if($second) {
-							if($rc = $self->_get("$first$state" . 'US')) {
+						if($rc = $self->_get("$first$state" . 'US')) {
+							return $rc;
+						}
+						if($OLDCODE) {
+							$rc = $openaddr_db->fetchrow_hashref(
+								city => $first,
+								state => $state,
+								country => 'US'
+							);
+							if($rc && defined($rc->{'lat'})) {
+								$rc->{'latitude'} = $rc->{'lat'};
+								$rc->{'longitude'} = $rc->{'lon'};
 								return $rc;
-							}
-							if($OLDCODE) {
-								$rc = $openaddr_db->fetchrow_hashref(
-									city => $first,
-									state => $state,
-									country => 'US'
-								);
-								if($rc && defined($rc->{'lat'})) {
-									$rc->{'latitude'} = $rc->{'lat'};
-									$rc->{'longitude'} = $rc->{'lon'};
-									return $rc;
-								}
 							}
 						}
 					}
