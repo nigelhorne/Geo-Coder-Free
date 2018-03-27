@@ -12,7 +12,7 @@ eval 'use warnings::unused -global';
 if($@ || ($warnings::unused::VERSION < 0.04)) {
 	plan(skip_all => 'warnings::unused >= 0.04 needed for testing');
 } else {
-	use_ok('CGI::Info');
-	new_ok('CGI::Info');
+	use_ok('Geo::Coder::Free');
+	new_ok('Geo::Coder::Free');
 	plan tests => 2;
 }
