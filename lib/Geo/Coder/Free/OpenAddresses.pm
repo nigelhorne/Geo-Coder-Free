@@ -146,7 +146,39 @@ sub geocode {
 	my $openaddr_db;
 
 	if($libpostal_is_installed) {
-		my %href = parse_address($location);
+		if(my %addr = Geo::libpostal::parse_address($location)) {
+			# print Data::Dumper->new([\%addr])->Dump();
+			if($addr{'country'} && ($addr{'country'} =~ /^(United States|USA|US)$/i)) {
+				my $l;
+				if(my $street = $addr{'road'}) {
+					$street = uc($street);
+					if($street =~ /(.+)\s+STREET$/) {
+						$street = "$1 ST";
+					} elsif($street =~ /(.+)\s+ROAD$/) {
+						$street = "$1 RD";
+					} elsif($street =~ /(.+)\s+AVENUE$/) {
+						$street = "$1 AVE";
+					} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
+						$street = "$1 AVE $2";
+					} elsif($street =~ /(.+)\s+CT$/) {
+						$street = "$1 COURT";
+					} elsif($street =~ /(.+)\s+CIRCLE$/) {
+						$street = "$1 CIR";
+					}
+					$street =~ s/^0+//;	# Turn 04th St into 4th St
+					$addr{'road'} = $street;
+				}
+				foreach my $column('house_number', 'road', 'city', 'state') {
+					if($addr{$column}) {
+						$l .= $addr{$column};
+					}
+				}
+				if(my $rc = $self->_get($l . 'US')) {
+					# print Data::Dumper->new([$rc])->Dump();
+					return $rc;
+				}
+			}
+		}
 	}
 
 	if($location !~ /,/) {
