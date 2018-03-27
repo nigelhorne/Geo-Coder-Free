@@ -112,7 +112,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 		if(-r $filename) {
 			# Import counties and states from https://github.com/openaddresses/openaddresses/tree/master/us-data
+			$| = 1;
 			printf "%-70s\r", $filename;
+			$| = 0;
 			my %state_fips;
 
 			my @data = @{xsv_slurp(
@@ -146,7 +148,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
+			$| = 1;
 			printf "%-70s\r", $filename;
+			$| = 0;
 
 			@data = @{xsv_slurp(
 				shape => 'aoh',
@@ -577,11 +581,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 		flush_queue($dbh);
+		$| = 1;
 		printf "%-70s\r", 'creating index';
+		$| = 0;
 		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(MD5)')->execute();
-		print ' ' x 70, "\r";
+		$| = 1;
+		printf "%-70s\r", 'committing';
+		$| = 0;
 		$dbh->commit();
 		$dbh->disconnect();
+		print ' ' x 70, "\r";
 	}
 
 	# TODO:  Import the Maxmind databases
