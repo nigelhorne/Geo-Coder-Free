@@ -180,7 +180,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			# next unless($csv_file =~ /us\/md\/frederick/);
+			# next unless($csv_file =~ /us\/md\/statewide/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -654,7 +654,8 @@ sub insert {
 	# All of the place's values are combined into one large INSERT INTO
 	$queued_commits{$digest} = $columns;
 
-	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /\s/)) {
+	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /\s\w+\s/)) {
+		# Handle https://rt.cpan.org/Public/Bug/Display.html?id=124919
 		my $s = $columns->{'STREET'};	# Should use a 'local' variable I guess
 		$columns->{'STREET'} =~ s/\s+//g;
 		$digest = '';
