@@ -26,6 +26,13 @@ my %known_locations = (
 	},
 );
 
+our $libpostal_is_installed = 0;
+
+if(eval { require Geo::libpostal; } ) {
+	Geo::libpostal->import();
+	$libpostal_is_installed = 1;
+}
+
 =head1 NAME
 
 Geo::Coder::Free::OpenAddresses - Provides a geocoding functionality to the data from openaddresses.io
@@ -137,6 +144,10 @@ sub geocode {
 	my $country;
 	my $street;
 	my $openaddr_db;
+
+	if($libpostal_is_installed) {
+		my %href = parse_address($location);
+	}
 
 	if($location !~ /,/) {
 		if($location =~ /^(.+?)\s+(United States|USA|US)$/i) {

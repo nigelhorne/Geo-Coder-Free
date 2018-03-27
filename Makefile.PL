@@ -2,6 +2,13 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
 
+if(eval { require Geo::libpostal; }) {
+	my $v = Geo::libpostal->VERSION;
+	print "You have Geo::libpostal version $v installed, so Geo-Coder-Free can work better\n";
+} else {
+	print "Consider installing Geo::libpostal for improved parsing\n";
+}
+
 WriteMakefile(
 	NAME		=> 'Geo::Coder::Free',
 	AUTHOR		=> q{Nigel Horne <njh@bandsman.co.uk>},
