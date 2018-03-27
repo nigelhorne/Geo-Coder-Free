@@ -13,6 +13,8 @@ use Locale::US;
 use Digest::MD5;
 use Encode;
 
+use	constant	MAX_INSERT_COUNT => 50;	# Maximum number of CSV rows to insert in a single statement
+
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
 	'04410' => { city => 'Bradford', county => 'Penobscot' },
@@ -94,6 +96,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	if(!-r $sqlite_file) {
 		my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
 		$dbh->do('PRAGMA cache_size = 65536');
+		$dbh->do('PRAGMA journal_mode = OFF');
 		if(!-d $oa) {
 			mkdir $oa;
 		}
@@ -101,9 +104,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(32), lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -231,6 +233,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							file => $csv_file
 						)};
 					}
+					my $rows_count = scalar(@data);
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
@@ -395,7 +398,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								}
 							}
 						}
-						flush_queue($dbh);
+						flush_queue($dbh) if($rows_count > MAX_INSERT_COUNT);
 					}
 				} elsif($country eq 'ca') {
 					# TODO: remove duplication with the US code
@@ -411,6 +414,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						},
 						file => $csv_file
 					)};
+					my $rows_count = scalar(@data);
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
@@ -567,11 +571,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								insert($dbh, \%columns);
 							}
 						}
-						flush_queue($dbh);
+						flush_queue($dbh) if($rows_count > MAX_INSERT_COUNT);
 					}
 				}
 			}
 		}
+		flush_queue($dbh);
+		printf "%-70s\r", 'creating index';
+		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(MD5)')->execute();
 		print ' ' x 70, "\r";
 		$dbh->commit();
 		$dbh->disconnect();
@@ -654,9 +661,10 @@ sub insert {
 	# All of the place's values are combined into one large INSERT INTO
 	$queued_commits{$digest} = $columns;
 
-	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /\s\w+\s/)) {
+	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /^[A-Z]\s\w+\s\w+$/)) {
 		# Handle https://rt.cpan.org/Public/Bug/Display.html?id=124919
 		my $s = $columns->{'STREET'};	# Should use a 'local' variable I guess
+
 		$columns->{'STREET'} =~ s/\s+//g;
 		$digest = '';
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
