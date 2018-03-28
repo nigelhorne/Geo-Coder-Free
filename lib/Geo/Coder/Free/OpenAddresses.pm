@@ -148,7 +148,7 @@ sub geocode {
 	if($libpostal_is_installed) {
 		if(my %addr = Geo::libpostal::parse_address($location)) {
 			# print Data::Dumper->new([\%addr])->Dump();
-			if($addr{'country'} && ($addr{'country'} =~ /^(United States|USA|US)$/i)) {
+			if($addr{'country'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
 				my $l;
 				if(my $street = $addr{'road'}) {
 					$street = uc($street);
@@ -168,12 +168,27 @@ sub geocode {
 					$street =~ s/^0+//;	# Turn 04th St into 4th St
 					$addr{'road'} = $street;
 				}
-				foreach my $column('house_number', 'road', 'city', 'state') {
+				if($addr{'country'} =~ /Canada/i) {
+					$addr{'country'} = 'CA';
+					if(length($addr{'state'}) > 2) {
+						if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
+							$addr{'state'} = $twoletterstate;
+						}
+					}
+				} else {
+					$addr{'country'} = 'US';
+					if(length($addr{'state'}) > 2) {
+						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
+							$addr{'state'} = $twoletterstate;
+						}
+					}
+				}
+				foreach my $column('house_number', 'road', 'city', 'state', 'country') {
 					if($addr{$column}) {
 						$l .= $addr{$column};
 					}
 				}
-				if(my $rc = $self->_get($l . 'US')) {
+				if(my $rc = $self->_get($l)) {
 					# print Data::Dumper->new([$rc])->Dump();
 					return $rc;
 				}

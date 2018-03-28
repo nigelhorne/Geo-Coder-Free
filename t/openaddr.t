@@ -61,8 +61,8 @@ OPENADDR: {
 			$location = $geocoder->geocode(location => 'Greene County, Indiana, USA');
 			ok(defined($location));
 			ok(ref($location) eq 'HASH');
-			delta_within($location->{latitude}, 39.06, 1e-2);
-			delta_within($location->{longitude}, -87.04, 1e-2);
+			delta_within($location->{latitude}, 40.07, 1e-2);
+			delta_within($location->{longitude}, -86.27, 1e-2);
 
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));
