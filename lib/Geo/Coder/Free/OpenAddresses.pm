@@ -913,6 +913,8 @@ sub _normalize {
 		return 'CIR';
 	} elsif(($type eq 'FT') || ($type eq 'FORT')) {
 		return 'FORT';
+	} elsif(($type eq 'CTR') || ($type eq 'CENTER')) {
+		return 'CENTER';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';
 	}
