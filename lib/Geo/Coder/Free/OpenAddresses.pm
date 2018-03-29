@@ -29,11 +29,6 @@ my %known_locations = (
 
 our $libpostal_is_installed = 0;
 
-if(eval { require Geo::libpostal; } ) {
-	Geo::libpostal->import();
-	$libpostal_is_installed = 1;
-}
-
 =head1 NAME
 
 Geo::Coder::Free::OpenAddresses - Provides a geocoding functionality to the data from openaddresses.io
@@ -87,6 +82,11 @@ sub new {
 
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
+
+	if(eval { require Geo::libpostal; } ) {
+		Geo::libpostal->import();
+		$libpostal_is_installed = 1;
+	}
 
 	if(my $openaddr = $param{'openaddr'}) {
 		Carp::carp "Can't find the directory $openaddr"
@@ -146,6 +146,56 @@ sub geocode {
 	my $street;
 	my $openaddr_db;
 
+	if($location !~ /,/) {
+		if($location =~ /^(.+?)\s+(United States|USA|US)$/i) {
+			my $l = $1;
+			$l =~ s/\s+//g;
+			if(my $rc = $self->_get($l . 'US')) {
+				return $rc;
+			}
+		}
+	}
+
+	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+		my $l = $1;
+		$l =~ s/,/ /g;
+		$l =~ s/\s\s+/ /g;
+		if(my $href = Geo::StreetAddress::US->parse_address($l)) {
+			$state = $href->{'state'};
+			if(length($state) > 2) {
+				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					$state = $twoletterstate;
+				}
+			}
+			my $city;
+			if($href->{city}) {
+				$city = uc($href->{city});
+			}
+			if($street = $href->{street}) {
+				if(my $type = $self->_normalize($href->{'type'})) {
+					$street .= " $type";
+				}
+				if($href->{suffix}) {
+					$street .= ' ' . $href->{suffix};
+				}
+			}
+			if($street) {
+				if(my $prefix = $href->{prefix}) {
+					$street = "$prefix $street";
+				}
+				my $rc;
+				if($href->{'number'}) {
+					if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
+						return $rc;
+					}
+				}
+				if($rc = $self->_get("$street$city$state" . 'US')) {
+					return $rc;
+				}
+			}
+		}
+	}
+
 	if($libpostal_is_installed) {
 		if(my %addr = Geo::libpostal::parse_address($location)) {
 			# print Data::Dumper->new([\%addr])->Dump();
@@ -199,56 +249,6 @@ sub geocode {
 					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 						return $rc;
 					}
-				}
-			}
-		}
-	}
-
-	if($location !~ /,/) {
-		if($location =~ /^(.+?)\s+(United States|USA|US)$/i) {
-			my $l = $1;
-			$l =~ s/\s+//g;
-			if(my $rc = $self->_get($l . 'US')) {
-				return $rc;
-			}
-		}
-	}
-
-	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
-		my $l = $1;
-		$l =~ s/,/ /g;
-		$l =~ s/\s\s+/ /g;
-		if(my $href = Geo::StreetAddress::US->parse_address($l)) {
-			$state = $href->{'state'};
-			if(length($state) > 2) {
-				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-					$state = $twoletterstate;
-				}
-			}
-			my $city;
-			if($href->{city}) {
-				$city = uc($href->{city});
-			}
-			if($street = $href->{street}) {
-				if(my $type = $self->_normalize($href->{'type'})) {
-					$street .= " $type";
-				}
-				if($href->{suffix}) {
-					$street .= ' ' . $href->{suffix};
-				}
-			}
-			if($street) {
-				if(my $prefix = $href->{prefix}) {
-					$street = "$prefix $street";
-				}
-				my $rc;
-				if($href->{'number'}) {
-					if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
-						return $rc;
-					}
-				}
-				if($rc = $self->_get("$street$city$state" . 'US')) {
-					return $rc;
 				}
 			}
 		}
