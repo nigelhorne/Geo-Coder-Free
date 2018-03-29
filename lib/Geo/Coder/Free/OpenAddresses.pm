@@ -161,6 +161,7 @@ sub geocode {
 		$l =~ s/,/ /g;
 		$l =~ s/\s\s+/ /g;
 		if(my $href = Geo::StreetAddress::US->parse_address($l)) {
+			# print Data::Dumper->new([$href])->Dump();
 			$state = $href->{'state'};
 			if(length($state) > 2) {
 				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
@@ -642,6 +643,28 @@ sub geocode {
 					warn "Can't yet parse Canadian location '$location'";
 				}
 			}
+		}
+	} elsif($location =~ /([a-z\s]+),?\s*(United States|USA|US|Canada)$/i) {
+		# Looking for a state/province in Canada or the US
+		my $state = $1;
+		my $country = $2;
+		if($country =~ /Canada/i) {
+			$country = 'CA';
+			if(length($state) > 2) {
+				if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+					$state = $twoletterstate;
+				}
+			}
+		} else {
+			$country = 'US';
+			if(length($state) > 2) {
+				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					$state = $twoletterstate;
+				}
+			}
+		}
+		if(my $rc = $self->_get("$state$country")) {
+			return $rc;
 		}
 	}
 

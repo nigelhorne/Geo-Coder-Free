@@ -138,11 +138,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
-					"'" . $row->{'Latitude'} . "'," .
-					"'" . $row->{'Longitude'} . "'," .
+					$row->{'Latitude'} . ',' .
+					$row->{'Longitude'} . ',' .
 					"'$state','US')";
 				$dbh->prepare($query)->execute();
-				# print "$query\n";
+				print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
 				$global_md5s{$digest} = 1;
 			}

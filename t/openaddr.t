@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 76;
+use Test::Most tests => 78;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -166,6 +166,10 @@ OPENADDR: {
 			delta_within($location->{latitude}, 37.778907, 1e-2);
 			delta_within($location->{longitude}, -122.39760, 1e-2);
 
+			$location = $geocoder->geocode('Wisconsin, USA');
+			delta_within($location->{latitude}, 44.19, 1e-2);
+			delta_within($location->{longitude}, -89.57, 1e-2);
+
 			$location = $geocoder->geocode('At sea or abroad');
 			ok(!defined($location));
 
@@ -192,7 +196,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 75;
+			skip 'OPENADDR_HOME not defined', 77;
 		}
 	}
 }
