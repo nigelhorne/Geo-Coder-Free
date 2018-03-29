@@ -182,50 +182,22 @@ sub geocode {
 						}
 					}
 				}
-				# TODO: paramerize and turn in to a function
-				my $l;
-				if($addr{'state_district'}) {
-					foreach my $column('house_number', 'road', 'city', 'state_district', 'state', 'country') {
-						if($addr{$column}) {
-							$l .= $addr{$column};
-						}
-					}
-					if(my $rc = $self->_get($l)) {
-						# print Data::Dumper->new([$rc])->Dump();
-						return $rc;
-					}
-					$l = undef;
-					foreach my $column('road', 'city', 'state_district', 'state', 'country') {
-						if($addr{$column}) {
-							$l .= $addr{$column};
-						}
-					}
-					if(my $rc = $self->_get($l)) {
-						# print Data::Dumper->new([$rc])->Dump();
-						return $rc;
-					}
-				}
-				if($addr{'house_number'}) {
-					$l = undef;
-					foreach my $column('house_number', 'road', 'city', 'state', 'country') {
-						if($addr{$column}) {
-							$l .= $addr{$column};
-						}
-					}
-					if(my $rc = $self->_get($l)) {
-						# print Data::Dumper->new([$rc])->Dump();
-						return $rc;
-					}
-				}
-				$l = undef;
-				foreach my $column('road', 'city', 'state', 'country') {
-					if($addr{$column}) {
-						$l .= $addr{$column};
-					}
-				}
-				if(my $rc = $self->_get($l)) {
-					# print Data::Dumper->new([$rc])->Dump();
+				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
 					return $rc;
+				}
+				if($addr{'state_district'}) {
+					if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+						return $rc;
+					}
+					if($addr{'house_number'}) {
+						if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+							return $rc;
+						}
+					}
+				} elsif($addr{'house_number'}) {
+					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+						return $rc;
+					}
 				}
 			}
 		}
@@ -919,6 +891,20 @@ sub geocode {
 	} else {
 		$openaddr_db = Geo::Coder::Free::DB::OpenAddr->new(directory => $countrydir);
 		die $param{location};
+	}
+}
+
+sub _search {
+	my ($self, $data, @columns) = @_;
+
+	my $location;
+	foreach my $column(@columns) {
+		if($data->{$column}) {
+			$location .= $data->{$column};
+		}
+	}
+	if($location) {
+		return $self->_get($location);
 	}
 }
 
