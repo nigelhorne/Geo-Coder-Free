@@ -1,4 +1,5 @@
 bin/createdatabase
+bin/testcgibin
 cgi-bin/page.fcgi
 Changes
 conf/ncbimac2024
@@ -22,6 +23,7 @@ lib/Geo/Coder/Free/MaxMind.pm
 lib/Geo/Coder/Free/MaxMind/databases/admin1.db
 lib/Geo/Coder/Free/MaxMind/databases/admin2.db
 lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz
+lib/Geo/Coder/Free/MaxMind/databases/MAXMIND.LICENCE
 lib/Geo/Coder/Free/OpenAddresses.pm
 lib/Geo/Coder/Free/OpenAddresses/databases/codes.txt
 lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt
