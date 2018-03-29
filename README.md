@@ -10,7 +10,7 @@ Provides a geocoding functionality using free databases
 
 # VERSION
 
-Version 0.05
+Version 0.06
 
 # SYNOPSIS
 
@@ -39,7 +39,7 @@ The cgi-bin directory contains a simple DIY geocoding website:
     $geocoder = Geo::Coder::Free->new();
 
 Takes one optional parameter, openaddr, which is the base directory of
-the OpenAddresses data downloaded from http://results.openaddresses.io.
+the OpenAddresses data downloaded from [http://results.openaddresses.io](http://results.openaddresses.io).
 
 Takes one optional parameter, directory,
 which tells the library where to find the MaxMind and GeoNames files admin1db, admin2.db and cities.\[sql|csv.gz\].
@@ -77,7 +77,7 @@ it under the same terms as Perl itself.
 
 Lots of lookups fail at the moment.
 
-The openaddresses.io code has yet to be compeleted.
+The openaddresses.io code has yet to be completed.
 There are die()s where the code path has yet to be written.
 
 The MaxMind data only contains cities.
@@ -85,9 +85,8 @@ The openaddresses data doesn't cover the globe.
 
 Can't parse and handle "London, England".
 
-Openaddresses look up is slow.
-See [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo::Coder::Free::OpenAddresses) for instructions on improving the speed by
-storing the data in an SQLite database.
+See [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo::Coder::Free::OpenAddresses) for instructions creating its SQLite database from
+[http://results.openaddresses.io/](http://results.openaddresses.io/).
 
 # SEE ALSO
 
@@ -102,4 +101,4 @@ All other users (including Commercial, Charity, Educational, Government)
 must apply in writing for a licence for use from Nigel Horne at \`&lt;njh at nigelhorne.com>\`.
 
 This product includes GeoLite2 data created by MaxMind, available from
-http://www.maxmind.com
+[http://www.maxmind.com](http://www.maxmind.com).

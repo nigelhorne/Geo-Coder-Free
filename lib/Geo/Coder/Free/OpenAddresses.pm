@@ -65,7 +65,7 @@ To install:
 1. download the data from http://results.openaddresses.io/. You will find licencing information on that page.
 2. unzip the data into a directory.
 3. point the environment variable OPENADDR_HOME to that directory and save in the profile of your choice.
-4. run the createdatabases.PL script which imports the data into an SQLite datebase.  This process will take some time.
+4. run the createdatabases.PL script which imports the data into an SQLite database.  This process will take some time.
 
 =head1 METHODS
 

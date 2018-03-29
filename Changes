@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.06
+0.06	Thu Mar 29 09:12:56 EDT 2018
 	Fix Github issue 14
 	Updated to latest MaxMind databases
 	Started support for a local copy of results.openaddresses.io
