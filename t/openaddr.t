@@ -62,21 +62,8 @@ OPENADDR: {
 			ok(defined($location));
 			ok(ref($location) eq 'HASH');
 
-			my $libpostal_is_installed = 0;
-
-			if(eval { require Geo::libpostal; } ) {
-				Geo::libpostal->import();
-				$libpostal_is_installed = 1;
-			}
-
-			# FIXME: investigate why these results are different
-			if($libpostal_is_installed) {
-				delta_within($location->{latitude}, 40.07, 1e-2);
-				delta_within($location->{longitude}, -86.27, 1e-2);
-			} else {
-				delta_within($location->{latitude}, 39.05, 1e-2);
-				delta_within($location->{longitude}, -87.04, 1e-2);
-			}
+			delta_within($location->{latitude}, 39.05, 1e-2);
+			delta_within($location->{longitude}, -87.04, 1e-2);
 
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));

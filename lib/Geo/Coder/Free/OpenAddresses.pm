@@ -148,8 +148,7 @@ sub geocode {
 	if($libpostal_is_installed) {
 		if(my %addr = Geo::libpostal::parse_address($location)) {
 			# print Data::Dumper->new([\%addr])->Dump();
-			if($addr{'country'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
-				my $l;
+			if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
 				if(my $street = $addr{'road'}) {
 					$street = uc($street);
 					if($street =~ /(.+)\s+STREET$/) {
@@ -183,7 +182,43 @@ sub geocode {
 						}
 					}
 				}
-				foreach my $column('house_number', 'road', 'city', 'state', 'country') {
+				# TODO: paramerize and turn in to a function
+				my $l;
+				if($addr{'state_district'}) {
+					foreach my $column('house_number', 'road', 'city', 'state_district', 'state', 'country') {
+						if($addr{$column}) {
+							$l .= $addr{$column};
+						}
+					}
+					if(my $rc = $self->_get($l)) {
+						# print Data::Dumper->new([$rc])->Dump();
+						return $rc;
+					}
+					$l = undef;
+					foreach my $column('road', 'city', 'state_district', 'state', 'country') {
+						if($addr{$column}) {
+							$l .= $addr{$column};
+						}
+					}
+					if(my $rc = $self->_get($l)) {
+						# print Data::Dumper->new([$rc])->Dump();
+						return $rc;
+					}
+				}
+				if($addr{'house_number'}) {
+					$l = undef;
+					foreach my $column('house_number', 'road', 'city', 'state', 'country') {
+						if($addr{$column}) {
+							$l .= $addr{$column};
+						}
+					}
+					if(my $rc = $self->_get($l)) {
+						# print Data::Dumper->new([$rc])->Dump();
+						return $rc;
+					}
+				}
+				$l = undef;
+				foreach my $column('road', 'city', 'state', 'country') {
 					if($addr{$column}) {
 						$l .= $addr{$column};
 					}
@@ -898,6 +933,7 @@ sub _get {
 			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 		);
 	$self->{openaddr_db} = $openaddr_db;
+	# print "$location: $digest\n";
 	# ::diag("$location: $digest");
 	# my @call_details = caller(0);
 	# print "line " . $call_details[2], "\n";
