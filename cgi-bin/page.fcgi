@@ -258,7 +258,7 @@ sub doit
 
 	$geocoder ||= Geo::Coder::Free->new(
 		openaddr => $config->OPENADDR_HOME(),
-		cache => create_disc_cache(config => $config, logger => $logger, namespace => $script_name, root_dir => $cachedir)
+		cache => create_memory_cache(config => $config, logger => $logger, namespace => $script_name, root_dir => $cachedir)
 	);
 
 	my $display;

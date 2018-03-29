@@ -1,5 +1,9 @@
 Revision history for Geo-Coder-Free
 
+0.07
+	Stash results in cache, workaround for very slow libpostal load
+		(minutes!!) on scaleway machines
+
 0.06	Thu Mar 29 09:12:56 EDT 2018
 	Fix Github issue 14
 	Updated to latest MaxMind databases

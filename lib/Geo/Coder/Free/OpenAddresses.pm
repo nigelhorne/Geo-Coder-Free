@@ -16,6 +16,7 @@ use Locale::Country;
 use Geo::StreetAddress::US;
 use Digest::MD5;
 use Encode;
+use Storable;
 
 #  Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
@@ -913,6 +914,11 @@ sub _get {
 
 	$location =~ s/,\s*//g;
 	my $digest = Digest::MD5::md5_base64(uc($location));
+	if(my $cache = $self->{'cache'}) {
+		if(my $rc = $cache->get_object($digest)) {
+			return Storable::thaw($rc->value());
+		}
+	}
 	my $openaddr_db = $self->{openaddr_db} ||
 		Geo::Coder::Free::DB::openaddresses->new(
 			directory => $self->{openaddr},
@@ -929,6 +935,10 @@ sub _get {
 		$rc->{'latitude'} = delete $rc->{'lat'};
 		$rc->{'longitude'} = delete $rc->{'lon'};
 		# ::diag(Data::Dumper->new([\$rc])->Dump());
+		if(my $cache = $self->{'cache'}) {
+			$cache->set($digest, Storable::freeze($rc), '1 week');
+		}
+			
 		return $rc;
 	}
 }
