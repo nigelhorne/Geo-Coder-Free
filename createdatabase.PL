@@ -77,6 +77,8 @@ my %global_md5s;
 my %state_md5s;
 my %queued_commits;
 
+exit(0) if($ENV{'AUTOMATED_TESTING'});
+
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
 		or warn "Can't create the SQLite database - expect poor performance";
