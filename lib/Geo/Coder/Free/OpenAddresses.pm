@@ -258,8 +258,8 @@ sub geocode {
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;
 		$state = $2;
-		$state =~ s/\s$//g;
 		$country = $3;
+		$state =~ s/\s$//g;
 		$country =~ s/\s$//g;
 		$openaddr_db = $self->{openaddr_db} ||
 			Geo::Coder::Free::DB::openaddresses->new(
