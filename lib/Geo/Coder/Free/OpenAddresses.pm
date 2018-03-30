@@ -146,6 +146,8 @@ sub geocode {
 	my $street;
 	my $openaddr_db;
 
+	$location =~ s/\.//g;
+
 	if($location !~ /,/) {
 		if($location =~ /^(.+?)\s+(United States|USA|US)$/i) {
 			my $l = $1;

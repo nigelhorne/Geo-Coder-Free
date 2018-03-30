@@ -311,9 +311,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						$city =~ s/\.csv$//;
-						$city = uc($city);
 						$city =~ s/_/ /g;
 						$city =~ s/\-/ /g;
+						$city =~ s/\./ /g;
+						$city = uc($city);
 						$city =~ s/\s+BORO$//;
 						$city =~ s/\s+TWP$//;
 						$city =~ s/^TOWN\s+OF\s+//;
@@ -374,6 +375,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$county = 'ALLEN';
 							} elsif(defined($county) && ($county eq 'LAPORTE')) {
 								$county = 'LA PORTE';
+							}
+						} elsif($state eq 'MO') {
+							if(defined($city) && ($city eq 'SAINT LOUIS')) {
+								$city = 'ST. LOUIS';
+								$county = undef;
 							}
 						}
 						if(($city && ($city !~ /^\s+$/)) || $county) {
@@ -492,9 +498,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						$city =~ s/\.csv$//;
-						$city = uc($city);
 						$city =~ s/_/ /g;
 						$city =~ s/\-/ /g;
+						$city =~ s/\./ /g;
+						$city = uc($city);
 						$city =~ s/\s+BORO$//;
 						$city =~ s/\s+TWP$//;
 						$city =~ s/^TOWN\s+OF\s+//;
