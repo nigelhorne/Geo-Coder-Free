@@ -4,6 +4,7 @@ Revision history for Geo-Coder-Free
 	Stash results in cache, workaround for very slow libpostal load
 		(minutes!!) on scaleway machines
 	Fix search for just state/province
+	Added the run method
 
 0.06	Thu Mar 29 09:12:56 EDT 2018
 	Fix Github issue 14

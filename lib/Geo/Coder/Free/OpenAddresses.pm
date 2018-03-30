@@ -985,6 +985,8 @@ sub _normalize {
 		return 'FORT';
 	} elsif(($type eq 'CTR') || ($type eq 'CENTER')) {
 		return 'CENTER';
+	} elsif($type eq 'BLVD') {
+		return 'BLVD';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';
 	}

@@ -122,6 +122,35 @@ Does nothing, here for compatibility with other geocoders
 sub ua {
 }
 
+=head2 run
+
+You can also run this module from the command line:
+
+    perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
+
+=cut
+
+__PACKAGE__->run(@ARGV) unless caller();
+
+sub run {
+	require Data::Dumper;
+
+	my $class = shift;
+
+	my $location = join(' ', @_);
+
+	my @rc;
+	if($ENV{'OPENADDR_HOME'}) {
+		@rc = $class->new(openaddr => $ENV{'OPENADDR_HOME'})->geocode($location);
+	} else {
+		@rc = $class->new()->geocode($location);
+	}
+
+	die "$0: geocoding failed" unless(scalar(@rc));
+
+	print Data::Dumper->new([\@rc])->Dump();
+}
+
 =head1 AUTHOR
 
 Nigel Horne <njh@bandsman.co.uk>
