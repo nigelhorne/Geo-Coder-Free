@@ -144,7 +144,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$row->{'Longitude'} . ',' .
 					"'$state','US')";
 				$dbh->prepare($query)->execute();
-				print "$query\n";
+				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
 				$global_md5s{$digest} = 1;
 			}
