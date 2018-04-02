@@ -95,8 +95,8 @@ sub new {
 
     $location = $geocoder->geocode(location => $location);
 
-    print 'Latitude: ', $location->{'latt'}, "\n";
-    print 'Longitude: ', $location->{'longt'}, "\n";
+    print 'Latitude: ', $location->{'latitude'}, "\n";
+    print 'Longitude: ', $location->{'longitude'}, "\n";
 
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
