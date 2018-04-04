@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
@@ -7,6 +9,31 @@ if(eval { require Geo::libpostal; }) {
 	print "You have Geo::libpostal version $v installed, so Geo-Coder-Free can work better\n";
 } else {
 	print "Consider installing Geo::libpostal for improved parsing\n";
+}
+
+unless(eval { require File::Fetch; }) {
+	die 'Install File::Fetch first';
+}
+
+File::Fetch->import();
+my %urls = (
+	'http://download.geonames.org/export/dump/admin1CodesASCII.txt' => 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db',
+	'http://download.geonames.org/export/dump/admin2Codes.txt' => 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db',
+);
+
+foreach my $url(keys %urls) {
+	next if(-r $urls{$url});
+	my $ff = File::Fetch->new(uri => $url);
+	if(my $path = $ff->fetch($url)) {
+		rename $path, $urls{$url};
+	} else {
+		die $ff->error();
+	}
+}
+
+if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
+	print $admin2 "GB.ENG.E7\tLondon\tLondon\t2648110\n",
+		"GB.ENG.H1\tLondon\tLondon\t2648110\n";
 }
 
 WriteMakefile(
