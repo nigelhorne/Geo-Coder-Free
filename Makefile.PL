@@ -48,7 +48,6 @@ WriteMakefile(
 	BUILD_REQUIRES => {	# For bin/createdatabase
 		'App::csv2sqlite' => 0,
 		'File::Copy' => 0,
-		'DBD::SQLite' => 0,
 		'autodie' => 0,
 		'IPC::System::Simple' => 0,
 		'JSON' => 0,
@@ -65,6 +64,7 @@ WriteMakefile(
 		'Digest::MD5' => 0,
 		'File::pfopen' => '0.02',
 		'DBD::CSV' => 0,
+		'DBD::SQLite' => 0,
 		'Encode' => 0,
 		'Locale::Country' => 0,
 		'Locale::CA' => 0,
