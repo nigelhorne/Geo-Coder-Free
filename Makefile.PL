@@ -40,7 +40,7 @@ WriteMakefile(
 	NAME		=> 'Geo::Coder::Free',
 	AUTHOR		=> q{Nigel Horne <njh@bandsman.co.uk>},
 	VERSION_FROM	=> 'lib/Geo/Coder/Free.pm',
-	ABSTRACT_FROM	   => 'lib/Geo/Coder/Free.pm',
+	ABSTRACT_FROM   => 'lib/Geo/Coder/Free.pm',
 	((defined($ExtUtils::MakeMaker::VERSION) &&
 	 ($ExtUtils::MakeMaker::VERSION >= 6.3002))
 	  ? ('LICENSE'=> 'GPL')
