@@ -716,7 +716,7 @@ sub flush_queue
 			$query = 'INSERT INTO openaddresses(';
 			foreach my $column(@columns) {
 				$query .= "$column,";
-			};
+			}
 			$query .= 'MD5) VALUES (';
 		} else {
 			$query .= ',(';
