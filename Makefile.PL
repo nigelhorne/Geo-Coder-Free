@@ -27,8 +27,10 @@ foreach my $url(keys %urls) {
 	my $ff = File::Fetch->new(uri => $url);
 	if(my $path = $ff->fetch($url)) {
 		rename $path, $urls{$url};
+	} elsif(my $err = $ff->error(1)) {
+		die $err;
 	} else {
-		die $ff->error();
+		die "There was a problem downloading $url";
 	}
 }
 
