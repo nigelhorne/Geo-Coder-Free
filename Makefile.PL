@@ -24,6 +24,7 @@ my %urls = (
 
 foreach my $url(keys %urls) {
 	next if(-r $urls{$url});
+	print "Downloading $url\n";
 	my $ff = File::Fetch->new(uri => $url);
 	if(my $path = $ff->fetch($url)) {
 		rename $path, $urls{$url};
