@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
+use version;
 
 if(eval { require Geo::libpostal; }) {
 	my $v = Geo::libpostal->VERSION;
@@ -12,7 +13,11 @@ if(eval { require Geo::libpostal; }) {
 }
 
 unless(eval { require File::Fetch; }) {
-	die 'Install File::Fetch first';
+	die 'Install File::Fetch >= 0.56 first';
+}
+
+if(version->parse($File::Fetch::VERSION) < 0.56) {
+	die 'Install File::Fetch >= 0.56 first';
 }
 
 File::Fetch->import();
