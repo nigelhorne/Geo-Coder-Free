@@ -33,6 +33,7 @@ before_install:
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
+  - cpanm -n File::Fetch~0.56 version
   - build-dist
   - cd $BUILD_DIR
 

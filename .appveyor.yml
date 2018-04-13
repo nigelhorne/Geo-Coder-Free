@@ -8,7 +8,6 @@ install:
   - perl -V
   - cpan App::cpanminus
   - cpanm -q -n File::Fetch~0.56 version
-  - cpanm -q --showdeps --with-develop --with-suggests .
   - cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
   - 'echo End install at: & time /t'
 
