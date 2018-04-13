@@ -20,7 +20,7 @@ before_install:
 
 install:
   - sudo apt-get update -q
-  - apt-get install sqlite3
+  - apt-get install sqlite3 libdbi-perl libdbd-csv-perl liblocale-us-perl libdbd-sqlite3-perl libchi-perl
   - cpanm -v --installdeps --notest .
 
 script:
