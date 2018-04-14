@@ -7,7 +7,9 @@ install:
   - set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
   - perl -V
   - cpan App::cpanminus
+  - cpanm -q -n File::Fetch~0.56 version
   - cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
+  - choco install sqlite
   - 'echo End install at: & time /t'
 
 build_script:
