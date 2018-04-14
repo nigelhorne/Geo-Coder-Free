@@ -205,7 +205,7 @@ sub geocode {
 		if(my %addr = Geo::libpostal::parse_address($location)) {
 			# print Data::Dumper->new([\%addr])->Dump();
 			if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
-				if(my $street = $addr{'road'}) {
+				if($street = $addr{'road'}) {
 					$street = uc($street);
 					if($street =~ /(.+)\s+STREET$/) {
 						$street = "$1 ST";
@@ -650,8 +650,8 @@ sub geocode {
 		}
 	} elsif($location =~ /([a-z\s]+),?\s*(United States|USA|US|Canada)$/i) {
 		# Looking for a state/province in Canada or the US
-		my $state = $1;
-		my $country = $2;
+		$state = $1;
+		$country = $2;
 		if($country =~ /Canada/i) {
 			$country = 'CA';
 			if(length($state) > 2) {
