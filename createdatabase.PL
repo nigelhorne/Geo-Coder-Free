@@ -243,30 +243,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
-						if(defined($city) && ($file !~ /^statewide/)) {
+						if($file !~ /^statewide/) {
 							if($file =~ /^city_of_(.+).csv$/) {
 								$city = $1;
 							} elsif($file =~ /^town_of_(.+).csv$/) {
 								$city = $1;
 							} elsif($file =~ /^(.+)_borough.csv$/) {
 								$city = $1;
+							} elsif(!defined($city)) {
+								$city = $file;
+								$city =~ s/\.csv$//;
 							} else {
 								$county = $file;
 								$county =~ s/\.csv$//;
 							}
-						} else {
-							if(!defined($city)) {
-								if($file =~ /^city_of_(.+).csv$/) {
-									$city = $1;
-								} elsif($file =~ /^town_of_(.+).csv$/) {
-									$city = $1;
-								} elsif($file =~ /^(.+)_borough.csv$/) {
-									$city = $1;
-								}
-							}
-							if((!defined($city)) && ($file !~ /^statewide/)) {
-								$city = $file;
-							}
+						}
+						if(!defined($city)) {
 							my $zip = $row->{'POSTCODE'};
 							if((!defined($city)) && defined($zip) && (my $info = $zipcodes{$zip})) {
 								$city = $info->{'city'};
@@ -430,30 +422,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					foreach my $row(@data) {
 						my $city = $row->{'CITY'};
 						my $county;
-						if(defined($city) && ($file !~ /^province/)) {
+						if($file !~ /^province/) {
 							if($file =~ /^city_of_(.+).csv$/) {
 								$city = $1;
 							} elsif($file =~ /^town_of_(.+).csv$/) {
 								$city = $1;
 							} elsif($file =~ /^(.+)_borough.csv$/) {
 								$city = $1;
+							} elsif(!defined($city)) {
+								$city = $file;
+								$city =~ s/\.csv$//;
 							} else {
 								$county = $file;
 								$county =~ s/\.csv$//;
 							}
-						} else {
-							if(!defined($city)) {
-								if($file =~ /^city_of_(.+).csv$/) {
-									$city = $1;
-								} elsif($file =~ /^town_of_(.+).csv$/) {
-									$city = $1;
-								} elsif($file =~ /^(.+)_borough.csv$/) {
-									$city = $1;
-								}
-							}
-							if((!defined($city)) && ($file !~ /^province/)) {
-								$city = $file;
-							}
+						}
+						if(!defined($city)) {
 							my $postcode = $row->{'POSTCODE'};
 							if((!defined($city)) && defined($postcode) && (my $info = $postcodes{$postcode})) {
 								$city = $info->{'city'};
