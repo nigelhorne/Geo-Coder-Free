@@ -81,6 +81,8 @@ sub set_logger {
 
 	if(ref($_[0]) eq 'HASH') {
 		%args = %{$_[0]};
+	} elsif(ref($_[0])) {
+		Carp::croak('Usage: set_logger(logger => $logger)');
 	} elsif(scalar(@_) % 2 == 0) {
 		%args = @_;
 	} else {
@@ -341,6 +343,8 @@ sub execute {
 
 	if(ref($_[0]) eq 'HASH') {
 		%args = %{$_[0]};
+	} elsif(ref($_[0])) {
+		Carp::croak('Usage: execute(query => $query)');
 	} elsif(scalar(@_) % 2 == 0) {
 		%args = @_;
 	} else {
@@ -354,7 +358,7 @@ sub execute {
 
 	my $query = $args{'query'};
 	if($self->{'logger'}) {
-		$self->{'logger'}->debug("fetchrow_hashref $query");
+		$self->{'logger'}->debug("execute $query");
 	}
 	my $sth = $self->{$table}->prepare($query);
 	$sth->execute() || throw Error::Simple($query);
