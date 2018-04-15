@@ -14,11 +14,11 @@ Geo::Coder::Free - Provides a geocoding functionality using free databases
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 

@@ -35,11 +35,11 @@ Geo::Coder::Free::OpenAddresses - Provides a geocoding functionality to the data
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our $OLDCODE = 0;
 
 =head1 SYNOPSIS
