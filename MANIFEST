@@ -1,8 +1,10 @@
 bin/createdatabase
+bin/geodecode
 bin/testcgibin
 cgi-bin/page.fcgi
 Changes
 conf/ncbimac2024
+conf/njh
 conf/page.l4pconf
 createdatabase.PL
 css/style.css
@@ -47,4 +49,3 @@ t/used.t
 t/vars.t
 templates/Geo/Coder/Free/Display/index.tmpl
 templates/Geo/Coder/Free/Display/query.txt
-typhoon/openaddresses.ddl
