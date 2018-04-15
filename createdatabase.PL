@@ -81,10 +81,13 @@ if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
 		or warn "Can't create the SQLite database - expect poor performance";
 
-	# if(-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
-		# copy('lib/Geo/Coder/Free/MaxMind/databases/cities.sql', 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql')
-			# or die "Can't copy SQLite file to blib: $!";
-	# }
+	if(-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
+		if(-r 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
+			unlink('blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql');
+		}
+		copy('lib/Geo/Coder/Free/MaxMind/databases/cities.sql', 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql')
+			or die "Can't copy SQLite file to blib: $!";
+	}
 }
 
 exit(0) if($ENV{'AUTOMATED_TESTING'});
