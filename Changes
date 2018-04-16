@@ -1,5 +1,9 @@
 Revision history for Geo-Coder-Free
 
+0.09
+	Consolidated date in createdatabase
+	Load Australian data (TODO: write test cases)
+
 0.08	Sun Apr 15 11:49:55 EDT 2018
 	Download admin1 and admin2 directly from MaxMind
 	Download cities.sql from geocode.nigelhorne.com
