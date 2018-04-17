@@ -110,6 +110,8 @@ sub geocode {
 	my %param;
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
+	} elsif(ref($_[0])) {
+		Carp::croak('Usage: geocode(location => $location)');
 	} elsif(@_ % 2 == 0) {
 		%param = @_;
 	} else {

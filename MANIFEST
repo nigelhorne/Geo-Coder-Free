@@ -37,11 +37,15 @@ t/10-new.t
 t/admin1.t
 t/admin2.t
 t/cities.t
+t/coverage.t
 t/lib/MyLogger.pm
+t/manifest.t
 t/maxmind.t
 t/openaddr.t
 t/pod-cm.t
 t/pod.t
+t/port.t
+t/snippets.t
 t/spelling.t
 t/strict.t
 t/unused.t

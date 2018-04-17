@@ -81,6 +81,7 @@ WriteMakefile(
 		'Encode' => 0,
 		'Locale::Country' => 0,
 		'Locale::CA' => 0,
+		'Locale::SubCountry' => 0,
 		'Locale::US' => 0,
 		'Text::xSV::Slurp' => 0,
 		'Geo::StreetAddress::US' => 0,
