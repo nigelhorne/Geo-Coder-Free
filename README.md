@@ -20,7 +20,7 @@ Version 0.09
     my $location = $geocoder->geocode(location => 'Ramsgate, Kent, UK');
 
     # Use a local download of http://results.openaddresses.io/
-    my $openaddr_geocoder = Geo::Coder::Freee->new(openaddr => $ENV{'OPENADDR_HOME'});
+    my $openaddr_geocoder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
     $location = $openaddr_geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
 # DESCRIPTION
