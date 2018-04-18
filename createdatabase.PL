@@ -175,7 +175,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
 					die $row->{'Name'};
 				}
-				my $digest = Digest::MD5::md5_base64($state, 'US');
+				my $digest = hash(1, $state, 'US');
 				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
 					') VALUES (' .
 					"'$digest'," .
@@ -185,7 +185,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$dbh->prepare($query)->execute();
 				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
-				$global_md5s{$digest} = 1;
 			}
 
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
@@ -209,7 +208,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
-				my $digest = Digest::MD5::md5_base64($county, $state, 'US');
+				my $digest = hash(1, $county, $state, 'US');
 				$county =~ s/'/''/g;	# O'Brien County, IA
 				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTY','STATE','COUNTRY'" .
 					') VALUES (' .
@@ -219,7 +218,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					"'$county','$state','US')";
 				# print "$query\n";
 				$dbh->prepare($query)->execute();
-				$global_md5s{$digest} = 1;
 			}
 		}
 
@@ -268,7 +266,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if(my $k = $known_places{$f}) {
 					my @rows = @{$k};
 					foreach my $row(@rows) {
-						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh);
 							$inserts = 0;
@@ -337,6 +335,7 @@ sub import {
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $dbh = $param{'dbh'} || die 'import: no dbh';
+	my $global = $param{'global'} || 0;
 	my $inserts = 0;
 
 	my $city = $row->{'CITY'};
@@ -389,7 +388,7 @@ sub import {
 				# Counties and states alone have already been read in
 				$columns{'COUNTY'} = $county;
 				# print "$zip => $query\n";
-				insert($dbh, \%columns);
+				insert($dbh, $global, \%columns);
 				$inserts++;
 			}
 		}
@@ -492,19 +491,19 @@ sub import {
 		foreach my $c('LAT', 'LON', 'NUMBER') {
 			$columns{$c} = delete $row->{$c};
 		}
-		insert($dbh, \%columns);
+		insert($dbh, $global, \%columns);
 		$inserts++;
 		if(delete($columns{'COUNTY'})) {
-			insert($dbh, \%columns);
+			insert($dbh, $global, \%columns);
 			$inserts++;
 		}
 		if(delete($columns{'NUMBER'})) {
 			# Match somewhere in the street when number isn't known
-			insert($dbh, \%columns);
+			insert($dbh, $global, \%columns);
 			$inserts++;
 			if($city && delete($columns{'STREET'})) {
 				# Match somewhere in the city when street isn't known
-				insert($dbh, \%columns);
+				insert($dbh, $global, \%columns);
 				$inserts++;
 			}
 		}
@@ -513,7 +512,7 @@ sub import {
 }
 
 sub insert {
-	my ($dbh, $columns) = @_;
+	my ($dbh, $global, $columns) = @_;
 
 	$columns = { %{$columns} };	# Take a copy of the hash because we're going to play with it
 
@@ -539,7 +538,7 @@ sub insert {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
 	# print "$digest\n";
-	$digest = Digest::MD5::md5_base64(Encode::encode_utf8($digest));
+	$digest = hash($global, Encode::encode_utf8($digest));
 	# print "$digest\n";
 
 	if(my $state = $columns->{'STATE'}) {
@@ -582,7 +581,7 @@ sub insert {
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 			$digest .= $columns->{$column} if($columns->{$column});
 		}
-		$digest = Digest::MD5::md5_base64(Encode::encode_utf8($digest));
+		$digest = hash($global, Encode::encode_utf8($digest));
 		if($columns->{'STATE'} && ($state_md5s{$digest} || $global_md5s{$digest})) {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
 			return;
@@ -635,4 +634,17 @@ sub flush_queue
 		$dbh->prepare($query)->execute();
 		%queued_commits = ();
 	}
+}
+
+sub hash
+{
+	my $global = shift;
+
+	# my $digest = substr Digest::MD5::md5_base64(@_), 0, 16;
+	my $digest = Digest::MD5::md5_base64(@_);
+	
+	if($global) {
+		$global_md5s{$digest} = 1;
+	}
+	return $digest;
 }
