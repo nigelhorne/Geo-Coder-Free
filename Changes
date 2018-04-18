@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.09
+0.09	Tue Apr 17 21:34:01 EDT 2018
 	Consolidated date in createdatabase
 	Load Australian data
 		Added basic Australian search (town, state, country)
