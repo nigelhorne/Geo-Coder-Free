@@ -164,96 +164,96 @@ sub geocode {
 		my $l = $1;
 		$l =~ s/,/ /g;
 		$l =~ s/\s\s+/ /g;
-		if(my $href = Geo::StreetAddress::US->parse_address($l)) {
-			# print Data::Dumper->new([$href])->Dump();
-			$state = $href->{'state'};
-			if(length($state) > 2) {
-				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-					$state = $twoletterstate;
-				}
-			}
-			my $city;
-			if($href->{city}) {
-				$city = uc($href->{city});
-			}
-			if($street = $href->{street}) {
-				if(my $type = $self->_normalize($href->{'type'})) {
-					$street .= " $type";
-				}
-				if($href->{suffix}) {
-					$street .= ' ' . $href->{suffix};
-				}
-			}
-			if($street) {
-				if(my $prefix = $href->{prefix}) {
-					$street = "$prefix $street";
-				}
-				my $rc;
-				if($href->{'number'}) {
-					if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
-						return $rc;
+		if(my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l))) {
+			if($state = $href->{'state'}) {
+				if(length($state) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						$state = $twoletterstate;
 					}
 				}
-				if($rc = $self->_get("$street$city$state" . 'US')) {
-					return $rc;
+				my $city;
+				if($href->{city}) {
+					$city = uc($href->{city});
+				}
+				if($street = $href->{street}) {
+					if($href->{'type'} && (my $type = $self->_normalize($href->{'type'}))) {
+						$street .= " $type";
+					}
+					if($href->{suffix}) {
+						$street .= ' ' . $href->{suffix};
+					}
+				}
+				if($street) {
+					if(my $prefix = $href->{prefix}) {
+						$street = "$prefix $street";
+					}
+					my $rc;
+					if($href->{'number'}) {
+						if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
+							return $rc;
+						}
+					}
+					if($rc = $self->_get("$street$city$state" . 'US')) {
+						return $rc;
+					}
 				}
 			}
 		}
 	}
 
-	if($libpostal_is_installed) {
-		if(my %addr = Geo::libpostal::parse_address($location)) {
-			# print Data::Dumper->new([\%addr])->Dump();
-			if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
-				if($street = $addr{'road'}) {
-					$street = uc($street);
-					if($street =~ /(.+)\s+STREET$/) {
-						$street = "$1 ST";
-					} elsif($street =~ /(.+)\s+ROAD$/) {
-						$street = "$1 RD";
-					} elsif($street =~ /(.+)\s+AVENUE$/) {
-						$street = "$1 AVE";
-					} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
-						$street = "$1 AVE $2";
-					} elsif($street =~ /(.+)\s+CT$/) {
-						$street = "$1 COURT";
-					} elsif($street =~ /(.+)\s+CIRCLE$/) {
-						$street = "$1 CIR";
-					}
-					$street =~ s/^0+//;	# Turn 04th St into 4th St
-					$addr{'road'} = $street;
+	if($libpostal_is_installed && (my %addr = Geo::libpostal::parse_address($location))) {
+		# print Data::Dumper->new([\%addr])->Dump();
+		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
+			if($street = $addr{'road'}) {
+				$street = uc($street);
+				if($street =~ /(.+)\s+STREET$/) {
+					$street = "$1 ST";
+				} elsif($street =~ /(.+)\s+ROAD$/) {
+					$street = "$1 RD";
+				} elsif($street =~ /(.+)\s+AVENUE$/) {
+					$street = "$1 AVE";
+				} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
+					$street = "$1 AVE $2";
+				} elsif($street =~ /(.+)\s+CT$/) {
+					$street = "$1 COURT";
+				} elsif($street =~ /(.+)\s+CIRCLE$/) {
+					$street = "$1 CIR";
+				} elsif($street =~ /(.+)\s+DRIVE$/) {
+					$street = "$1 DR";
 				}
-				if($addr{'country'} =~ /Canada/i) {
-					$addr{'country'} = 'CA';
-					if(length($addr{'state'}) > 2) {
-						if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
-							$addr{'state'} = $twoletterstate;
-						}
-					}
-				} else {
-					$addr{'country'} = 'US';
-					if(length($addr{'state'}) > 2) {
-						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
-							$addr{'state'} = $twoletterstate;
-						}
+				$street =~ s/^0+//;	# Turn 04th St into 4th St
+				$addr{'road'} = $street;
+			}
+			if($addr{'country'} =~ /Canada/i) {
+				$addr{'country'} = 'CA';
+				if(length($addr{'state'}) > 2) {
+					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
+						$addr{'state'} = $twoletterstate;
 					}
 				}
-				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+			} else {
+				$addr{'country'} = 'US';
+				if(length($addr{'state'}) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
+						$addr{'state'} = $twoletterstate;
+					}
+				}
+			}
+			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+				return $rc;
+			}
+			if($addr{'state_district'}) {
+				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
-				if($addr{'state_district'}) {
-					if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
-						return $rc;
-					}
-					if($addr{'house_number'}) {
-						if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
-							return $rc;
-						}
-					}
-				} elsif($addr{'house_number'}) {
+				if($addr{'house_number'}) {
 					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 						return $rc;
 					}
+				}
+			} elsif($addr{'house_number'}) {
+				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+					return $rc;
 				}
 			}
 		}
@@ -536,8 +536,6 @@ sub _get {
 			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 		);
 	$self->{openaddr_db} = $openaddr_db;
-	# print "$location: $digest\n";
-	# ::diag("$location: $digest");
 	# my @call_details = caller(0);
 	# print "line " . $call_details[2], "\n";
 	# print("$location: $digest\n");
@@ -577,6 +575,8 @@ sub _normalize {
 		return 'BLVD';
 	} elsif($type eq 'PIKE') {
 		return 'PIKE';
+	} elsif(($type eq 'DRIVE') || ($type eq 'DR')) {
+		return 'DR';
 	}
 
 	warn("Add type $type");

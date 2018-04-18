@@ -1,5 +1,10 @@
 Revision history for Geo-Coder-Free
 
+0.10
+	Street numbers were not being indexed
+	Add data that I know with the GPS program on my phone
+	Support "DR" for "Drive"
+
 0.09	Tue Apr 17 21:34:01 EDT 2018
 	Consolidated date in createdatabase
 	Load Australian data

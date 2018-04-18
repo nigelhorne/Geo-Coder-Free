@@ -21,7 +21,12 @@ OPENADDR: {
 
 			my $geocoder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 
-			my $location = $geocoder->geocode('Indianapolis, Indiana, USA');
+			my $location = $geocoder->geocode('Medlars Drive, Bethesda, MD, USA');
+			ok(defined($location));
+			delta_within($location->{latitude}, 39.00, 1e-2);
+			delta_within($location->{longitude}, -77.10, 1e-2);
+
+			$location = $geocoder->geocode('Indianapolis, Indiana, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.77, 1e-2);
 			delta_within($location->{longitude}, -86.29, 1e-2);
@@ -192,6 +197,8 @@ OPENADDR: {
 			$location = $geocoder->geocode(location => 'Caboolture, Queensland, Australia');
 			delta_within($location->{latitude}, -27.09, 1e-2);
 			delta_within($location->{longitude}, 152.98, 1e-2);
+
+			$location = $geocoder->geocode(location => 'Whitley, Indiana, USA');
 
 			# my $address = $geocoder->reverse_geocode(latlng => '51.50,-0.13');
 			# like($address->{'city'}, qr/^London$/i, 'test reverse');
