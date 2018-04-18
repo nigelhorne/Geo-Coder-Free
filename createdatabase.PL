@@ -332,7 +332,7 @@ sub import {
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $dbh = $param{'dbh'} || die 'import: no dbh';
-	my $inserts;
+	my $inserts = 0;
 
 	my $city = $row->{'CITY'};
 	my $county;
