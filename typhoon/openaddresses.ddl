@@ -17,7 +17,7 @@ database openaddresses {
 		char	country[3];
 
 		primary	key all {
-			number, street, city, state, county, country
+			number, street, city, county, state, country
 		};
 	}
 }
