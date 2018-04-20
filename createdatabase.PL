@@ -120,6 +120,8 @@ my $current_state;
 my %global_md5s;
 my %state_md5s;
 my %queued_commits;
+my $city_sequence;
+my %cities;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -153,8 +155,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
+
+
+		# $dbh->prepare("CREATE TABLE cities(sequence INTEGER UNIQUE PRIMARY KEY NOT NULL, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
+		$dbh->prepare("CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
+
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -184,12 +193,17 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					die $row->{'Name'};
 				}
 				my $digest = hash(1, $state, 'US');
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','STATE','COUNTRY'" .
+				my $key = city_key(undef, undef, $state, 'US');
+				if(!$cities{$key}) {
+					$city_sequence++;
+					$cities{$key} = $city_sequence;
+				}
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
 					') VALUES (' .
 					"'$digest'," .
 					$row->{'Latitude'} . ',' .
 					$row->{'Longitude'} . ',' .
-					"'$state','US')";
+					$cities{$key} . ')';
 				$dbh->prepare($query)->execute();
 				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
@@ -218,12 +232,17 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $county = uc($row->{'Name'});
 				my $digest = hash(1, $county, $state, 'US');
 				$county =~ s/'/''/g;	# O'Brien County, IA
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','COUNTY','STATE','COUNTRY'" .
+				my $key = city_key(undef, $county, $state, 'US');
+				if(!$cities{$key}) {
+					$city_sequence++;
+					$cities{$key} = $city_sequence;
+				}
+				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
 					') VALUES (' .
 					"'$digest'," .
 					"'" . $row->{'Latitude'} . "'," .
 					"'" . $row->{'Longitude'} . "'," .
-					"'$county','$state','US')";
+					$cities{$key} . ')';
 				# print "$query\n";
 				$dbh->prepare($query)->execute();
 			}
@@ -310,11 +329,38 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 		flush_queue($dbh);
+
 		$| = 1;
-		printf "%-70s\r", 'creating index';
+		printf "%-70s\r", 'creating cities';
 		$| = 0;
-		%state_md5s = ( );	# Reclaim memory
-		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(MD5)')->execute();
+		foreach my $key(keys %cities) {
+			my ($city, $county, $state, $country) = split(/,/, $key);
+			my $sequence = $cities{$key};
+
+			$city =~ s/'/''/g;
+			my $query = "INSERT INTO cities('SEQUENCE','CITY','COUNTY','STATE','COUNTRY'" .
+				') VALUES (' .
+				"'$sequence'," .
+				(($city eq 0) ? "NULL," : "'$city',") .
+				(($county eq 0) ? "NULL," : "'$county',") .
+				"'$state'," .
+				"'$country')";
+
+			# print "$query\n";
+			$dbh->prepare($query)->execute();
+		}
+
+		$| = 1;
+		printf "%-70s\r", 'creating indicies';
+		$| = 0;
+
+		# Reclaim memory
+		%state_md5s = ();
+		%cities = ();
+
+		$dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
+		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+
 		$| = 1;
 		printf "%-70s\r", 'committing';
 		$| = 0;
@@ -593,6 +639,11 @@ sub insert {
 	# }
 
 	$queued_commits{$digest} = $columns;
+	my $key = city_key($columns->{'CITY'}, $columns->{'COUNTY'}, $columns->{'STATE'}, $columns->{'COUNTRY'});
+	if(!$cities{$key}) {
+		$city_sequence++;
+		$cities{$key} = $city_sequence;
+	}
 
 	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /^[A-Z]\s\w+\s\w+$/)) {
 		# Handle https://rt.cpan.org/Public/Bug/Display.html?id=124919
@@ -600,6 +651,7 @@ sub insert {
 
 		$columns->{'STREET'} =~ s/\s+//g;
 		$digest = '';
+
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 			$digest .= $columns->{$column} if($columns->{$column});
 		}
@@ -621,25 +673,30 @@ sub flush_queue
 
 	# print "flush\n";
 
-	my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
+	# my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
+	my @columns = ('LAT','LON','NUMBER','STREET');
 
 	my $query;
+
 	foreach my $md5(keys %queued_commits) {
 		if(!defined($query)) {
 			$query = 'INSERT INTO openaddresses(';
 			foreach my $column(@columns) {
 				$query .= "$column,";
 			}
-			$query .= 'MD5) VALUES (';
+			$query .= 'CITY,MD5) VALUES (';
 		} else {
 			$query .= ',(';
 		}
 
+		# print join(',', @columns), ": $md5\n";
+
 		my $row = $queued_commits{$md5};
+		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $row->{'STATE'}, $row->{'COUNTRY'});
 		foreach my $column(@columns) {
 			if($row->{$column}) {
 				$row->{$column} =~ s/'/''/g;
-				if(($column eq 'LAT') || ($column eq 'LON')) {
+				if(($column eq 'LAT') || ($column eq 'LON') || ($column eq 'CITY')) {
 					$query .= $row->{$column} . ',';
 				} else {
 					$query .= "'" . $row->{$column} . "',";
@@ -648,7 +705,8 @@ sub flush_queue
 				$query .= 'NULL,';
 			}
 		}
-		$query .= "'$md5')";
+		die $key unless $cities{$key};
+		$query .= $cities{$key} . ",'$md5')";
 	}
 
 	if($query) {
@@ -675,4 +733,16 @@ sub hash
 sub uniq {
 	my %seen;
 	grep !$seen{$_}++, @_;
+}
+
+sub city_key {
+	my ($city, $county, $state, $country) = @_;
+
+	if(!defined($city)) {
+		$city = '0';
+	}
+	if(!defined($county)) {
+		$county = '0';
+	}
+	return "$city,$county,$state,$country";
 }
