@@ -108,9 +108,9 @@ my %known_places = (	# Places I've checked with my GPS
 );
 
 my %postcodes = ();
-my $current_country;
+my $current_state;
 my %global_md5s;
-my %country_md5s;
+my %state_md5s;
 my %queued_commits;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
@@ -145,8 +145,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -284,6 +284,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$inserts = 0;
 					}
 				}
+				%state_md5s = ( );
 			}
 		}
 		flush_queue($dbh);
@@ -340,7 +341,7 @@ sub import {
 
 	my $city = $row->{'CITY'};
 	my $county;
-	if(($file !~ /^statewide/) && ($file !~ /^province/)) {
+	if(($file !~ /^statewide/) && ($file !~ /^province/) && ($file !~ /^countrywide/)) {
 		if($file =~ /^city_of_(.+).csv$/) {
 			$city = $1;
 		} elsif($file =~ /^town_of_(.+).csv$/) {
@@ -542,21 +543,22 @@ sub insert {
 	$digest = hash($global, Encode::encode_utf8($digest));
 	# print "$digest\n";
 
-	if(my $country = $columns->{'COUNTRY'}) {
+	if(my $state = $columns->{'STATE'}) {
 		# print "Looking for digest $digest\n";
-		$country = uc($country);
-		if((!defined($current_country)) || ($country ne $current_country)) {
-			$current_country = $country;
-			%country_md5s = ( $digest => 1 );
-			# print "new country $country\n";
-			# flush_queue($dbh);	# Shouldn't be needed
-		} else {
-			if($country_md5s{$digest} || $global_md5s{$digest}) {
+		$state = uc($state);
+		# if((!defined($current_state)) || ($state ne $current_state)) {
+			# $current_state = $state;
+			# # %state_md5s = ( $digest => 1 );
+			# print "new state $state\n";
+			# # flush_queue($dbh);	# Shouldn't be needed
+			# $state_md5s{$digest} = 1;
+		# } else {
+			if($state_md5s{$digest} || $global_md5s{$digest}) {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
 				return;
 			}
-			$country_md5s{$digest} = 1;
-		}
+			$state_md5s{$digest} = 1;
+		# }
 	} else {
 		die;
 	}
@@ -583,11 +585,11 @@ sub insert {
 			$digest .= $columns->{$column} if($columns->{$column});
 		}
 		$digest = hash($global, Encode::encode_utf8($digest));
-		if($country_md5s{$digest} || $global_md5s{$digest}) {
-			# print "Ignore ", join(',', values(%{$columns})), "\n";
+		if($state_md5s{$digest} || $global_md5s{$digest}) {
+			print "Ignore ", join(',', values(%{$columns})), "\n";
 			return;
 		}
-		$country_md5s{$digest} = 1;
+		$state_md5s{$digest} = 1;
 		$queued_commits{$digest} = $columns;
 	}
 }
@@ -644,6 +646,7 @@ sub hash
 	my $digest = substr Digest::MD5::md5_base64(@_), 0, 16;
 	# my $digest = Digest::MD5::md5_base64(@_);
 	
+	# print join(',', @_), ": $digest\n";
 	if($global) {
 		$global_md5s{$digest} = 1;
 	}
