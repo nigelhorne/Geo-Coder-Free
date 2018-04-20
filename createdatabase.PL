@@ -229,6 +229,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 
+		my $current_state;
+		my $current_country;
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
@@ -258,9 +260,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$state = uc($components[1]);
 					$file = $components[2];
 				}
+
+				# Clear the deduping hash when we can, to avoid it becoming too large
 				if(($country eq 'us') || ($country eq 'ca')) {
-					# TODO: or it's a new country
+					if((!defined($current_state)) || ($state ne $current_state)) {
+						# print "New state, clear state_md5s\n";
+						%state_md5s = ( );
+						$current_country = $country;
+						$current_state = $state;
+					}
+				} elsif((!defined($current_country)) || ($country ne $current_country)) {
+					# print "New country, clear state_md5s\n";
 					%state_md5s = ( );
+					$current_country = $country;
 				}
 
 				my $csv = Text::CSV->new({
@@ -286,8 +298,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 				}
 				open(my $fin, '<', $csv_file);
-				my $head = $csv->getline($fin);
-				$csv->column_names($head);
+				$csv->column_names($csv->getline($fin));
 
 				while(my $row = $csv->getline_hr($fin)) {
 					$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
@@ -302,6 +313,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$| = 1;
 		printf "%-70s\r", 'creating index';
 		$| = 0;
+		%state_md5s = ( );	# Reclaim memory
 		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(MD5)')->execute();
 		$| = 1;
 		printf "%-70s\r", 'committing';
@@ -358,6 +370,12 @@ sub import {
 		} elsif($file =~ /^town_of_(.+).csv$/) {
 			$city = $1;
 		} elsif($file =~ /^(.+)_borough.csv$/) {
+			$city = $1;
+		} elsif($file =~ /^(.+)-region.csv$/) {
+			$city = $1;
+		} elsif($file =~ /^township_of_(.+).csv$/) {
+			$city = $1;
+		} elsif($file =~ /^(.+)_district.csv$/) {
 			$city = $1;
 		} elsif(!defined($city)) {
 			$city = $file;
@@ -554,22 +572,13 @@ sub insert {
 	$digest = hash($global, Encode::encode_utf8($digest));
 	# print "$digest\n";
 
-	if(my $state = $columns->{'STATE'}) {
+	if($columns->{'STATE'}) {
 		# print "Looking for digest $digest\n";
-		$state = uc($state);
-		# if((!defined($current_state)) || ($state ne $current_state)) {
-			# $current_state = $state;
-			# # %state_md5s = ( $digest => 1 );
-			# print "new state $state\n";
-			# # flush_queue($dbh);	# Shouldn't be needed
-			# $state_md5s{$digest} = 1;
-		# } else {
-			if($state_md5s{$digest} || $global_md5s{$digest}) {
-				# print "Ignore ", join(',', values(%{$columns})), "\n";
-				return;
-			}
-			$state_md5s{$digest} = 1;
-		# }
+		if($state_md5s{$digest} || $global_md5s{$digest}) {
+			# print "Ignore ", join(',', values(%{$columns})), "\n";
+			return;
+		}
+		$state_md5s{$digest} = 1;
 	} else {
 		die;
 	}
@@ -583,12 +592,11 @@ sub insert {
 		# print Data::Dumper->new([$href])->Dump();
 	# }
 
-	# All of the place's values are combined into one large INSERT INTO
 	$queued_commits{$digest} = $columns;
 
 	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /^[A-Z]\s\w+\s\w+$/)) {
 		# Handle https://rt.cpan.org/Public/Bug/Display.html?id=124919
-		my $s = $columns->{'STREET'};	# Should use a 'local' variable I guess
+		my $s = $columns->{'STREET'};	# Should use a 'local' variable, I guess
 
 		$columns->{'STREET'} =~ s/\s+//g;
 		$digest = '';
@@ -597,7 +605,7 @@ sub insert {
 		}
 		$digest = hash($global, Encode::encode_utf8($digest));
 		if($state_md5s{$digest} || $global_md5s{$digest}) {
-			print "Ignore ", join(',', values(%{$columns})), "\n";
+			# print "Ignore ", join(',', values(%{$columns})), "\n";
 			return;
 		}
 		$state_md5s{$digest} = 1;
