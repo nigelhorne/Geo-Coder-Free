@@ -145,8 +145,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number CHAR, street CHAR, city CHAR, county CHAR, state CHAR NOT NULL, country CHAR(2) NOT NULL)")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -221,7 +221,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 
-		foreach my $csv_file (create_tree($oa)) {
+		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
@@ -249,6 +249,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					$state = uc($components[1]);
 					$file = $components[2];
+				}
+				if(($country eq 'us') || ($country eq 'ca')) {
+					# TODO: or it's a new country
+					%state_md5s = ( );
 				}
 
 				my $csv = Text::CSV->new({
@@ -284,7 +288,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$inserts = 0;
 					}
 				}
-				%state_md5s = ( );
 			}
 		}
 		flush_queue($dbh);
@@ -645,10 +648,15 @@ sub hash
 
 	my $digest = substr Digest::MD5::md5_base64(@_), 0, 16;
 	# my $digest = Digest::MD5::md5_base64(@_);
-	
+
 	# print join(',', @_), ": $digest\n";
 	if($global) {
 		$global_md5s{$digest} = 1;
 	}
 	return $digest;
+}
+
+sub uniq {
+	my %seen;
+	grep !$seen{$_}++, @_;
 }
