@@ -103,6 +103,14 @@ my %known_places = (	# Places I've checked with my GPS
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20895
+			}, {
+				# Strosniders
+				'LAT' => 39.02781493,
+				'LON' => -77.07740792,
+				'NUMBER' => 10504,
+				'STREET' => 'CONNECTICUT AVE',
+				'CITY' => 'KENSINGTON',
+				'COUNTY' => 'MONTGOMERY',
 			}
 		]
 );
