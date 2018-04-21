@@ -29,7 +29,7 @@ OPENADDR: {
 			$location = $geocoder->geocode('Indianapolis, Indiana, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.77, 1e-2);
-			delta_within($location->{longitude}, -86.29, 1e-2);
+			delta_within($location->{longitude}, -86.16, 1e-2);
 
 			# $location = $geocoder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
 			# delta_ok($location->{latt}, 46.67);
