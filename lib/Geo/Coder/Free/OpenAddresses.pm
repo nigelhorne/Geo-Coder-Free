@@ -524,7 +524,8 @@ sub _get {
 	my ($self, $location) = @_;
 
 	$location =~ s/,\s*//g;
-	my $digest = Digest::MD5::md5_base64(uc($location));
+	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
+	# iN/bWZAg0ZKOULlW|38.99516556|-77.09943963||MEDLARS DR|67613
 	if(my $cache = $self->{'cache'}) {
 		if(my $rc = $cache->get_object($digest)) {
 			return Storable::thaw($rc->value());

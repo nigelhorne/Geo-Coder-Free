@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 87;
+use Test::Most tests => 90;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -29,7 +29,7 @@ OPENADDR: {
 			$location = $geocoder->geocode('Indianapolis, Indiana, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.77, 1e-2);
-			delta_within($location->{longitude}, -86.16, 1e-2);
+			delta_within($location->{longitude}, -86.29, 1e-2);
 
 			# $location = $geocoder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
 			# delta_ok($location->{latt}, 46.67);
@@ -67,8 +67,8 @@ OPENADDR: {
 			ok(defined($location));
 			ok(ref($location) eq 'HASH');
 
-			delta_within($location->{latitude}, 39.05, 1e-2);
-			delta_within($location->{longitude}, -87.04, 1e-2);
+			delta_within($location->{latitude}, 40.07, 1e-2);
+			delta_within($location->{longitude}, -86.27, 1e-2);
 
 			$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 			ok(defined($location));
@@ -216,7 +216,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip 'OPENADDR_HOME not defined', 86;
+			skip 'OPENADDR_HOME not defined', 89;
 		}
 	}
 }
