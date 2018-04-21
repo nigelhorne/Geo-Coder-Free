@@ -230,6 +230,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
+				$county =~ s/\s+COUNTY$//;
 				my $digest = hash(1, $county, $state, 'US');
 				$county =~ s/'/''/g;	# O'Brien County, IA
 				my $key = city_key(undef, $county, $state, 'US');
@@ -254,7 +255,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			# next unless($csv_file =~ /us\/md\/statewide/);
+			next unless($csv_file =~ /us\/md\/statewide/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -356,6 +357,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# Reclaim memory
 		%state_md5s = ();
+		%global_md5s = ();
 		%cities = ();
 
 		$dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
@@ -618,16 +620,11 @@ sub insert {
 	$digest = hash($global, Encode::encode_utf8($digest));
 	# print "$digest\n";
 
-	if($columns->{'STATE'}) {
-		# print "Looking for digest $digest\n";
-		if($state_md5s{$digest} || $global_md5s{$digest}) {
-			# print "Ignore ", join(',', values(%{$columns})), "\n";
-			return;
-		}
-		$state_md5s{$digest} = 1;
-	} else {
-		die;
+	if(!defined($digest)) {
+		# print "Ignore ", join(',', values(%{$columns})), "\n";
+		return;
 	}
+
 	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
 	# my $sth = $dbh->prepare($q);
 	# $sth->execute();
@@ -656,11 +653,10 @@ sub insert {
 			$digest .= $columns->{$column} if($columns->{$column});
 		}
 		$digest = hash($global, Encode::encode_utf8($digest));
-		if($state_md5s{$digest} || $global_md5s{$digest}) {
+		if(!defined($digest)) {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
 			return;
 		}
-		$state_md5s{$digest} = 1;
 		$queued_commits{$digest} = $columns;
 	}
 }
@@ -722,11 +718,13 @@ sub hash
 
 	my $digest = substr Digest::MD5::md5_base64(@_), 0, 16;
 	# my $digest = Digest::MD5::md5_base64(@_);
+	return if($global_md5s{$digest} || $state_md5s{$digest});
 
 	# print join(',', @_), ": $digest\n";
 	if($global) {
 		$global_md5s{$digest} = 1;
 	}
+	$state_md5s{$digest} = 1;
 	return $digest;
 }
 
