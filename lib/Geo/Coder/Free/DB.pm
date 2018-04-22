@@ -306,6 +306,8 @@ sub selectall_hash {
 }
 
 # Returns a hash reference for one row in a table
+# Special argument: table: determines the table to read from if not the default,
+#	which is worked out from the class name
 sub fetchrow_hashref {
 	my $self = shift;
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;

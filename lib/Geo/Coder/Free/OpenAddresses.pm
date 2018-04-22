@@ -91,9 +91,7 @@ sub new {
 	if(my $openaddr = $param{'openaddr'}) {
 		Carp::carp "Can't find the directory $openaddr"
 			if((!-d $openaddr) || (!-r $openaddr));
-		# XXXXXXXXXX
-		# return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
-		return bless { openaddr => $openaddr }, $class;
+		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
 	}
 	Carp::croak(__PACKAGE__ . ": usage: new(openaddr => '/path/to/openaddresses')");
 }
@@ -267,13 +265,7 @@ sub geocode {
 		$country = $3;
 		$state =~ s/\s$//g;
 		$country =~ s/\s$//g;
-		# $openaddr_db = $self->{openaddr_db} ||
-			# Geo::Coder::Free::DB::openaddresses->new(
-				# directory => $self->{openaddr},
-				# cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
-			# );
-		# $self->{openaddr_db} = $openaddr_db;
-		# if($openaddr_db && (my $c = country2code($country))) {
+
 		if(my $c = country2code($country)) {
 			if($c eq 'us') {
 				if(length($state) > 2) {
@@ -528,7 +520,6 @@ sub _get {
 
 	$location =~ s/,\s*//g;
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
-	# iN/bWZAg0ZKOULlW|38.99516556|-77.09943963||MEDLARS DR|67613
 	if(my $cache = $self->{'cache'}) {
 		if(my $rc = $cache->get_object($digest)) {
 			return Storable::thaw($rc->value());
