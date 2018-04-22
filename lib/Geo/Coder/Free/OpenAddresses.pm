@@ -578,6 +578,8 @@ sub _normalize {
 		return 'PIKE';
 	} elsif(($type eq 'DRIVE') || ($type eq 'DR')) {
 		return 'DR';
+	} elsif($type eq 'SPG') {
+		return 'SPRING';
 	}
 
 	warn("Add type $type");
