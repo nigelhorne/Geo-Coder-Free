@@ -113,7 +113,9 @@ sub _open {
 
 	my $dir = $self->{'directory'} || $directory;
 	my $slurp_file = File::Spec->catfile($dir, "$table.sql");
-
+	if($self->{'logger'}) {
+		$self->{'logger'}->debug("_open: try to open $slurp_file");
+	}
 	if(-r $slurp_file) {
 		$dbh = DBI->connect("dbi:SQLite:dbname=$slurp_file", undef, undef, {
 			sqlite_open_flags => SQLITE_OPEN_READONLY,
@@ -308,12 +310,17 @@ sub fetchrow_hashref {
 	my $self = shift;
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
-	my $table = $self->{table} || ref($self);
+	my $table = $self->{'table'} || ref($self);
 	$table =~ s/.*:://;
 
 	$self->_open() if(!$self->{$table});
 
-	my $query = "SELECT * FROM $table";
+	my $query = 'SELECT * FROM ';
+	if(my $t = delete $params{'table'}) {
+		$query .= $t;
+	} else {
+		$query .= $table;
+	}
 	my @args;
 	foreach my $c1(sort keys(%params)) {	# sort so that the key is always the same
 		if(scalar(@args) == 0) {

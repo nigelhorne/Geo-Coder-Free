@@ -164,10 +164,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
-
-
 		# $dbh->prepare("CREATE TABLE cities(sequence INTEGER UNIQUE PRIMARY KEY NOT NULL, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
 		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
 		$dbh->prepare("CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();

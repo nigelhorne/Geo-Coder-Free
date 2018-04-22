@@ -91,7 +91,9 @@ sub new {
 	if(my $openaddr = $param{'openaddr'}) {
 		Carp::carp "Can't find the directory $openaddr"
 			if((!-d $openaddr) || (!-r $openaddr));
-		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
+		# XXXXXXXXXX
+		# return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
+		return bless { openaddr => $openaddr }, $class;
 	}
 	Carp::croak(__PACKAGE__ . ": usage: new(openaddr => '/path/to/openaddresses')");
 }
@@ -265,13 +267,14 @@ sub geocode {
 		$country = $3;
 		$state =~ s/\s$//g;
 		$country =~ s/\s$//g;
-		$openaddr_db = $self->{openaddr_db} ||
-			Geo::Coder::Free::DB::openaddresses->new(
-				directory => $self->{openaddr},
-				cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
-			);
-		$self->{openaddr_db} = $openaddr_db;
-		if($openaddr_db && (my $c = country2code($country))) {
+		# $openaddr_db = $self->{openaddr_db} ||
+			# Geo::Coder::Free::DB::openaddresses->new(
+				# directory => $self->{openaddr},
+				# cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
+			# );
+		# $self->{openaddr_db} = $openaddr_db;
+		# if($openaddr_db && (my $c = country2code($country))) {
+		if(my $c = country2code($country)) {
 			if($c eq 'us') {
 				if(length($state) > 2) {
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
@@ -544,6 +547,13 @@ sub _get {
 	if($rc && defined($rc->{'lat'})) {
 		$rc->{'latitude'} = delete $rc->{'lat'};
 		$rc->{'longitude'} = delete $rc->{'lon'};
+	}
+	if($rc && defined($rc->{'latitude'})) {
+		if(my $city = $rc->{'city'}) {
+			if(my $rc2 = $openaddr_db->fetchrow_hashref(sequence => $city, table => 'cities')) {
+				$rc = { %$rc, %$rc2 };
+			}
+		}
 		# ::diag(Data::Dumper->new([\$rc])->Dump());
 		if(my $cache = $self->{'cache'}) {
 			$cache->set($digest, Storable::freeze($rc), '1 week');
