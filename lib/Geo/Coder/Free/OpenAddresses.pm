@@ -239,19 +239,16 @@ sub geocode {
 					}
 				}
 			}
-			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
-				return $rc;
-			}
 			if($addr{'state_district'}) {
-				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
+				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
 					return $rc;
 				}
-				if($addr{'house_number'}) {
-					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
-						return $rc;
-					}
-				}
-			} elsif($addr{'house_number'}) {
+			}
+			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+				return $rc;
+			}
+			if($addr{'house_number'}) {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
@@ -506,6 +503,8 @@ sub geocode {
 	}
 }
 
+# $data is a hashref to data such as returned by Geo::libpostal::parse_address
+# @columns is the key names to use in $data
 sub _search {
 	my ($self, $data, @columns) = @_;
 
@@ -540,7 +539,6 @@ sub _get {
 	# print "line ", $call_details[2], "\n";
 	# ::diag("line " . $call_details[2]);
 	# print("$location: $digest\n");
-	# ::diag "$location: $digest";
 	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
 	if($rc && defined($rc->{'lat'})) {
 		$rc->{'latitude'} = delete $rc->{'lat'};
@@ -556,7 +554,7 @@ sub _get {
 		if(my $cache = $self->{'cache'}) {
 			$cache->set($digest, Storable::freeze($rc), '1 week');
 		}
-			
+
 		return $rc;
 	}
 }
