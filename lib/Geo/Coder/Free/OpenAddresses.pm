@@ -277,8 +277,13 @@ sub geocode {
 
 				if($city !~ /,/) {
 					$city = uc($city);
-					# Simple case looking up a city in a state in the US
-					if($city !~ /^\sCOUNTY$/) {
+					if($city =~ /^(.+)\sCOUNTY$/) {
+						# Simple case looking up a county in a state in the US
+						if($rc = $self->_get("$1$state" . 'US')) {
+							return $rc;
+						}
+					} else {
+						# Simple case looking up a city in a state in the US
 						if($rc = $self->_get("$city$state" . 'US')) {
 							return $rc;
 						}
@@ -324,7 +329,7 @@ sub geocode {
 					warn "Fast lookup of US location' $location' failed";
 				} else {
 					if($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
-						if(my $href = Geo::StreetAddress::US->parse_address("$1, $2, $state")) {
+						if(my $href = (Geo::StreetAddress::US->parse_address("$1, $2, $state") || Geo::StreetAddress::US->parse_location("$1, $2, $state"))) {
 							# Street, City, County
 							# 105 S. West Street, Spencer, Owen, Indiana, USA
 							# ::diag(Data::Dumper->new([\$href])->Dump());
@@ -531,9 +536,11 @@ sub _get {
 			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 		);
 	$self->{openaddr_db} = $openaddr_db;
-	# my @call_details = caller(0);
-	# print "line " . $call_details[2], "\n";
+	my @call_details = caller(0);
+	# print "line ", $call_details[2], "\n";
+	# ::diag("line " . $call_details[2]);
 	# print("$location: $digest\n");
+	# ::diag "$location: $digest";
 	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
 	if($rc && defined($rc->{'lat'})) {
 		$rc->{'latitude'} = delete $rc->{'lat'};
