@@ -466,7 +466,7 @@ sub geocode {
 				}
 			} else {
 				# Currently only handles Town, Region, Country
-				# FIXME: add addresses support
+				# TODO: add addresses support
 				my $sc = Locale::SubCountry->new(uc($c));
 				if(my $abbrev = $sc->code(ucfirst(lc($state)))) {
 					if($abbrev ne 'unknown') {
