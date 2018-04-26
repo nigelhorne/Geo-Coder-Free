@@ -95,6 +95,13 @@ my %known_places = (	# Places I've checked with my GPS
 				'CITY' => 'BETHESDA',
 				'COUNTY' => 'MONTGOMERY',
 			}, {
+				# Bold bite
+				'LAT' => 38.98939358,
+				'LON' => -77.09819543,
+				'STREET' => 'NORFOLK AVE',
+				'CITY' => 'BETHESDA',
+				'COUNTY' => 'MONTGOMERY',
+			}, {
 				# AEHS
 				'LAT' => 39.03869019,
 				'LON' => -77.0682871,
