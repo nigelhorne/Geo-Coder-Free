@@ -104,6 +104,15 @@ my %known_places = (	# Places I've checked with my GPS
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20895
 			}, {
+				# NMMS
+				'LAT' => 39.0416107,
+				'LON' => -77.06884708,
+				'NUMBER' => 11311,
+				'STREET' => 'NEWPORT MILL RD',
+				'CITY' => 'KENSINGTON',
+				'COUNTY' => 'MONTGOMERY',
+				'POSTCODE' => 20895
+			}, {
 				# Safeway
 				'LAT' => 39.02822438,
 				'LON' => -77.0755196,
