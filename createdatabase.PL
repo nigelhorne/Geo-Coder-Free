@@ -154,6 +154,15 @@ my %known_places = (	# Places I've checked with my GPS
 				'CITY' => 'ROCKVILLE',
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20852
+			}, {
+				# LF
+				'LAT' => 39.07669788,
+				'LON' => -77.12306436,
+				'NUMBER' => 1605,
+				'STREET' => 'VIERS MILL ROAD',
+				'CITY' => 'ROCKVILLE',
+				'COUNTY' => 'MONTGOMERY',
+				'POSTCODE' => 20851
 			}
 		]
 );
