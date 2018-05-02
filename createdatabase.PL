@@ -207,10 +207,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
-		# $dbh->prepare("CREATE TABLE cities(sequence INTEGER UNIQUE PRIMARY KEY NOT NULL, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		# $dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16) UNIQUE PRIMARY KEY NOT NULL, lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
 		$dbh->prepare("CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
-		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
+		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
 
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
@@ -296,6 +294,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$dbh->prepare($query)->execute();
 			}
 		}
+
+		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
+			foreach my $json_file (uniq(create_tree($whosonfirst))) {
+				if(open(my $wof, '<', $json_file)) {
+					local $/ = undef;
+					my $data = <$wof>;
+					close($wof);
+					$data = JSON->new()->utf8()->decode($data);
+					next if($data->{properties}->{'wof:country'} ne 'US');
+					print Data::Dumper->new([$data])->Dump();
+					exit;
+				}
+			}
+		}
+		exit;
 
 		my $current_state;
 		my $current_country;
@@ -431,6 +444,8 @@ sub create_tree {
 		if(-d $file) {
 			push(@list, create_tree($file, @list));
 		} elsif(($file =~ /\.csv$/) && (-f $file)) {
+			push(@list, $file);
+		} elsif(($file =~ /\.geojson$/) && (-f $file)) {
 			push(@list, $file);
 		}
 	}
