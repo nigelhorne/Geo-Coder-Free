@@ -49,6 +49,8 @@ The cgi-bin directory contains a simple DIY geocoding website:
 Takes one optional parameter, openaddr, which is the base directory of
 the OpenAddresses data downloaded from L<http://results.openaddresses.io>.
 
+The database also will include data from Who's On First L<https://whosonfirst.org>.
+
 Takes one optional parameter, directory,
 which tells the library where to find the MaxMind and GeoNames files admin1db, admin2.db and cities.[sql|csv.gz].
 If that parameter isn't given, the module will attempt to find the databases, but that can't be guaranteed.
@@ -187,6 +189,9 @@ must apply in writing for a licence for use from Nigel Horne at `<njh at nigelho
 
 This product includes GeoLite2 data created by MaxMind, available from
 L<http://www.maxmind.com>.
+
+This product includes data from Who's on First.
+See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.md> for licensing information.
 
 =cut
 

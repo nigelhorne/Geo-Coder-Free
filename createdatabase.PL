@@ -1,5 +1,10 @@
 #!/usr/bin/env perl
 
+# Import data from openaddresses.io and whosonfirst.org into an SQLite database.
+# Set OPENADDR_HOME and WHOSONFIRST_HOME to the directories where the data has been downloaded
+# Download the OPENADDR_HOME data from http://results.openaddresses.io.
+# Download the WHOSONFIRST_HOME data using https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/whosonfirst-download
+
 use strict;
 use warnings;
 use autodie qw(:all);
@@ -14,8 +19,9 @@ use Digest::MD5;
 use Encode;
 use Geo::StreetAddress::US;
 use File::Basename;
+use File::Spec;
 
-use	constant	MAX_INSERT_COUNT => 50;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
 my $d = 1;
 
 my %zipcodes = (
@@ -104,7 +110,7 @@ my %known_places = (	# Places I've checked with my GPS
 				'CITY' => 'BETHESDA',
 				'COUNTY' => 'MONTGOMERY',
 			}, {
-				# AEHS
+				'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
 				'LAT' => 39.03869019,
 				'LON' => -77.0682871,
 				'NUMBER' => 11135,
@@ -122,7 +128,7 @@ my %known_places = (	# Places I've checked with my GPS
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20895
 			}, {
-				# Safeway
+				'NAME' => 'SAFEWAY',
 				'LAT' => 39.02822438,
 				'LON' => -77.0755196,
 				'NUMBER' => 10541,
@@ -131,7 +137,7 @@ my %known_places = (	# Places I've checked with my GPS
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20895
 			}, {
-				# Strosniders
+				'NAME' => 'STROSNIDERS',
 				'LAT' => 39.02781493,
 				'LON' => -77.07740792,
 				'NUMBER' => 10504,
@@ -139,7 +145,7 @@ my %known_places = (	# Places I've checked with my GPS
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
 			}, {
-				# Sniders
+				'NAME' => 'SNIDERS',
 				'LAT' => 39.0088797,
 				'LON' => -77.04162824,
 				'NUMBER' => 1936,
@@ -148,7 +154,7 @@ my %known_places = (	# Places I've checked with my GPS
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20910,
 			}, {
-				# Silver Diner
+				'NAME' => 'SILVER DINER',
 				'LAT' => 39.05798753,
 				'LON' => -77.12165374,
 				'NUMBER' => 12276,
@@ -299,11 +305,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		my $current_state;
 		my $current_country;
+		my @whosonfirst;
+		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
+			$| = 1;
+			printf "%-70s\r", "Traversing $whosonfirst";
+			$| = 0;
+			foreach my $file(<"$whosonfirst/*/*.csv">) {
+				push(@whosonfirst, $file);
+			}
+			# @whosonfirst = uniq($whosonfirst);
+		}
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			next unless($csv_file =~ /us\/md\/statewide/);
+			# next unless($csv_file =~ /us\/md\/statewide/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -332,7 +348,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# Clear the deduping hash when we can, to avoid it becoming too large
 				if(($country eq 'us') || ($country eq 'ca')) {
 					if((!defined($current_state)) || ($state ne $current_state)) {
-						print "New state, clear state_md5s\n";
+						# print "New state, clear state_md5s\n";
 						%state_md5s = ( );
 						$current_country = $country;
 						$current_state = $state;
@@ -345,6 +361,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 				my $inserts = 0;
 
+				# Import this state's hand curated data
 				if(my $k = $known_places{$f}) {
 					my @rows = @{$k};
 					foreach my $row(@rows) {
@@ -355,6 +372,62 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 					}
 				}
+
+				# Import this state's Who's on First data
+				foreach my $wof_file (@whosonfirst) {
+					my $file = basename($wof_file);
+					next unless($wof_file =~ /\/wof\-venue\-([a-z]{2})\-([a-z]+)\-/);
+					my $c = lc($1);
+					my $s = uc($2);
+					next if(($c ne $country) || ($s ne $state));
+					my $wof_csv = Text::CSV->new({
+						allow_loose_quotes => 1,
+						blank_is_undef => 1,
+						empty_is_undef => 1,
+						binary => 1,
+					});
+					if(open(my $wof_fin, '<', $wof_file)) {
+						$wof_csv->column_names($wof_csv->getline($wof_fin));
+						my $wof_dir = dirname($wof_file);
+						my @filenames;
+						while(my $wof_row = $wof_csv->getline_hr($wof_fin)) {
+							my $wof_csv = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
+
+							open(my $wof_csv_fin, '<', $wof_csv);
+							local $/ = undef;
+							my $data = <$wof_csv_fin>;
+							close($wof_csv_fin);
+							$data = JSON->new()->utf8()->decode($data);
+							next if($data->{'properties'}->{'wof:country'} ne 'US');
+							my $address = $data->{'properties'}->{'addr:full'};
+							my $city;
+							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
+								if($href->{city}) {
+									$city = uc($href->{city});
+								}
+							}
+							next if(!defined($city));
+							my $row = {
+								'LAT' => $data->{'properties'}->{'geom:latitude'},
+								'LON' => $data->{'properties'}->{'geom:longitude'},
+								'NAME' => uc($data->{'properties'}->{'wof:name'}),
+								'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
+								'STREET' => uc($data->{'properties'}->{'addr:street'}),
+								'CITY' => $city,
+								'STATE' => $state,
+								'COUNTRY' => uc($country),
+								'POSTCODE' => uc($data->{'properties'}->{'addr:postcode'}),
+							};
+							$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+							if($inserts >= MAX_INSERT_COUNT) {
+								flush_queue($dbh);
+								$inserts = 0;
+							}
+						}
+					}
+				}
+
+				# Import this state's OpenAddresses data
 				my $csv = Text::CSV->new({
 					# sep_char => $sep_char,
 					allow_loose_quotes => 1,
@@ -375,51 +448,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$inserts = 0;
 					}
 				}
-				if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
-					foreach my $json_file (uniq(create_tree($whosonfirst))) {
-						my $file = basename($json_file);
-						next if($file !~ /1126128891.geojson$/);
-						next unless($json_file =~ /\/wof\-venue\-([a-z]{2})\-([a-z]+)\-/);
-						my $c = uc($1);
-						my $s = uc($2);
-						next if(($c ne $country) || ($s ne $state));
-						die $json_file;
-						if(open(my $wof, '<', $json_file)) {
-							local $/ = undef;
-							my $data = <$wof>;
-							close($wof);
-							$data = JSON->new()->utf8()->decode($data);
-							next if($data->{'properties'}->{'wof:country'} ne 'US');
-							my $address = $data->{'properties'}->{'addr:full'};
-							my $city;
-							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
-								if($href->{city}) {
-									$city = uc($href->{city});
-								}
-							}
-							my $row = {
-								'LAT' => $data->{'properties'}->{'geom:latitude'},
-								'LON' => $data->{'properties'}->{'geom:longitude'},
-								'NAME' => uc($data->{'properties'}->{'wof:name'}),
-								'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
-								'STREET' => uc($data->{'properties'}->{'addr:street'}),
-								'CITY' => $city,
-								'STATE' => $state,
-								'COUNTRY' => $country,
-								'POSTCODE' => uc($data->{'properties'}->{'addr:postcode'}),
-							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
-							if($inserts >= MAX_INSERT_COUNT) {
-								flush_queue($dbh);
-								$inserts = 0;
-							}
-						}
-					}
-				}
-
 			}
 		}
 		flush_queue($dbh);
+		@whosonfirst = ();
 
 		$| = 1;
 		printf "%-70s\r", 'creating cities';
@@ -470,17 +502,26 @@ sub create_tree {
 
 	foreach my $file(<"$where/*">) {
 		next if($file =~ /summary$/);
-		if(-d $file) {
+		my $supported_country = 0;
+		foreach my $c(keys %supported_countries) {
+			if($file =~ /$c/) {
+				$supported_country = 1;
+				last;
+			}
+		}
+		next unless($supported_country);
+		# if(($file =~ /\.csv$/) || ($file =~ /\.geojson$/)) {
+		if($file =~ /\.csv$/) {
+			push(@list, $file);
+			# print "$file\n";
+		} elsif(-d $file) {
 			push(@list, create_tree($file, @list));
-		} elsif(($file =~ /\.csv$/) && (-f $file)) {
-			push(@list, $file);
-		} elsif(($file =~ /\.geojson$/) && (-f $file)) {
-			push(@list, $file);
 		}
 	}
 	return @list;
 }
 
+# Import a row into the database
 sub import {
 	my %param;
 	if(ref($_[0]) eq 'HASH') {
@@ -558,8 +599,7 @@ sub import {
 				# Counties and states alone have already been read in
 				$columns{'COUNTY'} = $county;
 				# print "$zip => $query\n";
-				insert($dbh, $global, \%columns);
-				$inserts++;
+				$inserts += insert($dbh, $global, \%columns);
 			}
 		}
 		if(!defined($city)) {
@@ -658,29 +698,29 @@ sub import {
 		if($street) {
 			$row->{'STREET'} =~ s/\s\s+/ /g;
 		}
-		foreach my $c('LAT', 'LON', 'NUMBER') {
+		foreach my $c('LAT', 'LON', 'NAME', 'NUMBER') {
 			$columns{$c} = delete $row->{$c};
 		}
-		insert($dbh, $global, \%columns);
-		$inserts++;
+		$inserts += insert($dbh, $global, \%columns);
 		if(delete($columns{'COUNTY'})) {
-			insert($dbh, $global, \%columns);
-			$inserts++;
+			$inserts += insert($dbh, $global, \%columns);
+		}
+		if(delete($columns{'NAME'})) {
+			$inserts += insert($dbh, $global, \%columns);
 		}
 		if(delete($columns{'NUMBER'})) {
 			# Match somewhere in the street when number isn't known
-			insert($dbh, $global, \%columns);
-			$inserts++;
-			if($city && delete($columns{'STREET'})) {
+			$inserts += insert($dbh, $global, \%columns);
+			if(delete($columns{'STREET'})) {
 				# Match somewhere in the city when street isn't known
-				insert($dbh, $global, \%columns);
-				$inserts++;
+				$inserts += insert($dbh, $global, \%columns);
 			}
 		}
 	}
 	return $inserts;
 }
 
+# Insert data into the database, returns the number of new rows
 sub insert {
 	my ($dbh, $global, $columns) = @_;
 
@@ -714,7 +754,7 @@ sub insert {
 
 	if(!defined($digest)) {
 		# print "Ignore ", join(',', values(%{$columns})), "\n";
-		return;
+		return 0;
 	}
 
 	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
@@ -747,10 +787,12 @@ sub insert {
 		$digest = hash($global, Encode::encode_utf8($digest));
 		if(!defined($digest)) {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
-			return;
+			return 1;
 		}
 		$queued_commits{$digest} = $columns;
+		return 2;
 	}
+	return 1;
 }
 
 # All of the place's values are combined into one INSERT INTO
