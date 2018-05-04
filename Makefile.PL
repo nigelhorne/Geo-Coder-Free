@@ -60,6 +60,7 @@ WriteMakefile(
 	  : ()),
 	BUILD_REQUIRES => {	# For bin/createdatabase
 		'App::csv2sqlite' => 0,
+		'File::Basename' => 0,
 		'File::Copy' => 0,
 		'autodie' => 0,
 		'IPC::System::Simple' => 0,

@@ -12,6 +12,8 @@ use LWP::UserAgent::Throttled;
 use Locale::US;
 use Digest::MD5;
 use Encode;
+use Geo::StreetAddress::US;
+use File::Basename;
 
 use	constant	MAX_INSERT_COUNT => 50;	# Maximum number of CSV rows to insert in a single statement
 my $d = 1;
@@ -295,28 +297,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 
-		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
-			foreach my $json_file (uniq(create_tree($whosonfirst))) {
-				if(open(my $wof, '<', $json_file)) {
-					local $/ = undef;
-					my $data = <$wof>;
-					close($wof);
-					$data = JSON->new()->utf8()->decode($data);
-					next if($data->{properties}->{'wof:country'} ne 'US');
-					print Data::Dumper->new([$data])->Dump();
-					exit;
-				}
-			}
-		}
-		exit;
-
 		my $current_state;
 		my $current_country;
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
-			# next unless($csv_file =~ /us\/md\/statewide/);
+			next unless($csv_file =~ /us\/md\/statewide/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -345,7 +332,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# Clear the deduping hash when we can, to avoid it becoming too large
 				if(($country eq 'us') || ($country eq 'ca')) {
 					if((!defined($current_state)) || ($state ne $current_state)) {
-						# print "New state, clear state_md5s\n";
+						print "New state, clear state_md5s\n";
 						%state_md5s = ( );
 						$current_country = $country;
 						$current_state = $state;
@@ -355,16 +342,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					%state_md5s = ( );
 					$current_country = $country;
 				}
-
-				my $csv = Text::CSV->new({
-					# sep_char => $sep_char,
-					allow_loose_quotes => 1,
-					blank_is_undef => 1,
-					empty_is_undef => 1,
-					binary => 1,
-					# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
-					# escape_char => '\\',	# Put back once issue 3905 has been fixed
-				});
 
 				my $inserts = 0;
 
@@ -378,6 +355,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 					}
 				}
+				my $csv = Text::CSV->new({
+					# sep_char => $sep_char,
+					allow_loose_quotes => 1,
+					blank_is_undef => 1,
+					empty_is_undef => 1,
+					binary => 1,
+					# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
+					# escape_char => '\\',	# Put back once issue 3905 has been fixed
+				});
+
 				open(my $fin, '<', $csv_file);
 				$csv->column_names($csv->getline($fin));
 
@@ -388,6 +375,48 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$inserts = 0;
 					}
 				}
+				if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
+					foreach my $json_file (uniq(create_tree($whosonfirst))) {
+						my $file = basename($json_file);
+						next if($file !~ /1126128891.geojson$/);
+						next unless($json_file =~ /\/wof\-venue\-([a-z]{2})\-([a-z]+)\-/);
+						my $c = uc($1);
+						my $s = uc($2);
+						next if(($c ne $country) || ($s ne $state));
+						die $json_file;
+						if(open(my $wof, '<', $json_file)) {
+							local $/ = undef;
+							my $data = <$wof>;
+							close($wof);
+							$data = JSON->new()->utf8()->decode($data);
+							next if($data->{'properties'}->{'wof:country'} ne 'US');
+							my $address = $data->{'properties'}->{'addr:full'};
+							my $city;
+							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
+								if($href->{city}) {
+									$city = uc($href->{city});
+								}
+							}
+							my $row = {
+								'LAT' => $data->{'properties'}->{'geom:latitude'},
+								'LON' => $data->{'properties'}->{'geom:longitude'},
+								'NAME' => uc($data->{'properties'}->{'wof:name'}),
+								'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
+								'STREET' => uc($data->{'properties'}->{'addr:street'}),
+								'CITY' => $city,
+								'STATE' => $state,
+								'COUNTRY' => $country,
+								'POSTCODE' => uc($data->{'properties'}->{'addr:postcode'}),
+							};
+							$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+							if($inserts >= MAX_INSERT_COUNT) {
+								flush_queue($dbh);
+								$inserts = 0;
+							}
+						}
+					}
+				}
+
 			}
 		}
 		flush_queue($dbh);
