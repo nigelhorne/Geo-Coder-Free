@@ -220,6 +220,8 @@ sub geocode {
 					$street = "$1 CIR";
 				} elsif($street =~ /(.+)\s+DRIVE$/) {
 					$street = "$1 DR";
+				} elsif($street =~ /(.+)\s+PARKWAY$/) {
+					$street = "$1 PKWY";
 				}
 				$street =~ s/^0+//;	# Turn 04th St into 4th St
 				$addr{'road'} = $street;
@@ -578,6 +580,8 @@ sub _normalize {
 		return 'FORT';
 	} elsif(($type eq 'CTR') || ($type eq 'CENTER')) {
 		return 'CENTER';
+	} elsif(($type eq 'PARKWAY') || ($type eq 'PKWY')) {
+		return 'PKWY';
 	} elsif($type eq 'BLVD') {
 		return 'BLVD';
 	} elsif($type eq 'PIKE') {

@@ -22,7 +22,6 @@ use File::Basename;
 use File::Spec;
 
 use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
-my $d = 1;
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -80,10 +79,13 @@ my %zipcodes = (
 	'80645' => { city => 'La Salle', county => 'Weld' },
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
-my %supported_countries = (
-	'au' => 1,
-	'ca' => 1,
-	'us' => 1,
+my %openaddresses_supported_countries = (
+	# 'au' => 1,
+	# 'ca' => 1,
+	# 'us' => 1,
+);
+my @whosonfirst_only_countries = (
+	'gb'
 );
 my %known_places = (	# Places I've checked with my GPS
 	'us/md/statewide.csv' =>
@@ -119,7 +121,16 @@ my %known_places = (	# Places I've checked with my GPS
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20895
 			}, {
-				# NMMS
+				'NAME' => 'POST OFFICE',
+				'LAT' => 39.02554455,
+				'LON' => -77.07178215,
+				'NUMBER' => 10325,
+				'STREET' => 'KENSINGTON PKWY',
+				'CITY' => 'KENSINGTON',
+				'COUNTY' => 'MONTGOMERY',
+				'POSTCODE' => 20895
+			}, {
+				'NAME' => 'NEWPORT MILL MIDDLE SCHOOL',
 				'LAT' => 39.0416107,
 				'LON' => -77.06884708,
 				'NUMBER' => 11311,
@@ -171,6 +182,15 @@ my %known_places = (	# Places I've checked with my GPS
 				'CITY' => 'ROCKVILLE',
 				'COUNTY' => 'MONTGOMERY',
 				'POSTCODE' => 20851
+			}, {
+				'LAT' => 39.0147541,
+				'LON' => -77.05466857,
+				'NAME' => 'BP',
+				'NUMBER' => 2601,
+				'STREET' => 'FOREST GLEN ROAD',
+				'CITY' => 'SILVER SPRING',
+				'COUNTY' => 'MONTGOMERY',
+				'POSTCODE' => 20910
 			}
 		]
 );
@@ -316,6 +336,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# @whosonfirst = uniq($whosonfirst);
 		}
 		foreach my $csv_file (uniq(create_tree($oa))) {
+			next;
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
@@ -327,13 +348,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 			my $f = $csv_file;
 			$f =~ s/^$oa\///;
-			$| = 1;
-			printf "%-70s\r", $f;
-			$| = 0;
-			print "\n";
 			my @components = split(/\//, $f);
 			if(my $country = $components[0]) {
-				next unless($supported_countries{lc($country)});
+				next unless($openaddresses_supported_countries{lc($country)});
 
 				my $query;
 				my $state;
@@ -376,10 +393,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# Import this state's Who's on First data
 				foreach my $wof_file (@whosonfirst) {
 					my $file = basename($wof_file);
-					next unless($wof_file =~ /\/wof\-venue\-([a-z]{2})\-([a-z]+)\-/);
-					my $c = lc($1);
-					my $s = uc($2);
-					next if(($c ne $country) || ($s ne $state));
+					if($state) {
+						next unless($wof_file =~ /\/wof\-venue\-([a-z]{2})\-([a-z]+)\-/);
+						my $c = lc($1);
+						my $s = uc($2);
+						next if(($c ne $country) || ($s ne $state));
+					} else {
+						next unless($wof_file =~ /\/wof\-venue\-([a-z]{2})\-/);
+						my $c = lc($1);
+						next if($c ne $country);
+					}
+					$| = 1;
+					printf "%-70s\r", $file;
+					$| = 0;
 					my $wof_csv = Text::CSV->new({
 						allow_loose_quotes => 1,
 						blank_is_undef => 1,
@@ -389,7 +415,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					if(open(my $wof_fin, '<', $wof_file)) {
 						$wof_csv->column_names($wof_csv->getline($wof_fin));
 						my $wof_dir = dirname($wof_file);
-						my @filenames;
 						while(my $wof_row = $wof_csv->getline_hr($wof_fin)) {
 							my $wof_csv = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
 
@@ -398,12 +423,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							my $data = <$wof_csv_fin>;
 							close($wof_csv_fin);
 							$data = JSON->new()->utf8()->decode($data);
-							next if($data->{'properties'}->{'wof:country'} ne 'US');
+							next if($data->{'properties'}->{'wof:country'} ne uc($country));
 							my $address = $data->{'properties'}->{'addr:full'};
-							my $city;
-							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
-								if($href->{city}) {
-									$city = uc($href->{city});
+							my $city = $data->{'properties'}->{'sg:city'};
+							if(!defined($city)) {
+								if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
+									if($href->{city}) {
+										$city = $href->{city};
+									}
 								}
 							}
 							next if(!defined($city));
@@ -413,7 +440,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								'NAME' => uc($data->{'properties'}->{'wof:name'}),
 								'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
 								'STREET' => uc($data->{'properties'}->{'addr:street'}),
-								'CITY' => $city,
+								'CITY' => uc($city),
 								'STATE' => $state,
 								'COUNTRY' => uc($country),
 								'POSTCODE' => uc($data->{'properties'}->{'addr:postcode'}),
@@ -426,6 +453,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 					}
 				}
+
+				$| = 1;
+				printf "%-70s\r", $f;
+				$| = 0;
+				# print "\n";
 
 				# Import this state's OpenAddresses data
 				my $csv = Text::CSV->new({
@@ -450,6 +482,83 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 		}
+
+		%state_md5s = ( );
+
+		foreach my $country(@whosonfirst_only_countries) {
+			# TODO: import known_places for this country
+
+			# Import this country's Who's on First data
+			foreach my $wof_file (@whosonfirst) {
+				my $file = basename($wof_file);
+				next unless($wof_file =~ /\/wof\-venue\-([a-z]{2})\-.+\.csv/);
+				my $c = lc($1);
+				next if($c ne $country);
+				$| = 1;
+				printf "%-70s\r", $file;
+				$| = 0;
+				my $wof_csv = Text::CSV->new({
+					allow_loose_quotes => 1,
+					blank_is_undef => 1,
+					empty_is_undef => 1,
+					binary => 1,
+				});
+				my $inserts = 0;
+				if(open(my $wof_fin, '<', $wof_file)) {
+					$wof_csv->column_names($wof_csv->getline($wof_fin));
+					my $wof_dir = dirname($wof_file);
+					while(my $wof_row = $wof_csv->getline_hr($wof_fin)) {
+						my $wof_csv = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
+
+						open(my $wof_csv_fin, '<', $wof_csv);
+						local $/ = undef;
+						my $data = <$wof_csv_fin>;
+						close($wof_csv_fin);
+						$data = JSON->new()->utf8()->decode($data);
+						next if($data->{'properties'}->{'wof:country'} ne uc($country));
+						my $city = $data->{'properties'}->{'sg:city'};
+						my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
+						my $postcode = uc($data->{'properties'}->{'addr:postcode'});
+						$country = uc($country);
+						if(defined($city)) {
+							$city = uc($city);
+						}
+						if(defined($postcode)) {
+							$postcode = uc($postcode);
+						}
+						if((!defined($state)) && ($country eq 'GB')) {
+							if($postcode =~ /^BA1 /) {
+								$state = 'SOMERSET';
+							} elsif($city eq 'LONDON') {
+								$state = 'LONDON';
+							} elsif(!defined($state)) {
+								die Data::Dumper->new([$data])->Dump();
+							}
+						}
+						if(!defined($city)) {
+							die Data::Dumper->new([$data])->Dump();
+						}
+						my $row = {
+							'LAT' => $data->{'properties'}->{'geom:latitude'},
+							'LON' => $data->{'properties'}->{'geom:longitude'},
+							'NAME' => uc($data->{'properties'}->{'wof:name'}),
+							'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
+							'STREET' => uc($data->{'properties'}->{'addr:street'}),
+							'CITY' => $city,
+							'STATE' => uc($state),
+							'COUNTRY' => $country,
+							'POSTCODE' => $postcode,
+						};
+						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+						if($inserts >= MAX_INSERT_COUNT) {
+							flush_queue($dbh);
+							$inserts = 0;
+						}
+					}
+				}
+			}
+		}
+
 		flush_queue($dbh);
 		@whosonfirst = ();
 
@@ -503,7 +612,7 @@ sub create_tree {
 	foreach my $file(<"$where/*">) {
 		next if($file =~ /summary$/);
 		my $supported_country = 0;
-		foreach my $c(keys %supported_countries) {
+		foreach my $c(keys %openaddresses_supported_countries) {
 			if($file =~ /$c/) {
 				$supported_country = 1;
 				last;
@@ -561,7 +670,7 @@ sub import {
 		} elsif(!defined($city)) {
 			$city = $file;
 			$city =~ s/\.csv$//;
-		} else {
+		} elsif($file !~ /^wof\-.+latest\.csv$/i) {
 			$county = $file;
 			$county =~ s/\.csv$//;
 		}
@@ -637,6 +746,8 @@ sub import {
 			$street = "$1 DR";
 		} elsif($street =~ /(.+)\s+CIRCLE$/) {
 			$street = "$1 CIR";
+		} elsif($street =~ /(.+)\s+PARKWAY$/) {
+			$street = "$1 PKWY";
 		}
 		$street =~ s/^0+//;	# Turn 04th St into 4th St
 	}
@@ -688,8 +799,9 @@ sub import {
 	}
 	if(($city && ($city !~ /^\s+$/)) || $county) {
 		# Counties and states alone have already been read in
+		$county = uc($country);
 		my %columns = (
-			'COUNTRY' => uc($country),
+			'COUNTRY' => $country,
 			'CITY' => $city,
 			'STATE' => $state,
 			'COUNTY' => $county,
@@ -700,6 +812,9 @@ sub import {
 		}
 		foreach my $c('LAT', 'LON', 'NAME', 'NUMBER') {
 			$columns{$c} = delete $row->{$c};
+		}
+		if(($country eq 'GB') && ($city eq 'LONDON') && ($state eq 'LONDON')) {
+			delete $columns{'CITY'};
 		}
 		$inserts += insert($dbh, $global, \%columns);
 		if(delete($columns{'COUNTY'})) {
@@ -735,17 +850,19 @@ sub insert {
 	}
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
+	# print Data::Dumper->new([$columns])->Dump() if($columns->{'NAME'} && (uc($columns->{'NAME'}) eq 'EL PAPI STREET TACOS'));
+	# print Data::Dumper->new([$columns])->Dump();
 
 	my $lat = $columns->{'LAT'};
 	my $lon = $columns->{'LON'};
 
 	die unless(defined($lat) && defined($lon));
-	die unless($columns->{'STATE'});
+	die "$lat/$lon" unless($columns->{'STATE'});
 
 	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	my $digest;
 	# print Data::Dumper->new([$columns])->Dump();
-	foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+	foreach my $column('NAME','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
 	# print "$digest\n";
@@ -784,12 +901,11 @@ sub insert {
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 			$digest .= $columns->{$column} if($columns->{$column});
 		}
-		$digest = hash($global, Encode::encode_utf8($digest));
-		if(!defined($digest)) {
+		if($digest = hash($global, Encode::encode_utf8($digest))) {
+			$queued_commits{$digest} = $columns;
+		# } else {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
-			return 1;
 		}
-		$queued_commits{$digest} = $columns;
 		return 2;
 	}
 	return 1;
@@ -804,7 +920,7 @@ sub flush_queue
 	# print "flush\n";
 
 	# my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
-	my @columns = ('LAT','LON','NUMBER','STREET');
+	my @columns = ('LAT','LON','NAME','NUMBER','STREET');
 
 	my $query;
 
