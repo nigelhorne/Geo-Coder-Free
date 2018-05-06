@@ -336,7 +336,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# @whosonfirst = uniq($whosonfirst);
 		}
 		foreach my $csv_file (uniq(create_tree($oa))) {
-			next;
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/ca\/sonoma/);
