@@ -508,6 +508,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$wof_csv->column_names($wof_csv->getline($wof_fin));
 					my $wof_dir = dirname($wof_file);
 					while(my $wof_row = $wof_csv->getline_hr($wof_fin)) {
+						next if($wof_row->{'superseded_by'});
+						next if($wof_row->{'deprecated'});
 						my $wof_csv = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
 
 						open(my $wof_csv_fin, '<', $wof_csv);
@@ -516,9 +518,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						close($wof_csv_fin);
 						$data = JSON->new()->utf8()->decode($data);
 						next if($data->{'properties'}->{'wof:country'} ne uc($country));
+						my $stret = $data->{'properties'}->{'addr:street'};
+						next if(!defined($street));
 						my $city = $data->{'properties'}->{'sg:city'};
 						my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
-						my $postcode = uc($data->{'properties'}->{'addr:postcode'});
+						my $postcode = $data->{'properties'}->{'addr:postcode'};
 						$country = uc($country);
 						if(defined($city)) {
 							$city = uc($city);
@@ -526,26 +530,30 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if(defined($postcode)) {
 							$postcode = uc($postcode);
 						}
+						if(defined($state)) {
+							$state = uc($state);
+						}
 						if((!defined($state)) && ($country eq 'GB')) {
 							if($postcode =~ /^BA1 /) {
 								$state = 'SOMERSET';
-							} elsif($city eq 'LONDON') {
-								$state = 'LONDON';
-							} elsif(!defined($state)) {
-								die Data::Dumper->new([$data])->Dump();
 							}
 						}
 						if(!defined($city)) {
-							die Data::Dumper->new([$data])->Dump();
+							if(defined($postcode) && ($postcode =~ /^W1 /)) {
+								$city = 'LONDON';
+							} else {
+								# warn Data::Dumper->new([$data])->Dump();
+								next;
+							}
 						}
 						my $row = {
 							'LAT' => $data->{'properties'}->{'geom:latitude'},
 							'LON' => $data->{'properties'}->{'geom:longitude'},
 							'NAME' => uc($data->{'properties'}->{'wof:name'}),
 							'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
-							'STREET' => uc($data->{'properties'}->{'addr:street'}),
+							'STREET' => uc($street),
 							'CITY' => $city,
-							'STATE' => uc($state),
+							'STATE' => $state,
 							'COUNTRY' => $country,
 							'POSTCODE' => $postcode,
 						};
@@ -784,17 +792,19 @@ sub import {
 	if(!defined($state)) {
 		$state = $row->{'REGION'};
 	}
-	if($state eq 'IN') {
-		if(defined($city) && ($city eq 'FW')) {
-			$city = 'FORT WAYNE';
-			$county = 'ALLEN';
-		} elsif(defined($county) && ($county eq 'LAPORTE')) {
-			$county = 'LA PORTE';
-		}
-	} elsif($state eq 'MO') {
-		if(defined($city) && ($city eq 'SAINT LOUIS')) {
-			$city = 'ST. LOUIS';
-			$county = undef;
+	if(defined($state)) {
+		if($state eq 'IN') {
+			if(defined($city) && ($city eq 'FW')) {
+				$city = 'FORT WAYNE';
+				$county = 'ALLEN';
+			} elsif(defined($county) && ($county eq 'LAPORTE')) {
+				$county = 'LA PORTE';
+			}
+		} elsif($state eq 'MO') {
+			if(defined($city) && ($city eq 'SAINT LOUIS')) {
+				$city = 'ST. LOUIS';
+				$county = undef;
+			}
 		}
 	}
 	if(($city && ($city !~ /^\s+$/)) || $county) {
@@ -813,7 +823,7 @@ sub import {
 		foreach my $c('LAT', 'LON', 'NAME', 'NUMBER') {
 			$columns{$c} = delete $row->{$c};
 		}
-		if(($country eq 'GB') && ($city eq 'LONDON') && ($state eq 'LONDON')) {
+		if(($country eq 'GB') && ($city eq 'LONDON') && defined($state) && ($state eq 'LONDON')) {
 			delete $columns{'CITY'};
 		}
 		$inserts += insert($dbh, $global, \%columns);
@@ -857,7 +867,7 @@ sub insert {
 	my $lon = $columns->{'LON'};
 
 	die unless(defined($lat) && defined($lon));
-	die "$lat/$lon" unless($columns->{'STATE'});
+	# die "$lat/$lon" unless($columns->{'STATE'});
 
 	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	my $digest;
@@ -991,6 +1001,9 @@ sub city_key {
 	}
 	if(!defined($county)) {
 		$county = '0';
+	}
+	if(!defined($state)) {
+		$state = '0';
 	}
 	return "$city,$county,$state,$country";
 }
