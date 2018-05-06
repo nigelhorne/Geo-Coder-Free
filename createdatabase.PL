@@ -415,12 +415,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$wof_csv->column_names($wof_csv->getline($wof_fin));
 						my $wof_dir = dirname($wof_file);
 						while(my $wof_row = $wof_csv->getline_hr($wof_fin)) {
-							my $wof_csv = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
+							my $wof_json = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
 
-							open(my $wof_csv_fin, '<', $wof_csv);
+							open(my $wof_json_fin, '<', $wof_json);
 							local $/ = undef;
-							my $data = <$wof_csv_fin>;
-							close($wof_csv_fin);
+							my $data = <$wof_json_fin>;
+							close($wof_json_fin);
 							$data = JSON->new()->utf8()->decode($data);
 							next if($data->{'properties'}->{'wof:country'} ne uc($country));
 							my $address = $data->{'properties'}->{'addr:full'};
