@@ -265,6 +265,11 @@ sub geocode {
 		$state =~ s/\s$//g;
 		$country =~ s/\s$//g;
 
+		if((uc($country) eq 'ENGLAND') ||
+		   (uc($country) eq 'SCOTLAND') ||
+		   (uc($country) eq 'WALES')) {
+			$country = 'Great Britain';
+		}
 		if(my $c = country2code($country)) {
 			if($c eq 'us') {
 				if(length($state) > 2) {
@@ -469,10 +474,45 @@ sub geocode {
 			} else {
 				# Currently only handles Town, Region, Country
 				# TODO: add addresses support
-				my $sc = Locale::SubCountry->new(uc($c));
-				if(my $abbrev = $sc->code(ucfirst(lc($state)))) {
-					if($abbrev ne 'unknown') {
-						$state = $abbrev;
+				if($c eq 'au') {
+					my $sc = Locale::SubCountry->new(uc($c));
+					if(my $abbrev = $sc->code(ucfirst(lc($state)))) {
+						if($abbrev ne 'unknown') {
+							$state = $abbrev;
+						}
+					}
+				}
+				if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
+					# City includes a street name
+					my $street = uc($1);
+					$city = uc($2);
+					if($street =~ /(.+)\s+STREET$/) {
+						$street = "$1 ST";
+					} elsif($street =~ /(.+)\s+ROAD$/) {
+						$street = "$1 RD";
+					} elsif($street =~ /(.+)\s+AVENUE$/) {
+						$street = "$1 AVE";
+					} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
+						$street = "$1 AVE $2";
+					} elsif($street =~ /(.+)\s+CT$/) {
+						$street = "$1 COURT";
+					} elsif($street =~ /(.+)\s+CIRCLE$/) {
+						$street = "$1 CIR";
+					} elsif($street =~ /(.+)\s+DRIVE$/) {
+						$street = "$1 DR";
+					} elsif($street =~ /(.+)\s+PARKWAY$/) {
+						$street = "$1 PKWY";
+					}
+					$street =~ s/^0+//;	# Turn 04th St into 4th St
+					if($street =~ /^(\d+)\s+(.+)/) {
+						my $number = $1;
+						$street = $2;
+						if(my $rc = $self->_get("$number$street$city$state$c")) {
+							return $rc;
+						}
+					}
+					if(my $rc = $self->_get("$street$city$state$c")) {
+						return $rc;
 					}
 				}
 				if(my $rc = $self->_get("$city$state$c")) {

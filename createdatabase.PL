@@ -80,9 +80,9 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 my %openaddresses_supported_countries = (
-	# 'au' => 1,
-	# 'ca' => 1,
-	# 'us' => 1,
+	'au' => 1,
+	'ca' => 1,
+	'us' => 1,
 );
 my @whosonfirst_only_countries = (
 	'gb'
@@ -518,8 +518,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						close($wof_csv_fin);
 						$data = JSON->new()->utf8()->decode($data);
 						next if($data->{'properties'}->{'wof:country'} ne uc($country));
-						my $stret = $data->{'properties'}->{'addr:street'};
+						my $street = $data->{'properties'}->{'addr:street'};
 						next if(!defined($street));
+						# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
+						$street =~ s/;.+$//;
 						my $city = $data->{'properties'}->{'sg:city'};
 						my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
 						my $postcode = $data->{'properties'}->{'addr:postcode'};
@@ -535,6 +537,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						if((!defined($state)) && ($country eq 'GB')) {
 							if($postcode =~ /^BA1 /) {
+							# if($data->{'properties'}->{'wof:hierachy'}[0]->{'region_id'} == 85683823) {
 								$state = 'SOMERSET';
 							}
 						}
