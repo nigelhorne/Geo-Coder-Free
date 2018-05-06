@@ -433,6 +433,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								}
 							}
 							next if(!defined($city));
+							my $postcode = $data->{'properties'}->{'addr:postcode'};
+							if($postcode) {
+								$postcode = uc($postcode);
+							}
 							my $row = {
 								'LAT' => $data->{'properties'}->{'geom:latitude'},
 								'LON' => $data->{'properties'}->{'geom:longitude'},
@@ -442,7 +446,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								'CITY' => uc($city),
 								'STATE' => $state,
 								'COUNTRY' => uc($country),
-								'POSTCODE' => uc($data->{'properties'}->{'addr:postcode'}),
+								'POSTCODE' => $postcode,
 							};
 							$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
 							if($inserts >= MAX_INSERT_COUNT) {
