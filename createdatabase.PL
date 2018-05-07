@@ -428,9 +428,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							next if(!defined($data));
 							$data = JSON->new()->utf8()->decode($data);
 							next if($data->{'properties'}->{'wof:country'} ne uc($country));
-							my $address = $data->{'properties'}->{'addr:full'};
 							my $city = $data->{'properties'}->{'sg:city'};
 							if(!defined($city)) {
+								my $address = $data->{'properties'}->{'addr:full'};
+								next if(!defined($address));
 								if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
 									if($href->{city}) {
 										$city = $href->{city};
