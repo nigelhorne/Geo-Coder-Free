@@ -326,15 +326,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		my $current_state;
 		my $current_country;
-		my @whosonfirst;
+		my %whosonfirst;
 		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
 			$| = 1;
 			printf "%-70s\r", "Traversing $whosonfirst";
 			$| = 0;
 			foreach my $file(<"$whosonfirst/*.db">) {
-				push(@whosonfirst, $file);
+				$whosonfirst{$file} = 1;
 			}
-			# @whosonfirst = uniq($whosonfirst);
 		}
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
@@ -362,8 +361,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$file = $components[2];
 				}
 
-				my $new_region;
-
 				# Clear the deduping hash when we can, to avoid it becoming too large
 				if(($country eq 'us') || ($country eq 'ca')) {
 					if((!defined($current_state)) || ($state ne $current_state)) {
@@ -371,13 +368,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						%state_md5s = ( );
 						$current_country = $country;
 						$current_state = $state;
-						$new_region = 1;
 					}
 				} elsif((!defined($current_country)) || ($country ne $current_country)) {
 					# print "New country, clear state_md5s\n";
 					%state_md5s = ( );
 					$current_country = $country;
-					$new_region = 1;
 				}
 
 				my $inserts = 0;
@@ -394,83 +389,82 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 				}
 
-				if($new_region) {
-					# Import this state's Who's on First data
-					foreach my $wof_file (@whosonfirst) {
-						if($state && ($country eq 'us')) {
-							next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
-							my $c = lc($1);
-							my $s = uc($2);
-							next if(($c ne $country) || ($s ne $state));
-						} else {
-							next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-							my $c = lc($1);
-							next if($c ne $country);
+				# Import this state's Who's on First data
+				foreach my $wof_file (keys %whosonfirst) {
+					if($state && ($country eq 'us')) {
+						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
+						my $c = lc($1);
+						my $s = uc($2);
+						next if(($c ne $country) || ($s ne $state));
+					} else {
+						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
+						my $c = lc($1);
+						next if($c ne $country);
+					}
+					my $file = basename($wof_file);
+					$| = 1;
+					printf "%-70s\r", $file;
+					$| = 0;
+					print "\n";
+					my $wof_dbh = DBI->connect("dbi:SQLite:dbname=$wof_file", undef, undef, {
+						sqlite_open_flags => SQLITE_OPEN_READONLY,
+					});
+					$wof_dbh->do('PRAGMA synchronous = OFF');
+					$wof_dbh->do('PRAGMA cache_size = 65536');
+
+					my $sth = $wof_dbh->prepare('SELECT * FROM geojson');
+					$sth->execute() || die $wof_file;
+
+					while(my $data = $sth->fetchrow_hashref()) {
+						if($data->{'body'}) {
+							$data = $data->{'body'};
 						}
-						my $file = basename($wof_file);
-						$| = 1;
-						printf "%-70s\r", $file;
-						$| = 0;
-						print "\n";
-						my $wof_dbh = DBI->connect("dbi:SQLite:dbname=$wof_file", undef, undef, {
-							sqlite_open_flags => SQLITE_OPEN_READONLY,
-						});
-						$wof_dbh->do('PRAGMA synchronous = OFF');
-						$wof_dbh->do('PRAGMA cache_size = 65536');
-
-						my $sth = $wof_dbh->prepare('SELECT * FROM geojson');
-						$sth->execute() || die $wof_file;
-
-						while(my $data = $sth->fetchrow_hashref()) {
-							if($data->{'body'}) {
-								$data = $data->{'body'};
-							}
-							next if(!defined($data));
-							$data = JSON->new()->utf8()->decode($data);
-							next if($data->{'properties'}->{'wof:country'} ne uc($country));
-							my $city = $data->{'properties'}->{'sg:city'};
-							if(!defined($city)) {
-								my $address = $data->{'properties'}->{'addr:full'};
-								next if(!defined($address));
-								if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
-									if($href->{city}) {
-										$city = $href->{city};
-									}
+						next if(!defined($data));
+						$data = JSON->new()->utf8()->decode($data);
+						next if($data->{'properties'}->{'wof:country'} ne uc($country));
+						my $city = $data->{'properties'}->{'sg:city'};
+						if(!defined($city)) {
+							my $address = $data->{'properties'}->{'addr:full'};
+							next if(!defined($address));
+							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
+								if($href->{city}) {
+									$city = $href->{city};
 								}
 							}
-							next if(!defined($city));
-							my $postcode = $data->{'properties'}->{'addr:postcode'};
-							if($postcode) {
-								$postcode = uc($postcode);
-							}
-							my $street = $data->{'properties'}->{'addr:street'};
-							if($street) {
-								$street = uc($street);
-							}
-							my $number = $data->{'properties'}->{'addr:number'};
-							if($number) {
-								$number = uc($number);
-							}
-							my $row = {
-								'LAT' => $data->{'properties'}->{'geom:latitude'},
-								'LON' => $data->{'properties'}->{'geom:longitude'},
-								'NAME' => uc($data->{'properties'}->{'wof:name'}),
-								'NUMBER' => $number,
-								'STREET' => $street,
-								'CITY' => uc($city),
-								'STATE' => $state,
-								'COUNTRY' => uc($country),
-								'POSTCODE' => $postcode,
-							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
-							if($inserts >= MAX_INSERT_COUNT) {
-								flush_queue($dbh);
-								$inserts = 0;
-							}
 						}
-						$wof_dbh->disconnect();
-						last;
+						next if(!defined($city));
+						my $postcode = $data->{'properties'}->{'addr:postcode'};
+						if($postcode) {
+							$postcode = uc($postcode);
+						}
+						my $street = $data->{'properties'}->{'addr:street'};
+						if($street) {
+							$street = uc($street);
+						}
+						my $number = $data->{'properties'}->{'addr:number'};
+						if($number) {
+							$number = uc($number);
+						}
+						my $row = {
+							'LAT' => $data->{'properties'}->{'geom:latitude'},
+							'LON' => $data->{'properties'}->{'geom:longitude'},
+							'NAME' => uc($data->{'properties'}->{'wof:name'}),
+							'NUMBER' => $number,
+							'STREET' => $street,
+							'CITY' => uc($city),
+							'STATE' => $state,
+							'COUNTRY' => uc($country),
+							'POSTCODE' => $postcode,
+						};
+						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+						if($inserts >= MAX_INSERT_COUNT) {
+							flush_queue($dbh);
+							$inserts = 0;
+						}
 					}
+					$wof_dbh->disconnect();
+					delete $whosonfirst{$wof_file};
+					last;
 				}
 
 				$| = 1;
@@ -508,14 +502,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# TODO: import known_places for this country
 
 			# Import this country's Who's on First data
-			foreach my $wof_file (@whosonfirst) {
-				next unless($wof_file =~ /\/wof\-venue\-([a-z]{2})\-.+\.csv/);
+			foreach my $wof_file (keys %whosonfirst) {
+				next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
 				my $c = lc($1);
 				next if($c ne $country);
 				my $file = basename($wof_file);
 				$| = 1;
 				printf "%-70s\r", $file;
 				$| = 0;
+				print "\n";
 				my $wof_csv = Text::CSV->new({
 					allow_loose_quotes => 1,
 					blank_is_undef => 1,
@@ -590,7 +585,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		}
 
 		flush_queue($dbh);
-		@whosonfirst = ();
+		%whosonfirst = ();
 
 		$| = 1;
 		printf "%-70s\r", 'creating cities';
