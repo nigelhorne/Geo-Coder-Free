@@ -416,7 +416,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$sth->execute() || die $wof_file;
 
 					while(my $data = $sth->fetchrow_hashref()) {
-						$data = JSON->new()->utf8()->decode($data->{'body'});
+						$data = $data->{'body'};
+						next if(!defined($data));
+						$data = JSON->new()->utf8()->decode($data);
 						next if($data->{'properties'}->{'wof:country'} ne uc($country));
 						my $address = $data->{'properties'}->{'addr:full'};
 						my $city = $data->{'properties'}->{'sg:city'};
@@ -432,12 +434,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($postcode) {
 							$postcode = uc($postcode);
 						}
+						my $street = $data->{'properties'}->{'addr:street'};
+						if($street) {
+							$street = uc($street);
+						}
 						my $row = {
 							'LAT' => $data->{'properties'}->{'geom:latitude'},
 							'LON' => $data->{'properties'}->{'geom:longitude'},
 							'NAME' => uc($data->{'properties'}->{'wof:name'}),
 							'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
-							'STREET' => uc($data->{'properties'}->{'addr:street'}),
+							'STREET' => $street,
 							'CITY' => uc($city),
 							'STATE' => $state,
 							'COUNTRY' => uc($country),
