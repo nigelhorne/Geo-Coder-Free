@@ -421,6 +421,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						next if(!defined($data));
 						$data = JSON->new()->utf8()->decode($data);
+						next if($data->{'properties'}->{'wof:superseded_by'});
 						next if($data->{'properties'}->{'wof:country'} ne uc($country));
 						my $city = $data->{'properties'}->{'sg:city'};
 						if(!defined($city)) {
@@ -502,6 +503,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# TODO: import known_places for this country
 
 			# Import this country's Who's on First data
+			my $inserts = 0;
 			foreach my $wof_file (keys %whosonfirst) {
 				next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
 				my $c = lc($1);
@@ -511,76 +513,73 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				printf "%-70s\r", $file;
 				$| = 0;
 				print "\n";
-				my $wof_csv = Text::CSV->new({
-					allow_loose_quotes => 1,
-					blank_is_undef => 1,
-					empty_is_undef => 1,
-					binary => 1,
+				my $wof_dbh = DBI->connect("dbi:SQLite:dbname=$wof_file", undef, undef, {
+					sqlite_open_flags => SQLITE_OPEN_READONLY,
 				});
-				my $inserts = 0;
-				if(open(my $wof_fin, '<', $wof_file)) {
-					$wof_csv->column_names($wof_csv->getline($wof_fin));
-					my $wof_dir = dirname($wof_file);
-					while(my $wof_row = $wof_csv->getline_hr($wof_fin)) {
-						next if($wof_row->{'superseded_by'});
-						next if($wof_row->{'deprecated'});
-						my $wof_csv = File::Spec->catfile($wof_dir, 'data', $wof_row->{'path'});
+				$wof_dbh->do('PRAGMA synchronous = OFF');
+				$wof_dbh->do('PRAGMA cache_size = 65536');
 
-						open(my $wof_csv_fin, '<', $wof_csv);
-						local $/ = undef;
-						my $data = <$wof_csv_fin>;
-						close($wof_csv_fin);
-						$data = JSON->new()->utf8()->decode($data);
-						next if($data->{'properties'}->{'wof:country'} ne uc($country));
-						my $street = $data->{'properties'}->{'addr:street'};
-						next if(!defined($street));
-						# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
-						$street =~ s/;.+$//;
-						my $city = $data->{'properties'}->{'sg:city'};
-						my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
-						my $postcode = $data->{'properties'}->{'addr:postcode'};
-						$country = uc($country);
-						if(defined($city)) {
-							$city = uc($city);
-						}
-						if(defined($postcode)) {
-							$postcode = uc($postcode);
-						}
-						if(defined($state)) {
-							$state = uc($state);
-						}
-						if((!defined($state)) && ($country eq 'GB')) {
-							if($postcode =~ /^BA1 /) {
-							# if($data->{'properties'}->{'wof:hierachy'}[0]->{'region_id'} == 85683823) {
-								$state = 'SOMERSET';
-							}
-						}
-						if(!defined($city)) {
-							if(defined($postcode) && ($postcode =~ /^W1 /)) {
-								$city = 'LONDON';
-							} else {
-								# warn Data::Dumper->new([$data])->Dump();
-								next;
-							}
-						}
-						my $row = {
-							'LAT' => $data->{'properties'}->{'geom:latitude'},
-							'LON' => $data->{'properties'}->{'geom:longitude'},
-							'NAME' => uc($data->{'properties'}->{'wof:name'}),
-							'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
-							'STREET' => uc($street),
-							'CITY' => $city,
-							'STATE' => $state,
-							'COUNTRY' => $country,
-							'POSTCODE' => $postcode,
-						};
-						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
-						if($inserts >= MAX_INSERT_COUNT) {
-							flush_queue($dbh);
-							$inserts = 0;
+				my $sth = $wof_dbh->prepare('SELECT * FROM geojson');
+				$sth->execute() || die $wof_file;
+
+				while(my $data = $sth->fetchrow_hashref()) {
+					if($data->{'body'}) {
+						$data = $data->{'body'};
+					}
+					next if(!defined($data));
+					$data = JSON->new()->utf8()->decode($data);
+
+					next if($data->{'properties'}->{'wof:superseded_by'});
+					next if($data->{'properties'}->{'wof:country'} ne uc($country));
+					my $street = $data->{'properties'}->{'addr:street'};
+					next if(!defined($street));
+					# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
+					$street =~ s/;.+$//;
+					my $city = $data->{'properties'}->{'sg:city'};
+					my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
+					my $postcode = $data->{'properties'}->{'addr:postcode'};
+					$country = uc($country);
+					if(defined($city)) {
+						$city = uc($city);
+					}
+					if(defined($postcode)) {
+						$postcode = uc($postcode);
+					}
+					if(defined($state)) {
+						$state = uc($state);
+					}
+					if((!defined($state)) && ($country eq 'GB')) {
+						if($postcode =~ /^BA1 /) {
+						# if($data->{'properties'}->{'wof:hierachy'}[0]->{'region_id'} == 85683823) {
+							$state = 'SOMERSET';
 						}
 					}
+					if(!defined($city)) {
+						if(defined($postcode) && ($postcode =~ /^W1 /)) {
+							$city = 'LONDON';
+						} else {
+							# warn Data::Dumper->new([$data])->Dump();
+							next;
+						}
+					}
+					my $row = {
+						'LAT' => $data->{'properties'}->{'geom:latitude'},
+						'LON' => $data->{'properties'}->{'geom:longitude'},
+						'NAME' => uc($data->{'properties'}->{'wof:name'}),
+						'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
+						'STREET' => uc($street),
+						'CITY' => $city,
+						'STATE' => $state,
+						'COUNTRY' => $country,
+						'POSTCODE' => $postcode,
+					};
+					$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+					if($inserts >= MAX_INSERT_COUNT) {
+						flush_queue($dbh);
+						$inserts = 0;
+					}
 				}
+				$wof_dbh->disconnect();
 			}
 		}
 
