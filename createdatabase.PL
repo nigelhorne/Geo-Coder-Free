@@ -232,13 +232,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(!-d $oa) {
 			mkdir $oa;
 		}
-		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
-		$ua->throttle({ 'api.zippopotam.us' => 1 });
-		$ua->env_proxy(1);
-
 		$dbh->prepare("CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
 		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
-
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -335,6 +330,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$whosonfirst{$file} = 1;
 			}
 		}
+		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
+		$ua->throttle({ 'api.zippopotam.us' => 1 });
+		$ua->env_proxy(1);
+
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
