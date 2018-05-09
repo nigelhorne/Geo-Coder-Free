@@ -378,8 +378,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 				# Import this state's hand curated data
 				if(my $k = $known_places{$f}) {
-					my @rows = @{$k};
-					foreach my $row(@rows) {
+					foreach my $row(@{$k}) {
 						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh);
@@ -676,7 +675,7 @@ sub import {
 	my $inserts = 0;
 
 	my $city = $row->{'CITY'};
-	my $county;
+	my $county = $row->{'COUNTY'};
 	if(($file !~ /^statewide/) && ($file !~ /^province/) && ($file !~ /^countrywide/)) {
 		if($file =~ /^city_of_(.+).csv$/) {
 			$city = $1;
@@ -824,7 +823,7 @@ sub import {
 	}
 	if(($city && ($city !~ /^\s+$/)) || $county) {
 		# Counties and states alone have already been read in
-		$county = uc($country);
+		$country = uc($country);
 		my %columns = (
 			'COUNTRY' => $country,
 			'CITY' => $city,
@@ -913,6 +912,7 @@ sub insert {
 	my $key = city_key($columns->{'CITY'}, $columns->{'COUNTY'}, $columns->{'STATE'}, $columns->{'COUNTRY'});
 	if(!$cities{$key}) {
 		$city_sequence++;
+		# print "adding '$key' to cities list\n";
 		$cities{$key} = $city_sequence;
 	}
 

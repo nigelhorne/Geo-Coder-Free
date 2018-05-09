@@ -160,6 +160,7 @@ sub geocode {
 		}
 	}
 
+	# ::diag($location);
 	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
 		my $l = $1;
 		$l =~ s/,/ /g;
@@ -566,6 +567,7 @@ sub _get {
 
 	$location =~ s/,\s*//g;
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
+	# ::diag("$location: $digest");
 	if(my $cache = $self->{'cache'}) {
 		if(my $rc = $cache->get_object($digest)) {
 			return Storable::thaw($rc->value());
