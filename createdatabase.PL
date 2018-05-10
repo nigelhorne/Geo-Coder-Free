@@ -82,8 +82,8 @@ my %zipcodes = (
 );
 my %openaddresses_supported_countries = (
 	# 'au' => 1,
-	# 'ca' => 1,
-	# 'us' => 1,
+	'ca' => 1,
+	'us' => 1,
 );
 my @whosonfirst_only_countries = (
 	'gb'
@@ -521,13 +521,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$sth->execute() || die $wof_file;
 
 				while(my $data = $sth->fetchrow_hashref()) {
+					# print Data::Dumper->new([$data])->Dump();
 					if($data->{'body'}) {
 						$data = $data->{'body'};
 					}
 					next if(!defined($data));
 					$data = JSON->new()->utf8()->decode($data);
 
-					next if($data->{'properties'}->{'wof:superseded_by'});
+					next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
 					next if($data->{'properties'}->{'wof:country'} ne uc($country));
 					my $street = $data->{'properties'}->{'addr:street'};
 					next if(!defined($street));
