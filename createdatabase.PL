@@ -82,8 +82,8 @@ my %zipcodes = (
 );
 my %openaddresses_supported_countries = (
 	# 'au' => 1,
-	'ca' => 1,
-	'us' => 1,
+	# 'ca' => 1,
+	# 'us' => 1,
 );
 my @whosonfirst_only_countries = (
 	'gb'

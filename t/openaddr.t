@@ -29,11 +29,11 @@ OPENADDR: {
 			$location = $geocoder->geocode('Indianapolis, Indiana, USA');
 			ok(defined($location));
 			if($ENV{'WHOSONFIRST_HOME'}) {
-				delta_within($location->{latitude}, 39.81, 1e-2);
-				delta_within($location->{longitude}, -86.10, 1e-2);
-			} else {
 				delta_within($location->{latitude}, 39.77, 1e-2);
 				delta_within($location->{longitude}, -86.29, 1e-2);
+			} else {
+				delta_within($location->{latitude}, 39.81, 1e-2);
+				delta_within($location->{longitude}, -86.10, 1e-2);
 			}
 
 			# $location = $geocoder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
@@ -100,8 +100,13 @@ OPENADDR: {
 
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
-			delta_within($location->{latitude}, 53.55, 1e-2);
-			delta_within($location->{longitude}, -113.53, 1e-2);
+			if($ENV{'WHOSONFIRST_HOME'}) {
+				delta_within($location->{latitude}, 53.48, 1e-2);
+				delta_within($location->{longitude}, -113.66, 1e-2);
+			} else {
+				delta_within($location->{latitude}, 53.55, 1e-2);
+				delta_within($location->{longitude}, -113.53, 1e-2);
+			}
 
 			TODO: {
 				local $TODO = "Don't know how to parse 'London, England'";
@@ -201,7 +206,7 @@ OPENADDR: {
 
 			$location = $geocoder->geocode(location => 'Caboolture, Queensland, Australia');
 			delta_within($location->{latitude}, -27.09, 1e-2);
-			delta_within($location->{longitude}, 152.98, 1e-2);
+			delta_within($location->{longitude}, 152.95, 1e-2);
 
 			$location = $geocoder->geocode(location => 'Whitley, Indiana, USA');
 
