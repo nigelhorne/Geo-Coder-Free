@@ -5,6 +5,8 @@
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
 # Download the WHOSONFIRST_HOME data using https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download
 
+# TODO: perhaps use a layered approach to the database schema
+
 use strict;
 use warnings;
 use autodie qw(:all);
