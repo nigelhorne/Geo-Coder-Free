@@ -81,7 +81,7 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 my %openaddresses_supported_countries = (
-	# 'au' => 1,
+	'au' => 1,
 	'ca' => 1,
 	'us' => 1,
 );
