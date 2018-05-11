@@ -93,6 +93,7 @@ WriteMakefile(
 		'File::Spec' => 0,
 		'CHI' => 0,
 		'Storable' => 0,
+		'Text::CSV' => 0,
 	},
 	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean		=> { FILES => 'Geo-Coder-Free-*' },

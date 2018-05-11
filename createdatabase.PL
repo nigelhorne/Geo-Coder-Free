@@ -10,7 +10,7 @@ use warnings;
 use autodie qw(:all);
 use File::Copy;
 use DBI;
-use Text::xSV::Slurp;
+use Text::CSV;
 use Data::Dumper;
 use JSON;
 use LWP::UserAgent::Throttled;
