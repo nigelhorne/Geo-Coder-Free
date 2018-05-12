@@ -847,16 +847,34 @@ sub import {
 		if(delete($columns{'COUNTY'})) {
 			$inserts += insert($dbh, $global, \%columns);
 		}
+		my $name = $columns{'NAME'};
 		if(delete($columns{'NAME'})) {
 			$inserts += insert($dbh, $global, \%columns);
 		}
 		if(delete($columns{'NUMBER'})) {
+			if($name) {
+				# For when a name is known but not a street number
+				$columns{'NAME'} = $name;
+				$inserts += insert($dbh, $global, \%columns);
+				delete($columns{'NAME'});
+			}
 			# Match somewhere in the street when number isn't known
 			$inserts += insert($dbh, $global, \%columns);
 			if(delete($columns{'STREET'})) {
+				if($name) {
+					# For when a name is known but not a street
+					$columns{'NAME'} = $name;
+					$inserts += insert($dbh, $global, \%columns);
+					delete($columns{'NAME'});
+				}
 				# Match somewhere in the city when street isn't known
 				$inserts += insert($dbh, $global, \%columns);
 			}
+		} elsif($name && delete($columns{'STREET'})) {
+			# For when a name is known but not a street
+			$columns{'NAME'} = $name;
+			$inserts += insert($dbh, $global, \%columns);
+			delete($columns{'NAME'});
 		}
 	}
 	return $inserts;
@@ -864,39 +882,39 @@ sub import {
 
 # Insert data into the database, returns the number of new rows
 sub insert {
-	my ($dbh, $global, $columns) = @_;
+my ($dbh, $global, $columns) = @_;
 
-	$columns = { %{$columns} };	# Take a copy of the hash because we're going to play with it
+$columns = { %{$columns} };	# Take a copy of the hash because we're going to play with it
 
-	foreach my $column(keys %{$columns}) {
-		if(!defined($columns->{$column})) {
-			delete $columns->{$column};
-		} elsif($columns->{$column} =~ /^\s+$/) {
-			delete $columns->{$column};
-		}
-	}
+foreach my $column(keys %{$columns}) {
+if(!defined($columns->{$column})) {
+	delete $columns->{$column};
+} elsif($columns->{$column} =~ /^\s+$/) {
+	delete $columns->{$column};
+}
+}
 
-	# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
-	# print Data::Dumper->new([$columns])->Dump() if($columns->{'NAME'} && (uc($columns->{'NAME'}) eq 'EL PAPI STREET TACOS'));
-	# print Data::Dumper->new([$columns])->Dump();
+# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
+# print Data::Dumper->new([$columns])->Dump() if($columns->{'NAME'} && (uc($columns->{'NAME'}) eq 'EL PAPI STREET TACOS'));
+# print Data::Dumper->new([$columns])->Dump();
 
-	my $lat = $columns->{'LAT'};
-	my $lon = $columns->{'LON'};
+my $lat = $columns->{'LAT'};
+my $lon = $columns->{'LON'};
 
-	die unless(defined($lat) && defined($lon));
-	# die "$lat/$lon" unless($columns->{'STATE'});
+die unless(defined($lat) && defined($lon));
+# die "$lat/$lon" unless($columns->{'STATE'});
 
-	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
-	my $digest;
-	# print Data::Dumper->new([$columns])->Dump();
-	foreach my $column('NAME','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
-		$digest .= $columns->{$column} if($columns->{$column});
-	}
-	# print "$digest\n";
-	$digest = hash($global, Encode::encode_utf8($digest));
-	# print "$digest\n";
+# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
+my $digest;
+# print Data::Dumper->new([$columns])->Dump();
+foreach my $column('NAME','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+$digest .= $columns->{$column} if($columns->{$column});
+}
+# print "$digest\n";
+$digest = hash($global, Encode::encode_utf8($digest));
+# print "$digest\n";
 
-	if(!defined($digest)) {
+if(!defined($digest)) {
 		# print "Ignore ", join(',', values(%{$columns})), "\n";
 		return 0;
 	}
