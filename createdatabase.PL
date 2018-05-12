@@ -709,6 +709,10 @@ sub import {
 		if((!defined($city)) && defined($zip) && ($zip =~ /^(\d{5})/)) {
 			$zip = $1;
 			my $res = $ua->get("http://api.zippopotam.us/$country/$zip");
+			if(!$res->is_success()) {
+				warn $res->status_line();
+				return 0;
+			}
 			my $rc = JSON->new()->utf8()->decode($res->content());
 			if(!defined($rc)) {
 				# print "\n", Data::Dumper->new([\$row])->Dump();
