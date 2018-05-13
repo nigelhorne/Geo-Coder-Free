@@ -142,6 +142,8 @@ sub geocode {
 		return $known_locations{$location};
 	}
 
+	$self->{'location'} = $location;
+
 	my $county;
 	my $state;
 	my $country;
@@ -634,7 +636,7 @@ sub _normalize {
 		return 'SPRING';
 	}
 
-	warn("Add type $type");
+	warn $self->{'location'}, ": add type $type";
 }
 
 =head2 reverse_geocode
