@@ -769,14 +769,20 @@ sub import {
 			$street = "$1 AVE";
 		} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
 			$street = "$1 AVE $2";
-		} elsif($street =~ /(.+)\s+CT$/) {
-			$street = "$1 COURT";
+		} elsif($street =~ /(.+)\s+COURT$/) {
+			$street = "$1 CT";
+		} elsif($street =~ /(.+)\s+CENTER$/) {
+			$street = "$1 CTR";
 		} elsif($street =~ /(.+)\s+DRIVE$/) {
 			$street = "$1 DR";
 		} elsif($street =~ /(.+)\s+CIRCLE$/) {
 			$street = "$1 CIR";
 		} elsif($street =~ /(.+)\s+PARKWAY$/) {
 			$street = "$1 PKWY";
+		} elsif($street =~ /(.+)\s+SPRING$/) {
+			$street = "$1 SPG";
+		} elsif($street =~ /(.+)\s+RIDGE$/) {
+			$street = "$1 RDG";
 		}
 		$street =~ s/^0+//;	# Turn 04th St into 4th St
 	}

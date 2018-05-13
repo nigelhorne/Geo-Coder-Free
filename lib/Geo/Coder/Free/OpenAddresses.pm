@@ -617,13 +617,13 @@ sub _normalize {
 	} elsif(($type eq 'ROAD') || ($type eq 'RD')) {
 		return 'RD';
 	} elsif(($type eq 'COURT') || ($type eq 'CT')) {
-		return 'COURT';
+		return 'CT';
 	} elsif(($type eq 'CIR') || ($type eq 'CIRCLE')) {
 		return 'CIR';
 	} elsif(($type eq 'FT') || ($type eq 'FORT')) {
-		return 'FORT';
+		return 'FT';
 	} elsif(($type eq 'CTR') || ($type eq 'CENTER')) {
-		return 'CENTER';
+		return 'CTR';
 	} elsif(($type eq 'PARKWAY') || ($type eq 'PKWY')) {
 		return 'PKWY';
 	} elsif($type eq 'BLVD') {
@@ -632,8 +632,10 @@ sub _normalize {
 		return 'PIKE';
 	} elsif(($type eq 'DRIVE') || ($type eq 'DR')) {
 		return 'DR';
-	} elsif($type eq 'SPG') {
+	} elsif(($type eq 'SPRING') && ($type eq 'SPG')) {
 		return 'SPRING';
+	} elsif(($type eq 'RDG') && ($type eq 'RIDGE')) {
+		return 'RDG';
 	}
 
 	warn $self->{'location'}, ": add type $type";
