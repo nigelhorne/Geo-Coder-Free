@@ -421,7 +421,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						next if(!defined($data));
 						$data = JSON->new()->utf8()->decode($data);
-						next if($data->{'properties'}->{'wof:superseded_by'});
+						next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
 						next if($data->{'properties'}->{'wof:country'} ne uc($country));
 						my $city = $data->{'properties'}->{'sg:city'};
 						if(!defined($city)) {
