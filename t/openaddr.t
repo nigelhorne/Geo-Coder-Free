@@ -29,8 +29,8 @@ OPENADDR: {
 			$location = $geocoder->geocode('Indianapolis, Indiana, USA');
 			ok(defined($location));
 			if($ENV{'WHOSONFIRST_HOME'}) {
-				delta_within($location->{latitude}, 39.77, 1e-2);
-				delta_within($location->{longitude}, -86.29, 1e-2);
+				delta_within($location->{latitude}, 39.83, 1e-2);
+				delta_within($location->{longitude}, -86.25, 1e-2);
 			} else {
 				delta_within($location->{latitude}, 39.81, 1e-2);
 				delta_within($location->{longitude}, -86.10, 1e-2);
@@ -101,8 +101,8 @@ OPENADDR: {
 			$location = $geocoder->geocode(location => 'Edmonton, Alberta, Canada');
 			ok(defined($location));
 			if($ENV{'WHOSONFIRST_HOME'}) {
-				delta_within($location->{latitude}, 53.48, 1e-2);
-				delta_within($location->{longitude}, -113.66, 1e-2);
+				delta_within($location->{latitude}, 53.54, 1e-2);
+				delta_within($location->{longitude}, -113.50, 1e-2);
 			} else {
 				delta_within($location->{latitude}, 53.55, 1e-2);
 				delta_within($location->{longitude}, -113.53, 1e-2);
@@ -118,38 +118,38 @@ OPENADDR: {
 
 			$location = $geocoder->geocode('Silver Spring, Maryland, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -77.05, 1e-2);
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -76.97, 1e-2);
 
 			$location = $geocoder->geocode('Silver Spring, MD, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -77.05, 1e-2);
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -76.97, 1e-2);
 
 			$location = $geocoder->geocode('Silver Spring, Montgomery, MD, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -77.05, 1e-2);
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -76.97, 1e-2);
 
 			$location = $geocoder->geocode('Silver Spring, Maryland, United States');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -77.05, 1e-2);
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -76.97, 1e-2);
 
 			$location = $geocoder->geocode('Silver Spring, Montgomery County, Maryland, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -77.05, 1e-2);
+			delta_within($location->{latitude}, 39.06, 1e-2);
+			delta_within($location->{longitude}, -76.97, 1e-2);
 
 			$location = $geocoder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -76.97, 1e-2);
+			delta_within($location->{latitude}, 39.07, 1e-2);
+			delta_within($location->{longitude}, -77.13, 1e-2);
 
 			$location = $geocoder->geocode('Rockville Pike, Rockville, MD, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.03, 1e-2);
-			delta_within($location->{longitude}, -76.97, 1e-2);
+			delta_within($location->{latitude}, 39.07, 1e-2);
+			delta_within($location->{longitude}, -77.13, 1e-2);
 
 			$location = $geocoder->geocode('8600 Rockville Pike, Bethesda, MD 20894, USA');
 			ok(defined($location));
@@ -164,13 +164,13 @@ OPENADDR: {
 
 			$location = $geocoder->geocode({ location => 'Rockville, Montgomery County, MD, USA' });
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.05, 1e-2);
-			delta_within($location->{longitude}, -77.10, 1e-2);
+			delta_within($location->{latitude}, 39.10, 1e-2);
+			delta_within($location->{longitude}, -77.21, 1e-2);
 
 			$location = $geocoder->geocode(location => 'Rockville, Montgomery County, Maryland, USA');
 			ok(defined($location));
-			delta_within($location->{latitude}, 39.05, 1e-2);
-			delta_within($location->{longitude}, -77.10, 1e-2);
+			delta_within($location->{latitude}, 39.10, 1e-2);
+			delta_within($location->{longitude}, -77.21, 1e-2);
 
 			$location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 			delta_within($location->{latitude}, 38.90, 1e-2);
@@ -196,8 +196,8 @@ OPENADDR: {
 			delta_within($location->{longitude}, -90.31, 1e-2);
 
 			$location = $geocoder->geocode({ location => 'Saint Louis, Missouri, USA' });
-			delta_within($location->{latitude}, 38.65, 1e-2);
-			delta_within($location->{longitude}, -90.31, 1e-2);
+			delta_within($location->{latitude}, 38.62, 1e-2);
+			delta_within($location->{longitude}, -90.20, 1e-2);
 
 			$location = $geocoder->geocode({ location => 'St Louis, Missouri, USA' });
 			delta_within($location->{latitude}, 38.65, 1e-2);
