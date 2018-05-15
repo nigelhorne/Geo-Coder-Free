@@ -161,49 +161,6 @@ sub geocode {
 			}
 		}
 	}
-
-	# ::diag($location);
-	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
-		my $l = $1;
-		$l =~ s/,/ /g;
-		$l =~ s/\s\s+/ /g;
-		if(my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l))) {
-			if($state = $href->{'state'}) {
-				if(length($state) > 2) {
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-						$state = $twoletterstate;
-					}
-				}
-				my $city;
-				if($href->{city}) {
-					$city = uc($href->{city});
-				}
-				if($street = $href->{street}) {
-					if($href->{'type'} && (my $type = $self->_normalize($href->{'type'}))) {
-						$street .= " $type";
-					}
-					if($href->{suffix}) {
-						$street .= ' ' . $href->{suffix};
-					}
-				}
-				if($street) {
-					if(my $prefix = $href->{prefix}) {
-						$street = "$prefix $street";
-					}
-					my $rc;
-					if($href->{'number'}) {
-						if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
-							return $rc;
-						}
-					}
-					if($rc = $self->_get("$street$city$state" . 'US')) {
-						return $rc;
-					}
-				}
-			}
-		}
-	}
-
 	if($libpostal_is_installed && (my %addr = Geo::libpostal::parse_address($location))) {
 		# print Data::Dumper->new([\%addr])->Dump();
 		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
@@ -259,7 +216,49 @@ sub geocode {
 				}
 			}
 		}
+	} elsif($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+		# Geo::libpostal isn't installed, faill back to Geo::StreetAddress::US, which is rather buggy
+		my $l = $1;
+		$l =~ s/,/ /g;
+		$l =~ s/\s\s+/ /g;
+		# Work around for RT#122617
+		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
+			if($state = $href->{'state'}) {
+				if(length($state) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						$state = $twoletterstate;
+					}
+				}
+				my $city;
+				if($href->{city}) {
+					$city = uc($href->{city});
+				}
+				if($street = $href->{street}) {
+					if($href->{'type'} && (my $type = $self->_normalize($href->{'type'}))) {
+						$street .= " $type";
+					}
+					if($href->{suffix}) {
+						$street .= ' ' . $href->{suffix};
+					}
+				}
+				if($street) {
+					if(my $prefix = $href->{prefix}) {
+						$street = "$prefix $street";
+					}
+					my $rc;
+					if($href->{'number'}) {
+						if($rc = $self->_get($href->{'number'} . "$street$city$state" . 'US')) {
+							return $rc;
+						}
+					}
+					if($rc = $self->_get("$street$city$state" . 'US')) {
+						return $rc;
+					}
+				}
+			}
+		}
 	}
+
 
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;
@@ -581,7 +580,7 @@ sub _get {
 			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 		);
 	$self->{openaddr_db} = $openaddr_db;
-	my @call_details = caller(0);
+	# my @call_details = caller(0);
 	# print "line ", $call_details[2], "\n";
 	# ::diag("line " . $call_details[2]);
 	# print("$location: $digest\n");
@@ -632,12 +631,13 @@ sub _normalize {
 		return 'PIKE';
 	} elsif(($type eq 'DRIVE') || ($type eq 'DR')) {
 		return 'DR';
-	} elsif(($type eq 'SPRING') && ($type eq 'SPG')) {
+	} elsif(($type eq 'SPRING') || ($type eq 'SPG')) {
 		return 'SPRING';
-	} elsif(($type eq 'RDG') && ($type eq 'RIDGE')) {
+	} elsif(($type eq 'RDG') || ($type eq 'RIDGE')) {
 		return 'RDG';
 	}
 
+	# Most likely failure of Geo::StreetAddress::US, but warn anyway, just in case
 	warn $self->{'location'}, ": add type $type";
 }
 

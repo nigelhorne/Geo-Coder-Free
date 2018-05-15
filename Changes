@@ -1,7 +1,8 @@
 Revision history for Geo-Coder-Free
 
 0.11
-	Many WOF records where not being imported
+	Many WOF records were not being imported
+	Only fall back to Geo::StreetAddress::US as last resort
 
 0.10	Fri 11 May 18:30:54 EDT 2018
 	Street numbers were not being indexed
