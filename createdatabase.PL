@@ -695,7 +695,7 @@ sub import {
 		} elsif(!defined($city)) {
 			$city = $file;
 			$city =~ s/\.csv$//;
-		} elsif($file !~ /^wof\-.+latest\.csv$/i) {
+		} elsif($file !~ /^WHOSONFIRST\-DATA/i) {
 			$county = $file;
 			$county =~ s/\.csv$//;
 		}
