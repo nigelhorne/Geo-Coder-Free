@@ -336,6 +336,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
 
+		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
@@ -630,6 +631,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# TODO:  Import the Maxmind databases
 }
 
+# Return a list of all .csv files under the given directory
 sub create_tree {
 	my $where = shift;
 	my @list = shift || ();
