@@ -392,6 +392,9 @@ sub geocode {
 						# Rockville Pike, Rockville, MD, USA
 						my $first = uc($1);
 						my $second = uc($2);
+						if($second =~ /(\d+)\s+(.+)/) {
+							$second = "$1$2";
+						}
 						if($rc = $self->_get("$first$second$state" . 'US')) {
 							return $rc;
 						}
@@ -404,6 +407,18 @@ sub geocode {
 						# Not all the database has the county
 						if($rc = $self->_get("$first$state" . 'US')) {
 							return $rc;
+						}
+						# Brute force last ditch approach
+						my $copy = uc($location);
+						$copy =~ s/,\s+//g;
+						$copy =~ s/\s*USA$//;
+						if($rc = $self->_get($copy . 'US')) {
+							return $rc;
+						}
+						if($copy =~ s/(\d+)\s+/$1/) {
+							if($rc = $self->_get($copy . 'US')) {
+								return $rc;
+							}
 						}
 					}
 					# warn "Can't yet parse US location '$location'";
@@ -568,6 +583,10 @@ sub _get {
 
 	$location =~ s/,\s*//g;
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
+	# my @call_details = caller(0);
+	# print "line ", $call_details[2], "\n";
+	# print("$location: $digest\n");
+	# ::diag("line " . $call_details[2]);
 	# ::diag("$location: $digest");
 	if(my $cache = $self->{'cache'}) {
 		if(my $rc = $cache->get_object($digest)) {
@@ -580,10 +599,6 @@ sub _get {
 			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
 		);
 	$self->{openaddr_db} = $openaddr_db;
-	# my @call_details = caller(0);
-	# print "line ", $call_details[2], "\n";
-	# ::diag("line " . $call_details[2]);
-	# print("$location: $digest\n");
 	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
 	if($rc && defined($rc->{'lat'})) {
 		$rc->{'latitude'} = delete $rc->{'lat'};
