@@ -37,6 +37,14 @@ sub html {
 
 	return '{ }' if(!defined($rc));
 
+	delete $rc->{'md5'};
+	delete $rc->{'sequence'};
+	foreach my $key(keys %{$rc}) {
+		if(!defined($rc->{$key})) {
+			delete $rc->{$key};
+		}
+	}
+
 	return encode_json $rc;
 }
 
