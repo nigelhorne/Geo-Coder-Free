@@ -12,7 +12,6 @@ use warnings;
 use autodie qw(:all);
 use File::Copy;
 use DBI;
-use Text::xSV::Slurp;
 use Data::Dumper;
 use JSON;
 use LWP::UserAgent::Throttled;
@@ -23,6 +22,7 @@ use Geo::StreetAddress::US;
 use File::Basename;
 use File::Spec;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
+use Text::CSV;
 
 use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
 
@@ -247,18 +247,20 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$| = 0;
 			my %state_fips;
 
-			my @data = @{xsv_slurp(
-				shape => 'aoh',
-				text_csv => {
-					sep_char => "\t",
-					allow_loose_quotes => 1,
-					blank_is_undef => 1,
-					empty_is_undef => 1,
-					binary => 1,
-				},
-				file => $filename
-			)};
-			foreach my $row(@data) {
+			my $csv = Text::CSV->new({
+				sep_char => "\t",
+				allow_loose_quotes => 1,
+				blank_is_undef => 1,
+				empty_is_undef => 1,
+				binary => 1,
+				# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
+				# escape_char => '\\',	# Put back once issue 3905 has been fixed
+			});
+
+			open(my $fin, '<', $filename);
+			$csv->column_names($csv->getline($fin));
+
+			while(my $row = $csv->getline_hr($fin)) {
 				# print Data::Dumper->new([\$row])->Dump();
 				my $state;
 				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
@@ -281,23 +283,27 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$state_fips{$row->{'State FIPS'}} = $state;
 			}
 
+			close($fin);
+
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
 			$| = 1;
 			printf "%-70s\r", $filename;
 			$| = 0;
 
-			@data = @{xsv_slurp(
-				shape => 'aoh',
-				text_csv => {
-					sep_char => "\t",
-					allow_loose_quotes => 1,
-					blank_is_undef => 1,
-					empty_is_undef => 1,
-					binary => 1,
-				},
-				file => $filename
-			)};
-			foreach my $row(@data) {
+			$csv = Text::CSV->new({
+				sep_char => "\t",
+				allow_loose_quotes => 1,
+				blank_is_undef => 1,
+				empty_is_undef => 1,
+				binary => 1,
+				# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
+				# escape_char => '\\',	# Put back once issue 3905 has been fixed
+			});
+
+			open($fin, '<', $filename);
+			$csv->column_names($csv->getline($fin));
+
+			while(my $row = $csv->getline_hr($fin)) {
 				# print Data::Dumper->new([\$row])->Dump();
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
