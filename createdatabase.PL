@@ -924,7 +924,7 @@ sub insert {
 
 	# Remove leading and trailing spaces from entries.  Some openaddresses files are littered with them
 	foreach my $column(keys %{$columns}) {
-		$columns->{$column} =~ s/\s+//g;
+		$columns->{$column} =~ s/\s+$//g;
 		$columns->{$column} =~ s/^\s+//g;
 	}
 
