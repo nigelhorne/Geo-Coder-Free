@@ -234,7 +234,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(!-d $oa) {
 			mkdir $oa;
 		}
-		$dbh->prepare("CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
+		$dbh->prepare("CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state CHAR(3) NOT NULL, country CHAR(2) NOT NULL)")->execute();
 		$dbh->prepare("CREATE TABLE openaddresses(md5 CHAR(16), lat INTEGER, lon INTEGER, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))")->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
@@ -921,6 +921,12 @@ sub insert {
 
 	die unless(defined($lat) && defined($lon));
 	# die "$lat/$lon" unless($columns->{'STATE'});
+
+	# Remove leading and trailing spaces from entries.  Some openaddresses files are littered with them
+	foreach my $column(keys %{$columns}) {
+		$columns->{$column} =~ s/\s+//g;
+		$columns->{$column} =~ s/^\s+//g;
+	}
 
 	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns->{$_}) } sort keys %{$columns});
 	my $digest;
