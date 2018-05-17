@@ -205,6 +205,7 @@ my %state_md5s;
 my %queued_commits;
 my $city_sequence;
 my %cities;
+my %unknown_zips;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -716,9 +717,13 @@ sub import {
 		}
 		if((!defined($city)) && defined($zip) && ($zip =~ /^(\d{5})/)) {
 			$zip = $1;
+			if(exists($unknown_zips{"$country/$zip"})) {
+				return 0;
+			}
 			my $res = $ua->get("http://api.zippopotam.us/$country/$zip");
 			if(!$res->is_success()) {
 				warn "$country/$zip: ", $res->status_line();
+				$unknown_zips{"$country/$zip"} = 1;
 				return 0;
 			}
 			my $rc = JSON->new()->utf8()->decode($res->content());
