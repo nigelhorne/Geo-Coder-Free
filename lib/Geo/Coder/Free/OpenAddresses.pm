@@ -148,7 +148,6 @@ sub geocode {
 	my $state;
 	my $country;
 	my $street;
-	my $openaddr_db;
 
 	$location =~ s/\.//g;
 
