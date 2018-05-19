@@ -691,7 +691,7 @@ https://github.com/openaddresses/openaddresses/tree/master/us-data.
 
 Lots of lookups fail at the moment.
 
-The openaddresses.io code has yet to be compeleted.
+The openaddresses.io code has yet to be completed.
 There are die()s where the code path has yet to be written.
 
 The openaddresses data doesn't cover the globe.
