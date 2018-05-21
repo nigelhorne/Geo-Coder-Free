@@ -14,7 +14,7 @@ BEGIN {
 
 WHOSONFIRST: {
 	SKIP: {
-		if($ENV{'WHOSONFIRST_HOME'}) {
+		if($ENV{'WHOSONFIRST_HOME'} && $ENV{'OPENADDR_HOME'}) {
 			diag('This will take some time and memory');
 
 			my $libpostal_is_installed = 0;
@@ -57,8 +57,8 @@ WHOSONFIRST: {
 				delta_within($location->{longitude}, -77.12, 1e-2);
 			}
 		} else {
-			diag('Set WHOSONFIRST_HOME to enable whosonfirst.org testing');
-			skip 'WHOSONFIRST_HOME not defined', 18;
+			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
+			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 18;
 		}
 	}
 }

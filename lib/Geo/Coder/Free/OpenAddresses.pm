@@ -13,6 +13,7 @@ use Locale::CA;
 use Locale::US;
 use Locale::SubCountry;
 use CHI;
+# use Lingua::EN::AddressParse;
 use Locale::Country;
 use Geo::StreetAddress::US;
 use Digest::MD5;
@@ -216,10 +217,28 @@ sub geocode {
 			}
 		}
 	} elsif($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
-		# Geo::libpostal isn't installed, faill back to Geo::StreetAddress::US, which is rather buggy
+		# Geo::libpostal isn't installed, fail back to Geo::StreetAddress::US, which is rather buggy
 		my $l = $1;
 		$l =~ s/,/ /g;
 		$l =~ s/\s\s+/ /g;
+
+		# my $ap;
+		# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
+			# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code_flag => 0);
+		# } elsif($location =~ /England$/) {
+			# $ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code_flag => 0);
+		# }
+		# if($ap) {
+			# if(my $error = $ap->parse($l)) {
+				# ::diag  "$l: !!!!!!!!!!!!!", $error;
+			# } else {
+				# my %c = $ap->address_components();
+				# ::diag('>>>>>>>>>>>>');
+				# ::diag Data::Dumper->new([\%c])->Dump;
+			# }
+		# }
+		# return;
+
 		# Work around for RT#122617
 		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
 			if($state = $href->{'state'}) {
@@ -257,7 +276,6 @@ sub geocode {
 			}
 		}
 	}
-
 
 	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my $city = $1;

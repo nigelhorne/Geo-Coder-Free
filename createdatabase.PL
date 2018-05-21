@@ -267,6 +267,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# escape_char => '\\',	# Put back once issue 3905 has been fixed
 			});
 
+			my $inserts = 0;
+
 			open(my $fin, '<', $filename);
 			$csv->column_names($csv->getline($fin));
 
@@ -276,21 +278,33 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				unless($state = Locale::US->new()->{state2code}{uc($row->{'Name'})}) {
 					die $row->{'Name'};
 				}
-				my $digest = hash(1, $state, 'US');
-				my $key = city_key(undef, undef, $state, 'US');
-				if(!$cities{$key}) {
-					$city_sequence++;
-					$cities{$key} = $city_sequence;
-				}
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
-					') VALUES (' .
-					"'$digest'," .
-					$row->{'Latitude'} . ',' .
-					$row->{'Longitude'} . ',' .
-					$cities{$key} . ')';
-				$dbh->prepare($query)->execute();
-				# print "$query\n";
 				$state_fips{$row->{'State FIPS'}} = $state;
+				# my $digest = hash(1, $state, 'US');
+				# my $key = city_key(undef, undef, $state, 'US');
+				# if(!$cities{$key}) {
+					# $city_sequence++;
+					# $cities{$key} = $city_sequence;
+				# }
+				# my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
+					# ') VALUES (' .
+					# "'$digest'," .
+					# $row->{'Latitude'} . ',' .
+					# $row->{'Longitude'} . ',' .
+					# $cities{$key} . ')';
+				# $dbh->prepare($query)->execute();
+				# # print "$query\n";
+				my %columns = (
+					'COUNTRY' => 'US',
+					'STATE' => $state,
+					'LAT' => $row->{'Latitude'},
+					'LON' => $row->{'Longitude'},
+				);
+				# print "$zip => $query\n";
+				$inserts += insert($dbh, 1, \%columns);
+				if($inserts >= MAX_INSERT_COUNT) {
+					flush_queue($dbh);
+					$inserts = 0;
+				}
 			}
 
 			close($fin);
@@ -318,23 +332,37 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
-				$county =~ s/\s+COUNTY$//;
-				my $digest = hash(1, $county, $state, 'US');
+				# $county =~ s/\s+COUNTY$//;
+				# my $digest = hash(1, $county, $state, 'US');
 				$county =~ s/'/''/g;	# O'Brien County, IA
-				my $key = city_key(undef, $county, $state, 'US');
-				if(!$cities{$key}) {
-					$city_sequence++;
-					$cities{$key} = $city_sequence;
+				# my $key = city_key(undef, $county, $state, 'US');
+				# if(!$cities{$key}) {
+					# $city_sequence++;
+					# $cities{$key} = $city_sequence;
+				# }
+				# my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
+					# ') VALUES (' .
+					# "'$digest'," .
+					# "'" . $row->{'Latitude'} . "'," .
+					# "'" . $row->{'Longitude'} . "'," .
+					# $cities{$key} . ')';
+				# # print "$query\n";
+				# $dbh->prepare($query)->execute();
+				my %columns = (
+					'COUNTRY' => 'US',
+					'STATE' => $state,
+					'COUNTY' => $county,
+					'LAT' => $row->{'Latitude'},
+					'LON' => $row->{'Longitude'},
+				);
+				# print "$zip => $query\n";
+				$inserts += insert($dbh, 1, \%columns);
+				if($inserts >= MAX_INSERT_COUNT) {
+					flush_queue($dbh);
+					$inserts = 0;
 				}
-				my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
-					') VALUES (' .
-					"'$digest'," .
-					"'" . $row->{'Latitude'} . "'," .
-					"'" . $row->{'Longitude'} . "'," .
-					$cities{$key} . ')';
-				# print "$query\n";
-				$dbh->prepare($query)->execute();
 			}
+			flush_queue($dbh);
 		}
 
 		my $current_state;
@@ -750,16 +778,16 @@ sub import {
 			$city = uc($place->{'place name'});
 			$zipcodes{$zip} = { 'city' => $city };
 			# print "$zip => $city\n";
-			my %columns = (
-				'COUNTRY' => uc($country),
-				'STATE' => $state,
-				'CITY' => $city,
-				'LAT' => $place->{'latitude'},
-				'LON' => $place->{'longitude'},
-			);
 			if($city) {
 				# Counties and states alone have already been read in
-				$columns{'COUNTY'} = $county;
+				my %columns = (
+					'COUNTRY' => uc($country),
+					'STATE' => $state,
+					'COUNTY' => $county,
+					'CITY' => $city,
+					'LAT' => $place->{'latitude'},
+					'LON' => $place->{'longitude'},
+				);
 				# print "$zip => $query\n";
 				$inserts += insert($dbh, $global, \%columns);
 			}
@@ -827,6 +855,9 @@ sub import {
 		$county = uc($county);
 		$county =~ s/_/ /g;
 		$county =~ s/\s+COUNTY$//;
+		$county =~ s/\s\s+/ /g;
+		$county =~ s/\s+$//g;
+		$county =~ s/^\s+//g;
 		if($city) {
 			if($city =~ /\s+COUNTY$/i) {
 				my $tmp = $city;
@@ -938,7 +969,7 @@ sub insert {
 	die unless(defined($lat) && defined($lon));
 	# die "$lat/$lon" unless($columns->{'STATE'});
 
-	# Remove dupliate, leading and trailing spaces from entries.  Some openaddresses files are littered with them
+	# Remove duplicate, leading and trailing spaces from entries.  Some openaddresses files are littered with them
 	foreach my $column(keys %{$columns}) {
 		$columns->{$column} =~ s/\s+$//g;
 		$columns->{$column} =~ s/^\s+//g;
