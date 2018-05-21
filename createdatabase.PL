@@ -251,7 +251,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 		if(-r $filename) {
-			# Import counties and states from https://github.com/openaddresses/openaddresses/tree/master/us-data
+			# Import US states and counties from https://github.com/openaddresses/openaddresses/tree/master/us-data
 			$| = 1;
 			printf "%-70s\r", $filename;
 			$| = 0;
@@ -309,6 +309,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 			close($fin);
 
+			# Import the counties
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
 			$| = 1;
 			printf "%-70s\r", $filename;
@@ -332,7 +333,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
-				# $county =~ s/\s+COUNTY$//;
+				$county =~ s/\s+COUNTY$//;
 				# my $digest = hash(1, $county, $state, 'US');
 				$county =~ s/'/''/g;	# O'Brien County, IA
 				# my $key = city_key(undef, $county, $state, 'US');
