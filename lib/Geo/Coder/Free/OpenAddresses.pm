@@ -125,7 +125,7 @@ sub geocode {
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location)');
+		Carp::croak('Usage: geocode(location => $location|scantest => $text)');
 	} elsif(@_ % 2 == 0) {
 		%param = @_;
 	} else {
@@ -188,7 +188,7 @@ sub geocode {
 	}
 
 	my $location = $param{location}
-		or Carp::croak('Usage: geocode(location => $location)');
+		or Carp::croak('Usage: geocode(location => $location|scantest => $text)');
 
 	# ::diag($location);
 
