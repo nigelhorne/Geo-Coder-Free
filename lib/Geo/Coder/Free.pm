@@ -89,13 +89,20 @@ sub new {
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
 
+    my @matches = $geocoder->geocode(scantext => 'arbitrary text');
+
 =cut
 
 sub geocode {
 	my $self = shift;
 
 	if($self->{'openaddr'}) {
-		if(my $rc = $self->{'openaddr'}->geocode(@_)) {
+		if(wantarray) {
+			my @rc = $self->{'openaddr'}->geocode(@_);
+			if(scalar(@rc)) {
+				return @rc;
+			}
+		} elsif(my $rc = $self->{'openaddr'}->geocode(@_)) {
 			return $rc;
 		}
 	}

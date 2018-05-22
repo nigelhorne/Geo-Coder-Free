@@ -1,6 +1,8 @@
 Revision history for Geo-Coder-Free
 
 0.11
+	Started work on scantext support
+	Fixed some calls in list mode which returned a scalar
 	Many WOF records were not being imported
 	Only fall back to Geo::StreetAddress::US as last resort
 	Don't include NULL fields in the JSON output

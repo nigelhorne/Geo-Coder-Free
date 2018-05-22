@@ -51,6 +51,8 @@ our $VERSION = '0.04';
     my $geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
     $location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
+    my @matches = $geocoder->geocode(scantext => 'arbitrary text');
+
 =head1 DESCRIPTION
 
 Geo::Coder::Free::OpenAddresses provides an interface to the free geolocation database at http://openadresses.io
@@ -128,6 +130,61 @@ sub geocode {
 		%param = @_;
 	} else {
 		$param{location} = shift;
+	}
+	if(my $scantext = $param{'scantext'}) {
+		return if(length($scantext) < 6);
+		# FIXME:  wow this is inefficient
+		$scantext =~ s/\W+/ /g;
+		my @words = split(/\s/, $scantext);
+		my $count = scalar(@words);
+		my $offset = 0;
+		my @rc;
+		while($offset < $count) {
+			if(length($words[$offset]) < 2) {
+				$offset++;
+				next;
+			}
+			my $l;
+			if(($l = $self->geocode(location => $words[$offset])) && ref($l)) {
+				push @rc, $l;
+			}
+			if($offset < $count - 1) {
+				my $addr = join(', ', $words[$offset], $words[$offset + 1]);
+				if(length($addr) == 0) {
+					$offset++;
+				}
+				# https://stackoverflow.com/questions/11160192/how-to-parse-freeform-street-postal-address-out-of-text-and-into-components
+				# TODO: Support longer addresses
+				if($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
+					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
+						push @rc, $l;
+					}
+				} elsif($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
+					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
+						push @rc, $l;
+					}
+				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)/i) {
+					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
+						push @rc, $l;
+					}
+				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) {
+					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
+						push @rc, $l;
+					}
+				}
+				if(($l = $self->geocode(location => $addr)) && ref($l)) {
+					push @rc, $l;
+				}
+				if($offset < $count - 2) {
+					$addr = join(', ', $words[$offset], $words[$offset + 1], $words[$offset + 2]);
+					if(($l = $self->geocode(location => $addr)) && ref($l)) {
+						push @rc, $l;
+					}
+				}
+			}
+			$offset++;
+		}
+		return @rc;
 	}
 
 	my $location = $param{location}

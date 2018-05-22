@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 19;
+use Test::Most tests => 21;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -45,6 +45,10 @@ WHOSONFIRST: {
 			delta_within($location->{latitude}, 39.06, 1e-2);
 			delta_within($location->{longitude}, -77.12, 1e-2);
 
+			$location = $geocoder->geocode(location => 'Ramsgate, Kent, England');
+			delta_within($location->{latitude}, 51.33, 1e-2);
+			delta_within($location->{longitude}, 1.41, 1e-2);
+
 			$location = $geocoder->geocode({ location => 'Silver Diner, Rockville Pike, Rockville, MD, USA' });
 			ok(defined($location));
 			ok(ref($location) eq 'HASH');
@@ -58,7 +62,7 @@ WHOSONFIRST: {
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
-			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 18;
+			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 20;
 		}
 	}
 }
