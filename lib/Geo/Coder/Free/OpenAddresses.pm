@@ -464,7 +464,7 @@ sub geocode {
 									}
 								}
 							}
-							return;	 # Not found
+							return;	# Not found
 						}
 						die $city;	# TODO: do something here
 					} elsif($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {

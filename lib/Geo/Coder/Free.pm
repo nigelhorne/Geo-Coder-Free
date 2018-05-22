@@ -95,17 +95,17 @@ sub new {
 =cut
 
 my %common_words = (
-        'the' => 1,
+	'the' => 1,
 	'and' => 1,
-        'at' => 1,
-        'she' => 1,
-        'of' => 1,
-        'for' => 1,
-        'on' => 1,
-        'in' => 1,
-        'an' => 1,
-        'to' => 1,
-        'is' => 1
+	'at' => 1,
+	'she' => 1,
+	'of' => 1,
+	'for' => 1,
+	'on' => 1,
+	'in' => 1,
+	'an' => 1,
+	'to' => 1,
+	'is' => 1
 );
 
 sub geocode {
