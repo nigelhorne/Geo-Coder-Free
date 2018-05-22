@@ -81,6 +81,7 @@ WriteMakefile(
 		'DBD::CSV' => 0,
 		'DBD::SQLite' => 0,
 		'Encode' => 0,
+		'List::MoreUtils' => 0,
 		'Locale::Country' => 0,
 		'Locale::CA' => 0,
 		'Locale::SubCountry' => 0,

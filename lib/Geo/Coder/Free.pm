@@ -7,6 +7,7 @@ use lib '.';
 
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
+use List::MoreUtils;
 
 =head1 NAME
 
@@ -89,25 +90,58 @@ sub new {
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
 
-    my @matches = $geocoder->geocode(scantext => 'arbitrary text');
+    my @matches = $geocoder->geocode(scantext => 'arbitrary text', region => 'US');
 
 =cut
 
+my %common_words = (
+        'the' => 1,
+	'and' => 1,
+        'at' => 1,
+        'she' => 1,
+        'of' => 1,
+        'for' => 1,
+        'on' => 1,
+        'in' => 1,
+        'an' => 1,
+        'to' => 1,
+        'is' => 1
+);
+
 sub geocode {
 	my $self = shift;
+	my %param;
+	if(ref($_[0]) eq 'HASH') {
+		%param = %{$_[0]};
+	} elsif(ref($_[0])) {
+		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
+	} elsif(@_ % 2 == 0) {
+		%param = @_;
+	} else {
+		$param{location} = shift;
+	}
 
 	if($self->{'openaddr'}) {
 		if(wantarray) {
-			my @rc = $self->{'openaddr'}->geocode(@_);
-			if(scalar(@rc)) {
-				return @rc;
+			my @rc = $self->{'openaddr'}->geocode(\%param);
+			if((my $scantext = $param{'scantext'}) && (my $region = $param{'region'})) {
+				$scantext =~ s/\W+/ /g;
+				foreach my $word(List::MoreUtils::uniq(split(/\s/, $scantext))) {
+					# FIXME:  There are a *lot* of false positives
+					next if(exists($common_words{lc$word}));
+					if($word =~ /^[a-z]{2,}$/i) {
+						@rc = (@rc, $self->{'maxmind'}->geocode({ location => $word, region => $region }));
+					}
+
+				}
 			}
-		} elsif(my $rc = $self->{'openaddr'}->geocode(@_)) {
+			return @rc;
+		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
 		}
 	}
 
-	return $self->{'maxmind'}->geocode(@_);
+	return $self->{'maxmind'}->geocode(\%param);
 }
 
 =head2 reverse_geocode

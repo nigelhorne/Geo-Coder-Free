@@ -21,10 +21,12 @@ OPENADDR: {
 
 			my $geocoder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 
+::diag(__LINE__);
 			my $location = $geocoder->geocode('Medlars Drive, Bethesda, MD, USA');
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.00, 1e-2);
 			delta_within($location->{longitude}, -77.10, 1e-2);
+::diag(__LINE__);
 
 			$location = $geocoder->geocode('Indiana, USA');
 			ok(defined($location));

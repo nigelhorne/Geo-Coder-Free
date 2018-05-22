@@ -51,7 +51,7 @@ our $VERSION = '0.04';
     my $geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
     $location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
-    my @matches = $geocoder->geocode(scantext => 'arbitrary text');
+    my @matches = $geocoder->geocode({ scantext => 'arbitrary text', region => 'GB' });
 
 =head1 DESCRIPTION
 
@@ -125,7 +125,7 @@ sub geocode {
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location|scantest => $text)');
+		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 	} elsif(@_ % 2 == 0) {
 		%param = @_;
 	} else {
@@ -157,27 +157,33 @@ sub geocode {
 				# TODO: Support longer addresses
 				if($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
+						$l->{'confidence'} = 0.8;
 						push @rc, $l;
 					}
 				} elsif($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
+						$l->{'confidence'} = 0.8;
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
+						$l->{'confidence'} = 0.6;
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
+						$l->{'confidence'} = 0.6;
 						push @rc, $l;
 					}
 				}
 				if(($l = $self->geocode(location => $addr)) && ref($l)) {
+					$l->{'confidence'} = 0.1;
 					push @rc, $l;
 				}
 				if($offset < $count - 2) {
 					$addr = join(', ', $words[$offset], $words[$offset + 1], $words[$offset + 2]);
 					if(($l = $self->geocode(location => $addr)) && ref($l)) {
+						$l->{'confidence'} = 1.0;
 						push @rc, $l;
 					}
 				}
@@ -188,7 +194,7 @@ sub geocode {
 	}
 
 	my $location = $param{location}
-		or Carp::croak('Usage: geocode(location => $location|scantest => $text)');
+		or Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 
 	# ::diag($location);
 
