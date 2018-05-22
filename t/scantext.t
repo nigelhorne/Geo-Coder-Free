@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 15;
+use Test::Most tests => 19;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -31,13 +31,13 @@ SCANTEXT: {
 			foreach $location(@locations) {
 				if($location->{'city'} ne 'NEWARK') {
 					next;
-				};
+				}
 				if($location->{'state'} ne 'DE') {
 					next;
-				};
+				}
 				if($location->{'country'} ne 'US') {
 					next;
-				};
+				}
 				$found++;
 				delta_within($location->{latitude}, 39.68, 1e-2);
 				delta_within($location->{longitude}, -75.66, 1e-2);
@@ -54,15 +54,22 @@ SCANTEXT: {
 				# diag("$city: ", $location->{'confidence'});
 				if(defined($location->{'state'}) && $location->{'state'} ne 'IN') {
 					next;
-				};
+				}
 				if($location->{'country'} ne 'US') {
 					next;
-				};
+				}
 				if($city eq 'GREENWOOD') {
 					if(!$found{'GREENWOOD'}) {
 						$found{'GREENWOOD'}++;
 						delta_within($location->{latitude}, 39.6, 1e-1);
 						delta_within($location->{longitude}, -86.1, 1e-1);
+					}
+				} elsif($city eq 'INDIANAPOLIS') {
+					if(!$found{'INDIANAPOLIS'}) {
+						$found{'INDIANAPOLIS'}++;
+						delta_within($location->{latitude}, 39.8, 1e-1);
+						delta_within($location->{longitude}, -86.1, 1e-1);
+						ok($location->{'state'} eq 'IN');
 					}
 				} elsif($city eq 'NOBLESVILLE') {
 					if(!$found{'NOBLESVILLE'}) {
@@ -74,6 +81,7 @@ SCANTEXT: {
 			}
 			ok($found{'GREENWOOD'});
 			ok($found{'NOBLESVILLE'});
+			ok($found{'INDIANAPOLIS'});
 		} else {
 			diag('Set OPENADDR_HOME to scantext testing');
 			skip 'OPENADDR_HOME not defined', 14;
