@@ -84,7 +84,7 @@ SCANTEXT: {
 			ok($found{'INDIANAPOLIS'});
 		} else {
 			diag('Set OPENADDR_HOME to scantext testing');
-			skip 'OPENADDR_HOME not defined', 14;
+			skip 'OPENADDR_HOME not defined', 18;
 		}
 	}
 }
