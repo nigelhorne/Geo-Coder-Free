@@ -105,6 +105,7 @@ my %common_words = (
 	'in' => 1,
 	'an' => 1,
 	'to' => 1,
+	'road' => 1,
 	'is' => 1
 );
 
