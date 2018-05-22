@@ -141,7 +141,10 @@ sub geocode {
 		}
 	}
 
-	return $self->{'maxmind'}->geocode(\%param);
+	# FIXME:  scantext only works if OPENADDR_HOME is set
+	if($param{'location'}) {
+		return $self->{'maxmind'}->geocode(\%param);
+	}
 }
 
 =head2 reverse_geocode
