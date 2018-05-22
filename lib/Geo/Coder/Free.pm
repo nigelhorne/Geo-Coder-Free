@@ -146,6 +146,9 @@ sub geocode {
 	if($param{'location'}) {
 		return $self->{'maxmind'}->geocode(\%param);
 	}
+	if(!$param{'scantext'}) {
+		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
+	}
 }
 
 =head2 reverse_geocode
