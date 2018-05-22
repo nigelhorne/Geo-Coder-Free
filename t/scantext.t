@@ -24,7 +24,7 @@ SCANTEXT: {
 	delta_within($location->{latitude}, 51.33, 1e-2);
 	delta_within($location->{longitude}, 1.41, 1e-2);
 		
-	@locations = $geocoder->geocode(scantext => "I was born a St Mary's Hospital in Newark, DE in 1987");
+	@locations = $geocoder->geocode(scantext => "I was born at St Mary's Hospital in Newark, DE in 1987");
 	my $found = 0;
 	foreach $location(@locations) {
 		if($location->{'city'} ne 'NEWARK') {
