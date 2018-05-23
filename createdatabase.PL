@@ -808,6 +808,8 @@ sub import {
 			$street = "$1 SPG";
 		} elsif($street =~ /(.+)\s+RIDGE$/) {
 			$street = "$1 RDG";
+		} elsif($street =~ /(.+)\s+CREEK$/) {
+			$street = "$1 CRK";
 		}
 		$street =~ s/^0+//;	# Turn 04th St into 4th St
 	}

@@ -245,6 +245,8 @@ sub geocode {
 					$street = "$1 DR";
 				} elsif($street =~ /(.+)\s+PARKWAY$/) {
 					$street = "$1 PKWY";
+				} elsif($street =~ /(.+)\s+CREEK$/) {
+					$street = "$1 CRK";
 				}
 				$street =~ s/^0+//;	# Turn 04th St into 4th St
 				$addr{'road'} = $street;
@@ -599,6 +601,8 @@ sub geocode {
 						$street = "$1 DR";
 					} elsif($street =~ /(.+)\s+PARKWAY$/) {
 						$street = "$1 PKWY";
+					} elsif($street =~ /(.+)\s+CREEK$/) {
+						$street = "$1 CRK";
 					}
 					$street =~ s/^0+//;	# Turn 04th St into 4th St
 					if($street =~ /^(\d+)\s+(.+)/) {
@@ -730,6 +734,8 @@ sub _normalize {
 		return 'SPRING';
 	} elsif(($type eq 'RDG') || ($type eq 'RIDGE')) {
 		return 'RDG';
+	} elsif(($type eq 'CRK') || ($type eq 'CREEK')) {
+		return 'CRK';
 	}
 
 	# Most likely failure of Geo::StreetAddress::US, but warn anyway, just in case
