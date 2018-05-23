@@ -279,20 +279,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					die $row->{'Name'};
 				}
 				$state_fips{$row->{'State FIPS'}} = $state;
-				# my $digest = hash(1, $state, 'US');
-				# my $key = city_key(undef, undef, $state, 'US');
-				# if(!$cities{$key}) {
-					# $city_sequence++;
-					# $cities{$key} = $city_sequence;
-				# }
-				# my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
-					# ') VALUES (' .
-					# "'$digest'," .
-					# $row->{'Latitude'} . ',' .
-					# $row->{'Longitude'} . ',' .
-					# $cities{$key} . ')';
-				# $dbh->prepare($query)->execute();
-				# # print "$query\n";
 				my %columns = (
 					'COUNTRY' => 'US',
 					'STATE' => $state,
@@ -334,21 +320,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
 				$county =~ s/\s+COUNTY$//;
-				# my $digest = hash(1, $county, $state, 'US');
 				$county =~ s/'/''/g;	# O'Brien County, IA
-				# my $key = city_key(undef, $county, $state, 'US');
-				# if(!$cities{$key}) {
-					# $city_sequence++;
-					# $cities{$key} = $city_sequence;
-				# }
-				# my $query = "INSERT INTO openaddresses('MD5','LAT','LON','CITY'" .
-					# ') VALUES (' .
-					# "'$digest'," .
-					# "'" . $row->{'Latitude'} . "'," .
-					# "'" . $row->{'Longitude'} . "'," .
-					# $cities{$key} . ')';
-				# # print "$query\n";
-				# $dbh->prepare($query)->execute();
 				my %columns = (
 					'COUNTRY' => 'US',
 					'STATE' => $state,
@@ -1060,11 +1032,11 @@ sub flush_queue
 		my $country = $row->{'COUNTRY'};
 		my $state = $row->{'STATE'};
 		if($state_lengths{$country} && (length($state) != $state_lengths{$country})) {
-			print "Invalid state length:\n", Data::Dumper->new([$row])->Dump();
+			print STDERR "Invalid state length:\n", Data::Dumper->new([$row])->Dump();
 			return;
 		}
 		if(length($country) != 2) {
-			print "Invalid country length:\n", Data::Dumper->new([$row])->Dump();
+			print STDERR "Invalid country length:\n", Data::Dumper->new([$row])->Dump();
 			return;
 		}
 		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
