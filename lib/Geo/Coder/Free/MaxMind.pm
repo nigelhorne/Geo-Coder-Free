@@ -373,6 +373,11 @@ sub geocode {
 				}
 			}
 			$city->{'confidence'} = $confidence;
+			my $l= $options->{'City'};
+			if($options->{'Region'}) {
+				$l .= ', ' . $options->{'Region'};
+			}
+			$city->{'location'} = "$l, " . $options->{'Country'};
 		}
 		return @rc;
 	}
