@@ -355,9 +355,6 @@ sub geocode {
 			if($city->{'Country'}) {
 				$city->{'country'} = uc(delete $city->{'Country'});
 			}
-			if($city->{'Country'}) {
-				$city->{'country'} = uc(delete $city->{'Country'});
-			}
 			if($city->{'Region'}) {
 				$city->{'state'} = uc(delete $city->{'Region'});
 			}
@@ -377,7 +374,10 @@ sub geocode {
 			if($options->{'Region'}) {
 				$l .= ', ' . $options->{'Region'};
 			}
-			$city->{'location'} = "$l, " . $options->{'Country'};
+			if($options->{'Country'}) {
+				$l .= ', ' . ucfirst($options->{'Country'});
+			}
+			$city->{'location'} = $l;
 		}
 		return @rc;
 	}
