@@ -175,6 +175,7 @@ sub geocode {
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
+						$l->{'confidence'} = 0.6;
 						$l->{'location'} = "$addr, Canada";
 						push @rc, $l;
 					}

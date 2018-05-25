@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 21;
+use Test::Most tests => 24;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -25,6 +25,7 @@ SCANTEXT: {
 			my $location = $locations[0];
 			delta_within($location->{latitude}, 51.33, 1e-2);
 			delta_within($location->{longitude}, 1.41, 1e-2);
+			ok(defined($location->{'confidence'}));
 			ok($location->{'location'} eq 'Ramsgate, Kent, England');
 				
 			@locations = $geocoder->geocode(scantext => "I was born at St Mary's Hospital in Newark, DE in 1987");
@@ -42,6 +43,7 @@ SCANTEXT: {
 				$found++;
 				delta_within($location->{latitude}, 39.68, 1e-2);
 				delta_within($location->{longitude}, -75.66, 1e-2);
+				ok(defined($location->{'confidence'}));
 				ok($location->{'location'} eq 'Newark, DE, USA');
 
 			}
@@ -65,6 +67,7 @@ SCANTEXT: {
 						$found{'GREENWOOD'}++;
 						delta_within($location->{latitude}, 39.6, 1e-1);
 						delta_within($location->{longitude}, -86.1, 1e-1);
+						ok(defined($location->{'confidence'}));
 					}
 				} elsif($city eq 'INDIANAPOLIS') {
 					if(!$found{'INDIANAPOLIS'}) {
@@ -86,7 +89,7 @@ SCANTEXT: {
 			ok($found{'INDIANAPOLIS'});
 		} else {
 			diag('Set OPENADDR_HOME to scantext testing');
-			skip 'OPENADDR_HOME not defined', 20;
+			skip 'OPENADDR_HOME not defined', 23;
 		}
 	}
 }
