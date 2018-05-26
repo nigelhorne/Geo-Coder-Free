@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 24;
+use Test::Most tests => 26;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -28,6 +28,12 @@ SCANTEXT: {
 			ok(defined($location->{'confidence'}));
 			ok($location->{'location'} eq 'Ramsgate, Kent, England');
 				
+			@locations = $geocoder->geocode(scantext => 'Hello World', region => 'gb');
+			ok(scalar(@locations) == 0);
+
+			@locations = $geocoder->geocode(scantext => 'Hello World');
+			ok(scalar(@locations) == 0);
+
 			@locations = $geocoder->geocode(scantext => "I was born at St Mary's Hospital in Newark, DE in 1987");
 			my $found = 0;
 			foreach $location(@locations) {
@@ -89,7 +95,7 @@ SCANTEXT: {
 			ok($found{'INDIANAPOLIS'});
 		} else {
 			diag('Set OPENADDR_HOME to scantext testing');
-			skip 'OPENADDR_HOME not defined', 23;
+			skip 'OPENADDR_HOME not defined', 25;
 		}
 	}
 }
