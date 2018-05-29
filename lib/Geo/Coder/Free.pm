@@ -11,7 +11,7 @@ use List::MoreUtils;
 
 =head1 NAME
 
-Geo::Coder::Free - Provides a geocoding functionality using free databases
+Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
@@ -25,19 +25,19 @@ our $VERSION = '0.10';
 
     use Geo::Coder::Free;
 
-    my $geocoder = Geo::Coder::Free->new();
-    my $location = $geocoder->geocode(location => 'Ramsgate, Kent, UK');
+    my $geo_coder = Geo::Coder::Free->new();
+    my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
 
     # Use a local download of http://results.openaddresses.io/
-    my $openaddr_geocoder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
-    $location = $openaddr_geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+    my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
+    $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
 =head1 DESCRIPTION
 
 Geo::Coder::Free provides an interface to free databases by acting as a front-end to
 Geo::Coder::Free::MaxMind and Geo::Coder::Free::OpenAddresses.
 
-The cgi-bin directory contains a simple DIY geocoding website.
+The cgi-bin directory contains a simple DIY Geo-Coding website.
 
     cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
 
@@ -49,7 +49,7 @@ You can see a sample website at L<https://geocode.nigelhorne.com/>.
 
 =head2 new
 
-    $geocoder = Geo::Coder::Free->new();
+    $geo_coder = Geo::Coder::Free->new();
 
 Takes one optional parameter, openaddr, which is the base directory of
 the OpenAddresses data downloaded from L<http://results.openaddresses.io>.
@@ -85,16 +85,16 @@ sub new {
 
 =head2 geocode
 
-    $location = $geocoder->geocode(location => $location);
+    $location = $geo_coder->geocode(location => $location);
 
     print 'Latitude: ', $location->{'latitude'}, "\n";
     print 'Longitude: ', $location->{'longitude'}, "\n";
 
     # TODO:
-    # @locations = $geocoder->geocode('Portland, USA');
+    # @locations = $geo_coder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
 
-    my @matches = $geocoder->geocode(scantext => 'arbitrary text', region => 'US');
+    my @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US');
 
 =cut
 
@@ -169,7 +169,7 @@ sub reverse_geocode {
 
 =head2	ua
 
-Does nothing, here for compatibility with other geocoders
+Does nothing, here for compatibility with other Geo-Coders
 
 =cut
 
