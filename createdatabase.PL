@@ -244,7 +244,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		}
 		$dbh->prepare('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)')->execute();
 		$dbh->prepare('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))')->execute();
-		# $dbh->prepare('CREATE TABLE level(md5 CHAR(16), parent CHAR(16)')->execute();
+		# $dbh->prepare('CREATE TABLE node(md5 CHAR(16), parent CHAR(16)')->execute();
 		# $dbh->prepare('CREATE TABLE leaf(md5 CHAR(16), lat DECIMAL, lon DECIMAL')->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
@@ -636,7 +636,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		$dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
 		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
-		# $dbh->prepare('CREATE UNIQUE INDEX level_index ON level(md5)')->execute();
+		# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
 
 		$| = 1;
@@ -827,12 +827,6 @@ sub import {
 		}
 	}
 	if($county) {
-		$county = uc($county);
-		$county =~ s/_/ /g;
-		$county =~ s/\s+COUNTY$//;
-		$county =~ s/\s\s+/ /g;
-		$county =~ s/\s+$//g;
-		$county =~ s/^\s+//g;
 		if($city) {
 			if($city =~ /\s+COUNTY$/i) {
 				my $tmp = $city;
@@ -845,6 +839,12 @@ sub import {
 				$city = undef;
 			}
 		}
+		$county = uc($county);
+		$county =~ s/_/ /g;
+		$county =~ s/\s+COUNTY$//;
+		$county =~ s/\s\s+/ /g;
+		$county =~ s/\s+$//g;
+		$county =~ s/^\s+//g;
 	}
 	if(!defined($state)) {
 		$state = $row->{'REGION'};
