@@ -15,7 +15,7 @@ BEGIN {
 SCANTEXT: {
 	SKIP: {
 		if($ENV{'OPENADDR_HOME'}) {
-			if($ENV{TEST_GEOCODER_FREE_LIVE}) {
+			if($ENV{RELEASE_TESTING}) {
 				diag('This will take some time and memory');
 
 				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
@@ -95,12 +95,12 @@ SCANTEXT: {
 				ok($found{'NOBLESVILLE'});
 				ok($found{'INDIANAPOLIS'});
 			} else {
-				diag('Not running live tests. Set $ENV{TEST_GEOCODER_FREE_LIVE} = 1 to enable');
-				skip('Not running live tests. Set $ENV{TEST_GEOCODER_FREE_LIVE} = 1 to enable', 25);
+				diag('Author tests not required for installation');
+				skip('Author tests not required for installation', 25);
 			}
 		} else {
-			diag('Set OPENADDR_HOME to scantext testing');
-			skip('OPENADDR_HOME not defined', 25);
+			diag('Author tests not required for installation');
+			skip('Author tests not required for installation', 25);
 		}
 	}
 }

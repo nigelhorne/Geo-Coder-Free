@@ -14,7 +14,7 @@ BEGIN {
 
 LOOKUP: {
 	SKIP: {
-		if($ENV{TEST_GEOCODER_FREE_LIVE}) {
+		if($ENV{RELEASE_TESTING}) {
 			diag('This may take some time and consume a lot of memory if the database is not SQLite');
 
 			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
@@ -173,8 +173,8 @@ LOOKUP: {
 				$location = $geocoder->reverse_geocode();
 			});
 		} else {
-			diag('Not running live tests. Set $ENV{TEST_GEOCODER_FREE_LIVE} = 1 to enable');
-			skip('Not running live tests. Set $ENV{TEST_GEOCODER_FREE_LIVE} = 1 to enable', 71);
+			diag('Author tests not required for installation');
+			skip('Author tests not required for installation', 71);
 		}
 	}
 }

@@ -15,7 +15,7 @@ BEGIN {
 OPENADDR: {
 	SKIP: {
 		if($ENV{'OPENADDR_HOME'}) {
-			if($ENV{TEST_GEOCODER_FREE_LIVE}) {
+			if($ENV{RELEASE_TESTING}) {
 				diag('This will take some time and memory');
 
 				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
@@ -217,8 +217,8 @@ OPENADDR: {
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
 			} else {
-				diag('Not running live tests. Set $ENV{TEST_GEOCODER_FREE_LIVE} = 1 to enable');
-				skip('Not running live tests. Set $ENV{TEST_GEOCODER_FREE_LIVE} = 1 to enable', 95);
+				diag('Author tests not required for installation');
+				skip('Author tests not required for installation', 95);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -238,8 +238,8 @@ OPENADDR: {
 				$geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => 'not/there' ]);
 			});
 		} else {
-			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('OPENADDR_HOME not defined', 95);
+			diag('Author tests not required for installation');
+			skip('Author tests not required for installation', 95);
 		}
 	}
 }
