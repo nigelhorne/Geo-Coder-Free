@@ -15,12 +15,12 @@ BEGIN {
 OPENADDR: {
 	SKIP: {
 		if($ENV{'OPENADDR_HOME'}) {
+			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+
+			my $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
+
 			if($ENV{RELEASE_TESTING}) {
 				diag('This will take some time and memory');
-
-				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
-
-				my $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 
 				my $location = $geo_coder->geocode('Medlars Drive, Bethesda, MD, USA');
 				ok(defined($location));
@@ -35,8 +35,8 @@ OPENADDR: {
 				$location = $geo_coder->geocode('Indianapolis, Indiana, USA');
 				ok(defined($location));
 				if($ENV{'WHOSONFIRST_HOME'}) {
-					delta_within($location->{latitude}, 39.77, 1e-2);
-					delta_within($location->{longitude}, -86.29, 1e-2);
+					delta_within($location->{latitude}, 39.84, 1e-2);
+					delta_within($location->{longitude}, -86.25, 1e-2);
 				} else {
 					delta_within($location->{latitude}, 39.81, 1e-2);
 					delta_within($location->{longitude}, -86.10, 1e-2);
@@ -199,15 +199,15 @@ OPENADDR: {
 				$location = $geo_coder->geocode({ location => 'St. Louis, Missouri, USA' });
 				ok(defined($location));
 				delta_within($location->{latitude}, 38.65, 1e-2);
-				delta_within($location->{longitude}, -90.20, 1e-2);
+				delta_within($location->{longitude}, -90.31, 1e-2);
 
 				$location = $geo_coder->geocode({ location => 'Saint Louis, Missouri, USA' });
 				delta_within($location->{latitude}, 38.62, 1e-2);
 				delta_within($location->{longitude}, -90.20, 1e-2);
 
 				$location = $geo_coder->geocode({ location => 'St Louis, Missouri, USA' });
-				delta_within($location->{latitude}, 38.63, 1e-2);
-				delta_within($location->{longitude}, -90.20, 1e-2);
+				delta_within($location->{latitude}, 38.65, 1e-2);
+				delta_within($location->{longitude}, -90.31, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
 				delta_within($location->{latitude}, -27.09, 1e-2);
@@ -218,14 +218,13 @@ OPENADDR: {
 				ok(ref($location) eq 'HASH');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 95);
+				skip('Author tests not required for installation', 93);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
 			# like($address->{'city'}, qr/^London$/i, 'test reverse');
 
 			my $location;
-			my $geo_coder;
 			does_croak(sub {
 				$location = $geo_coder->geocode();
 			});

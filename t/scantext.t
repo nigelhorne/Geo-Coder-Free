@@ -86,8 +86,8 @@ SCANTEXT: {
 					} elsif($city eq 'NOBLESVILLE') {
 						if(!$found{'NOBLESVILLE'}) {
 							$found{'NOBLESVILLE'}++;
-							delta_within($location->{latitude}, 40.2, 1e-1);
-							delta_within($location->{longitude}, -85.9, 1e-1);
+							delta_within($location->{latitude}, 40.1, 1e-1);
+							delta_within($location->{longitude}, -86.1, 1e-1);
 						}
 					}
 				}
