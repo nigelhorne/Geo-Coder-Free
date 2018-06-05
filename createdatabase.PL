@@ -341,6 +341,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		my $current_state;
 		my $current_country;
 		my %whosonfirst;
+		my $wof_global_dbh;
 		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
 			$| = 1;
 			printf "%-70s\r", "Traversing $whosonfirst";
@@ -348,6 +349,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			foreach my $file(<"$whosonfirst/*.db">) {
 				$whosonfirst{$file} = 1;
 			}
+			if(-r "$whosonfirst/whosonfirst-data-latest.db") {
+				$wof_global_dbh = DBI->connect("dbi:SQLite:dbname=$whosonfirst/whosonfirst-data-latest.db", undef, undef, {
+					sqlite_open_flags => SQLITE_OPEN_READONLY,
+				});
+			}
+
 		}
 		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
@@ -442,6 +449,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
 						next if($data->{'properties'}->{'wof:country'} ne uc($country));
 						my $city = $data->{'properties'}->{'sg:city'};
+						# Don't trust sg:city to be correct
+						my @hierarchy = @{$data->{'properties'}->{'wof:hierarchy'}};
+						if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
+							if(my $getcity = get_city($wof_global_dbh, $locality)) {
+								$city = $getcity;
+							}
+						}
 						if(!defined($city)) {
 							my $address = $data->{'properties'}->{'addr:full'};
 							next if(!defined($address));
@@ -555,6 +569,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
 					$street =~ s/;.+$//;
 					my $city = $data->{'properties'}->{'sg:city'};
+					# Don't trust sg:city to be correct
+					my @hierarchy = @{$data->{'properties'}->{'wof:hierarchy'}};
+					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
+						if(my $getcity = get_city($wof_global_dbh, $locality)) {
+							$city = $getcity;
+						}
+					}
 					my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
 					my $postcode = $data->{'properties'}->{'addr:postcode'};
 					$country = uc($country);
@@ -569,7 +590,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 					if((!defined($state)) && ($country eq 'GB')) {
 						if($postcode =~ /^BA1 /) {
-						# if($data->{'properties'}->{'wof:hierachy'}[0]->{'region_id'} == 85683823) {
+						# if($data->{'properties'}->{'wof:hierarchy'}[0]->{'region_id'} == 85683823) {
 							$state = 'SOMERSET';
 						}
 					}
@@ -1099,4 +1120,24 @@ sub city_key {
 		$state = '0';
 	}
 	return "$city,$county,$state,$country";
+}
+
+sub get_city {
+	my ($dbh, $locality) = @_;
+
+	my $query = "SELECT * FROM geojson where id = $locality LIMIT 1";
+	my $sth = $dbh->prepare($query);
+	$sth->execute() || die($query);
+	my $data = $sth->fetchrow_hashref();
+	if($data->{'body'}) {
+		$data = $data->{'body'};
+	}
+	return if((!defined($data)) || ref($data));
+	# print Data::Dumper->new([$data])->Dump();
+	# print $data, "\n", 'x' x 70, "\n";
+	$data = JSON->new()->utf8()->decode($data);
+	return if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
+	if($data->{'properties'}->{'wof:name'}) {
+		return $data->{'properties'}->{'wof:name'};
+	}
 }
