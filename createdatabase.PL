@@ -365,6 +365,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		if($wof_global_dbh) {
+			$wof_global_dbh->do('PRAGMA cache_size = 65536');
 			# Import from the global file
 			$| = 1;
 			printf "%-70s\r", "Traversing $wof_global_file";
@@ -380,28 +381,48 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 				next if(!defined($data));
 				$data = JSON->new()->utf8()->decode($data);
-				next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
-				my $country = $data->{'properties'}->{'wof:country'};
+				my $properties = $data->{'properties'};
+				next if(scalar(@{$properties->{'wof:superseded_by'}}));
+				my $country = $properties->{'wof:country'};
 				next if(!defined($country));
-				if(!$openaddresses_supported_countries{$country}) {
+				if(!$openaddresses_supported_countries{lc($country)}) {
 					my $found = 0;
 					foreach my $c(@whosonfirst_only_countries) {
-						$found = 1;
-						last;
+						if(lc($country) eq $c) {
+							$found = 1;
+							last;
+						}
 					}
 					next if(!$found);
 				}
-				my $state = $data->{'properties'}->{'sg:province'};
-				my $city = $data->{'properties'}->{'sg:city'};
-				# Don't trust sg:city to be correct
-				my @hierarchy = @{$data->{'properties'}->{'wof:hierarchy'}};
-				if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-					if(my $getcity = get_city($wof_global_dbh, $locality)) {
-						$city = $getcity;
+				# print Data::Dumper->new([$properties])->Dump();
+				my $state;
+				if($properties->{'wof:placetype'} eq 'region') {
+					$state = $properties->{'wof:name'};
+				} else {
+					$state = $properties->{'sg:province'};
+				}
+				next unless($state);
+				my $city;
+				if($properties->{'wof:placetype'} eq 'locality') {
+					$city = $properties->{'wof:name'};
+				} else {
+					$city = $properties->{'sg:city'};
+					# Don't trust sg:city to be correct
+					my @hierarchy = @{$properties->{'wof:hierarchy'}};
+					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
+						if(my $getcity = get_city($wof_global_dbh, $locality)) {
+							$city = $getcity;
+						}
 					}
 				}
+				# if($city) {
+					# print "$country, $state, $city\n";
+				# } else {
+					# print "$country, $state\n";
+				# }
 				if(!defined($city)) {
-					my $address = $data->{'properties'}->{'addr:full'};
+					my $address = $properties->{'addr:full'};
 					next if(!defined($address));
 					if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
 						if($href->{city}) {
@@ -410,22 +431,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 				}
 				next if(!defined($city));
-				my $postcode = $data->{'properties'}->{'addr:postcode'};
+				my $postcode = $properties->{'addr:postcode'};
 				if($postcode) {
 					$postcode = uc($postcode);
 				}
-				my $street = $data->{'properties'}->{'addr:street'};
+				my $street = $properties->{'addr:street'};
 				if($street) {
 					$street = uc($street);
 				}
-				my $number = $data->{'properties'}->{'addr:number'};
+				my $number = $properties->{'addr:number'};
 				if($number) {
 					$number = uc($number);
 				}
 				my $row = {
-					'LAT' => $data->{'properties'}->{'geom:latitude'},
-					'LON' => $data->{'properties'}->{'geom:longitude'},
-					'NAME' => uc($data->{'properties'}->{'wof:name'}),
+					'LAT' => $properties->{'geom:latitude'},
+					'LON' => $properties->{'geom:longitude'},
+					'NAME' => uc($properties->{'wof:name'}),
 					'NUMBER' => $number,
 					'STREET' => $street,
 					'CITY' => uc($city),
@@ -527,18 +548,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						next if(!defined($data));
 						$data = JSON->new()->utf8()->decode($data);
-						next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
-						next if($data->{'properties'}->{'wof:country'} ne uc($country));
-						my $city = $data->{'properties'}->{'sg:city'};
+						my $properties = $data->{'properties'};
+						next if(scalar(@{$properties->{'wof:superseded_by'}}));
+						next if($properties->{'wof:country'} ne uc($country));
+						my $city = $properties->{'sg:city'};
 						# Don't trust sg:city to be correct
-						my @hierarchy = @{$data->{'properties'}->{'wof:hierarchy'}};
+						my @hierarchy = @{$properties->{'wof:hierarchy'}};
 						if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
 							if(my $getcity = get_city($wof_global_dbh, $locality)) {
 								$city = $getcity;
 							}
 						}
 						if(!defined($city)) {
-							my $address = $data->{'properties'}->{'addr:full'};
+							my $address = $properties->{'addr:full'};
 							next if(!defined($address));
 							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
 								if($href->{city}) {
@@ -547,22 +569,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							}
 						}
 						next if(!defined($city));
-						my $postcode = $data->{'properties'}->{'addr:postcode'};
+						my $postcode = $properties->{'addr:postcode'};
 						if($postcode) {
 							$postcode = uc($postcode);
 						}
-						my $street = $data->{'properties'}->{'addr:street'};
+						my $street = $properties->{'addr:street'};
 						if($street) {
 							$street = uc($street);
 						}
-						my $number = $data->{'properties'}->{'addr:number'};
+						my $number = $properties->{'addr:number'};
 						if($number) {
 							$number = uc($number);
 						}
 						my $row = {
-							'LAT' => $data->{'properties'}->{'geom:latitude'},
-							'LON' => $data->{'properties'}->{'geom:longitude'},
-							'NAME' => uc($data->{'properties'}->{'wof:name'}),
+							'LAT' => $properties->{'geom:latitude'},
+							'LON' => $properties->{'geom:longitude'},
+							'NAME' => uc($properties->{'wof:name'}),
 							'NUMBER' => $number,
 							'STREET' => $street,
 							'CITY' => uc($city),
@@ -643,22 +665,23 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					next if(!defined($data));
 					$data = JSON->new()->utf8()->decode($data);
 
-					next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
-					next if($data->{'properties'}->{'wof:country'} ne uc($country));
-					my $street = $data->{'properties'}->{'addr:street'};
+					my $properties = $data->{'properties'};
+					next if(scalar(@{$properties->{'wof:superseded_by'}}));
+					next if($properties->{'wof:country'} ne uc($country));
+					my $street = $properties->{'addr:street'};
 					next if(!defined($street));
 					# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
 					$street =~ s/;.+$//;
-					my $city = $data->{'properties'}->{'sg:city'};
+					my $city = $properties->{'sg:city'};
 					# Don't trust sg:city to be correct
-					my @hierarchy = @{$data->{'properties'}->{'wof:hierarchy'}};
+					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
 						if(my $getcity = get_city($wof_global_dbh, $locality)) {
 							$city = $getcity;
 						}
 					}
-					my $state = $data->{'properties'}->{'sg:region'} || $data->{'properties'}->{'sg:province'};
-					my $postcode = $data->{'properties'}->{'addr:postcode'};
+					my $state = $properties->{'sg:region'} || $properties->{'sg:province'};
+					my $postcode = $properties->{'addr:postcode'};
 					$country = uc($country);
 					if(defined($city)) {
 						$city = uc($city);
@@ -671,7 +694,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 					if((!defined($state)) && ($country eq 'GB')) {
 						if($postcode =~ /^BA1 /) {
-						# if($data->{'properties'}->{'wof:hierarchy'}[0]->{'region_id'} == 85683823) {
+						# if($properties->{'wof:hierarchy'}[0]->{'region_id'} == 85683823) {
 							$state = 'SOMERSET';
 						}
 					}
@@ -684,10 +707,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 					}
 					my $row = {
-						'LAT' => $data->{'properties'}->{'geom:latitude'},
-						'LON' => $data->{'properties'}->{'geom:longitude'},
-						'NAME' => uc($data->{'properties'}->{'wof:name'}),
-						'NUMBER' => uc($data->{'properties'}->{'addr:housenumber'}),
+						'LAT' => $properties->{'geom:latitude'},
+						'LON' => $properties->{'geom:longitude'},
+						'NAME' => uc($properties->{'wof:name'}),
+						'NUMBER' => uc($properties->{'addr:housenumber'}),
 						'STREET' => uc($street),
 						'CITY' => $city,
 						'STATE' => $state,
@@ -876,15 +899,17 @@ sub import {
 		}
 	}
 	$city =~ s/\.csv$//;
-	$city =~ s/_/ /g;
-	$city =~ s/\-/ /g;
-	$city =~ s/\./ /g;
+	$city =~ s/[_,\-\.]/ /g;
 	$city = uc($city);
 	$city =~ s/\s+BORO$//;
 	$city =~ s/\s+TWP$//;
 	$city =~ s/^TOWN\s+OF\s+//;
-	$city =~ s/^CITY\s+OF\s+//;
+	$city =~ s/^CITY\s+OF\s+//i;
+	$city =~ s/^THE\s+CITY\s+OF\s+//i;
 	$city =~ s/^TOWNSHIP\s+OF\s+//;
+	$city =~ s/\s\s+/ /g;
+	$city =~ s/\s+$//g;
+	$city =~ s/^\s+//g;
 	my $street = $row->{'STREET'};
 	if($street) {
 		$street = uc($street);
@@ -1224,9 +1249,10 @@ sub get_city {
 	# print Data::Dumper->new([$data])->Dump();
 	# print $data, "\n", 'x' x 70, "\n";
 	$data = JSON->new()->utf8()->decode($data);
-	return if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
-	if($data->{'properties'}->{'wof:name'}) {
+	my $properties = $data->{'properties'};
+	return if(scalar(@{$properties->{'wof:superseded_by'}}));
+	if($properties->{'wof:name'}) {
 		$last_id = $id;
-		return $last_name = $data->{'properties'}->{'wof:name'};
+		return $last_name = $properties->{'wof:name'};
 	}
 }
