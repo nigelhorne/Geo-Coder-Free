@@ -7,6 +7,7 @@
 
 # TODO: perhaps use a layered approach to the database schema
 
+use 5.010;
 use strict;
 use warnings;
 use autodie qw(:all);
@@ -342,6 +343,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		my $current_country;
 		my %whosonfirst;
 		my $wof_global_dbh;
+		my $wof_global_file;
 		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
 			$| = 1;
 			printf "%-70s\r", "Traversing $whosonfirst";
@@ -349,16 +351,95 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			foreach my $file(<"$whosonfirst/*.db">) {
 				$whosonfirst{$file} = 1;
 			}
-			if(-r "$whosonfirst/whosonfirst-data-latest.db") {
-				$wof_global_dbh = DBI->connect("dbi:SQLite:dbname=$whosonfirst/whosonfirst-data-latest.db", undef, undef, {
+			$wof_global_file = "$whosonfirst/whosonfirst-data-latest.db";
+			if(-r $wof_global_file) {
+				$wof_global_dbh = DBI->connect("dbi:SQLite:dbname=$wof_global_file", undef, undef, {
 					sqlite_open_flags => SQLITE_OPEN_READONLY,
 				});
 			}
 
 		}
+
 		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
+
+		if($wof_global_dbh) {
+			# Import from the global file
+			$| = 1;
+			printf "%-70s\r", "Traversing $wof_global_file";
+			$| = 0;
+
+			my $inserts = 0;
+			my $sth = $wof_global_dbh->prepare('SELECT * FROM geojson');
+			$sth->execute() || die $wof_global_file;
+
+			while(my $data = $sth->fetchrow_hashref()) {
+				if($data->{'body'}) {
+					$data = $data->{'body'};
+				}
+				next if(!defined($data));
+				$data = JSON->new()->utf8()->decode($data);
+				next if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
+				my $country = $data->{'properties'}->{'wof:country'};
+				next if(!defined($country));
+				if(!$openaddresses_supported_countries{$country}) {
+					my $found = 0;
+					foreach my $c(@whosonfirst_only_countries) {
+						$found = 1;
+						last;
+					}
+					next if(!$found);
+				}
+				my $state = $data->{'properties'}->{'sg:province'};
+				my $city = $data->{'properties'}->{'sg:city'};
+				# Don't trust sg:city to be correct
+				my @hierarchy = @{$data->{'properties'}->{'wof:hierarchy'}};
+				if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
+					if(my $getcity = get_city($wof_global_dbh, $locality)) {
+						$city = $getcity;
+					}
+				}
+				if(!defined($city)) {
+					my $address = $data->{'properties'}->{'addr:full'};
+					next if(!defined($address));
+					if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
+						if($href->{city}) {
+							$city = $href->{city};
+						}
+					}
+				}
+				next if(!defined($city));
+				my $postcode = $data->{'properties'}->{'addr:postcode'};
+				if($postcode) {
+					$postcode = uc($postcode);
+				}
+				my $street = $data->{'properties'}->{'addr:street'};
+				if($street) {
+					$street = uc($street);
+				}
+				my $number = $data->{'properties'}->{'addr:number'};
+				if($number) {
+					$number = uc($number);
+				}
+				my $row = {
+					'LAT' => $data->{'properties'}->{'geom:latitude'},
+					'LON' => $data->{'properties'}->{'geom:longitude'},
+					'NAME' => uc($data->{'properties'}->{'wof:name'}),
+					'NUMBER' => $number,
+					'STREET' => $street,
+					'CITY' => uc($city),
+					'STATE' => $state,
+					'COUNTRY' => uc($country),
+					'POSTCODE' => $postcode,
+				};
+				$inserts += import(country => $country, state => $state, row => $row, file => $wof_global_file, ua => $ua, dbh => $dbh, global => 1);
+				if($inserts >= MAX_INSERT_COUNT) {
+					flush_queue($dbh);
+					$inserts = 0;
+				}
+			}
+		}
 
 		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
@@ -529,7 +610,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 
-		%state_md5s = ( );
+		%state_md5s = ();
 
 		foreach my $country(@whosonfirst_only_countries) {
 			# TODO: import known_places for this country
@@ -668,7 +749,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		print ' ' x 70, "\r";
 	}
 
-	# TODO:  Import the Maxmind databases
+	# TODO: Import the Maxmind databases
 }
 
 # Return a list of all .csv files under the given directory
@@ -1123,9 +1204,16 @@ sub city_key {
 }
 
 sub get_city {
-	my ($dbh, $locality) = @_;
+	my ($dbh, $id) = @_;
 
-	my $query = "SELECT * FROM geojson where id = $locality LIMIT 1";
+	state $last_id;
+	state $last_name;
+
+	if($last_id && ($id == $last_id)) {
+		return $last_name;
+	}
+
+	my $query = "SELECT * FROM geojson where id = $id LIMIT 1";
 	my $sth = $dbh->prepare($query);
 	$sth->execute() || die($query);
 	my $data = $sth->fetchrow_hashref();
@@ -1138,6 +1226,7 @@ sub get_city {
 	$data = JSON->new()->utf8()->decode($data);
 	return if(scalar(@{$data->{'properties'}->{'wof:superseded_by'}}));
 	if($data->{'properties'}->{'wof:name'}) {
-		return $data->{'properties'}->{'wof:name'};
+		$last_id = $id;
+		return $last_name = $data->{'properties'}->{'wof:name'};
 	}
 }
