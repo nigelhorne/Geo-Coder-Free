@@ -395,10 +395,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 					next if(!$found);
 				}
-				# print Data::Dumper->new([$properties])->Dump();
 				my $state;
 				if($properties->{'wof:placetype'} eq 'region') {
-					$state = $properties->{'wof:name'};
+					if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
+						$state = $properties->{'wof:abbreviation'} || $properties->{'wof:name'};
+					} else {
+						$state = $properties->{'wof:name'};
+					}
 				} else {
 					$state = $properties->{'sg:province'};
 				}
@@ -416,6 +419,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 					}
 				}
+				# print Data::Dumper->new([$properties])->Dump();
 				# if($city) {
 					# print "$country, $state, $city\n";
 				# } else {
@@ -1235,8 +1239,10 @@ sub get_city {
 	state $last_name;
 
 	if($last_id && ($id == $last_id)) {
+		# print "get_city: cached $last_name\n";
 		return $last_name;
 	}
+	# print "get_city: not cached $id\n";
 
 	my $query = "SELECT * FROM geojson where id = $id LIMIT 1";
 	my $sth = $dbh->prepare($query);
