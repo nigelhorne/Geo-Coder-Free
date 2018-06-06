@@ -212,6 +212,27 @@ Nigel Horne <njh@bandsman.co.uk>
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+=head1 MORE INFORMATION
+
+I've written a few Perl related Genealogy programs including gedcom (L<https://github.com/nigelhorne/gedcom>)
+and ged2site (L<https://github.com/nigelhorne/ged2site>).
+One of the things that these do is to check the validity of your family tree, and one of those tasks is to verify place-names.
+Of course places do change names and spelling becomes more consistent over the years, but the vast majority remain the same.
+Enough of a majority to computerise the verification.
+Unfortunately all of the on-line services have one problem or another - most either charge for large number of access, or throttle the number of look-ups.
+Even my modest tree, just over 2000 people, reaches those limits.
+
+There are, however, a number of free databases that can be used, including MaxMind, GeoNames, OpenAddresses and WhosOnFirst.
+The objective of Geo::Coder::Free (L<https://github.com/nigelhorne/Geo-Coder-Free>)
+is to create a database of those databases and to create a search engine either through a local copy of the database or through an on-line website.
+Both are in their early days, but I have examples which do surprisingly well.
+
+The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
+That script creates a single SQLite file from downloaded copies of the databases listed above.
+Running 'make' will download GeoNames and Maxmind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:.F.
+
+There is a sample website at L<https://geocode.nigelhorne.com/>.  The source code for that site is included in the G:C:F distribution.
+
 =head1 BUGS
 
 Lots of lookups fail at the moment.
