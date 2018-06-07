@@ -60,6 +60,8 @@ WriteMakefile(
 	  : ()),
 	BUILD_REQUIRES => {	# For bin/createdatabase
 		'App::csv2sqlite' => 0,
+		'CHI' => 0,
+		'CHI::Driver::RawMemory' => 0,
 		'File::Basename' => 0,
 		'File::Copy' => 0,
 		'File::Spec' => 0,

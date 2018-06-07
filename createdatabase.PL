@@ -24,6 +24,8 @@ use File::Basename;
 use File::Spec;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use Text::CSV;
+use CHI;
+use CHI::Driver::RawMemory;
 
 use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
 
@@ -366,15 +368,18 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		if($wof_global_dbh) {
 			$wof_global_dbh->do('PRAGMA cache_size = 65536');
+			my $file = basename($wof_global_file);
 			# Import from the global file
 			$| = 1;
-			printf "%-70s\r", basename($wof_global_file);
+			printf "%-70s\r", $file;
 			$| = 0;
+			print "\n";
 
 			my $inserts = 0;
 			my $sth = $wof_global_dbh->prepare('SELECT body FROM geojson');
 			$sth->execute() || die $wof_global_file;
 
+			my $j = JSON->new()->utf8();
 			# while(my $data = $sth->fetchrow_hashref()) {
 				# if($data->{'body'}) {
 					# $data = $data->{'body'};
@@ -387,7 +392,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				next if(!defined($aref));
 				my $data = @{$aref}[0];
 				next if(!defined($data));
-				$data = JSON->new()->utf8()->decode($data);
+				$data = $j->decode($data);
 				my $properties = $data->{'properties'};
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
 				my $placetype = $properties->{'wof:placetype'};
@@ -474,7 +479,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $row = {
 					'LAT' => $properties->{'geom:latitude'},
 					'LON' => $properties->{'geom:longitude'},
-					'NAME' => uc($properties->{'wof:name'}),
+					# 'NAME' => uc($properties->{'wof:name'}),
 					'NUMBER' => $number,
 					'STREET' => $street,
 					'CITY' => uc($city),
@@ -482,7 +487,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					'COUNTRY' => uc($country),
 					'POSTCODE' => $postcode,
 				};
-				$inserts += import(country => $country, state => $state, row => $row, file => $wof_global_file, ua => $ua, dbh => $dbh, global => 1);
+				$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
 					flush_queue($dbh);
 					$inserts = 0;
@@ -549,25 +554,23 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 
 				# Import this state's Who's on First data
-				# FIXME: why is this in a loop?  Why can't we go straight to the file for this state?
-				# foreach my $wof_file (keys %whosonfirst) {
-					# if($state && ($country eq 'us')) {
-						# next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
-						# my $c = lc($1);
-						# my $s = uc($2);
-						# next if(($c ne $country) || ($s ne $state));
-					# } else {
-						# next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-						# my $c = lc($1);
-						# next if($c ne $country);
-					# }
-				if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
-					my $wof_file;
+				# This strange loop is there to avoid importing a file more than once
+				foreach my $wof_file (keys %whosonfirst) {
 					if($state && ($country eq 'us')) {
-						$wof_file = "$whosonfirst/whosonfirst-data-venue-us-" . lc($state) . '-latest';
+						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
+						next if((lc($1) ne $country) || (uc($2) ne $state));
 					} else {
-						$wof_file = "$whosonfirst/whosonfirst-data-venue-" . lc($country) . '-latest';
+						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
+						my $c = lc($1);
+						next if($c ne $country);
 					}
+				# if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
+					# my $wof_file;
+					# if($state && ($country eq 'us')) {
+						# $wof_file = "$whosonfirst/whosonfirst-data-venue-us-" . lc($state) . '-latest.db';
+					# } else {
+						# $wof_file = "$whosonfirst/whosonfirst-data-venue-" . lc($country) . '-latest.db';
+					# }
 					my $file = basename($wof_file);
 					$| = 1;
 					printf "%-70s\r", $file;
@@ -582,6 +585,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
 					$sth->execute() || die $wof_file;
 
+					my $j = JSON->new()->utf8();
 					# while(my $data = $sth->fetchrow_hashref()) {
 						# if($data->{'body'}) {
 							# $data = $data->{'body'};
@@ -594,7 +598,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 						next if(!defined($aref));
 						my $data = @{$aref}[0];
-						$data = JSON->new()->utf8()->decode($data);
+						$data = $j->decode($data);
 						my $properties = $data->{'properties'};
 						next if(scalar(@{$properties->{'wof:superseded_by'}}));
 						next if($properties->{'wof:country'} ne uc($country));
@@ -704,13 +708,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
 				$sth->execute() || die $wof_file;
 
-				while(my $data = $sth->fetchrow_hashref()) {
-					# print Data::Dumper->new([$data])->Dump();
-					if($data->{'body'}) {
-						$data = $data->{'body'};
+				my $j = JSON->new()->utf8();
+				# while(my $data = $sth->fetchrow_hashref()) {
+					# # print Data::Dumper->new([$data])->Dump();
+					# if($data->{'body'}) {
+						# $data = $data->{'body'};
+					# }
+					# next if(!defined($data));
+				my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
+				while(my $aref = shift(@{$rowcache})) {
+					if(scalar(@{$rowcache}) == 0) {
+						$rowcache = $sth->fetchall_arrayref(undef, 10_000);
 					}
-					next if(!defined($data));
-					$data = JSON->new()->utf8()->decode($data);
+					next if(!defined($aref));
+					my $data = @{$aref}[0];
+					$data = $j->decode($data);
 
 					my $properties = $data->{'properties'};
 					next if(scalar(@{$properties->{'wof:superseded_by'}}));
@@ -1191,7 +1203,8 @@ sub flush_queue
 
 	my $query;
 
-	foreach my $md5(keys %queued_commits) {
+	keys %queued_commits;
+	while(my($md5, $row) = each %queued_commits) {
 		if(!defined($query)) {
 			$query = 'INSERT INTO openaddresses(';
 			foreach my $column(@columns) {
@@ -1204,7 +1217,6 @@ sub flush_queue
 
 		# print join(',', @columns), ": $md5\n";
 
-		my $row = $queued_commits{$md5};
 		my $country = $row->{'COUNTRY'};
 		my $state = $row->{'STATE'};
 		if($state_lengths{$country} && (length($state) != $state_lengths{$country})) {
@@ -1270,7 +1282,7 @@ sub city_key {
 		$county = '0';
 	}
 	if(!defined($state)) {
-		$state = '0';
+		return "$city,$county,0,$country";
 	}
 	return "$city,$county,$state,$country";
 }
@@ -1278,13 +1290,17 @@ sub city_key {
 sub get_wof {
 	my ($dbh, $id) = @_;
 
-	state $last_id;
-	state $last_name;
+	state $cache;
 
-	if($last_id && ($id == $last_id)) {
-		# print "get_wof: cached $last_name\n";
-		return $last_name;
+	if(defined($cache)) {
+		if(my $name = $cache->get($id)) {
+			# print "get_wof: cached $name\n";
+			return $name;
+		}
+	} else {
+		$cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
 	}
+
 	# print "get_wof: not cached $id\n";
 
 	my $query = "SELECT body FROM geojson where id = $id LIMIT 1";
@@ -1300,15 +1316,13 @@ sub get_wof {
 	$data = JSON->new()->utf8()->decode($data);
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
-	if($properties->{'wof:name'}) {
-		$last_id = $id;
-		my $country = $properties->{'wof:country'};
-		my $placetype = $properties->{'wof:placetype'};
-		if($placetype eq 'region') {
+	# if($properties->{'wof:name'}) {
+		if($properties->{'wof:placetype'} eq 'region') {
+			my $country = $properties->{'wof:country'};
 			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
-				return $last_name = $properties->{'wof:abbreviation'} || $properties->{'wof:name'};
+				return $cache->set($id, $properties->{'wof:abbreviation'} || $properties->{'wof:name'}, '1 minute');
 			}
 		}
-		return $last_name = $properties->{'wof:name'};
-	}
+		return $cache->set($id, $properties->{'wof:name'}, '1 minute');
+	# }
 }
