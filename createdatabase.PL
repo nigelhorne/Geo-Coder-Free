@@ -368,21 +368,30 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$wof_global_dbh->do('PRAGMA cache_size = 65536');
 			# Import from the global file
 			$| = 1;
-			printf "%-70s\r", $wof_global_file;
+			printf "%-70s\r", basename($wof_global_file);
 			$| = 0;
 
 			my $inserts = 0;
-			my $sth = $wof_global_dbh->prepare('SELECT * FROM geojson');
+			my $sth = $wof_global_dbh->prepare('SELECT body FROM geojson');
 			$sth->execute() || die $wof_global_file;
 
-			while(my $data = $sth->fetchrow_hashref()) {
-				if($data->{'body'}) {
-					$data = $data->{'body'};
+			# while(my $data = $sth->fetchrow_hashref()) {
+				# if($data->{'body'}) {
+					# $data = $data->{'body'};
+				# }
+			my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
+			while(my $aref = shift(@{$rowcache})) {
+				if(scalar(@{$rowcache}) == 0) {
+					$rowcache = $sth->fetchall_arrayref(undef, 10_000);
 				}
+				next if(!defined($aref));
+				my $data = @{$aref}[0];
 				next if(!defined($data));
 				$data = JSON->new()->utf8()->decode($data);
 				my $properties = $data->{'properties'};
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
+				my $placetype = $properties->{'wof:placetype'};
+				next if($placetype eq 'country');
 				my $country = $properties->{'wof:country'};
 				next if(!defined($country));
 				if(!$openaddresses_supported_countries{lc($country)}) {
@@ -396,7 +405,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					next if(!$found);
 				}
 				my $state;
-				if($properties->{'wof:placetype'} eq 'region') {
+				# print $placetype, "\n";
+				if($placetype eq 'region') {
 					if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
 						$state = $properties->{'wof:abbreviation'} || $properties->{'wof:name'};
 					} else {
@@ -405,17 +415,31 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					$state = $properties->{'sg:province'};
 				}
-				next unless($state);
+				if(!defined($state)) {
+					my @hierarchy = @{$properties->{'wof:hierarchy'}};
+					if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
+						next if($region < 0);
+						$state = get_wof($wof_global_dbh, $region);
+					} else {
+						next;
+					}
+					# FIXME: the information will be in there somewhere
+					# if(!defined($state)) {
+						# die Data::Dumper->new([$properties])->Dump();
+					# }
+					next unless($state);
+				}
 				my $city;
-				if($properties->{'wof:placetype'} eq 'locality') {
+				if(($placetype eq 'locality') || ($placetype eq 'neighbourhood')) {
 					$city = $properties->{'wof:name'};
+					die if(!defined($city));
 				} else {
 					$city = $properties->{'sg:city'};
 					# Don't trust sg:city to be correct
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-						if(my $getcity = get_city($wof_global_dbh, $locality)) {
-							$city = $getcity;
+						if(my $w = get_wof($wof_global_dbh, $locality)) {
+							$city = $w;
 						}
 					}
 				}
@@ -465,6 +489,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 		}
+		# $dbh->commit();
+		# $dbh->disconnect();
+		# $wof_global_dbh->disconnect();
+		# exit(0);
 
 		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
@@ -521,16 +549,24 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 
 				# Import this state's Who's on First data
-				foreach my $wof_file (keys %whosonfirst) {
+				# FIXME: why is this in a loop?  Why can't we go straight to the file for this state?
+				# foreach my $wof_file (keys %whosonfirst) {
+					# if($state && ($country eq 'us')) {
+						# next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
+						# my $c = lc($1);
+						# my $s = uc($2);
+						# next if(($c ne $country) || ($s ne $state));
+					# } else {
+						# next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
+						# my $c = lc($1);
+						# next if($c ne $country);
+					# }
+				if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
+					my $wof_file;
 					if($state && ($country eq 'us')) {
-						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
-						my $c = lc($1);
-						my $s = uc($2);
-						next if(($c ne $country) || ($s ne $state));
+						$wof_file = "$whosonfirst/whosonfirst-data-venue-us-" . lc($state) . '-latest';
 					} else {
-						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-						my $c = lc($1);
-						next if($c ne $country);
+						$wof_file = "$whosonfirst/whosonfirst-data-venue-" . lc($country) . '-latest';
 					}
 					my $file = basename($wof_file);
 					$| = 1;
@@ -543,14 +579,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$wof_dbh->do('PRAGMA synchronous = OFF');
 					$wof_dbh->do('PRAGMA cache_size = 65536');
 
-					my $sth = $wof_dbh->prepare('SELECT * FROM geojson');
+					my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
 					$sth->execute() || die $wof_file;
 
-					while(my $data = $sth->fetchrow_hashref()) {
-						if($data->{'body'}) {
-							$data = $data->{'body'};
+					# while(my $data = $sth->fetchrow_hashref()) {
+						# if($data->{'body'}) {
+							# $data = $data->{'body'};
+						# }
+						# next if(!defined($data));
+					my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
+					while(my $aref = shift(@{$rowcache})) {
+						if(scalar(@{$rowcache}) == 0) {
+							$rowcache = $sth->fetchall_arrayref(undef, 10_000);
 						}
-						next if(!defined($data));
+						next if(!defined($aref));
+						my $data = @{$aref}[0];
 						$data = JSON->new()->utf8()->decode($data);
 						my $properties = $data->{'properties'};
 						next if(scalar(@{$properties->{'wof:superseded_by'}}));
@@ -559,8 +602,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						# Don't trust sg:city to be correct
 						my @hierarchy = @{$properties->{'wof:hierarchy'}};
 						if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-							if(my $getcity = get_city($wof_global_dbh, $locality)) {
-								$city = $getcity;
+							if(my $w = get_wof($wof_global_dbh, $locality)) {
+								$city = $w;
 							}
 						}
 						if(!defined($city)) {
@@ -604,7 +647,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 					$wof_dbh->disconnect();
 					delete $whosonfirst{$wof_file};
-					last;
+					# last;
 				}
 
 				$| = 1;
@@ -658,7 +701,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$wof_dbh->do('PRAGMA synchronous = OFF');
 				$wof_dbh->do('PRAGMA cache_size = 65536');
 
-				my $sth = $wof_dbh->prepare('SELECT * FROM geojson');
+				my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
 				$sth->execute() || die $wof_file;
 
 				while(my $data = $sth->fetchrow_hashref()) {
@@ -680,8 +723,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					# Don't trust sg:city to be correct
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-						if(my $getcity = get_city($wof_global_dbh, $locality)) {
-							$city = $getcity;
+						if(my $w = get_wof($wof_global_dbh, $locality)) {
+							$city = $w;
 						}
 					}
 					my $state = $properties->{'sg:region'} || $properties->{'sg:province'};
@@ -1232,19 +1275,19 @@ sub city_key {
 	return "$city,$county,$state,$country";
 }
 
-sub get_city {
+sub get_wof {
 	my ($dbh, $id) = @_;
 
 	state $last_id;
 	state $last_name;
 
 	if($last_id && ($id == $last_id)) {
-		# print "get_city: cached $last_name\n";
+		# print "get_wof: cached $last_name\n";
 		return $last_name;
 	}
-	# print "get_city: not cached $id\n";
+	# print "get_wof: not cached $id\n";
 
-	my $query = "SELECT * FROM geojson where id = $id LIMIT 1";
+	my $query = "SELECT body FROM geojson where id = $id LIMIT 1";
 	my $sth = $dbh->prepare($query);
 	$sth->execute() || die($query);
 	my $data = $sth->fetchrow_hashref();
@@ -1259,6 +1302,13 @@ sub get_city {
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	if($properties->{'wof:name'}) {
 		$last_id = $id;
+		my $country = $properties->{'wof:country'};
+		my $placetype = $properties->{'wof:placetype'};
+		if($placetype eq 'region') {
+			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
+				return $last_name = $properties->{'wof:abbreviation'} || $properties->{'wof:name'};
+			}
+		}
 		return $last_name = $properties->{'wof:name'};
 	}
 }
