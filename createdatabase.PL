@@ -368,7 +368,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$wof_global_dbh->do('PRAGMA cache_size = 65536');
 			# Import from the global file
 			$| = 1;
-			printf "%-70s\r", "Traversing $wof_global_file";
+			printf "%-70s\r", $wof_global_file;
 			$| = 0;
 
 			my $inserts = 0;
