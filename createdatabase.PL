@@ -632,10 +632,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($number) {
 							$number = uc($number);
 						}
+						my $name = uc($properties->{'wof:name'});
 						my $row = {
 							'LAT' => $properties->{'geom:latitude'},
 							'LON' => $properties->{'geom:longitude'},
-							'NAME' => uc($properties->{'wof:name'}),
+							'NAME' => $name,
 							'NUMBER' => $number,
 							'STREET' => $street,
 							'CITY' => uc($city),
@@ -765,10 +766,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							next;
 						}
 					}
+					my $name = uc($properties->{'wof:name'});
 					my $row = {
 						'LAT' => $properties->{'geom:latitude'},
 						'LON' => $properties->{'geom:longitude'},
-						'NAME' => uc($properties->{'wof:name'}),
+						'NAME' => uc($name),
 						'NUMBER' => uc($properties->{'addr:housenumber'}),
 						'STREET' => uc($street),
 						'CITY' => $city,
@@ -875,7 +877,8 @@ sub import {
 
 	my $country = $param{'country'} || die 'import: no country';
 	my $state = $param{'state'};	# Will come from $row->{'REGION'}
-	my $row = $param{'row'} || die 'import: no row';
+	my $r = $param{'row'} || die 'import: no row';
+	my $row = { %{$r} };	# Take a copy of the hash because we're going to play with it
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $dbh = $param{'dbh'} || die 'import: no dbh';
@@ -1074,14 +1077,27 @@ sub import {
 			$inserts += insert($dbh, $global, \%columns);
 		}
 		my $name = $columns{'NAME'};
-		if(delete($columns{'NAME'})) {
-			$inserts += insert($dbh, $global, \%columns);
+		if($name) {
+			# TODO: more of these
+			if($name =~ /^(.+)\s+RESTAURANT/) {
+				$columns{'NAME'} = $1;
+				$inserts += insert($dbh, $global, \%columns);
+				# print "$1\n";
+			}
+			if(delete($columns{'NAME'})) {
+				$inserts += insert($dbh, $global, \%columns);
+			}
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
 				$inserts += insert($dbh, $global, \%columns);
+				if($name =~ /^(.+)\s+RESTAURANT/) {
+					$columns{'NAME'} = $1;
+					$inserts += insert($dbh, $global, \%columns);
+					# print "$1\n";
+				}
 				delete($columns{'NAME'});
 			}
 			# Match somewhere in the street when number isn't known
@@ -1100,7 +1116,6 @@ sub import {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
 			$inserts += insert($dbh, $global, \%columns);
-			delete($columns{'NAME'});
 		}
 	}
 	return $inserts;
@@ -1108,9 +1123,9 @@ sub import {
 
 # Insert data into the database, returns the number of new rows
 sub insert {
-	my ($dbh, $global, $columns) = @_;
+	my ($dbh, $global, $c) = @_;
 
-	$columns = { %{$columns} };	# Take a copy of the hash because we're going to play with it
+	my $columns = { %{$c} };	# Take a copy of the hash because we're going to play with it
 
 	foreach my $column(keys %{$columns}) {
 		if(!defined($columns->{$column})) {
@@ -1122,12 +1137,14 @@ sub insert {
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'NAME'} && (uc($columns->{'NAME'}) eq 'EL PAPI STREET TACOS'));
+	# my @call_details = caller(0);
+	# print "line " . $call_details[2], "\n";
 	# print Data::Dumper->new([$columns])->Dump();
 
 	my $lat = $columns->{'LAT'};
 	my $lon = $columns->{'LON'};
 
-	die unless(defined($lat) && defined($lon));
+	die Data::Dumper->new([$columns])->Dump() unless(defined($lat) && defined($lon));
 	# die "$lat/$lon" unless($columns->{'STATE'});
 
 	# Remove duplicate, leading and trailing spaces from entries.  Some openaddresses files are littered with them
