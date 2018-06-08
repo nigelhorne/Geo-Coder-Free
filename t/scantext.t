@@ -24,8 +24,8 @@ SCANTEXT: {
 				my @locations = $geocoder->geocode(scantext => 'I was born in Ramsgate, Kent, England');
 				ok(scalar(@locations) == 1);
 				my $location = $locations[0];
-				delta_within($location->{latitude}, 51.33, 1e-2);
-				delta_within($location->{longitude}, 1.41, 1e-2);
+				delta_within($location->{latitude}, 51.36, 1e-2);
+				delta_within($location->{longitude}, 1.42, 1e-2);
 				ok(defined($location->{'confidence'}));
 				ok($location->{'location'} eq 'Ramsgate, Kent, England');
 					
@@ -49,7 +49,7 @@ SCANTEXT: {
 					}
 					$found++;
 					delta_within($location->{latitude}, 39.68, 1e-2);
-					delta_within($location->{longitude}, -75.66, 1e-2);
+					delta_within($location->{longitude}, -75.76, 1e-2);
 					ok(defined($location->{'confidence'}));
 					ok($location->{'location'} eq 'Newark, DE, USA');
 
