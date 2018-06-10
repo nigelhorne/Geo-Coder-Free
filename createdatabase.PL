@@ -1079,6 +1079,8 @@ sub import {
 		my $name = $columns{'NAME'};
 		if($name) {
 			# TODO: more of these
+			# foreach my $classifier($properties->{'sg:classifier'}) {
+			#	Check if $name ends with uc($classifier->{category})
 			if($name =~ /^(.+)\s+RESTAURANT/) {
 				$columns{'NAME'} = $1;
 				$inserts += insert($dbh, $global, \%columns);
