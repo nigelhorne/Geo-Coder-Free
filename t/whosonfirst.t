@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 21;
+use Test::Most tests => 29;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -42,6 +42,18 @@ WHOSONFIRST: {
 				delta_within($location->{latitude}, 39.06, 1e-2);
 				delta_within($location->{longitude}, -77.12, 1e-2);
 
+				$location = $geocoder->geocode('Rock Bottom, Norfolk Ave, Bethesda, MD, USA');
+				ok(defined($location));
+				ok(ref($location) eq 'HASH');
+				delta_within($location->{latitude}, 38.99, 1e-2);
+				delta_within($location->{longitude}, -77.10, 1e-2);
+
+				$location = $geocoder->geocode('Rock Bottom Restaurant and Brewry, Norfolk Ave, Bethesda, MD, USA');
+				ok(defined($location));
+				ok(ref($location) eq 'HASH');
+				delta_within($location->{latitude}, 38.99, 1e-2);
+				delta_within($location->{longitude}, -77.10, 1e-2);
+
 				$location = $geocoder->geocode('12276 Rockville Pike, Rockville, MD, USA');
 				delta_within($location->{latitude}, 39.06, 1e-2);
 				delta_within($location->{longitude}, -77.12, 1e-2);
@@ -63,11 +75,11 @@ WHOSONFIRST: {
 				}
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 20);
+				skip('Author tests not required for installation', 28);
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
-			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 20;
+			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 28;
 		}
 	}
 }
