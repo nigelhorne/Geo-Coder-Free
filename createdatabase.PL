@@ -1123,6 +1123,11 @@ sub import {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
 			$inserts += insert($dbh, $global, \%columns);
+			if($name =~ /^(.+)\s+RESTAURANT/i) {
+				$columns{'NAME'} = $1;
+				$inserts += insert($dbh, $global, \%columns);
+				# print "$1\n";
+			}
 		}
 	}
 	return $inserts;
