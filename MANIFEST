@@ -8,6 +8,7 @@ conf/njh
 conf/page.l4pconf
 createdatabase.PL
 css/style.css
+ignore.txt
 index.html
 lib/Geo/Coder/Free.pm
 lib/Geo/Coder/Free/bin/db2sql
