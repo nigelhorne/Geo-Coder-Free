@@ -33,3 +33,10 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
+
+# Local files
+lib/Geo/Coder/Free/MaxMind/databases/admin1.db
+lib/Geo/Coder/Free/MaxMind/databases/admin2.db
+lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt
+lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz
+lib/Geo/Coder/Free/MaxMind/databases/cities.sql

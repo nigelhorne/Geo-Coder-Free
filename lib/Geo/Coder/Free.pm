@@ -261,7 +261,7 @@ All other users (including Commercial, Charity, Educational, Government)
 must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
 
 This product includes GeoLite2 data created by MaxMind, available from
-L<http://www.maxmind.com>.
+L<https://www.maxmind.com/en/home>.
 
 This product includes data from Who's on First.
 See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.md> for licensing information.
