@@ -55,7 +55,7 @@ our $VERSION = '0.04';
 
 =head1 DESCRIPTION
 
-Geo::Coder::Free::OpenAddresses provides an interface to the free geolocation database at http://openadresses.io
+Geo::Coder::Free::OpenAddresses provides an interface to the free geolocation database at L<https://openaddresses.io>
 
 Refer to the source URL for licencing information for these files:
 

@@ -1081,7 +1081,7 @@ sub import {
 			# TODO: more of these
 			# foreach my $classifier($properties->{'sg:classifier'}) {
 			#	Check if $name ends with uc($classifier->{category})
-			if($name =~ /^(.+)\s+RESTAURANT/) {
+			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
 				$inserts += insert($dbh, $global, \%columns);
 				# print "$1\n";
@@ -1095,7 +1095,7 @@ sub import {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
 				$inserts += insert($dbh, $global, \%columns);
-				if($name =~ /^(.+)\s+RESTAURANT/) {
+				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
 					$inserts += insert($dbh, $global, \%columns);
 					# print "$1\n";
@@ -1109,7 +1109,7 @@ sub import {
 					# For when a name is known but not a street
 					$columns{'NAME'} = $name;
 					$inserts += insert($dbh, $global, \%columns);
-					if($name =~ /^(.+)\s+RESTAURANT/) {
+					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
 						$inserts += insert($dbh, $global, \%columns);
 						# print "$1\n";
