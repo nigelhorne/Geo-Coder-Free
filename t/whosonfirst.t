@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 29;
+use Test::Most tests => 33;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -81,11 +81,11 @@ WHOSONFIRST: {
 				}
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 28);
+				skip('Author tests not required for installation', 32);
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
-			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 28;
+			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 32;
 		}
 	}
 }
