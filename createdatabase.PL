@@ -487,7 +487,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					'COUNTRY' => uc($country),
 					'POSTCODE' => $postcode,
 				};
-				$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
 					flush_queue($dbh);
 					$inserts = 0;
@@ -545,7 +545,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# Import this state's hand curated data
 				if(my $k = $known_places{$f}) {
 					foreach my $row(@{$k}) {
-						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh);
 							$inserts = 0;
@@ -632,11 +632,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if($number) {
 							$number = uc($number);
 						}
-						my $name = uc($properties->{'wof:name'});
 						my $row = {
 							'LAT' => $properties->{'geom:latitude'},
 							'LON' => $properties->{'geom:longitude'},
-							'NAME' => $name,
+							'NAME' => uc($properties->{'wof:name'}),
 							'NUMBER' => $number,
 							'STREET' => $street,
 							'CITY' => uc($city),
@@ -644,7 +643,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							'COUNTRY' => uc($country),
 							'POSTCODE' => $postcode,
 						};
-						$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh);
 							$inserts = 0;
@@ -766,11 +765,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							next;
 						}
 					}
-					my $name = uc($properties->{'wof:name'});
 					my $row = {
 						'LAT' => $properties->{'geom:latitude'},
 						'LON' => $properties->{'geom:longitude'},
-						'NAME' => uc($name),
+						'NAME' => uc($properties->{'wof:name'}),
 						'NUMBER' => uc($properties->{'addr:housenumber'}),
 						'STREET' => uc($street),
 						'CITY' => $city,
@@ -778,7 +776,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						'COUNTRY' => $country,
 						'POSTCODE' => $postcode,
 					};
-					$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
 					if($inserts >= MAX_INSERT_COUNT) {
 						flush_queue($dbh);
 						$inserts = 0;
@@ -875,10 +873,10 @@ sub import {
 		die 'import: no args';
 	}
 
-	my $country = $param{'country'} || die 'import: no country';
-	my $state = $param{'state'};	# Will come from $row->{'REGION'}
 	my $r = $param{'row'} || die 'import: no row';
 	my $row = { %{$r} };	# Take a copy of the hash because we're going to play with it
+	my $country = $param{'country'} || $row->{'COUNTRY'} || die 'import: no country';
+	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $dbh = $param{'dbh'} || die 'import: no dbh';
