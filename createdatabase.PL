@@ -27,7 +27,7 @@ use Text::CSV;
 use CHI;
 use CHI::Driver::RawMemory;
 
-use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -110,6 +110,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'MEDLARS DR',
 				'CITY' => 'BETHESDA',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20894,
 			}, {
 				'LAT' => 38.99698114,
@@ -117,6 +119,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'CENTER DR',
 				'CITY' => 'BETHESDA',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 			}, {
 				# Bold bite
 				'LAT' => 38.98939358,
@@ -124,6 +128,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'NORFOLK AVE',
 				'CITY' => 'BETHESDA',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 			}, {
 				'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
 				'LAT' => 39.03869019,
@@ -132,6 +138,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'NEWPORT MILL RD',
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20895
 			}, {
 				'NAME' => 'POST OFFICE',
@@ -141,6 +149,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'KENSINGTON PKWY',
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20895
 			}, {
 				'NAME' => 'NEWPORT MILL MIDDLE SCHOOL',
@@ -150,6 +160,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'NEWPORT MILL RD',
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20895
 			}, {
 				'NAME' => 'SAFEWAY',
@@ -159,6 +171,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'HOWARD AVE',
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20895
 			}, {
 				'NAME' => 'STROSNIDERS',
@@ -168,6 +182,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'CONNECTICUT AVE',
 				'CITY' => 'KENSINGTON',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 			}, {
 				'NAME' => 'SNIDERS',
 				'LAT' => 39.0088797,
@@ -176,6 +192,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'SEMINARY RD',
 				'CITY' => 'SILVER SPRING',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20910,
 			}, {
 				'NAME' => 'SILVER DINER',
@@ -185,6 +203,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'ROCKVILLE PIKE',
 				'CITY' => 'ROCKVILLE',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20852
 			}, {
 				# LF
@@ -194,6 +214,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'VIERS MILL ROAD',
 				'CITY' => 'ROCKVILLE',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20851
 			}, {
 				'LAT' => 39.0147541,
@@ -203,6 +225,8 @@ my %known_places = (	# Places I've checked with my GPS
 				'STREET' => 'FOREST GLEN ROAD',
 				'CITY' => 'SILVER SPRING',
 				'COUNTY' => 'MONTGOMERY',
+				'STATE' => 'MD',
+				'COUNTRY' => 'US',
 				'POSTCODE' => 20910
 			}
 		]
@@ -494,6 +518,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 		}
+
 		# $dbh->commit();
 		# $dbh->disconnect();
 		# $wof_global_dbh->disconnect();
@@ -806,7 +831,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				"'$country')";
 
 			# print "$query\n";
-			$dbh->prepare($query)->execute();
+			$dbh->do($query);
 		}
 
 		$| = 1;
@@ -1209,10 +1234,10 @@ sub insert {
 		}
 		if($digest = hash($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = $columns;
+			return 2;
 		# } else {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
 		}
-		return 2;
 	}
 	return 1;
 }
@@ -1231,6 +1256,7 @@ sub flush_queue
 	my $query;
 
 	keys %queued_commits;
+	# print scalar(keys %queued_commits), "\n";
 	while(my($md5, $row) = each %queued_commits) {
 		if(!defined($query)) {
 			$query = 'INSERT INTO openaddresses(';
@@ -1273,7 +1299,10 @@ sub flush_queue
 
 	if($query) {
 		# print "$query\n";
-		$dbh->prepare($query)->execute();
+		# $| = 1;
+		# print '.';
+		# $| = 0;
+		$dbh->do($query);
 		%queued_commits = ();
 	}
 }
