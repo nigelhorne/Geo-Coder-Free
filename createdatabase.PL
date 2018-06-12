@@ -1335,14 +1335,11 @@ sub get_wof {
 	my $query = "SELECT body FROM geojson where id = $id LIMIT 1";
 	my $sth = $dbh->prepare($query);
 	$sth->execute() || die($query);
-	my $data = $sth->fetchrow_hashref();
-	if($data->{'body'}) {
-		$data = $data->{'body'};
-	}
-	return if((!defined($data)) || ref($data));
-	# print Data::Dumper->new([$data])->Dump();
+	my $data = $sth->fetchrow_arrayref();
+	return if(!defined($data));
+	# print Data::Dumper->new([@{$data}])->Dump();
 	# print $data, "\n", 'x' x 70, "\n";
-	$data = JSON->new()->utf8()->decode($data);
+	$data = JSON->new()->utf8()->decode(@{$data});
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	# if($properties->{'wof:name'}) {
