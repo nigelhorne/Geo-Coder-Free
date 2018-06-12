@@ -1283,10 +1283,10 @@ sub flush_queue
 		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 		foreach my $column(@columns) {
 			if($row->{$column}) {
-				$row->{$column} =~ s/'/''/g;
 				if(($column eq 'LAT') || ($column eq 'LON') || ($column eq 'CITY')) {
 					$query .= $row->{$column} . ',';
 				} else {
+					$row->{$column} =~ s/'/''/g;
 					$query .= "'" . $row->{$column} . "',";
 				}
 			} else {
