@@ -131,6 +131,7 @@ sub geocode {
 	} else {
 		$param{location} = shift;
 	}
+
 	if(my $scantext = $param{'scantext'}) {
 		return if(length($scantext) < 6);
 		# FIXME:  wow this is inefficient
@@ -203,6 +204,12 @@ sub geocode {
 		or Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 
 	# ::diag($location);
+
+	$location =~ s/,\s+,\s+/, /g;
+
+	if($location =~ /^,\s*(.+)/) {
+		$location = $1;
+	}
 
 	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
 		$location = "$1, Washington, DC, $2";
