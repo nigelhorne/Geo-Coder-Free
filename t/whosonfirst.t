@@ -54,7 +54,7 @@ WHOSONFIRST: {
 				delta_within($location->{latitude}, 38.99, 1e-2);
 				delta_within($location->{longitude}, -77.10, 1e-2);
 
-				$location = $geocoder->geocode('Rock Bottom Restaurant and Brewry, Norfolk Ave, Bethesda, MD, USA');
+				$location = $geocoder->geocode('Rock Bottom Restaurant & Brewery, Norfolk Ave, Bethesda, MD, USA');
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
 				delta_within($location->{latitude}, 38.99, 1e-2);

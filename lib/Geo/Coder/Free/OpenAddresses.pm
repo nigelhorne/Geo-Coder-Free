@@ -13,7 +13,7 @@ use Locale::CA;
 use Locale::US;
 use Locale::SubCountry;
 use CHI;
-# use Lingua::EN::AddressParse;
+use Lingua::EN::AddressParse;
 use Locale::Country;
 use Geo::StreetAddress::US;
 use Digest::MD5;
@@ -289,10 +289,12 @@ sub geocode {
 		}
 	} elsif($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
 		# Geo::libpostal isn't installed, fail back to Geo::StreetAddress::US, which is rather buggy
+
 		my $l = $1;
 		$l =~ s/,/ /g;
 		$l =~ s/\s\s+/ /g;
-
+# 
+		# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
 		# my $ap;
 		# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
 			# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code_flag => 0);
@@ -343,6 +345,24 @@ sub geocode {
 					if($rc = $self->_get("$street$city$state" . 'US')) {
 						return $rc;
 					}
+				}
+			}
+		}
+
+		# Hack to find "name, street, town, state, US"
+		my @addr = split(/,\s*/, $location);
+		if(scalar(@addr) == 5) {
+			# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
+			$state = $addr[3];
+			if(length($state) > 2) {
+				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					$state = $twoletterstate;
+				}
+			}
+			if(length($state) == 2) {
+				if(my $rc = $self->_get($addr[0] . $addr[1] . $addr[2] . $state . 'US')) {
+					# ::diag(Data::Dumper->new([$rc])->Dump());
+					return $rc;
 				}
 			}
 		}
@@ -745,7 +765,9 @@ sub _normalize {
 	}
 
 	# Most likely failure of Geo::StreetAddress::US, but warn anyway, just in case
-	warn $self->{'location'}, ": add type $type";
+	if($ENV{AUTHOR_TESTING}) {
+		warn $self->{'location'}, ": add type $type";
+	}
 }
 
 =head2 reverse_geocode
