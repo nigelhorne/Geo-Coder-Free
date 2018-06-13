@@ -13,7 +13,7 @@ use Locale::CA;
 use Locale::US;
 use Locale::SubCountry;
 use CHI;
-use Lingua::EN::AddressParse;
+# use Lingua::EN::AddressParse;
 use Locale::Country;
 use Geo::StreetAddress::US;
 use Digest::MD5;
