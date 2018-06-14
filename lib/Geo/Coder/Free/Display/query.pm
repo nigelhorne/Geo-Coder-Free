@@ -35,6 +35,8 @@ sub html {
 		$rc = $geocoder->geocode(location => $q);
 
 		if(!defined($rc)) {
+			# Maybe the user didn't give a country, so let's add it
+			# and search again
 			if(my $country = $self->{_lingua}->country()) {
 				$rc = $geocoder->geocode(location => "$q, $country");
 			}
