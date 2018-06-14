@@ -4,6 +4,8 @@ Revision history for Geo-Coder-Free
 	Fix "RESTAURANT" insert where street is known but not number
 	Improved searches when Geo::Libpostal is not installed
 	Improved handling of un-normalized input
+	Removed duplicate code
+	Add current country on web interface
 
 0.11	Fri Jun  8 17:27:55 EDT 2018
 	Started work on scantext support
