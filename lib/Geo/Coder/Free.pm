@@ -74,6 +74,11 @@ sub new {
 		maxmind => Geo::Coder::Free::MaxMind->new(%param)
 	};
 
+	if(!$param{'openaddr'}) {
+		if($ENV{'OPENADDR_HOME'}) {
+			$param{'openaddr'} = $ENV{'OPENADDR_HOME'};
+		}
+	}
 	if($param{'openaddr'}) {
 		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(%param);
 	}

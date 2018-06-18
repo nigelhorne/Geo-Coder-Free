@@ -25,7 +25,7 @@ WHOSONFIRST: {
 
 				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
 
-				my $geocoder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
+				my $geocoder = new_ok('Geo::Coder::Free');
 				my $location = $geocoder->geocode(location => 'Margate, Kent, England');
 				delta_within($location->{latitude}, 51.38, 1e-2);
 				delta_within($location->{longitude}, 1.30, 1e-2);
