@@ -30,7 +30,7 @@ BIN: {
 				ok(script_stderr_is('', 'no error output'));
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 21);
+				skip('Author tests not required for installation', 20);
 			}
 		}
 	}
