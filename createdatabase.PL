@@ -538,7 +538,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/ca\/sonoma/);
 			# next unless($csv_file =~ /us\/md\/statewide/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
@@ -1207,12 +1206,13 @@ sub insert {
 	}
 	# print "$digest\n";
 	$digest = hash($global, Encode::encode_utf8($digest));
-	# print "$digest\n";
 
 	if(!defined($digest)) {
 		# print "Ignore ", join(',', values(%{$columns})), "\n";
 		return 0;
 	}
+
+	# print "$digest\n";
 
 	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
 	# my $sth = $dbh->prepare($q);
@@ -1232,10 +1232,10 @@ sub insert {
 		$cities{$key} = $city_sequence;
 	}
 
+	my $rc = 1;
+
 	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /^[A-Z]\s\w+\s\w+$/)) {
 		# Handle https://rt.cpan.org/Public/Bug/Display.html?id=124919
-		my $s = $columns->{'STREET'};	# Should use a 'local' variable, I guess
-
 		$columns->{'STREET'} =~ s/\s+//g;
 		$digest = '';
 
@@ -1244,12 +1244,34 @@ sub insert {
 		}
 		if($digest = hash($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = $columns;
-			return 2;
+			$rc++;
 		# } else {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
 		}
+		if($columns->{'CITY'} =~ /\s/) {
+			$columns->{'CITY'} =~ s/\s+//g;
+
+			my $key = city_key($columns->{'CITY'}, $columns->{'COUNTY'}, $columns->{'STATE'}, $columns->{'COUNTRY'});
+			if(!$cities{$key}) {
+				$city_sequence++;
+				# print "adding '$key' to cities list\n";
+				$cities{$key} = $city_sequence;
+			}
+
+			$digest = '';
+
+			foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+				$digest .= $columns->{$column} if($columns->{$column});
+			}
+			if($digest = hash($global, Encode::encode_utf8($digest))) {
+				$queued_commits{$digest} = $columns;
+				$rc++;
+			# } else {
+				# print "Ignore ", join(',', values(%{$columns})), "\n";
+			}
+		}
 	}
-	return 1;
+	return $rc;
 }
 
 # All of the place's values are combined into one INSERT INTO
