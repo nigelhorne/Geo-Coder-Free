@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.12
+0.12	Tue Jun 19 09:02:28 EDT 2018
 	Fix "RESTAURANT" insert where street is known but not number
 	Improved searches when Geo::Libpostal is not installed
 	Improved handling of un-normalized input
