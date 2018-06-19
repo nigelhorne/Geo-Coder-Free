@@ -644,12 +644,24 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$city = $w;
 							}
 						}
+						if($country ne 'us') {
+							# For the US, the state name comes from the WOF filename
+							# For the rest of the world there is one WOF file per country
+							$state = $properties->{'sg:region'} || $properties->{'sg:province'};
+						}
+						# if($city) {
+							# print "$country, $state, $city\n";
+						# } else {
+							# print "$country, $state\n";
+						# }
 						if(!defined($city)) {
 							my $address = $properties->{'addr:full'};
 							next if(!defined($address));
-							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
-								if($href->{city}) {
-									$city = $href->{city};
+							if($country eq 'us') {
+								if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
+									if($href->{city}) {
+										$city = $href->{city};
+									}
 								}
 							}
 						}
@@ -1248,7 +1260,9 @@ sub insert {
 		# } else {
 			# print "Ignore ", join(',', values(%{$columns})), "\n";
 		}
-		if($columns->{'CITY'} =~ /\s/) {
+		# die Data::Dumper->new([$columns])->Dump() unless(defined($columns->{'CITY'}));
+
+		if($columns->{'CITY'} && ($columns->{'CITY'} =~ /\s/)) {
 			$columns->{'CITY'} =~ s/\s+//g;
 
 			my $key = city_key($columns->{'CITY'}, $columns->{'COUNTY'}, $columns->{'STATE'}, $columns->{'COUNTRY'});
