@@ -338,8 +338,6 @@ sub geocode {
 					if($href->{suffix}) {
 						$street .= ' ' . $href->{suffix};
 					}
-				}
-				if($street) {
 					if(my $prefix = $href->{prefix}) {
 						$street = "$prefix $street";
 					}
