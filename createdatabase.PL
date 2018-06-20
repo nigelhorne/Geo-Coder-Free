@@ -279,8 +279,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(!-d $oa) {
 			mkdir $oa;
 		}
-		$dbh->prepare('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)')->execute();
-		$dbh->prepare('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))')->execute();
+		$dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 		# $dbh->prepare('CREATE TABLE node(md5 CHAR(16), parent CHAR(16)')->execute();
 		# $dbh->prepare('CREATE TABLE leaf(md5 CHAR(16), lat DECIMAL, lon DECIMAL')->execute();
 
@@ -561,9 +562,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 
 				# Clear the deduping hash when we can, to avoid it becoming too large
-				if(($country eq 'us') || ($country eq 'ca')) {
+				if($country eq 'us') {
 					if((!defined($current_state)) || ($state ne $current_state)) {
-						# print "New state, clear state_md5s\n";
+						# print "New state, clear state_md5s; state = $state, country = $country\n";
 						%state_md5s = ( );
 						$current_country = $country;
 						$current_state = $state;
@@ -1265,13 +1266,6 @@ sub insert {
 		if($columns->{'CITY'} && ($columns->{'CITY'} =~ /\s/)) {
 			$columns->{'CITY'} =~ s/\s+//g;
 
-			my $key = city_key($columns->{'CITY'}, $columns->{'COUNTY'}, $columns->{'STATE'}, $columns->{'COUNTRY'});
-			if(!$cities{$key}) {
-				$city_sequence++;
-				# print "adding '$key' to cities list\n";
-				$cities{$key} = $city_sequence;
-			}
-
 			$digest = '';
 
 			foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
@@ -1280,6 +1274,14 @@ sub insert {
 			if($digest = hash($global, Encode::encode_utf8($digest))) {
 				$queued_commits{$digest} = $columns;
 				$rc++;
+
+				my $key = city_key($columns->{'CITY'}, $columns->{'COUNTY'}, $columns->{'STATE'}, $columns->{'COUNTRY'});
+				if(!$cities{$key}) {
+					$city_sequence++;
+					# print "adding '$key' to cities list\n";
+					$cities{$key} = $city_sequence;
+				}
+
 			# } else {
 				# print "Ignore ", join(',', values(%{$columns})), "\n";
 			}
@@ -1315,6 +1317,7 @@ sub flush_queue
 		}
 
 		# print join(',', @columns), ": $md5\n";
+		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
 		my $country = $row->{'COUNTRY'};
 		my $state = $row->{'STATE'};
@@ -1327,6 +1330,7 @@ sub flush_queue
 			return;
 		}
 		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
+
 		foreach my $column(@columns) {
 			if($row->{$column}) {
 				if(($column eq 'LAT') || ($column eq 'LON') || ($column eq 'CITY')) {
