@@ -698,9 +698,8 @@ sub _get {
 
 	my $location = join('', @location);
 	$location =~ s/,\s*//g;
-	$location =~ s/\s//g;
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
-	# my @call_details = caller(0);
+	my @call_details = caller(0);
 	# print "line ", $call_details[2], "\n";
 	# print("$location: $digest\n");
 	# ::diag("line " . $call_details[2]);
