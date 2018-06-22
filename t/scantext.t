@@ -30,10 +30,10 @@ SCANTEXT: {
 				ok($location->{'location'} eq 'Ramsgate, Kent, England');
 					
 				@locations = $geocoder->geocode(scantext => 'Hello World', region => 'gb');
-				ok(scalar(@locations) == 0);
+				ok(ref($locations[0]) eq '');
 
 				@locations = $geocoder->geocode(scantext => 'Hello World');
-				ok(scalar(@locations) == 0);
+				ok(ref($locations[0]) eq '');
 
 				@locations = $geocoder->geocode(scantext => "I was born at St Mary's Hospital in Newark, DE in 1987");
 				my $found = 0;

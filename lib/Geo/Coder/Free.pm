@@ -74,11 +74,10 @@ sub new {
 		maxmind => Geo::Coder::Free::MaxMind->new(%param)
 	};
 
-	if(!$param{'openaddr'}) {
-		if($ENV{'OPENADDR_HOME'}) {
-			$param{'openaddr'} = $ENV{'OPENADDR_HOME'};
-		}
+	if((!$param{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
+		$param{'openaddr'} = $ENV{'OPENADDR_HOME'};
 	}
+
 	if($param{'openaddr'}) {
 		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(%param);
 	}
@@ -122,6 +121,7 @@ my %common_words = (
 sub geocode {
 	my $self = shift;
 	my %param;
+
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
@@ -146,7 +146,7 @@ sub geocode {
 
 				}
 			}
-			return @rc;
+			return @rc if($rc[0]);
 		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
 		}
