@@ -87,6 +87,15 @@ Nigel Horne <njh@bandsman.co.uk>
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+# GETTING STARTED
+
+Before you start install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite),
+optionally set the environment variable OPENADDR\_HOME to point to an empty directory and download the data from ["/results.openaddresses.io into that directory" in http:](https://metacpan.org/pod/http:#results.openaddresses.io-into-that-directory),
+optionally set the envionment variable WHOSONFIRST\_HOME to point to an empty directory and download the data using [https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download](https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download).
+You do not need to download the MaxMind data, that will be downloaded automatically.
+
+There is a sample website at [https://geocode.nigelhorne.com/](https://geocode.nigelhorne.com/).  The source code for that site is included in the G:C:F distribution.
+
 # MORE INFORMATION
 
 I've written a few Perl related Genealogy programs including gedcom ([https://github.com/nigelhorne/gedcom](https://github.com/nigelhorne/gedcom))
@@ -103,17 +112,13 @@ is to create a database of those databases and to create a search engine either 
 Both are in their early days, but I have examples which do surprisingly well.
 
 The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
-That script creates a single SQLite file from downloaded copies of the databases listed above.
+That script creates a single SQLite file from downloaded copies of the databases listed above, to create the database you will need
+to first install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite);
 Running 'make' will download GeoNames and Maxmind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:.F.
-
-There is a sample website at [https://geocode.nigelhorne.com/](https://geocode.nigelhorne.com/).  The source code for that site is included in the G:C:F distribution.
 
 # BUGS
 
 Lots of lookups fail at the moment.
-
-The openaddresses.io code has yet to be completed.
-There are die()s where the code path has yet to be written.
 
 The MaxMind data only contains cities.
 The openaddresses data doesn't cover the globe.
