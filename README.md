@@ -89,8 +89,8 @@ it under the same terms as Perl itself.
 
 # GETTING STARTED
 
-Before you start install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite),
-optionally set the environment variable OPENADDR\_HOME to point to an empty directory and download the data from ["/results.openaddresses.io into that directory" in http:](https://metacpan.org/pod/http:#results.openaddresses.io-into-that-directory),
+Before you start install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite);
+optionally set the environment variable OPENADDR\_HOME to point to an empty directory and download the data from [http://results.openaddresses.io](http://results.openaddresses.io) into that directory;
 optionally set the envionment variable WHOSONFIRST\_HOME to point to an empty directory and download the data using [https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download](https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download).
 You do not need to download the MaxMind data, that will be downloaded automatically.
 
@@ -113,7 +113,7 @@ Both are in their early days, but I have examples which do surprisingly well.
 
 The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
 That script creates a single SQLite file from downloaded copies of the databases listed above, to create the database you will need
-to first install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite);
+to first install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite).
 Running 'make' will download GeoNames and Maxmind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:.F.
 
 # BUGS
