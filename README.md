@@ -89,7 +89,8 @@ it under the same terms as Perl itself.
 
 # GETTING STARTED
 
-Before you start install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite);
+Before you start,
+install [App::csv2sqlite](https://metacpan.org/pod/App::csv2sqlite);
 optionally set the environment variable OPENADDR\_HOME to point to an empty directory and download the data from [http://results.openaddresses.io](http://results.openaddresses.io) into that directory;
 optionally set the envionment variable WHOSONFIRST\_HOME to point to an empty directory and download the data using [https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download](https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download).
 You do not need to download the MaxMind data, that will be downloaded automatically.

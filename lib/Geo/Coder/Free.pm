@@ -220,7 +220,8 @@ it under the same terms as Perl itself.
 
 =head1 GETTING STARTED
 
-Before you start install L<App::csv2sqlite>;
+Before you start,
+install L<App::csv2sqlite>;
 optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory;
 optionally set the envionment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download>.
 You do not need to download the MaxMind data, that will be downloaded automatically.
