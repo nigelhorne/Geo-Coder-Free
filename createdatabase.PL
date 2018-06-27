@@ -518,7 +518,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					'NUMBER' => $number,
 					'STREET' => $street,
 					'CITY' => uc($city),
-					'STATE' => $state,
+					'STATE' => uc($state),
 					'COUNTRY' => uc($country),
 					'POSTCODE' => $postcode,
 				};
@@ -1042,6 +1042,8 @@ sub import {
 			$street = "$1 SPG";
 		} elsif($street =~ /(.+)\s+RIDGE$/) {
 			$street = "$1 RDG";
+		} elsif($street =~ /(.+)\s+GARDENS$/) {
+			$street = "$1 GRDNS";
 		} elsif($street =~ /(.+)\s+CREEK$/) {
 			$street = "$1 CRK";
 		}
