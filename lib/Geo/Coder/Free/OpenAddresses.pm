@@ -235,6 +235,12 @@ sub geocode {
 			if(my $rc = $self->_get($l, 'US')) {
 				return $rc;
 			}
+		} elsif($location =~ /^(.+?)\s+(England|Scotand|Wales|Northern Ireland|UK|GB)$/i) {
+			my $l = $1;
+			$l =~ s/\s+//g;
+			if(my $rc = $self->_get($l, 'GB')) {
+				return $rc;
+			}
 		}
 	}
 	if($libpostal_is_installed && (my %addr = Geo::libpostal::parse_address($location))) {
