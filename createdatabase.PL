@@ -1042,6 +1042,8 @@ sub import {
 			$street = "$1 SPG";
 		} elsif($street =~ /(.+)\s+RIDGE$/) {
 			$street = "$1 RDG";
+		} elsif($street =~ /(.+)\s+LANE$/) {
+			$street = "$1 LN";
 		} elsif($street =~ /(.+)\s+GARDENS$/) {
 			$street = "$1 GRDNS";
 		} elsif($street =~ /(.+)\s+CREEK$/) {

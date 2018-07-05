@@ -47,6 +47,7 @@ t/links.t
 t/manifest.t
 t/maxmind.t
 t/no404s.t
+t/noopentickets.t
 t/openaddr.t
 t/pod-cm.t
 t/pod.t
