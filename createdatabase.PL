@@ -238,6 +238,15 @@ my %known_places = (	# Places I've checked with my GPS
 				'STATE' => 'MD',
 				'COUNTRY' => 'US',
 				'POSTCODE' => 20910
+			}, {
+				'LAT' => 38.955403
+				'LON' => -76.996241,
+				'NUMBER' => 5350,
+				'STREET' => 'CHILLUM PLACE NE',
+				'CITY' => 'WASHINGTON',
+				'STATE' => 'DC',
+				'COUNTRY' => 'US',
+				'POSTCODE' => 20011
 			}
 		]
 );
