@@ -2,14 +2,17 @@
 
 use strict;
 use warnings;
-use WWW::RT::CPAN;	# FIXME: use a REST client
 use Data::Dumper;
 use Test::Most tests => 3;
 
 NOBUGS: {
 	SKIP: {
 		if($ENV{AUTHOR_TESTING}) {
-			if(my @rc = @{WWW::RT::CPAN::list_dist_active_tickets(dist => 'Geo-Coder-Free')}) {
+			eval 'use WWW::RT::CPAN';	# FIXME: use a REST client
+			if($@) {
+				diag('WWW::RT::CPAN required to check for open tickets');
+				skip('WWW::RT::CPAN required to check for open tickets', 3);
+			} elsif(my @rc = @{WWW::RT::CPAN::list_dist_active_tickets(dist => 'Geo-Coder-Free')}) {
 				ok($rc[0] == 200);
 				ok($rc[1] eq 'OK');
 				my @tickets = @{$rc[2]};
