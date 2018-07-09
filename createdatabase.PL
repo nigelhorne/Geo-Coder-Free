@@ -86,18 +86,18 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 my %openaddresses_supported_countries = (
-	'au' => 1,
-	'ca' => 1,
+	# 'au' => 1,
+	# 'ca' => 1,
 	'us' => 1,
 );
 my @whosonfirst_only_countries = (
-	'gb'
+	# 'gb'
 );
 
 my %state_lengths = (
-	'au' => 3,
-	'ca' => 2,
-	'us' => 2
+	'AU' => 3,
+	'CA' => 2,
+	'US' => 2
 );
 
 my %known_places = (	# Places I've checked with my GPS
@@ -546,7 +546,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
-			# next unless($csv_file =~ /statewide/);
+			# next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/mo\//);
 
@@ -1207,9 +1207,9 @@ sub insert {
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'NAME'} && (uc($columns->{'NAME'}) eq 'EL PAPI STREET TACOS'));
-	# my @call_details = caller(0);
-	# print "line " . $call_details[2], "\n";
-	# print Data::Dumper->new([$columns])->Dump();
+	my @call_details = caller(0);
+	print "line " . $call_details[2], "\n";
+	print Data::Dumper->new([$columns])->Dump();
 
 	my $lat = $columns->{'LAT'};
 	my $lon = $columns->{'LON'};
