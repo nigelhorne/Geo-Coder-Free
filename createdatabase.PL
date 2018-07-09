@@ -26,8 +26,10 @@ use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use Text::CSV;
 use CHI;
 use CHI::Driver::RawMemory;
+use Try::Tiny;
 
-use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -1207,9 +1209,9 @@ sub insert {
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'CITY'} && (uc($columns->{'CITY'}) eq 'INDIANAPOLIS'));
 	# print Data::Dumper->new([$columns])->Dump() if($columns->{'NAME'} && (uc($columns->{'NAME'}) eq 'EL PAPI STREET TACOS'));
-	my @call_details = caller(0);
-	print "line " . $call_details[2], "\n";
-	print Data::Dumper->new([$columns])->Dump();
+	# my @call_details = caller(0);
+	# print "line " . $call_details[2], "\n";
+	# print Data::Dumper->new([$columns])->Dump();
 
 	my $lat = $columns->{'LAT'};
 	my $lon = $columns->{'LON'};
@@ -1296,7 +1298,7 @@ sub flush_queue
 		my $country = $row->{'COUNTRY'};
 		my $state = $row->{'STATE'};
 		if($state_lengths{$country} && (length($state) != $state_lengths{$country})) {
-			print STDERR "Invalid state length:\n", Data::Dumper->new([$row])->Dump();
+			print STDERR 'Invalid state length: ', Data::Dumper->new([$row])->Dump();
 			next;
 		}
 		if(length($country) != 2) {
@@ -1340,7 +1342,12 @@ sub flush_queue
 		# $| = 1;
 		# print '.';
 		# $| = 0;
-		$dbh->do($query);
+		try {
+			$dbh->do($query);
+		} catch {
+			print Data::Dumper->new([\%queued_commits])->Dump();
+			die $_;
+		};
 		%queued_commits = ();
 	}
 }

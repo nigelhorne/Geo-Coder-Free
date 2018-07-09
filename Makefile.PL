@@ -78,6 +78,7 @@ WriteMakefile(
 		'IPC::System::Simple' => 0,
 		'JSON' => 0,
 		'LWP::UserAgent::Throttled' => 0,
+		'Try::Tiny' => 0,
 	},
 	TEST_REQUIRES => {
 		'CGI::IDS' => 0,
