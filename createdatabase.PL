@@ -1293,6 +1293,17 @@ sub flush_queue
 	keys %queued_commits;
 	# print scalar(keys %queued_commits), "\n";
 	while(my($md5, $row) = each %queued_commits) {
+		my $country = $row->{'COUNTRY'};
+		my $state = $row->{'STATE'};
+		if($state_lengths{$country} && (length($state) != $state_lengths{$country})) {
+			print STDERR "Invalid state length:\n", Data::Dumper->new([$row])->Dump();
+			next;
+		}
+		if(length($country) != 2) {
+			print STDERR "Invalid country length:\n", Data::Dumper->new([$row])->Dump();
+			next;
+		}
+
 		if(!defined($query)) {
 			$query = 'INSERT INTO openaddresses(';
 			foreach my $column(@columns) {
@@ -1306,16 +1317,6 @@ sub flush_queue
 		# print join(',', @columns), ": $md5\n";
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
-		my $country = $row->{'COUNTRY'};
-		my $state = $row->{'STATE'};
-		if($state_lengths{$country} && (length($state) != $state_lengths{$country})) {
-			print STDERR "Invalid state length:\n", Data::Dumper->new([$row])->Dump();
-			return;
-		}
-		if(length($country) != 2) {
-			print STDERR "Invalid country length:\n", Data::Dumper->new([$row])->Dump();
-			return;
-		}
 		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 
 		foreach my $column(@columns) {
