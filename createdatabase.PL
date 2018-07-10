@@ -28,8 +28,7 @@ use CHI;
 use CHI::Driver::RawMemory;
 use Try::Tiny;
 
-# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -103,154 +102,156 @@ my %state_lengths = (
 );
 
 my %known_places = (	# Places I've checked with my GPS
-	'us/md/statewide.csv' =>
-		[
-			{
-				# NCBI
-				'LAT' => 38.99516556,
-				'LON' => -77.09943963,
-				'STREET' => 'MEDLARS DR',
-				'CITY' => 'BETHESDA',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20894,
-			}, {
-				'LAT' => 38.99698114,
-				'LON' => -77.10031119,
-				'STREET' => 'CENTER DR',
-				'CITY' => 'BETHESDA',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-			}, {
-				# Bold bite
-				'LAT' => 38.98939358,
-				'LON' => -77.09819543,
-				'STREET' => 'NORFOLK AVE',
-				'CITY' => 'BETHESDA',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-			}, {
-				'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
-				'LAT' => 39.03869019,
-				'LON' => -77.0682871,
-				'NUMBER' => 11135,
-				'STREET' => 'NEWPORT MILL RD',
-				'CITY' => 'KENSINGTON',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20895
-			}, {
-				'NAME' => 'POST OFFICE',
-				'LAT' => 39.02554455,
-				'LON' => -77.07178215,
-				'NUMBER' => 10325,
-				'STREET' => 'KENSINGTON PKWY',
-				'CITY' => 'KENSINGTON',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20895
-			}, {
-				'NAME' => 'NEWPORT MILL MIDDLE SCHOOL',
-				'LAT' => 39.0416107,
-				'LON' => -77.06884708,
-				'NUMBER' => 11311,
-				'STREET' => 'NEWPORT MILL RD',
-				'CITY' => 'KENSINGTON',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20895
-			}, {
-				'NAME' => 'SAFEWAY',
-				'LAT' => 39.02822438,
-				'LON' => -77.0755196,
-				'NUMBER' => 10541,
-				'STREET' => 'HOWARD AVE',
-				'CITY' => 'KENSINGTON',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20895
-			}, {
-				'NAME' => 'HAIR CUTTERY',
-				'LAT' => 39.03323865,
-				'LON' => -77.07368044,
-				'NUMBER' => 3731,
-				'STREET' => 'CONNECTICUT AVE',
-				'CITY' => 'KENSINGTON',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-			}, {
-				'NAME' => 'STROSNIDERS',
-				'LAT' => 39.02781493,
-				'LON' => -77.07740792,
-				'NUMBER' => 10504,
-				'STREET' => 'CONNECTICUT AVE',
-				'CITY' => 'KENSINGTON',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-			}, {
-				'NAME' => 'SNIDERS',
-				'LAT' => 39.0088797,
-				'LON' => -77.04162824,
-				'NUMBER' => 1936,
-				'STREET' => 'SEMINARY RD',
-				'CITY' => 'SILVER SPRING',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20910,
-			}, {
-				'NAME' => 'SILVER DINER',
-				'LAT' => 39.05798753,
-				'LON' => -77.12165374,
-				'NUMBER' => 12276,
-				'STREET' => 'ROCKVILLE PIKE',
-				'CITY' => 'ROCKVILLE',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20852
-			}, {
-				# LF
-				'LAT' => 39.07669788,
-				'LON' => -77.12306436,
-				'NUMBER' => 1605,
-				'STREET' => 'VIERS MILL ROAD',
-				'CITY' => 'ROCKVILLE',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20851
-			}, {
-				'LAT' => 39.0147541,
-				'LON' => -77.05466857,
-				'NAME' => 'BP',
-				'NUMBER' => 2601,
-				'STREET' => 'FOREST GLEN ROAD',
-				'CITY' => 'SILVER SPRING',
-				'COUNTY' => 'MONTGOMERY',
-				'STATE' => 'MD',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20910
-			}, {
-				'LAT' => 38.955403,
-				'LON' => -76.996241,
-				'NUMBER' => 5350,
-				'STREET' => 'CHILLUM PLACE NE',
-				'CITY' => 'WASHINGTON',
-				'STATE' => 'DC',
-				'COUNTRY' => 'US',
-				'POSTCODE' => 20011
-			}
-		]
+	'us/md/statewide.csv' => [
+		{
+			# NCBI
+			'LAT' => 38.99516556,
+			'LON' => -77.09943963,
+			'STREET' => 'MEDLARS DR',
+			'CITY' => 'BETHESDA',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20894,
+		}, {
+			'LAT' => 38.99698114,
+			'LON' => -77.10031119,
+			'STREET' => 'CENTER DR',
+			'CITY' => 'BETHESDA',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+		}, {
+			# Bold bite
+			'LAT' => 38.98939358,
+			'LON' => -77.09819543,
+			'STREET' => 'NORFOLK AVE',
+			'CITY' => 'BETHESDA',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+		}, {
+			'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
+			'LAT' => 39.03869019,
+			'LON' => -77.0682871,
+			'NUMBER' => 11135,
+			'STREET' => 'NEWPORT MILL RD',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20895
+		}, {
+			'NAME' => 'POST OFFICE',
+			'LAT' => 39.02554455,
+			'LON' => -77.07178215,
+			'NUMBER' => 10325,
+			'STREET' => 'KENSINGTON PKWY',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20895
+		}, {
+			'NAME' => 'NEWPORT MILL MIDDLE SCHOOL',
+			'LAT' => 39.0416107,
+			'LON' => -77.06884708,
+			'NUMBER' => 11311,
+			'STREET' => 'NEWPORT MILL RD',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20895
+		}, {
+			'NAME' => 'SAFEWAY',
+			'LAT' => 39.02822438,
+			'LON' => -77.0755196,
+			'NUMBER' => 10541,
+			'STREET' => 'HOWARD AVE',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20895
+		}, {
+			'NAME' => 'HAIR CUTTERY',
+			'LAT' => 39.03323865,
+			'LON' => -77.07368044,
+			'NUMBER' => 3731,
+			'STREET' => 'CONNECTICUT AVE',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+		}, {
+			'NAME' => 'STROSNIDERS',
+			'LAT' => 39.02781493,
+			'LON' => -77.07740792,
+			'NUMBER' => 10504,
+			'STREET' => 'CONNECTICUT AVE',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+		}, {
+			'NAME' => 'SNIDERS',
+			'LAT' => 39.0088797,
+			'LON' => -77.04162824,
+			'NUMBER' => 1936,
+			'STREET' => 'SEMINARY RD',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20910,
+		}, {
+			'NAME' => 'SILVER DINER',
+			'LAT' => 39.05798753,
+			'LON' => -77.12165374,
+			'NUMBER' => 12276,
+			'STREET' => 'ROCKVILLE PIKE',
+			'CITY' => 'ROCKVILLE',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20852
+		}, {
+			# LF
+			'LAT' => 39.07669788,
+			'LON' => -77.12306436,
+			'NUMBER' => 1605,
+			'STREET' => 'VIERS MILL ROAD',
+			'CITY' => 'ROCKVILLE',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20851
+		}, {
+			'LAT' => 39.0147541,
+			'LON' => -77.05466857,
+			'NAME' => 'BP',
+			'NUMBER' => 2601,
+			'STREET' => 'FOREST GLEN ROAD',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20910
+		}
+	],
+	'us/dc/statewide.csv' => [
+		{
+			'LAT' => 38.955403,
+			'LON' => -76.996241,
+			'NUMBER' => 5350,
+			'STREET' => 'CHILLUM PLACE NE',
+			'CITY' => 'WASHINGTON',
+			'STATE' => 'DC',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20011
+		}
+	]
 );
 
 my %postcodes = ();
@@ -291,8 +292,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			mkdir $oa;
 		}
 		$dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
-		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 		# $dbh->prepare('CREATE TABLE node(md5 CHAR(16), parent CHAR(16)')->execute();
 		# $dbh->prepare('CREATE TABLE leaf(md5 CHAR(16), lat DECIMAL, lon DECIMAL')->execute();
 
@@ -877,7 +878,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		%cities = ();
 
 		$dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
-		# $dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
 
