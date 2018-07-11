@@ -95,7 +95,7 @@ my @whosonfirst_only_countries = (
 	'gb'
 );
 
-my %state_lengths = (
+my %max_state_lengths = (
 	'AU' => 3,
 	'CA' => 2,
 	'US' => 2
@@ -1298,7 +1298,7 @@ sub flush_queue
 	while(my($md5, $row) = each %queued_commits) {
 		my $country = $row->{'COUNTRY'};
 		my $state = $row->{'STATE'};
-		if($state_lengths{$country} && (length($state) != $state_lengths{$country})) {
+		if($max_state_lengths{$country} && (length($state) > $max_state_lengths{$country})) {
 			print STDERR 'Invalid state length: ', Data::Dumper->new([$row])->Dump();
 			next;
 		}
