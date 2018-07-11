@@ -107,8 +107,8 @@ OPENADDR: {
 				$location = $geo_coder->geocode(location => 'Edmonton, Alberta, Canada');
 				ok(defined($location));
 				if($ENV{'WHOSONFIRST_HOME'}) {
-					delta_within($location->{latitude}, 53.57, 1e-2);
-					delta_within($location->{longitude}, -113.52, 1e-2);
+					delta_within($location->{latitude}, 53.55, 1e-2);
+					delta_within($location->{longitude}, -113.50, 1e-2);
 				} else {
 					delta_within($location->{latitude}, 53.55, 1e-2);
 					delta_within($location->{longitude}, -113.53, 1e-2);
@@ -210,8 +210,8 @@ OPENADDR: {
 				delta_within($location->{longitude}, -90.20, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
-				delta_within($location->{latitude}, -27.06, 1e-2);
-				delta_within($location->{longitude}, 152.98, 1e-2);
+				delta_within($location->{latitude}, -27.09, 1e-2);
+				delta_within($location->{longitude}, 152.95, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Whitley, Indiana, USA');
 				ok(defined($location));

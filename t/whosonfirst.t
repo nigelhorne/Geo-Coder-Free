@@ -66,8 +66,8 @@ WHOSONFIRST: {
 				delta_within($location->{longitude}, -77.12, 1e-2);
 
 				$location = $geocoder->geocode(location => 'Ramsgate, Kent, England');
-				delta_within($location->{latitude}, 51.36, 1e-2);
-				delta_within($location->{longitude}, 1.42, 1e-2);
+				delta_within($location->{latitude}, 51.33, 1e-2);
+				delta_within($location->{longitude}, 1.43, 1e-2);
 
 				$location = $geocoder->geocode({ location => 'Silver Diner, Rockville Pike, Rockville, MD, USA' });
 				ok(defined($location));

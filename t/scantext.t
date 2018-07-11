@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 26;
+use Test::Most tests => 27;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -23,6 +23,7 @@ SCANTEXT: {
 			my @locations = $geocoder->geocode(scantext => 'I was born in Ramsgate, Kent, England');
 			ok(scalar(@locations) == 1);
 			my $location = $locations[0];
+			ok(ref($location) eq 'HASH');
 			delta_within($location->{latitude}, 51.36, 1e-2);
 			delta_within($location->{longitude}, 1.42, 1e-2);
 			ok(defined($location->{'confidence'}));
@@ -95,7 +96,7 @@ SCANTEXT: {
 			ok($found{'INDIANAPOLIS'});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 25);
+			skip('Author tests not required for installation', 26);
 		}
 	}
 }
