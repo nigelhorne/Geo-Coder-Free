@@ -268,6 +268,8 @@ sub geocode {
 					$street = "$1 GRDNS";
 				} elsif($street =~ /(.+)\s+LANE$/) {
 					$street = "$1 LN";
+				} elsif($street =~ /(.+)\s+PLACE$/) {
+					$street = "$1 PL";
 				} elsif($street =~ /(.+)\s+CREEK$/) {
 					$street = "$1 CRK";
 				}
@@ -647,6 +649,8 @@ sub geocode {
 						$street = "$1 CRK";
 					} elsif($street =~ /(.+)\s+LANE$/) {
 						$street = "$1 LN";
+					} elsif($street =~ /(.+)\s+PLACE$/) {
+						$street = "$1 PL";
 					} elsif($street =~ /(.+)\s+GARDENS$/) {
 						$street = "$1 GRDNS";
 					}
@@ -785,6 +789,8 @@ sub _normalize {
 		return 'CRK';
 	} elsif(($type eq 'LANE') || ($type eq 'LN')) {
 		return 'LN';
+	} elsif(($type eq 'PLACE') || ($type eq 'PL')) {
+		return 'PL';
 	} elsif(($type eq 'GRDNS') || ($type eq 'GARDENS')) {
 		return 'GRDNS';
 	}

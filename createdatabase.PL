@@ -228,6 +228,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20851
 		}, {
+			'LAT' => 39.075583,
+			'LON' => -77.123833,
+			'NUMBER' => 1406,
+			'STREET' => 'LANGBROOK PLACE',
+			'CITY' => 'ROCKVILLE',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20851
+		}, {
 			'LAT' => 39.0147541,
 			'LON' => -77.05466857,
 			'NAME' => 'BP',
@@ -1056,6 +1066,8 @@ sub import {
 			$street = "$1 RDG";
 		} elsif($street =~ /(.+)\s+LANE$/) {
 			$street = "$1 LN";
+		} elsif($street =~ /(.+)\s+PLACE$/) {
+			$street = "$1 PL";
 		} elsif($street =~ /(.+)\s+GARDENS$/) {
 			$street = "$1 GRDNS";
 		} elsif($street =~ /(.+)\s+CREEK$/) {
