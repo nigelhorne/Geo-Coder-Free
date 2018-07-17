@@ -986,7 +986,7 @@ sub import {
 			if(exists($unknown_zips{"$country/$zip"})) {
 				return 0;
 			}
-			my $res = $ua->get("http://api.zippopotam.us/$country/$zip");
+			my $res = $ua->get("https://api.zippopotam.us/$country/$zip");
 			if(!$res->is_success()) {
 				warn "$country/$zip: ", $res->status_line();
 				$unknown_zips{"$country/$zip"} = 1;
