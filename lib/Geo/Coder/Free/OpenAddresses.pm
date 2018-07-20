@@ -70,7 +70,7 @@ To install:
 
 =head2 new
 
-    $geocoder = Geo::Coder::Free::OpenAddresses->new();
+    $geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
 
 Takes an optional parameter openaddr, which is the base directory of
 the OpenAddresses data downloaded from http://results.openaddresses.io.

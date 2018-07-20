@@ -223,7 +223,7 @@ it under the same terms as Perl itself.
 Before you start,
 install L<App::csv2sqlite>;
 optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory;
-optionally set the envionment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download>.
+optionally set the environment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download>.
 You do not need to download the MaxMind data, that will be downloaded automatically.
 
 =head1 MORE INFORMATION
@@ -244,7 +244,7 @@ Both are in their early days, but I have examples which do surprisingly well.
 The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
 That script creates a single SQLite file from downloaded copies of the databases listed above, to create the database you will need
 to first install L<App::csv2sqlite>.
-Running 'make' will download GeoNames and Maxmind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:.F.
+Running 'make' will download GeoNames and MaxMind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:F.
 
 There is a sample website at L<https://geocode.nigelhorne.com/>.  The source code for that site is included in the G:C:F distribution.
 
