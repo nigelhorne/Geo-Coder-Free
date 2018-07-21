@@ -10,7 +10,8 @@
 use 5.010;
 use strict;
 use warnings;
-use autodie qw(:all);
+# use autodie qw(:all);
+use autodie;	# Don't want system() to die, we catch failures
 use File::Copy;
 use DBI;
 use Data::Dumper;
