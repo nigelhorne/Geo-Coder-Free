@@ -272,6 +272,19 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20011
 		}
+	],
+	'us/me/statewide.csv' => [
+		{
+			'LAT' => 44.35378018,
+			'LON' => -68.57383976,
+			'NUMBER' => 86,
+			'STREET' => 'ALLEN POINT LANE',
+			'CITY' => 'BLUE HILLS',
+			'COUNTY' => 'HANCOCK',
+			'STATE' => 'ME',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 04614
+		}
 	]
 );
 
