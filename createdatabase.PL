@@ -284,8 +284,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ME',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 04614
-		},
-		{
+		}, {
 			'LAT' => 44.40670019,
 			'LON' => -68.59711438,
 			'NAME' => 'TRADEWINDS',
@@ -296,8 +295,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ME',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 04614
-		},
-		{
+		}, {
 			'LAT' => 44.40662476,
 			'LON' => -68.59610059,
 			'NAME' => 'RITE AID',
