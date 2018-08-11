@@ -103,7 +103,7 @@ my %max_state_lengths = (
 );
 
 my %known_places = (	# Places I've checked with my GPS
-	'uk/kent/statewide.csv' => [
+	'gb/kent/statewide.csv' => [
 		{
 			'LAT' => 51.34320725,
 			'LON' => 1.31680853,
@@ -125,7 +125,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'UK',
 			# 'POSTCODE' => 20894,
 		}
-	], 'uk/london/statewide.csv' => [
+	], 'gb/london/statewide.csv' => [
 		{
 			'LAT' => 51.5082675,
 			'LON' => -0.0754225,
@@ -157,7 +157,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 		}, {
-			# Bold bite
+			'NAME' => 'BOLD BITE',
 			'LAT' => 38.98939358,
 			'LON' => -77.09819543,
 			'STREET' => 'NORFOLK AVE',
@@ -294,8 +294,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20852
 		}
-	],
-	'us/dc/statewide.csv' => [
+	], 'us/dc/statewide.csv' => [
 		{
 			'LAT' => 38.955403,
 			'LON' => -76.996241,
