@@ -103,7 +103,41 @@ my %max_state_lengths = (
 );
 
 my %known_places = (	# Places I've checked with my GPS
-	'us/md/statewide.csv' => [
+	'uk/kent/statewide.csv' => [
+		{
+			'LAT' => 51.34320725,
+			'LON' => 1.31680853,
+			'NAME' => 'HOLIDAY INN EXPRESS',
+			'NUMBER' => 35,
+			'STREET' => 'TOTHILL STREET',
+			'CITY' => 'MINSTER-IN-THANET',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'UK',
+			# 'POSTCODE' => 20894,
+		}, {
+			'LAT' => 51.34203083,
+			'LON' => 1.31609075,
+			'NAME' => 'MINSTER CEMETERY',
+			'NUMBER' => 115,
+			'STREET' => 'TOTHILL STREET',
+			'CITY' => 'MINSTER-IN-THANET',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'UK',
+			# 'POSTCODE' => 20894,
+		}
+	], 'uk/london/statewide.csv' => [
+		{
+			'LAT' => 51.5082675,
+			'LON' => -0.0754225,
+			'NAME' => 'TOWER OF LONDON',
+			'NUMBER' => 35,
+			'STREET' => 'TOWER HILL',
+			'CITY' => 'LONDON',
+			'STATE' => 'LONDON',
+			'COUNTRY' => 'UK',
+			# 'POSTCODE' => 20894,
+		}
+	], 'us/md/statewide.csv' => [
 		{
 			# NCBI
 			'LAT' => 38.99516556,
@@ -272,8 +306,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20011
 		}
-	],
-	'us/me/statewide.csv' => [
+	], 'us/me/statewide.csv' => [
 		{
 			'LAT' => 44.35378018,
 			'LON' => -68.57383976,
