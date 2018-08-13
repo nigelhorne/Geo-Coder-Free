@@ -112,8 +112,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STREET' => 'TOTHILL STREET',
 			'CITY' => 'MINSTER-IN-THANET',
 			'STATE' => 'KENT',
-			'COUNTRY' => 'UK',
-			# 'POSTCODE' => 20894,
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.33090893,
+			'LON' => 1.31559716,
+			'NAME' => 'ST MARY THE VIRGIN CHURCH',
+			'STREET' => 'CHURCH STREET',
+			'CITY' => 'MINSTER-IN-THANET',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.34203083,
 			'LON' => 1.31609075,
@@ -122,8 +129,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STREET' => 'TOTHILL STREET',
 			'CITY' => 'MINSTER-IN-THANET',
 			'STATE' => 'KENT',
-			'COUNTRY' => 'UK',
-			# 'POSTCODE' => 20894,
+			'COUNTRY' => 'GB',
 		}
 	], 'gb/london/statewide.csv' => [
 		{
@@ -134,7 +140,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STREET' => 'TOWER HILL',
 			'CITY' => 'LONDON',
 			'STATE' => 'LONDON',
-			'COUNTRY' => 'UK',
+			'COUNTRY' => 'GB',
 			# 'POSTCODE' => 20894,
 		}
 	], 'us/md/statewide.csv' => [
