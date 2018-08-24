@@ -209,6 +209,9 @@ OPENADDR: {
 				delta_within($location->{latitude}, 38.63, 1e-2);
 				delta_within($location->{longitude}, -90.20, 1e-2);
 
+				# $location = $geo_coder->geocode('716 Yates Street, Victoria, British Columbia, Canada');
+				# ok(defined($location));
+
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
 				if($ENV{'WHOSONFIRST_HOME'}) {
 					delta_within($location->{latitude}, -27.06, 1e-2);

@@ -13,7 +13,7 @@ use Locale::CA;
 use Locale::US;
 use Locale::SubCountry;
 use CHI;
-# use Lingua::EN::AddressParse;
+use Lingua::EN::AddressParse;
 use Locale::Country;
 use Geo::StreetAddress::US;
 use Digest::MD5;
@@ -307,6 +307,28 @@ sub geocode {
 			}
 		}
 	}
+	# my $ap;
+	# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# } elsif($location =~ /England$/) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# } elsif($location =~ /Canada$/) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# } elsif($location =~ /Australia$/) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# }
+	# if($ap) {
+		# if(my $error = $ap->parse($location)) {
+			# ::diag("$location: !!!!!!!!!!!!!", $error);
+			# ::diag($ap->report());
+		# } else {
+			# my %c = $ap->components();
+			# ::diag('>>>>>>>>>>>>');
+			# ::diag(Data::Dumper->new([\%c])->Dump());
+		# }
+	# }
+	# # return;
+
 	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
 		# Geo::libpostal isn't installed, fail back to Geo::StreetAddress::US, which is rather buggy
 
@@ -314,24 +336,6 @@ sub geocode {
 		$l =~ s/,/ /g;
 		$l =~ s/\s\s+/ /g;
 # 
-		# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
-		# my $ap;
-		# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
-			# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code_flag => 0);
-		# } elsif($location =~ /England$/) {
-			# $ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code_flag => 0);
-		# }
-		# if($ap) {
-			# if(my $error = $ap->parse($l)) {
-				# ::diag  "$l: !!!!!!!!!!!!!", $error;
-			# } else {
-				# my %c = $ap->address_components();
-				# ::diag('>>>>>>>>>>>>');
-				# ::diag Data::Dumper->new([\%c])->Dump;
-			# }
-		# }
-		# return;
-
 		# Work around for RT#122617
 		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
 			if($state = $href->{'state'}) {
@@ -608,8 +612,21 @@ sub geocode {
 						if($rc = $self->_get("$first$second$state", 'CA')) {
 							return $rc;
 						}
+						# Not all the database has the county
 						if($rc = $self->_get("$first$state", 'CA')) {
 							return $rc;
+						}
+						# Brute force last ditch approach
+						my $copy = uc($location);
+						$copy =~ s/,\s+//g;
+						$copy =~ s/\s*Canada$//i;
+						if($rc = $self->_get($copy, 'CA')) {
+							return $rc;
+						}
+						if($copy =~ s/(\d+)\s+/$1/) {
+							if($rc = $self->_get($copy, 'CA')) {
+								return $rc;
+							}
 						}
 					}
 					# warn "Can't yet parse Canadian location '$location'";
