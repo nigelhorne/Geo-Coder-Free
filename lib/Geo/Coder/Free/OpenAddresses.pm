@@ -235,14 +235,42 @@ sub geocode {
 			if(my $rc = $self->_get($l, 'US')) {
 				return $rc;
 			}
-		} elsif($location =~ /^(.+?)\s+(England|Scotand|Wales|Northern Ireland|UK|GB)$/i) {
+		} elsif($location =~ /^(.+?)\s+(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) {
 			my $l = $1;
 			$l =~ s/\s+//g;
 			if(my $rc = $self->_get($l, 'GB')) {
 				return $rc;
 			}
+		} elsif($location =~ /^(.+?)\s+Canada$/i) {
+			my $l = $1;
+			$l =~ s/\s+//g;
+			if(my $rc = $self->_get($l, 'CA')) {
+				return $rc;
+			}
 		}
 	}
+	# my $ap;
+	# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# } elsif($location =~ /England$/) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# } elsif($location =~ /Canada$/) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# } elsif($location =~ /Australia$/) {
+		# $ap = Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
+	# }
+	# if($ap) {
+		# if(my $error = $ap->parse($location)) {
+			# ::diag("$location: !!!!!!!!!!!!!", $error);
+			# ::diag($ap->report());
+		# } else {
+			# my %c = $ap->components();
+			# ::diag('>>>>>>>>>>>>');
+			# ::diag(Data::Dumper->new([\%c])->Dump());
+		# }
+	# }
+	# # return;
+
 	if($libpostal_is_installed && (my %addr = Geo::libpostal::parse_address($location))) {
 		# print Data::Dumper->new([\%addr])->Dump();
 		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
@@ -307,28 +335,6 @@ sub geocode {
 			}
 		}
 	}
-	# my $ap;
-	# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# } elsif($location =~ /England$/) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# } elsif($location =~ /Canada$/) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# } elsif($location =~ /Australia$/) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# }
-	# if($ap) {
-		# if(my $error = $ap->parse($location)) {
-			# ::diag("$location: !!!!!!!!!!!!!", $error);
-			# ::diag($ap->report());
-		# } else {
-			# my %c = $ap->components();
-			# ::diag('>>>>>>>>>>>>');
-			# ::diag(Data::Dumper->new([\%c])->Dump());
-		# }
-	# }
-	# # return;
-
 	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
 		# Geo::libpostal isn't installed, fail back to Geo::StreetAddress::US, which is rather buggy
 
