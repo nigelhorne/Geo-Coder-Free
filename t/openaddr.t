@@ -229,7 +229,7 @@ OPENADDR: {
 				ok(ref($location) eq 'HASH');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 93);
+				skip('Author tests not required for installation', 97);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -249,7 +249,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 95);
+			skip('Author tests not required for installation', 99);
 		}
 	}
 }

@@ -2,7 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.14
 	Work on fixing http://www.cpantesters.org/cpan/report/6b68841a-8cc6-11e8-98d5-bb14e5798fec
-	Re-enable Lingua::EN::AddressParse usage
+	Re-enable Lingua::EN::AddressParse usage and prefer over Geo::libpostal
 
 0.13	Fri Jul 20 16:48:58 EDT 2018
 	Fix handling of cities with spaces in them
