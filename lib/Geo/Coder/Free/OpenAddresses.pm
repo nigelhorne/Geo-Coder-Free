@@ -308,82 +308,8 @@ sub geocode {
 		}
 	}
 
-	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
-		if(eval { require Geo::libpostal; } ) {
-			Geo::libpostal->import();
-			$libpostal_is_installed = LIBPOSTAL_INSTALLED;
-		} else {
-			$libpostal_is_installed = LIBPOSTAL_NOT_INSTALLED;
-		}
-	}
-
-	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
-		# print Data::Dumper->new([\%addr])->Dump();
-		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
-			if($street = $addr{'road'}) {
-				$street = uc($street);
-				if($street =~ /(.+)\s+STREET$/) {
-					$street = "$1 ST";
-				} elsif($street =~ /(.+)\s+ROAD$/) {
-					$street = "$1 RD";
-				} elsif($street =~ /(.+)\s+AVENUE$/) {
-					$street = "$1 AVE";
-				} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
-					$street = "$1 AVE $2";
-				} elsif($street =~ /(.+)\s+COURT$/) {
-					$street = "$1 CT";
-				} elsif($street =~ /(.+)\s+CIRCLE$/) {
-					$street = "$1 CIR";
-				} elsif($street =~ /(.+)\s+DRIVE$/) {
-					$street = "$1 DR";
-				} elsif($street =~ /(.+)\s+PARKWAY$/) {
-					$street = "$1 PKWY";
-				} elsif($street =~ /(.+)\s+GARDENS$/) {
-					$street = "$1 GRDNS";
-				} elsif($street =~ /(.+)\s+LANE$/) {
-					$street = "$1 LN";
-				} elsif($street =~ /(.+)\s+PLACE$/) {
-					$street = "$1 PL";
-				} elsif($street =~ /(.+)\s+CREEK$/) {
-					$street = "$1 CRK";
-				}
-				$street =~ s/^0+//;	# Turn 04th St into 4th St
-				$addr{'road'} = $street;
-			}
-			if($addr{'country'} =~ /Canada/i) {
-				$addr{'country'} = 'CA';
-				if(length($addr{'state'}) > 2) {
-					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
-						$addr{'state'} = $twoletterstate;
-					}
-				}
-			} else {
-				$addr{'country'} = 'US';
-				if(length($addr{'state'}) > 2) {
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
-						$addr{'state'} = $twoletterstate;
-					}
-				}
-			}
-			if($addr{'state_district'}) {
-				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
-				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
-					return $rc;
-				}
-			}
-			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
-				return $rc;
-			}
-			if($addr{'house_number'}) {
-				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
-					return $rc;
-				}
-			}
-		}
-	}
 	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
-		# Geo::libpostal isn't installed
-		# fall back to Geo::StreetAddress::US, which is rather buggy
+		# Try Geo::StreetAddress::US, which is rather buggy
 
 		my $l = $1;
 		$l =~ s/,/ /g;
@@ -762,6 +688,82 @@ sub geocode {
 		}
 		if(my $rc = $self->_get("$state$country")) {
 			return $rc;
+		}
+	}
+
+	# Finally try libpostal,
+	# which is good but uses a lot of memory
+	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
+		if(eval { require Geo::libpostal; } ) {
+			Geo::libpostal->import();
+			$libpostal_is_installed = LIBPOSTAL_INSTALLED;
+		} else {
+			$libpostal_is_installed = LIBPOSTAL_NOT_INSTALLED;
+		}
+	}
+
+	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
+		# print Data::Dumper->new([\%addr])->Dump();
+		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
+			if($street = $addr{'road'}) {
+				$street = uc($street);
+				if($street =~ /(.+)\s+STREET$/) {
+					$street = "$1 ST";
+				} elsif($street =~ /(.+)\s+ROAD$/) {
+					$street = "$1 RD";
+				} elsif($street =~ /(.+)\s+AVENUE$/) {
+					$street = "$1 AVE";
+				} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
+					$street = "$1 AVE $2";
+				} elsif($street =~ /(.+)\s+COURT$/) {
+					$street = "$1 CT";
+				} elsif($street =~ /(.+)\s+CIRCLE$/) {
+					$street = "$1 CIR";
+				} elsif($street =~ /(.+)\s+DRIVE$/) {
+					$street = "$1 DR";
+				} elsif($street =~ /(.+)\s+PARKWAY$/) {
+					$street = "$1 PKWY";
+				} elsif($street =~ /(.+)\s+GARDENS$/) {
+					$street = "$1 GRDNS";
+				} elsif($street =~ /(.+)\s+LANE$/) {
+					$street = "$1 LN";
+				} elsif($street =~ /(.+)\s+PLACE$/) {
+					$street = "$1 PL";
+				} elsif($street =~ /(.+)\s+CREEK$/) {
+					$street = "$1 CRK";
+				}
+				$street =~ s/^0+//;	# Turn 04th St into 4th St
+				$addr{'road'} = $street;
+			}
+			if($addr{'country'} =~ /Canada/i) {
+				$addr{'country'} = 'CA';
+				if(length($addr{'state'}) > 2) {
+					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
+						$addr{'state'} = $twoletterstate;
+					}
+				}
+			} else {
+				$addr{'country'} = 'US';
+				if(length($addr{'state'}) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
+						$addr{'state'} = $twoletterstate;
+					}
+				}
+			}
+			if($addr{'state_district'}) {
+				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
+				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+					return $rc;
+				}
+			}
+			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+				return $rc;
+			}
+			if($addr{'house_number'}) {
+				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+					return $rc;
+				}
+			}
 		}
 	}
 }
