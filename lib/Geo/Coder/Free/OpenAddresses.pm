@@ -31,7 +31,7 @@ my %known_locations = (
 
 use constant	LIBPOSTAL_UNKNOWN => 0;
 use constant	LIBPOSTAL_INSTALLED => 1;
-use constant	LIBPOSTAL_NOT_INSTALLED => 1;
+use constant	LIBPOSTAL_NOT_INSTALLED => -1;
 our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 
 =head1 NAME
