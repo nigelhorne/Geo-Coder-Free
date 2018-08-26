@@ -274,19 +274,22 @@ sub geocode {
 				} elsif($type eq 'AVENUE') {
 					$street = "$street AVE";
 				}
+				if(my $suffix = $c{'street_direction_suffix'}) {
+					$street .= " $suffix";
+				}
 				$street =~ s/^0+//;	# Turn 04th St into 4th St
 				$addr{'road'} = $street;
 			}
-			if($c{'country'} =~ /Canada/i) {
-				$addr{'country'} = 'CA';
-				if(length($c{'subcountry'}) > 2) {
+			if(length($c{'subcountry'}) == 2) {
+				$addr{'state'} = $c{'subcountry'};
+			} else {
+				if($c{'country'} =~ /Canada/i) {
+					$addr{'country'} = 'CA';
 					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
-				}
-			} elsif($c{'country'} =~ /^(Canada|United States|USA|US)$/i) {
-				$addr{'country'} = 'US';
-				if(length($c{'subcountry'}) > 2) {
+				} elsif($c{'country'} =~ /^(Canada|United States|USA|US)$/i) {
+					$addr{'country'} = 'US';
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
@@ -784,6 +787,7 @@ sub _get {
 
 	my $location = join('', @location);
 	$location =~ s/,\s*//g;
+	# ::diag($location);
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
 	# my @call_details = caller(0);
 	# print "line ", $call_details[2], "\n";
