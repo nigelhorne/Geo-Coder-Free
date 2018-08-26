@@ -94,7 +94,7 @@ sub new {
 			if((!-d $openaddr) || (!-r $openaddr));
 		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
 	}
-	Carp::croak(__PACKAGE__ . ": usage: new(openaddr => '/path/to/openaddresses')");
+	Carp::croak(__PACKAGE__, ": usage: new(openaddr => '/path/to/openaddresses')");
 }
 
 =head2 geocode
