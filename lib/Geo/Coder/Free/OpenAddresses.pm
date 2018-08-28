@@ -29,7 +29,10 @@ my %known_locations = (
 	},
 );
 
-our $libpostal_is_installed = 0;
+use constant	LIBPOSTAL_UNKNOWN => 0;
+use constant	LIBPOSTAL_INSTALLED => 1;
+use constant	LIBPOSTAL_NOT_INSTALLED => -1;
+our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 
 =head1 NAME
 
@@ -86,17 +89,12 @@ sub new {
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
 
-	if(eval { require Geo::libpostal; } ) {
-		Geo::libpostal->import();
-		$libpostal_is_installed = 1;
-	}
-
 	if(my $openaddr = $param{'openaddr'}) {
 		Carp::carp "Can't find the directory $openaddr"
 			if((!-d $openaddr) || (!-r $openaddr));
 		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
 	}
-	Carp::croak(__PACKAGE__ . ": usage: new(openaddr => '/path/to/openaddresses')");
+	Carp::croak(__PACKAGE__, ": usage: new(openaddr => '/path/to/openaddresses')");
 }
 
 =head2 geocode
@@ -235,68 +233,70 @@ sub geocode {
 			if(my $rc = $self->_get($l, 'US')) {
 				return $rc;
 			}
-		} elsif($location =~ /^(.+?)\s+(England|Scotand|Wales|Northern Ireland|UK|GB)$/i) {
+		} elsif($location =~ /^(.+?)\s+(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) {
 			my $l = $1;
 			$l =~ s/\s+//g;
 			if(my $rc = $self->_get($l, 'GB')) {
 				return $rc;
 			}
+		} elsif($location =~ /^(.+?)\s+Canada$/i) {
+			my $l = $1;
+			$l =~ s/\s+//g;
+			if(my $rc = $self->_get($l, 'CA')) {
+				return $rc;
+			}
 		}
 	}
-	if($libpostal_is_installed && (my %addr = Geo::libpostal::parse_address($location))) {
-		# print Data::Dumper->new([\%addr])->Dump();
-		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
-			if($street = $addr{'road'}) {
-				$street = uc($street);
-				if($street =~ /(.+)\s+STREET$/) {
-					$street = "$1 ST";
-				} elsif($street =~ /(.+)\s+ROAD$/) {
-					$street = "$1 RD";
-				} elsif($street =~ /(.+)\s+AVENUE$/) {
-					$street = "$1 AVE";
-				} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
-					$street = "$1 AVE $2";
-				} elsif($street =~ /(.+)\s+COURT$/) {
-					$street = "$1 CT";
-				} elsif($street =~ /(.+)\s+CIRCLE$/) {
-					$street = "$1 CIR";
-				} elsif($street =~ /(.+)\s+DRIVE$/) {
-					$street = "$1 DR";
-				} elsif($street =~ /(.+)\s+PARKWAY$/) {
-					$street = "$1 PKWY";
-				} elsif($street =~ /(.+)\s+GARDENS$/) {
-					$street = "$1 GRDNS";
-				} elsif($street =~ /(.+)\s+LANE$/) {
-					$street = "$1 LN";
-				} elsif($street =~ /(.+)\s+PLACE$/) {
-					$street = "$1 PL";
-				} elsif($street =~ /(.+)\s+CREEK$/) {
-					$street = "$1 CRK";
+	my $ap;
+	if(($location =~ /USA$/) || ($location =~ /United States$/)) {
+		$ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
+	} elsif($location =~ /England$/) {
+		$ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+	} elsif($location =~ /Canada$/) {
+		$ap = Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
+	} elsif($location =~ /Australia$/) {
+		$ap = Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
+	}
+	if($ap) {
+		if(my $error = $ap->parse($location)) {
+			# Carp::croak($ap->report());
+		} else {
+			my %c = $ap->components();
+			# ::diag(Data::Dumper->new([\%c])->Dump());
+			my %addr;
+			$street = $c{'street_name'};
+			if(my $type = $c{'street_type'}) {
+				$type = uc($type);
+				if($type eq 'STREET') {
+					$street = "$street ST";
+				} elsif($type eq 'ROAD') {
+					$street = "$street RD";
+				} elsif($type eq 'AVENUE') {
+					$street = "$street AVE";
+				}
+				if(my $suffix = $c{'street_direction_suffix'}) {
+					$street .= " $suffix";
 				}
 				$street =~ s/^0+//;	# Turn 04th St into 4th St
 				$addr{'road'} = $street;
 			}
-			if($addr{'country'} =~ /Canada/i) {
-				$addr{'country'} = 'CA';
-				if(length($addr{'state'}) > 2) {
-					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
-						$addr{'state'} = $twoletterstate;
-					}
-				}
+			if(length($c{'subcountry'}) == 2) {
+				$addr{'state'} = $c{'subcountry'};
 			} else {
-				$addr{'country'} = 'US';
-				if(length($addr{'state'}) > 2) {
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
+				if($c{'country'} =~ /Canada/i) {
+					$addr{'country'} = 'CA';
+					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($c{'subcountry'})}) {
+						$addr{'state'} = $twoletterstate;
+					}
+				} elsif($c{'country'} =~ /^(Canada|United States|USA|US)$/i) {
+					$addr{'country'} = 'US';
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
 				}
 			}
-			if($addr{'state_district'}) {
-				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
-				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
-					return $rc;
-				}
-			}
+			$addr{'house_number'} = $c{'property_identifier'};
+			$addr{'city'} = $c{'suburb'};
 			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
 				return $rc;
 			}
@@ -307,35 +307,14 @@ sub geocode {
 			}
 		}
 	}
-	# my $ap;
-	# if(($location =~ /USA$/) || ($location =~ /United States$/)) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# } elsif($location =~ /England$/) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# } elsif($location =~ /Canada$/) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# } elsif($location =~ /Australia$/) {
-		# $ap = Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
-	# }
-	# if($ap) {
-		# if(my $error = $ap->parse($location)) {
-			# ::diag("$location: !!!!!!!!!!!!!", $error);
-			# ::diag($ap->report());
-		# } else {
-			# my %c = $ap->components();
-			# ::diag('>>>>>>>>>>>>');
-			# ::diag(Data::Dumper->new([\%c])->Dump());
-		# }
-	# }
-	# # return;
 
 	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
-		# Geo::libpostal isn't installed, fail back to Geo::StreetAddress::US, which is rather buggy
+		# Try Geo::StreetAddress::US, which is rather buggy
 
 		my $l = $1;
 		$l =~ s/,/ /g;
 		$l =~ s/\s\s+/ /g;
-# 
+
 		# Work around for RT#122617
 		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
 			if($state = $href->{'state'}) {
@@ -711,6 +690,82 @@ sub geocode {
 			return $rc;
 		}
 	}
+
+	# Finally try libpostal,
+	# which is good but uses a lot of memory
+	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
+		if(eval { require Geo::libpostal; } ) {
+			Geo::libpostal->import();
+			$libpostal_is_installed = LIBPOSTAL_INSTALLED;
+		} else {
+			$libpostal_is_installed = LIBPOSTAL_NOT_INSTALLED;
+		}
+	}
+
+	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
+		# print Data::Dumper->new([\%addr])->Dump();
+		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
+			if($street = $addr{'road'}) {
+				$street = uc($street);
+				if($street =~ /(.+)\s+STREET$/) {
+					$street = "$1 ST";
+				} elsif($street =~ /(.+)\s+ROAD$/) {
+					$street = "$1 RD";
+				} elsif($street =~ /(.+)\s+AVENUE$/) {
+					$street = "$1 AVE";
+				} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
+					$street = "$1 AVE $2";
+				} elsif($street =~ /(.+)\s+COURT$/) {
+					$street = "$1 CT";
+				} elsif($street =~ /(.+)\s+CIRCLE$/) {
+					$street = "$1 CIR";
+				} elsif($street =~ /(.+)\s+DRIVE$/) {
+					$street = "$1 DR";
+				} elsif($street =~ /(.+)\s+PARKWAY$/) {
+					$street = "$1 PKWY";
+				} elsif($street =~ /(.+)\s+GARDENS$/) {
+					$street = "$1 GRDNS";
+				} elsif($street =~ /(.+)\s+LANE$/) {
+					$street = "$1 LN";
+				} elsif($street =~ /(.+)\s+PLACE$/) {
+					$street = "$1 PL";
+				} elsif($street =~ /(.+)\s+CREEK$/) {
+					$street = "$1 CRK";
+				}
+				$street =~ s/^0+//;	# Turn 04th St into 4th St
+				$addr{'road'} = $street;
+			}
+			if($addr{'country'} =~ /Canada/i) {
+				$addr{'country'} = 'CA';
+				if(length($addr{'state'}) > 2) {
+					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
+						$addr{'state'} = $twoletterstate;
+					}
+				}
+			} else {
+				$addr{'country'} = 'US';
+				if(length($addr{'state'}) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
+						$addr{'state'} = $twoletterstate;
+					}
+				}
+			}
+			if($addr{'state_district'}) {
+				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
+				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+					return $rc;
+				}
+			}
+			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+				return $rc;
+			}
+			if($addr{'house_number'}) {
+				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+					return $rc;
+				}
+			}
+		}
+	}
 }
 
 # $data is a hashref to data such as returned by Geo::libpostal::parse_address
@@ -734,6 +789,7 @@ sub _get {
 
 	my $location = join('', @location);
 	$location =~ s/,\s*//g;
+	# ::diag($location);
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
 	# my @call_details = caller(0);
 	# print "line ", $call_details[2], "\n";

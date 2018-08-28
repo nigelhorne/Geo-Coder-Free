@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 96;
+use Test::Most tests => 100;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -209,8 +209,11 @@ OPENADDR: {
 				delta_within($location->{latitude}, 38.63, 1e-2);
 				delta_within($location->{longitude}, -90.20, 1e-2);
 
-				# $location = $geo_coder->geocode('716 Yates Street, Victoria, British Columbia, Canada');
-				# ok(defined($location));
+				$location = $geo_coder->geocode('716 Yates Street, Victoria, British Columbia, Canada');
+				ok(defined($location));
+				ok(ref($location) eq 'HASH');
+				delta_within($location->{latitude}, 48.43, 1e-2);
+				delta_within($location->{longitude}, -123.36, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
 				if($ENV{'WHOSONFIRST_HOME'}) {
@@ -226,7 +229,7 @@ OPENADDR: {
 				ok(ref($location) eq 'HASH');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 93);
+				skip('Author tests not required for installation', 97);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -246,7 +249,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 95);
+			skip('Author tests not required for installation', 99);
 		}
 	}
 }
