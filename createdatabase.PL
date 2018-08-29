@@ -322,6 +322,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20852
+		}, {
+			'LAT' => 39.190009,
+			'LON' => -76.841152,
+			'NUMBER' => 7001,
+			'CITY' => 'COLUMBIA',
+			'COUNTY' => 'HOWARD',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21045,
 		}
 	], 'us/dc/statewide.csv' => [
 		{
