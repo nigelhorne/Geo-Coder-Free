@@ -194,6 +194,7 @@ OPENADDR: {
 				ok(!defined($location));
 
 				$location = $ogeocoder->geocode('Vessels, Misc Ships At sea or abroad, England');
+				# ok((!defined($location)) || ($location eq ''));
 				ok(!defined($location));
 
 				$location = $geo_coder->geocode({ location => 'St. Louis, Missouri, USA' });

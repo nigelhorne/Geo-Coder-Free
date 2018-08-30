@@ -766,6 +766,7 @@ sub geocode {
 			}
 		}
 	}
+	undef;
 }
 
 # $data is a hashref to data such as returned by Geo::libpostal::parse_address
