@@ -332,17 +332,6 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 21045,
 		}
-	], 'us/dc/statewide.csv' => [
-		{
-			'LAT' => 38.955403,
-			'LON' => -76.996241,
-			'NUMBER' => 5350,
-			'STREET' => 'CHILLUM PLACE NE',
-			'CITY' => 'WASHINGTON',
-			'STATE' => 'DC',
-			'COUNTRY' => 'US',
-			'POSTCODE' => 20011
-		}
 	], 'us/me/statewide.csv' => [
 		{
 			'LAT' => 44.35378018,
@@ -376,6 +365,30 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ME',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 04614
+		}
+	], 'us/dc/statewide.csv' => [
+		{
+			'LAT' => 38.955403,
+			'LON' => -76.996241,
+			'NUMBER' => 5350,
+			'STREET' => 'CHILLUM PLACE NE',
+			'CITY' => 'WASHINGTON',
+			'STATE' => 'DC',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20011
+		}
+	], 'us/va/statewide.csv' => [
+		{
+			'LAT' => 44.40662476,
+			'LON' => -68.59610059,
+			'NAME' => 'THE PURE PASTY COMPANY',
+			'NUMBER' => '128C',
+			'STREET' => 'MAPLE AVE W',
+			'CITY' => 'VIENNA',
+			'COUNTY' => 'FAIRFAX',
+			'STATE' => 'VA',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 22180
 		}
 	]
 );
@@ -420,8 +433,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
-		# $dbh->prepare('CREATE TABLE node(md5 CHAR(16), parent CHAR(16)')->execute();
-		# $dbh->prepare('CREATE TABLE leaf(md5 CHAR(16), lat DECIMAL, lon DECIMAL')->execute();
+		$dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16), parent CHAR(16)')->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -1464,6 +1476,60 @@ sub flush_queue
 		}
 		die $key unless $cities{$key};
 		$query .= $cities{$key} . ",'$md5')";
+	}
+
+	# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16), parent CHAR(16)')->execute();
+	while(my($md5, $row) = each %queued_commits) {
+		my $digest;
+
+		# TODO: add NAME field
+
+		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+			$digest .= $row->{$column} if($row->{$column});
+		}
+		if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
+			print "$digest -> $md5\n";
+		}
+		if(delete($row->{'NUMBER'})) {
+			$digest = undef;
+			foreach my $column('STREET','CITY','COUNTY','STATE','COUNTRY') {
+				$digest .= $row->{$column} if($row->{$column});
+			}
+			if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
+				print "$digest -> $md5\n";
+			}
+			if(delete($row->{'STREET'})) {
+				$digest = undef;
+				foreach my $column('CITY','COUNTY','STATE','COUNTRY') {
+					$digest .= $row->{$column} if($row->{$column});
+				}
+				if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
+					print "$digest -> $md5\n";
+				}
+				if(delete($row->{'CITY'})) {
+					$digest = undef;
+					foreach my $column('COUNTY','STATE','COUNTRY') {
+						$digest .= $row->{$column} if($row->{$column});
+					}
+					if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
+						print "$digest -> $md5\n";
+					}
+					if(delete($row->{'COUNTY'})) {
+						$digest = undef;
+						foreach my $column('STATE','COUNTRY') {
+							$digest .= $row->{$column} if($row->{$column});
+						}
+						if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
+							print "$digest -> $md5\n";
+						}
+						$digest = $row->{'COUNTRY'};
+						if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
+							print "$digest -> $md5\n";
+						}
+					}
+				}
+			}
+		}
 	}
 
 	if($query) {
