@@ -401,6 +401,7 @@ my %queued_commits;
 my $city_sequence;
 my %cities;
 my %unknown_zips;
+my %state_parent_md5s;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
@@ -430,10 +431,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(!-d $oa) {
 			mkdir $oa;
 		}
-		$dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+		# $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
-		$dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16), parent CHAR(16)')->execute();
+		# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
 
 		print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -715,13 +717,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if($country eq 'us') {
 					if((!defined($current_state)) || ($state ne $current_state)) {
 						# print "New state, clear state_md5s; state = $state, country = $country\n";
-						%state_md5s = ( );
+						%state_md5s = ();
+						%state_parent_md5s = ();
 						$current_country = $country;
 						$current_state = $state;
 					}
 				} elsif((!defined($current_country)) || ($country ne $current_country)) {
 					# print "New country, clear state_md5s\n";
-					%state_md5s = ( );
+					%state_md5s = ();
+					%state_parent_md5s = ();
 					$current_country = $country;
 				}
 
@@ -881,6 +885,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		}
 
 		%state_md5s = ();
+		%state_parent_md5s = ();
 
 		foreach my $country(@whosonfirst_only_countries) {
 			# TODO: import known_places for this country
@@ -994,16 +999,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			my $sequence = $cities{$key};
 
 			$city =~ s/'/''/g;
-			my $query = "INSERT INTO cities('SEQUENCE','CITY','COUNTY','STATE','COUNTRY'" .
-				') VALUES (' .
-				"'$sequence'," .
-				(($city eq 0) ? "NULL," : "'$city',") .
-				(($county eq 0) ? "NULL," : "'$county',") .
-				"'$state'," .
-				"'$country')";
-
-			# print "$query\n";
-			$dbh->do($query);
+			# my $query = "INSERT INTO cities('SEQUENCE','CITY','COUNTY','STATE','COUNTRY'" .
+				# ') VALUES (' .
+				# "'$sequence'," .
+				# (($city eq 0) ? "NULL," : "'$city',") .
+				# (($county eq 0) ? "NULL," : "'$county',") .
+				# "'$state'," .
+				# "'$country')";
+# 
+			# # print "$query\n";
+			# $dbh->do($query);
 		}
 
 		$| = 1;
@@ -1012,11 +1017,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# Reclaim memory
 		%state_md5s = ();
+		%state_parent_md5s = ();
 		%global_md5s = ();
 		%cities = ();
 
-		$dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
+		# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
 		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+		# $dbh->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
 
@@ -1448,11 +1455,7 @@ sub flush_queue
 		}
 
 		if(!defined($query)) {
-			$query = 'INSERT INTO openaddresses(';
-			foreach my $column(@columns) {
-				$query .= "$column,";
-			}
-			$query .= 'CITY,MD5) VALUES (';
+			$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
 		} else {
 			$query .= ',(';
 		}
@@ -1461,75 +1464,135 @@ sub flush_queue
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
 		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
+		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 
-		foreach my $column(@columns) {
-			if($row->{$column}) {
-				if(($column eq 'LAT') || ($column eq 'LON') || ($column eq 'CITY')) {
-					$query .= $row->{$column} . ',';
-				} else {
-					$row->{$column} =~ s/'/''/g;
-					$query .= "'" . $row->{$column} . "',";
-				}
-			} else {
-				$query .= 'NULL,';
-			}
-		}
+		# foreach my $column(@columns) {
+			# if($row->{$column}) {
+				# if(($column eq 'LAT') || ($column eq 'LON') || ($column eq 'CITY')) {
+					# $query .= $row->{$column} . ',';
+				# } else {
+					# $row->{$column} =~ s/'/''/g;
+					# $query .= "'" . $row->{$column} . "',";
+				# }
+			# } else {
+				# $query .= 'NULL,';
+			# }
+		# }
 		die $key unless $cities{$key};
-		$query .= $cities{$key} . ",'$md5')";
+		# $query .= $cities{$key} . ",'$md5')";
 	}
 
-	# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16), parent CHAR(16)')->execute();
-	while(my($md5, $row) = each %queued_commits) {
-		my $digest;
+	my $tree_query;
+	# while(my($md5, $row) = each %queued_commits) {
+	if(0) {
+	my $row;
+		my $digest = $row->{'COUNTRY'};
+		my $parent_md5;
 
-		# TODO: add NAME field
+		my $md5 = $state_parent_md5s{$digest};
+		if(!defined($md5)) {
+			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			$state_parent_md5s{$md5} = $digest;
+			if(!defined($tree_query)) {
+				$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+			} else {
+				$tree_query .= ',(';
+			}
+			$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+				",'$md5',NULL)";
+		}
 
-		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+		$digest = undef;
+		foreach my $column('STATE','COUNTRY') {
 			$digest .= $row->{$column} if($row->{$column});
 		}
-		if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
-			print "$digest -> $md5\n";
+		$parent_md5 = $md5;
+		$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+		if(!defined($state_parent_md5s{$md5})) {
+			$state_parent_md5s{$md5} = $digest;
+			if(!defined($tree_query)) {
+				$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+			} else {
+				$tree_query .= ',(';
+			}
+			$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+				",'$md5','$parent_md5')";
 		}
-		if(delete($row->{'NUMBER'})) {
+
+		if($row->{'COUNTY'}) {
+			$digest = undef;
+			foreach my $column('COUNTY','STATE','COUNTRY') {
+				$digest .= $row->{$column} if($row->{$column});
+			}
+			$parent_md5 = $md5;
+			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			if(!defined($state_parent_md5s{$md5})) {
+				$state_parent_md5s{$md5} = $digest;
+				if(!defined($tree_query)) {
+					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				} else {
+					$tree_query .= ',(';
+				}
+				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					",'$md5','$parent_md5')";
+			}
+		}
+		if($row->{'CITY'}) {
+			$digest = undef;
+			foreach my $column('CITY','COUNTY','STATE','COUNTRY') {
+				$digest .= $row->{$column} if($row->{$column});
+			}
+			$parent_md5 = $md5;
+			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			if(!defined($state_parent_md5s{$md5})) {
+				$state_parent_md5s{$md5} = $digest;
+				if(!defined($tree_query)) {
+					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				} else {
+					$tree_query .= ',(';
+				}
+				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					",'$md5','$parent_md5')";
+			}
+		}
+		if($row->{'STREET'}) {
 			$digest = undef;
 			foreach my $column('STREET','CITY','COUNTY','STATE','COUNTRY') {
 				$digest .= $row->{$column} if($row->{$column});
 			}
-			if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
-				print "$digest -> $md5\n";
-			}
-			if(delete($row->{'STREET'})) {
-				$digest = undef;
-				foreach my $column('CITY','COUNTY','STATE','COUNTRY') {
-					$digest .= $row->{$column} if($row->{$column});
+			$parent_md5 = $md5;
+			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			if(!defined($state_parent_md5s{$md5})) {
+				$state_parent_md5s{$md5} = $digest;
+				if(!defined($tree_query)) {
+					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				} else {
+					$tree_query .= ',(';
 				}
-				if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
-					print "$digest -> $md5\n";
-				}
-				if(delete($row->{'CITY'})) {
-					$digest = undef;
-					foreach my $column('COUNTY','STATE','COUNTRY') {
-						$digest .= $row->{$column} if($row->{$column});
-					}
-					if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
-						print "$digest -> $md5\n";
-					}
-					if(delete($row->{'COUNTY'})) {
-						$digest = undef;
-						foreach my $column('STATE','COUNTRY') {
-							$digest .= $row->{$column} if($row->{$column});
-						}
-						if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
-							print "$digest -> $md5\n";
-						}
-						$digest = $row->{'COUNTRY'};
-						if(my $md5 = hash(0, Encode::encode_utf8($digest))) {
-							print "$digest -> $md5\n";
-						}
-					}
-				}
+				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					",'$md5','$parent_md5')";
 			}
 		}
+		if($row->{'NUMBER'}) {
+			$digest = undef;
+			foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+				$digest .= $row->{$column} if($row->{$column});
+			}
+			$parent_md5 = $md5;
+			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			if(!defined($state_parent_md5s{$md5})) {
+				$state_parent_md5s{$md5} = $digest;
+				if(!defined($tree_query)) {
+					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				} else {
+					$tree_query .= ',(';
+				}
+				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					",'$md5','$parent_md5')";
+			}
+		}
+
+		# TODO: add NAME field
 	}
 
 	if($query) {
@@ -1543,8 +1606,21 @@ sub flush_queue
 			print Data::Dumper->new([\%queued_commits])->Dump();
 			die $_;
 		};
-		%queued_commits = ();
 	}
+	# if($tree_query) {
+	if(0) {
+		# print "$tree_query\n";
+		# $| = 1;
+		# print '.';
+		# $| = 0;
+		try {
+			$dbh->do($tree_query);
+		} catch {
+			print Data::Dumper->new([\%queued_commits])->Dump();
+			die $_;
+		};
+	}
+	%queued_commits = ();
 }
 
 sub hash
