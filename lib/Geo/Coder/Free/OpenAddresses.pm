@@ -158,28 +158,32 @@ sub geocode {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
 						$l->{'confidence'} = 0.8;
 						$l->{'location'} = "$addr, USA";
-						$l->{'country'} = 'USA';
+						$l->{'country'} = 'US';
 						push @rc, $l;
 					}
 				} elsif($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
 						$l->{'confidence'} = 0.8;
 						$l->{'location'} = "$addr, Canada";
-						$l->{'country'} = 'Canada';
+						$l->{'country'} = 'CA';
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
 						$l->{'confidence'} = 0.6;
 						$l->{'location'} = "$addr, USA";
-						$l->{'country'} = 'USA';
+						$l->{'city'} = uc($1);
+						$l->{'state'} = uc($3);
+						$l->{'country'} = 'US';
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
 						$l->{'confidence'} = 0.6;
 						$l->{'location'} = "$addr, Canada";
-						$l->{'country'} = 'Canada';
+						$l->{'city'} = uc($1);
+						$l->{'state'} = uc($3);
+						$l->{'country'} = 'CA';
 						push @rc, $l;
 					}
 				}
@@ -235,21 +239,21 @@ sub geocode {
 			my $l = $1;
 			$l =~ s/\s+//g;
 			if(my $rc = $self->_get($l, 'US')) {
-				$rc->{'country'} = 'USA';
+				$rc->{'country'} = 'US';
 				return $rc;
 			}
 		} elsif($location =~ /^(.+?)\s+(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) {
 			my $l = $1;
 			$l =~ s/\s+//g;
 			if(my $rc = $self->_get($l, 'GB')) {
-				$rc->{'country'} = 'Great Britain';
+				$rc->{'country'} = 'GB';
 				return $rc;
 			}
 		} elsif($location =~ /^(.+?)\s+Canada$/i) {
 			my $l = $1;
 			$l =~ s/\s+//g;
 			if(my $rc = $self->_get($l, 'CA')) {
-				$rc->{'country'} = 'Canada';
+				$rc->{'country'} = 'CA';
 				return $rc;
 			}
 		}
@@ -347,12 +351,12 @@ sub geocode {
 					my $rc;
 					if($href->{'number'}) {
 						if($rc = $self->_get($href->{'number'}, "$street$city$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 					}
 					if($rc = $self->_get("$street$city$state", 'US')) {
-						$rc->{'country'} = 'USA';
+						$rc->{'country'} = 'US';
 						return $rc;
 					}
 				}
@@ -372,7 +376,7 @@ sub geocode {
 			if(length($state) == 2) {
 				if(my $rc = $self->_get($addr[0], $addr[1], $addr[2], $state, 'US')) {
 					# ::diag(Data::Dumper->new([$rc])->Dump());
-					$rc->{'country'} = 'USA';
+					$rc->{'country'} = 'US';
 					return $rc;
 				}
 			}
@@ -405,13 +409,13 @@ sub geocode {
 					if($city =~ /^(.+)\sCOUNTY$/) {
 						# Simple case looking up a county in a state in the US
 						if($rc = $self->_get("$1$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 					} else {
 						# Simple case looking up a city in a state in the US
 						if($rc = $self->_get("$city$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 					}
@@ -446,12 +450,12 @@ sub geocode {
 						$args{street} = uc($street);
 						if($href->{'number'}) {
 							if($rc = $self->_get($href->{'number'}, "$street$city$state", 'US')) {
-								$rc->{'country'} = 'USA';
+								$rc->{'country'} = 'US';
 								return $rc;
 							}
 						}
 						if($rc = $self->_get("$street$city$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 					}
@@ -495,17 +499,17 @@ sub geocode {
 										}
 									}
 									if($rc = $self->_get($href->{'number'}, "$street$city$state", 'US')) {
-										$rc->{'country'} = 'USA';
+										$rc->{'country'} = 'US';
 										return $rc;
 									}
 									if($county) {
 										if($rc = $self->_get("$street$city$county$state", 'US')) {
-											$rc->{'country'} = 'USA';
+											$rc->{'country'} = 'US';
 											return $rc;
 										}
 									}
 									if($rc = $self->_get("$street$city$state", 'US')) {
-										$rc->{'country'} = 'USA';
+										$rc->{'country'} = 'US';
 										return $rc;
 									}
 								}
@@ -522,19 +526,19 @@ sub geocode {
 							$second = "$1$2";
 						}
 						if($rc = $self->_get("$first$second$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 						# Perhaps it's a city in a county?
 						# Silver Spring, Montgomery County, MD, USA
 						$second =~ s/\s+COUNTY$//;
 						if($rc = $self->_get("$first$second$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 						# Not all the database has the county
 						if($rc = $self->_get("$first$state", 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 						# Brute force last ditch approach
@@ -542,12 +546,12 @@ sub geocode {
 						$copy =~ s/,\s+//g;
 						$copy =~ s/\s*USA$//;
 						if($rc = $self->_get($copy, 'US')) {
-							$rc->{'country'} = 'USA';
+							$rc->{'country'} = 'US';
 							return $rc;
 						}
 						if($copy =~ s/(\d+)\s+/$1/) {
 							if($rc = $self->_get($copy, 'US')) {
-								$rc->{'country'} = 'USA';
+								$rc->{'country'} = 'US';
 								return $rc;
 							}
 						}
@@ -565,7 +569,7 @@ sub geocode {
 					# Simple case looking up a city in a state in Canada
 					$city = uc($city);
 					if($rc = $self->_get("$city$state", 'CA')) {
-						$rc->{'country'} = 'Canada';
+						$rc->{'country'} = 'CA';
 						return $rc;
 					}
 				# } elsif(my $href = Geo::StreetAddress::Canada->parse_address("$city, $state")) {
@@ -623,12 +627,12 @@ sub geocode {
 						$copy =~ s/,\s+//g;
 						$copy =~ s/\s*Canada$//i;
 						if($rc = $self->_get($copy, 'CA')) {
-							$rc->{'country'} = 'Canada';
+							$rc->{'country'} = 'CA';
 							return $rc;
 						}
 						if($copy =~ s/(\d+)\s+/$1/) {
 							if($rc = $self->_get($copy, 'CA')) {
-								$rc->{'country'} = 'Canada';
+								$rc->{'country'} = 'CA';
 								return $rc;
 							}
 						}
@@ -762,7 +766,7 @@ sub geocode {
 				$addr{'road'} = $street;
 			}
 			if($addr{'country'} =~ /Canada/i) {
-				$addr{'country'} = 'CA';
+				$addr{'country'} = 'Canada';
 				if(length($addr{'state'}) > 2) {
 					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
 						$addr{'state'} = $twoletterstate;

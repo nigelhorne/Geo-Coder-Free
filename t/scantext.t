@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 26;
+use Test::Most tests => 30;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -60,38 +60,43 @@ SCANTEXT: {
 			my %found;
 			# diag(Data::Dumper->new([\@locations])->Dump());
 			foreach $location(@locations) {
-				# my $city;
-				# next if(!defined($city = $location->{'city'}));
+				my $city;
+				# diag(__LINE__, $location->{'location'});
+				next if(!defined($city = $location->{'city'}));
 				# diag("$city: ", $location->{'confidence'});
-				# if(defined($location->{'state'}) && $location->{'state'} ne 'IN') {
-					# next;
-				# }
-				# if($location->{'country'} ne 'US') {
-					# next;
-				# }
-				# diag('>>>>>>', $location->{'location'});
+				if(defined($location->{'state'}) && ($location->{'state'} ne 'IN')) {
+					next;
+				}
+				if($location->{'country'} ne 'US') {
+					next;
+				}
 
-				if($location->{'location'} =~ /^Greenwood, IN/i) {
+				if($city eq 'GREENWOOD') {
+				# if($location->{'location'} =~ /^Greenwood, IN/i) {
 					if(!$found{'GREENWOOD'}) {
 						$found{'GREENWOOD'}++;
 						delta_within($location->{latitude}, 39.6, 1e-1);
 						delta_within($location->{longitude}, -86.2, 1e-1);
 						ok(defined($location->{'confidence'}));
+						ok($location->{'state'} eq 'IN');
 					}
-				# } elsif($city eq 'INDIANAPOLIS') {
-				} elsif($location->{'location'} =~ /^Indianapolis,/i) {
+				} elsif($city eq 'INDIANAPOLIS') {
+				# } elsif($location->{'location'} =~ /^Indianapolis,/i) {
 					if(!$found{'INDIANAPOLIS'}) {
 						$found{'INDIANAPOLIS'}++;
 						delta_within($location->{latitude}, 39.8, 1e-1);
 						delta_within($location->{longitude}, -86.2, 1e-1);
 						ok(defined($location->{'confidence'}));
+						ok($location->{'state'} eq 'IN');
 					}
-				# } elsif($city eq 'NOBLESVILLE') {
-				} elsif($location->{'location'} =~ /^Noblesville,/i) {
+				} elsif($city eq 'NOBLESVILLE') {
+				# } elsif($location->{'location'} =~ /^Noblesville,/i) {
 					if(!$found{'NOBLESVILLE'}) {
 						$found{'NOBLESVILLE'}++;
 						delta_within($location->{latitude}, 40.1, 1e-1);
 						delta_within($location->{longitude}, -86.1, 1e-1);
+						ok(defined($location->{'confidence'}));
+						ok($location->{'state'} eq 'IN');
 					}
 				}
 			}
@@ -100,7 +105,7 @@ SCANTEXT: {
 			ok($found{'INDIANAPOLIS'});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 25);
+			skip('Author tests not required for installation', 29);
 		}
 	}
 }
