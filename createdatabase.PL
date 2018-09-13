@@ -108,32 +108,32 @@ my %known_places = (	# Places I've checked with my GPS
 			'LAT' => 51.34320725,
 			'LON' => 1.31680853,
 			'NAME' => 'HOLIDAY INN EXPRESS',
-			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER-IN-THANET',
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.33995174,
 			'LON' => 1.31570211,
 			'NUMBER' => 106,
-			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER-IN-THANET',
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.34015944,
 			'LON' => 1.31580976,
 			'NUMBER' => 114,
-			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER-IN-THANET',
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.33090893,
 			'LON' => 1.31559716,
 			'NAME' => 'ST MARY THE VIRGIN CHURCH',
-			'STREET' => 'CHURCH ST',
-			'CITY' => 'MINSTER-IN-THANET',
+			'STREET' => 'CHURCH ST, MINSTER',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -141,8 +141,8 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => 1.31609075,
 			'NAME' => 'MINSTER CEMETERY',
 			'NUMBER' => 115,
-			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER-IN-THANET',
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -168,7 +168,7 @@ my %known_places = (	# Places I've checked with my GPS
 		}
 	], 'us/md/statewide.csv' => [
 		{
-			# NCBI
+			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
 			'LON' => -77.09943963,
 			'STREET' => 'MEDLARS DR',
@@ -186,7 +186,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 		}, {
-			'NAME' => 'BOLD BITE',
+			# 'NAME' => 'BOLD BITE',
 			'LAT' => 38.98939358,
 			'LON' => -77.09819543,
 			'STREET' => 'NORFOLK AVE',
