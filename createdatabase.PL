@@ -638,6 +638,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					$city = $properties->{'sg:city'};
 					# Don't trust sg:city to be correct
+					# You can look up a place by https://spelunker.whosonfirst.org/id/$locality_id
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
 						if(my $w = get_wof($wof_global_dbh, $locality)) {
