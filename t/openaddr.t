@@ -228,6 +228,12 @@ OPENADDR: {
 				$location = $geo_coder->geocode(location => 'Whitley, Indiana, USA');
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
+
+				# RT#127140
+				# $location = $geo_coder->geocode({ location => '131 107th St, Manhattan, New York, New York, USA' });
+				# ok(defined($location));
+				# ok(ref($location) eq 'HASH');
+
 			} else {
 				diag('Author tests not required for installation');
 				skip('Author tests not required for installation', 97);

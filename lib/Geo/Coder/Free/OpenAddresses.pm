@@ -271,6 +271,7 @@ sub geocode {
 	if($ap) {
 		if(my $error = $ap->parse($location)) {
 			# Carp::croak($ap->report());
+			# ::diag('Address parse failed: ', $ap->report());
 		} else {
 			my %c = $ap->components();
 			# ::diag(Data::Dumper->new([\%c])->Dump());

@@ -140,7 +140,8 @@ WriteMakefile(
 			web => 'https://github.com/nigelhorne/Geo-Coder-Free',
 			},
 			bugtracker => {
-				web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
+				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
+				web => 'https://github.com/nigelhorne/Geo-Coder-Free/issues',
 				mailto => 'bug-Geo-Coder-Free@rt.cpan.org'
 			}
 		},
