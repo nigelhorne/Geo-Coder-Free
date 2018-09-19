@@ -251,19 +251,19 @@ There is a sample website at L<https://geocode.nigelhorne.com/>.  The source cod
 
 =head1 BUGS
 
-Lots of lookups fail at the moment.
+Some lookups fail at the moments, if you find one please file a bug report.
 
 The MaxMind data only contains cities.
-The openaddresses data doesn't cover the globe.
+The OpenAddresses data doesn't cover the globe.
 
 Can't parse and handle "London, England".
 
-See L<Geo::Coder::Free::OpenAddresses> for instructions creating its SQLite database from
-L<http://results.openaddresses.io/>.
-
 =head1 SEE ALSO
 
-VWF, openaddresses, MaxMind and geonames.
+VWF, OpenAddresses, MaxMind and geonames.
+
+See L<Geo::Coder::Free::OpenAddresses> for instructions creating the SQLite database from
+L<http://results.openaddresses.io/>.
 
 =head1 LICENSE AND COPYRIGHT
 
