@@ -113,7 +113,7 @@ WriteMakefile(
 		'Storable' => 0,
 		'Text::CSV' => 0,
 	},
-	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz' },
 	clean		=> { FILES => 'Geo-Coder-Free-*' },
 	# META_ADD => {
 		# provides => {
@@ -135,9 +135,9 @@ WriteMakefile(
 		'meta-spec' => { version => 2 },
 		resources => {
 			repository => {
-			type => 'git',
-			url => 'git://github.com/nigelhorne/Geo-Coder-Free.git',
-			web => 'https://github.com/nigelhorne/Geo-Coder-Free',
+				type => 'git',
+				url => 'git://github.com/nigelhorne/Geo-Coder-Free.git',
+				web => 'https://github.com/nigelhorne/Geo-Coder-Free',
 			},
 			bugtracker => {
 				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
