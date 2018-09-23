@@ -387,6 +387,18 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20011
 		}
+	], 'us/oh/statewide.csv' => [
+		{
+			'LAT' => 40.097097,
+			'LON' => -83.123745,
+			'NAME' => 'RESIDENCE INN BY MARRIOTT',
+			'NUMBER' => '6364',
+			'STREET' => 'FRANTZ RD',
+			'CITY' => 'DUBLIN',
+			'STATE' => 'OH',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 43017
+		}
 	], 'us/va/statewide.csv' => [
 		{
 			'LAT' => 44.40662476,
