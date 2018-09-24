@@ -389,6 +389,17 @@ my %known_places = (	# Places I've checked with my GPS
 		}
 	], 'us/oh/statewide.csv' => [
 		{
+			'LAT' => 39.997959,
+			'LON' => -82.881320,
+			'NAME' => 'JOHN GLENN AIRPORT',
+			'NUMBER' => 4600,
+			'ROAD' => 'INTERNATIONAL GATEWAY',
+			'CITY' => 'COLUMBUS',
+			'COUNTY' => 'FRANKLIN',
+			'STATE' => 'OH',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 43219,
+		}, {
 			'LAT' => 40.097097,
 			'LON' => -83.123745,
 			'NAME' => 'RESIDENCE INN BY MARRIOTT',
