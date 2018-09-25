@@ -24,6 +24,7 @@ use Geo::StreetAddress::US;
 use File::Basename;
 use File::Spec;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
+use Locale::SubCountry;
 use Text::CSV;
 use CHI;
 use CHI::Driver::RawMemory;
@@ -653,6 +654,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						# die Data::Dumper->new([$properties])->Dump();
 					# }
 					next unless($state);
+				}
+				if(my $sc = Locale::SubCountry->new($country)) {
+					if(my $code = $sc->code($state)) {
+						$state = uc($code);
+					}
 				}
 				my $city;
 				if(($placetype eq 'locality') || ($placetype eq 'neighbourhood')) {
