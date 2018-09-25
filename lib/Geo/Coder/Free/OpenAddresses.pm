@@ -816,6 +816,7 @@ sub _search {
 	}
 }
 
+# State must be the abbreviated form
 sub _get {
 	my ($self, @location) = @_;
 

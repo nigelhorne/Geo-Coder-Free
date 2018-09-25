@@ -655,9 +655,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					# }
 					next unless($state);
 				}
-				if(my $sc = Locale::SubCountry->new($country)) {
+				my $full_country = $country;
+				if(length($country) == 2) {
+					$full_country = {
+						'AU' => 'Australia',
+						'CA' => 'Canada',
+						'GB' => 'United Kingdom',
+						'US' => 'United States',
+					}->{$country};
+				}
+				if(my $sc = Locale::SubCountry->new($full_country)) {
 					if(my $code = $sc->code($state)) {
-						$state = uc($code);
+						$code = uc($code);
+						$state = $code if($code ne 'UNKNOWN');
 					}
 				}
 				my $city;
@@ -1684,6 +1694,7 @@ sub uniq {
 	grep !$seen{$_}++, @_;
 }
 
+# State must be the abbreviated form
 sub city_key {
 	my ($city, $county, $state, $country) = @_;
 
@@ -1721,7 +1732,7 @@ sub get_wof {
 	my $data = $sth->fetchrow_arrayref();
 	return if(!defined($data));
 	# print Data::Dumper->new([@{$data}])->Dump();
-	# print $data, "\n", 'x' x 70, "\n";
+	# print "\n", 'x' x 70, "\n";
 	$data = JSON->new()->utf8()->decode(@{$data});
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
@@ -1729,7 +1740,7 @@ sub get_wof {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = $properties->{'wof:country'};
 			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
-				return $cache->set($id, $properties->{'wof:abbreviation'} || $properties->{'wof:name'}, '1 minute');
+				return $cache->set($id, $properties->{'wof:abbreviation'} || $properties->{'wof:shortcode'} || $properties->{'wof:name'}, '1 minute');
 			}
 		}
 		return $cache->set($id, $properties->{'wof:name'}, '1 minute');
