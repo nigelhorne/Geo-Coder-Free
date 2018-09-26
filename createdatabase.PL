@@ -630,14 +630,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 					next if(!$found);
 				}
-				my $state;
 				# print $placetype, "\n";
+				my $state;
 				if($placetype eq 'region') {
+					# print "\t$country\n";
 					if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
-						$state = $properties->{'wof:abbreviation'} || $properties->{'wof:name'};
+						$state = $properties->{'wof:abbreviation'} || $properties->{'wof:shortcode'} || $properties->{'wof:name'};
 					} else {
 						$state = $properties->{'wof:name'};
 					}
+					# print "\t$state\n";
 				} else {
 					$state = $properties->{'sg:province'};
 				}
@@ -655,19 +657,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					# }
 					next unless($state);
 				}
-				my $full_country = $country;
-				if(length($country) == 2) {
-					$full_country = {
-						'AU' => 'Australia',
-						'CA' => 'Canada',
-						'GB' => 'United Kingdom',
-						'US' => 'United States',
-					}->{$country};
-				}
-				if(my $sc = Locale::SubCountry->new($full_country)) {
-					if(my $code = $sc->code($state)) {
-						$code = uc($code);
-						$state = $code if($code ne 'UNKNOWN');
+				if($max_state_lengths{$country} && (length($state) > $max_state_lengths{$country})) {
+					my $full_country = $country;
+					if(length($country) == 2) {
+						$full_country = {
+							'AU' => 'Australia',
+							'CA' => 'Canada',
+							'GB' => 'United Kingdom',
+							'US' => 'United States',
+						}->{$country};
+					}
+					if(my $sc = Locale::SubCountry->new($full_country)) {
+						# die Data::Dumper->new([$properties])->Dump();
+						if(my $code = $sc->code($state)) {
+							$code = uc($code);
+							$state = $code if($code ne 'UNKNOWN');
+						}
 					}
 				}
 				my $city;
