@@ -616,6 +616,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$data = $j->decode($data);
 				my $properties = $data->{'properties'};
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
+				next if(!$properties->{'mz:is_current'});
 				my $placetype = $properties->{'wof:placetype'};
 				next if($placetype eq 'country');
 				my $country = $properties->{'wof:country'};
@@ -845,6 +846,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$data = $j->decode($data);
 						my $properties = $data->{'properties'};
 						next if(scalar(@{$properties->{'wof:superseded_by'}}));
+						next if(!$properties->{'mz:is_current'});
 						next if($properties->{'wof:country'} ne uc($country));
 						my $city = $properties->{'sg:city'};
 						# Don't trust sg:city to be correct
@@ -983,6 +985,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 					my $properties = $data->{'properties'};
 					next if(scalar(@{$properties->{'wof:superseded_by'}}));
+					next if(!$properties->{'mz:is_current'});
 					next if($properties->{'wof:country'} ne uc($country));
 					my $street = $properties->{'addr:street'};
 					next if(!defined($street));
@@ -1741,6 +1744,7 @@ sub get_wof {
 	$data = JSON->new()->utf8()->decode(@{$data});
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
+	return if(!$properties->{'mz:is_current'});
 	# if($properties->{'wof:name'}) {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = $properties->{'wof:country'};
