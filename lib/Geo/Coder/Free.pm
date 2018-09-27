@@ -5,6 +5,7 @@ use warnings;
 
 use lib '.';
 
+use Config::Auto;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use List::MoreUtils;
@@ -70,8 +71,14 @@ sub new {
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
 
+	my $mapper = Config::Auto->new(source => <DATA>)->parse();
+	foreach my $entry(keys %{$mapper}) {
+		$mapper->{$entry} = join(', ', @{$mapper->{$entry}});
+	}
+
 	my $rc = {
-		maxmind => Geo::Coder::Free::MaxMind->new(%param)
+		maxmind => Geo::Coder::Free::MaxMind->new(%param),
+		mapper => $mapper
 	};
 
 	if((!$param{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
@@ -150,6 +157,18 @@ sub geocode {
 			return @rc if($rc[0]);
 		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
+		}
+		if(my $mapper = $self->{'mapper'}) {
+			# Try some alternatives, would be nice to read this from somewhere on line
+			my $location = $param{'location'};
+			foreach my $left(keys %{$mapper}) {
+				if($location =~ $left) {
+					# ::diag($left, '=>', $mapper->{$left});
+					$location =~ s/$left/$mapper->{$left}/;
+					$param{'location'} = $location;
+					return $self->geocode(\%param);
+				}
+			}
 		}
 	}
 
@@ -282,3 +301,8 @@ See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.m
 =cut
 
 1;
+
+# Common mappings allowing looser lookups
+# Would be nice to read this from somewhere on-line
+__DATA__
+St Lawrence, Thanet, Kent = Ramsgate, Kent
