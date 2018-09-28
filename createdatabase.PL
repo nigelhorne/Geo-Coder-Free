@@ -988,9 +988,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					next if(!$properties->{'mz:is_current'});
 					next if($properties->{'wof:country'} ne uc($country));
 					my $street = $properties->{'addr:street'};
-					next if(!defined($street));
+					# next if(!defined($street));
 					# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
-					$street =~ s/;.+$//;
+					if($street) {
+						$street =~ s/;.+$//;
+						$street = uc($street);
+					}
 					my $city = $properties->{'sg:city'};
 					# Don't trust sg:city to be correct
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
@@ -1030,7 +1033,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						'LON' => $properties->{'geom:longitude'},
 						'NAME' => uc($properties->{'wof:name'}),
 						'NUMBER' => uc($properties->{'addr:housenumber'}),
-						'STREET' => uc($street),
+						'STREET' => $street,
 						'CITY' => $city,
 						'STATE' => $state,
 						'COUNTRY' => $country,
@@ -1718,6 +1721,7 @@ sub city_key {
 	return "$city,$county,$state,$country";
 }
 
+# Given a Whosonfirst ID, return the matching geojson. Cache lookups
 sub get_wof {
 	my ($dbh, $id) = @_;
 

@@ -100,6 +100,10 @@ WHOSONFIRST: {
 				delta_within($location->{latitude}, 51.34, 1e-2);
 				delta_within($location->{longitude}, 1.40, 1e-2);
 				# diag(Data::Dumper->new([$location])->Dump());
+
+				# $location = $geocoder->geocode('Wickhambreaux, Kent, England');
+				# ok(defined($location));
+				# ok(ref($location) eq 'HASH');
 			} else {
 				diag('Author tests not required for installation');
 				skip('Author tests not required for installation', 40);
