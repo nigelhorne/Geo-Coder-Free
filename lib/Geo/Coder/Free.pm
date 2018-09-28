@@ -160,7 +160,7 @@ sub geocode {
 		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
 		}
-		if(my $alternatives = $self->{'alternatives'}) {
+		if((!$param{'scantext'}) && (my $alternatives = $self->{'alternatives'})) {
 			# Try some alternatives, would be nice to read this from somewhere on line
 			my $location = $param{'location'};
 			foreach my $left(keys %{$alternatives}) {
