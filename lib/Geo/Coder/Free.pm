@@ -71,14 +71,16 @@ sub new {
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
 
-	my $mapper = Config::Auto->new(source => <DATA>)->parse();
-	foreach my $entry(keys %{$mapper}) {
-		$mapper->{$entry} = join(', ', @{$mapper->{$entry}});
+	my $pos = tell(DATA);
+	my $alternatives = Config::Auto->new(source => <DATA>)->parse();
+	seek(DATA, $pos, 0);	# Go back to the start so that subsequent objects also read the table
+	foreach my $entry(keys %{$alternatives}) {
+		$alternatives->{$entry} = join(', ', @{$alternatives->{$entry}});
 	}
 
 	my $rc = {
 		maxmind => Geo::Coder::Free::MaxMind->new(%param),
-		mapper => $mapper
+		alternatives => $alternatives
 	};
 
 	if((!$param{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
@@ -158,13 +160,13 @@ sub geocode {
 		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
 		}
-		if(my $mapper = $self->{'mapper'}) {
+		if(my $alternatives = $self->{'alternatives'}) {
 			# Try some alternatives, would be nice to read this from somewhere on line
 			my $location = $param{'location'};
-			foreach my $left(keys %{$mapper}) {
+			foreach my $left(keys %{$alternatives}) {
 				if($location =~ $left) {
-					# ::diag($left, '=>', $mapper->{$left});
-					$location =~ s/$left/$mapper->{$left}/;
+					# ::diag($left, '=>', $alternatives->{$left});
+					$location =~ s/$left/$alternatives->{$left}/;
 					$param{'location'} = $location;
 					return $self->geocode(\%param);
 				}
