@@ -168,7 +168,9 @@ sub geocode {
 					# ::diag($left, '=>', $alternatives->{$left});
 					$location =~ s/$left/$alternatives->{$left}/;
 					$param{'location'} = $location;
-					return $self->geocode(\%param);
+					if(my $rc = $self->geocode(\%param)) {
+						return $rc;
+					}
 				}
 			}
 		}
