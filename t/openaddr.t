@@ -255,8 +255,8 @@ OPENADDR: {
 				$geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => 'not/there' ]);
 			});
 		} else {
-			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 99);
+			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 99);
 		}
 	}
 }
