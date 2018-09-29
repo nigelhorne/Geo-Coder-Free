@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 41;
+use Test::Most tests => 45;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -99,18 +99,20 @@ WHOSONFIRST: {
 				ok(ref($location) eq 'HASH');
 				delta_within($location->{latitude}, 51.34, 1e-2);
 				delta_within($location->{longitude}, 1.40, 1e-2);
-				# diag(Data::Dumper->new([$location])->Dump());
 
-				# $location = $geocoder->geocode('Wickhambreaux, Kent, England');
-				# ok(defined($location));
-				# ok(ref($location) eq 'HASH');
+				$location = $geocoder->geocode('Wickhambreaux, Kent, England');
+				ok(defined($location));
+				ok(ref($location) eq 'HASH');
+				delta_within($location->{latitude}, 51.28, 1e-2);
+				delta_within($location->{longitude}, 1.18, 1e-2);
+				# diag(Data::Dumper->new([$location])->Dump());
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 40);
+				skip('Author tests not required for installation', 44);
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
-			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 40;
+			skip 'WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 44;
 		}
 	}
 }
