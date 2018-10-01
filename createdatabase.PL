@@ -1032,13 +1032,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						'LAT' => $properties->{'geom:latitude'},
 						'LON' => $properties->{'geom:longitude'},
 						'NAME' => uc($properties->{'wof:name'}),
-						'NUMBER' => uc($properties->{'addr:housenumber'}),
 						'STREET' => $street,
 						'CITY' => $city,
 						'STATE' => $state,
 						'COUNTRY' => $country,
 						'POSTCODE' => $postcode,
 					};
+					if(my $number = $properties->{'addr:housenumber'}) {
+						$row->{'NUMBER'} = uc($number);
+					}
 					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
 					if($inserts >= MAX_INSERT_COUNT) {
 						flush_queue($dbh);
