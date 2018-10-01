@@ -217,13 +217,8 @@ OPENADDR: {
 				delta_within($location->{longitude}, -123.36, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
-				if($ENV{'WHOSONFIRST_HOME'}) {
-					delta_within($location->{latitude}, -27.07, 1e-2);
-					delta_within($location->{longitude}, 152.95, 1e-2);
-				} else {
-					delta_within($location->{latitude}, -27.09, 1e-2);
-					delta_within($location->{longitude}, 152.95, 1e-2);
-				}
+				delta_within($location->{latitude}, -27.09, 1e-2);
+				delta_within($location->{longitude}, 152.95, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Whitley, Indiana, USA');
 				ok(defined($location));
