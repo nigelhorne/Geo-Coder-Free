@@ -615,10 +615,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				next if(!defined($data));
 				$data = $j->decode($data);
 				my $properties = $data->{'properties'};
+				# print "processing ", $properties->{'wof:id'}, "\n";
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
 				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
 				my $placetype = $properties->{'wof:placetype'};
 				next if($placetype eq 'country');
+				next if($placetype eq 'marketarea');
 				my $country = $properties->{'wof:country'};
 				next if(!defined($country));
 				if(!$openaddresses_supported_countries{lc($country)}) {
@@ -644,12 +646,18 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					$state = $properties->{'sg:province'};
 				}
+				if((!defined($state)) && ($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
+					$state = get_wof($wof_global_dbh, $parent);
+				}
 				if(!defined($state)) {
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
 						next if($region < 0);
 						$state = get_wof($wof_global_dbh, $region);
 					} else {
+						# print "\tcan't determine the state\n",
+							# Data::Dumper->new([$properties])->Dump();
+						# print "\tcan't determine the state\n";
 						next;
 					}
 					# FIXME: the information will be in there somewhere
@@ -677,7 +685,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 				}
 				my $city;
-				if(($placetype eq 'locality') || ($placetype eq 'neighbourhood')) {
+				if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 					$city = $properties->{'wof:name'};
 					die if(!defined($city));
 				} else {
@@ -691,12 +699,25 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						}
 					}
 				}
-				# print Data::Dumper->new([$properties])->Dump();
-				# if($city) {
-					# print "$country, $state, $city\n";
-				# } else {
-					# print "$country, $state\n";
-				# }
+				if($placetype eq 'county') {
+					# TODO
+					# print "\tcounty: ", $properties->{'wof:name'}, ", $state, $country\n";
+						# Data::Dumper->new([$properties])->Dump();
+					my $row = {
+						'LAT' => $properties->{'geom:latitude'},
+						'LON' => $properties->{'geom:longitude'},
+						'COUNTY' => uc($properties->{'wof:name'}),
+						'STATE' => uc($state),
+						'COUNTRY' => uc($country),
+					};
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+					next;
+				}
+				if($city) {
+					# print "\t$country, $state, $city\n";
+				} else {
+					# print "\t$country, $state\n";
+				}
 				if(!defined($city)) {
 					my $address = $properties->{'addr:full'};
 					next if(!defined($address));
@@ -718,6 +739,23 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $number = $properties->{'addr:number'};
 				if($number) {
 					$number = uc($number);
+				}
+				# print "\tqueuing ", $properties->{'wof:id'}, ': ', $properties->{'wof:name'}, ", $city, $state, $country\n";
+				if(my $name = $properties->{'wof:name'}) {
+					if($name ne $city) {
+						my $row = {
+							'LAT' => $properties->{'geom:latitude'},
+							'LON' => $properties->{'geom:longitude'},
+							'NAME' => uc($name),
+							'NUMBER' => $number,
+							'STREET' => $street,
+							'CITY' => uc($city),
+							'STATE' => uc($state),
+							'COUNTRY' => uc($country),
+							'POSTCODE' => $postcode,
+						};
+						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+					}
 				}
 				my $row = {
 					'LAT' => $properties->{'geom:latitude'},
@@ -1024,10 +1062,32 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if(defined($postcode) && ($postcode =~ /^W1 /)) {
 							$city = 'LONDON';
 						} else {
-							# warn Data::Dumper->new([$data])->Dump();
+							print STDERR "City not defined:\n\t",
+								Data::Dumper->new([$data])->Dump();
 							next;
 						}
 					}
+					if(!defined($state)) {
+						my $placetype = $properties->{'wof:placetype'};
+						if(($placetype eq 'venue') && scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
+							$state = get_wof($wof_global_dbh, $region);
+						}
+					}
+					$city =~ s/^CITY OF //g;
+					# Note that if import says that if city == state, set city to undef
+					if(($country eq 'GB') && ($city eq 'LONDON')) {
+						# if(defined($state) && ($state ne 'GREATER LONDON')) {
+							# warn Data::Dumper->new([$data])->Dump();
+						# }
+						$state = 'LONDON';
+					} elsif(defined($state)) {
+						if($state =~ /$city CITY/) {
+							$state = $city;
+						} elsif($state =~ /CITY OF $city/) {
+							$state = $city;
+						}
+					}
+					# print $properties->{'wof:id'}, ': ', $properties->{'wof:name'}, ", $city, $state, $country\n";
 					my $row = {
 						'LAT' => $properties->{'geom:latitude'},
 						'LON' => $properties->{'geom:longitude'},
