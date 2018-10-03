@@ -296,10 +296,10 @@ The program code is released under the following licence: GPL for personal use o
 All other users (including Commercial, Charity, Educational, Government)
 must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
 
-This product includes GeoLite2 data created by MaxMind, available from
-L<https://www.maxmind.com/en/home>.
+This product uses GeoLite2 data created by MaxMind, available from
+L<https://www.maxmind.com/en/home>. See their website for licensing information.
 
-This product includes data from Who's on First.
+This product uses data from Who's on First.
 See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.md> for licensing information.
 
 =cut
