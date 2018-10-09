@@ -712,6 +712,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$code = uc($code);
 							$state = $code if($code ne 'UNKNOWN');
 						}
+					} else {
+						die "Locale::SubCountry failed on $full_country";
 					}
 				}
 				my $city;
