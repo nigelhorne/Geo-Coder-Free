@@ -106,6 +106,14 @@ my %max_state_lengths = (
 my %known_places = (	# Places I've checked with my GPS
 	'gb/kent/statewide.csv' => [
 		{
+			'LAT' => 51.37875,
+			'LON' => 1.1955,
+			'NAME' => 'RECULVER ABBEY',
+			'STREET' => 'RECULVER',
+			'CITY' => 'HERNE BAY',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
 			'LAT' => 51.34320725,
 			'LON' => 1.31680853,
 			'NAME' => 'HOLIDAY INN EXPRESS',
@@ -151,6 +159,13 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => 1.39532565,
 			'NUMBER' => 20,
 			'STREET' => 'MELBOURNE AVE',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.32711
+			'LON' => 1.406806,
+			'STREET' => 'WESTCLIFF PROMENADE',
 			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
