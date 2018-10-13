@@ -163,7 +163,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
-			'LAT' => 51.32711
+			'LAT' => 51.32711,
 			'LON' => 1.406806,
 			'STREET' => 'WESTCLIFF PROMENADE',
 			'CITY' => 'RAMSGATE',
