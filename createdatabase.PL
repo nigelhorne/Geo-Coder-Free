@@ -104,85 +104,7 @@ my %max_state_lengths = (
 );
 
 my %known_places = (	# Places I've checked with my GPS
-	'gb/kent/statewide.csv' => [
-		{
-			'LAT' => 51.37875,
-			'LON' => 1.1955,
-			'NAME' => 'RECULVER ABBEY',
-			'STREET' => 'RECULVER',
-			'CITY' => 'HERNE BAY',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.34320725,
-			'LON' => 1.31680853,
-			'NAME' => 'HOLIDAY INN EXPRESS',
-			'STREET' => 'TOTHILL ST, MINSTER',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.33995174,
-			'LON' => 1.31570211,
-			'NUMBER' => 106,
-			'STREET' => 'TOTHILL ST, MINSTER',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.34015944,
-			'LON' => 1.31580976,
-			'NUMBER' => 114,
-			'STREET' => 'TOTHILL ST, MINSTER',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.33090893,
-			'LON' => 1.31559716,
-			'NAME' => 'ST MARY THE VIRGIN CHURCH',
-			'STREET' => 'CHURCH ST, MINSTER',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.34203083,
-			'LON' => 1.31609075,
-			'NAME' => 'MINSTER CEMETERY',
-			'NUMBER' => 115,
-			'STREET' => 'TOTHILL ST, MINSTER',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.34772374,
-			'LON' => 1.39532565,
-			'NUMBER' => 20,
-			'STREET' => 'MELBOURNE AVE',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}, {
-			'LAT' => 51.32711,
-			'LON' => 1.406806,
-			'STREET' => 'WESTCLIFF PROMENADE',
-			'CITY' => 'RAMSGATE',
-			'STATE' => 'KENT',
-			'COUNTRY' => 'GB',
-		}
-	], 'gb/london/statewide.csv' => [
-		{
-			'LAT' => 51.5082675,
-			'LON' => -0.0754225,
-			'NAME' => 'TOWER OF LONDON',
-			'NUMBER' => 35,
-			'STREET' => 'TOWER HILL',
-			'CITY' => 'LONDON',
-			'STATE' => 'LONDON',
-			'COUNTRY' => 'GB',
-			# 'POSTCODE' => 20894,
-		}
-	], 'us/md/statewide.csv' => [
+	'us/md/statewide.csv' => [
 		{
 			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
@@ -468,6 +390,82 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'VA',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 22180
+		}
+	], 'other' => [
+		{
+			'LAT' => 51.37875,
+			'LON' => 1.1955,
+			'NAME' => 'RECULVER ABBEY',
+			'STREET' => 'RECULVER',
+			'CITY' => 'HERNE BAY',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.34320725,
+			'LON' => 1.31680853,
+			'NAME' => 'HOLIDAY INN EXPRESS',
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.33995174,
+			'LON' => 1.31570211,
+			'NUMBER' => 106,
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.34015944,
+			'LON' => 1.31580976,
+			'NUMBER' => 114,
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.33090893,
+			'LON' => 1.31559716,
+			'NAME' => 'ST MARY THE VIRGIN CHURCH',
+			'STREET' => 'CHURCH ST, MINSTER',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.34203083,
+			'LON' => 1.31609075,
+			'NAME' => 'MINSTER CEMETERY',
+			'NUMBER' => 115,
+			'STREET' => 'TOTHILL ST, MINSTER',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.34772374,
+			'LON' => 1.39532565,
+			'NUMBER' => 20,
+			'STREET' => 'MELBOURNE AVE',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.32711,
+			'LON' => 1.406806,
+			'STREET' => 'WESTCLIFF PROMENADE',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.5082675,
+			'LON' => -0.0754225,
+			'NAME' => 'TOWER OF LONDON',
+			'NUMBER' => 35,
+			'STREET' => 'TOWER HILL',
+			'CITY' => 'LONDON',
+			'STATE' => 'LONDON',
+			'COUNTRY' => 'GB',
+			# 'POSTCODE' => 20894,
 		}
 	]
 );
@@ -874,6 +872,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 				# Import this state's hand curated data
 				if(my $k = $known_places{$f}) {
+					print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 					foreach my $row(@{$k}) {
 						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 						if($inserts >= MAX_INSERT_COUNT) {
@@ -1030,10 +1029,21 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		%state_parent_md5s = ();
 
 		foreach my $country(@whosonfirst_only_countries) {
-			# TODO: import known_places for this country
+			# Import this country's hand curated data
+			my $inserts = 0;
+			if(my $k = $known_places{'other'}) {
+				# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
+				foreach my $row(@{$k}) {
+					$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, global => 1);
+				}
+			}
+
+			if($inserts >= MAX_INSERT_COUNT) {
+				flush_queue($dbh);
+				$inserts = 0;
+			}
 
 			# Import this country's Who's on First data
-			my $inserts = 0;
 			foreach my $wof_file (keys %whosonfirst) {
 				next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
 				my $c = lc($1);
