@@ -21,13 +21,14 @@ use Locale::US;
 use Digest::MD5;
 use Encode;
 use Geo::StreetAddress::US;
+use CHI;
+use CHI::Driver::RawMemory;
 use File::Basename;
 use File::Spec;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
+use Lingua::EN::AddressParse;
 use Locale::SubCountry;
 use Text::CSV;
-use CHI;
-use CHI::Driver::RawMemory;
 use Try::Tiny;
 
 use constant DEBUG => 0;
@@ -820,6 +821,33 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					'POSTCODE' => $postcode,
 				};
 				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+				if(my $addr_full = $properties->{'addr:full'}) {
+					my $ap;
+					if($country =~ /^England/i) {
+						$ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+					} else {
+						$ap = Lingua::EN::AddressParse->new(country => uc($country), auto_clean => 1, force_case => 1, force_post_code => 0);
+					}
+					if($ap) {
+						if(my $error = $ap->parse($addr_full)) {
+							# print STDERR 'Address parse failed: ', $ap->report(), "\n";
+						} else {
+							my %c = $ap->components();
+							$row = {
+								'LAT' => $properties->{'geom:latitude'},
+								'LON' => $properties->{'geom:longitude'},
+								'NUMBER' => $c{'property_identifier'},
+								'STREET' => uc($c{'street_name'}),
+								'CITY' => uc($c{'suburb'}),
+								'STATE' => uc($state),
+								'COUNTRY' => uc($country),
+								'POSTCODE' => uc($c{'post_code'}),
+							};
+							print(Data::Dumper->new([$row])->Dump()) if(DEBUG);
+							$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+						}
+					}
+				}
 				if($inserts >= MAX_INSERT_COUNT) {
 					flush_queue($dbh);
 					$inserts = 0;
@@ -992,6 +1020,33 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							'POSTCODE' => $postcode,
 						};
 						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
+						if(my $addr_full = $properties->{'addr:full'}) {
+							my $ap;
+							if($country =~ /^England/i) {
+								$ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+							} else {
+								$ap = Lingua::EN::AddressParse->new(country => uc($country), auto_clean => 1, force_case => 1, force_post_code => 0);
+							}
+							if($ap) {
+								if(my $error = $ap->parse($addr_full)) {
+									# print STDERR 'Address parse failed: ', $ap->report(), "\n";
+								} else {
+									my %c = $ap->components();
+									$row = {
+										'LAT' => $properties->{'geom:latitude'},
+										'LON' => $properties->{'geom:longitude'},
+										'NUMBER' => $c{'property_identifier'},
+										'STREET' => uc($c{'street_name'}),
+										'CITY' => uc($c{'suburb'}),
+										'STATE' => uc($state),
+										'COUNTRY' => uc($country),
+										'POSTCODE' => uc($c{'post_code'}),
+									};
+									print(Data::Dumper->new([$row])->Dump()) if(DEBUG);
+									$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+								}
+							}
+						}
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh);
 							$inserts = 0;
@@ -1165,6 +1220,33 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$row->{'NUMBER'} = uc($number);
 					}
 					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
+					if(my $addr_full = $properties->{'addr:full'}) {
+						my $ap;
+						if($country =~ /^England/i) {
+							$ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+						} else {
+							$ap = Lingua::EN::AddressParse->new(country => uc($country), auto_clean => 1, force_case => 1, force_post_code => 0);
+						}
+						if($ap) {
+							if(my $error = $ap->parse($addr_full)) {
+								# print STDERR 'Address parse failed: ', $ap->report(), "\n";
+							} else {
+								my %c = $ap->components();
+								$row = {
+									'LAT' => $properties->{'geom:latitude'},
+									'LON' => $properties->{'geom:longitude'},
+									'NUMBER' => $c{'property_identifier'},
+									'STREET' => uc($c{'street_name'}),
+									'CITY' => uc($c{'suburb'}),
+									'STATE' => uc($state),
+									'COUNTRY' => uc($country),
+									'POSTCODE' => uc($c{'post_code'}),
+								};
+								print(Data::Dumper->new([$row])->Dump());
+								$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+							}
+						}
+					}
 					if($inserts >= MAX_INSERT_COUNT) {
 						flush_queue($dbh);
 						$inserts = 0;
