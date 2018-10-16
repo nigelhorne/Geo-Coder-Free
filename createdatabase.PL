@@ -30,6 +30,8 @@ use CHI;
 use CHI::Driver::RawMemory;
 use Try::Tiny;
 
+use constant DEBUG => 0;
+
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 
 my %zipcodes = (
@@ -689,8 +691,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					$state = $properties->{'sg:province'};
 				}
-				if((!defined($state)) && ($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
-					$state = get_wof($wof_global_dbh, $parent);
+				if((!defined($state)) && ($placetype eq 'borough') && (my $region = $properties->{'wof:region_id'})) {
+					# FIXME:  This is probably a dup of the next if clause
+					$state = get_wof($wof_global_dbh, $region);
 				}
 				if(!defined($state)) {
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
@@ -732,7 +735,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				my $city;
 				if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 					$city = $properties->{'wof:name'};
-					die if(!defined($city));
+					if(($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
+						$city = "$city, " . get_wof($wof_global_dbh, $parent);
+					}
+					die "Can't determine the city" if(!defined($city));
 				} else {
 					$city = $properties->{'sg:city'};
 					# Don't trust sg:city to be correct
@@ -872,7 +878,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 				# Import this state's hand curated data
 				if(my $k = $known_places{$f}) {
-					print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
+					# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 					foreach my $row(@{$k}) {
 						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 						if($inserts >= MAX_INSERT_COUNT) {
@@ -1342,6 +1348,23 @@ sub import {
 			die $file;
 		}
 	}
+	my $street = $row->{'STREET'};
+	if($street && ($city =~ /(.+),\s*(.+)/)) {
+		# For example the city could be "North Side, Chicago", which comes from the case when a borough record
+		# has been added.  Let's allow searches on the borough or the city alone
+		my $borough = $1;
+		my $city_name = $2;
+		print "Break up $city\n\tstreet = $street\n\tborough = $borough\n\tcity_name = $city_name\n" if(DEBUG);
+		if($borough ne $street) {
+			my %columns = ( %{$param{'row'}}, 'CITY' => $borough );
+			print Data::Dumper->new([\%columns])->Dump() if(DEBUG);
+			$inserts += insert($dbh, $global, \%columns);
+			$columns{'CITY'} = $city_name;
+			print Data::Dumper->new([\%columns])->Dump() if(DEBUG);
+			$inserts += insert($dbh, $global, \%columns);
+			print "Done\n" if(DEBUG);
+		}
+	}
 	$city =~ s/\.csv$//;
 	$city =~ s/[_,\-\.]/ /g;
 	$city = uc($city);
@@ -1354,7 +1377,6 @@ sub import {
 	$city =~ s/\s\s+/ /g;
 	$city =~ s/\s+$//g;
 	$city =~ s/^\s+//g;
-	my $street = $row->{'STREET'};
 	if($street) {
 		$street = uc($street);
 		if($street =~ /(.+)\s+STREET$/) {

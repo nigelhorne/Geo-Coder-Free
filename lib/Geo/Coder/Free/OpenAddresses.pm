@@ -644,8 +644,7 @@ sub geocode {
 				# Currently only handles Town, Region, Country
 				# TODO: add addresses support
 				if($c eq 'au') {
-					my $sc = Locale::SubCountry->new(uc($c));
-					if(my $abbrev = $sc->code(ucfirst(lc($state)))) {
+					if(my $abbrev = Locale::SubCountry->new('AU')->code(ucfirst(lc($state)))) {
 						if($abbrev ne 'unknown') {
 							$state = $abbrev;
 						}
