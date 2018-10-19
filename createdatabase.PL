@@ -1296,15 +1296,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								# print STDERR 'Address parse failed: ', $ap->report(), "\n";
 							} else {
 								my %c = $ap->components();
+								my $post_code = $c{'post_code'};
+								if($post_code) {
+									uc($post_code);
+								}
 								$row = {
 									'LAT' => $properties->{'geom:latitude'},
 									'LON' => $properties->{'geom:longitude'},
 									'NUMBER' => $c{'property_identifier'},
 									'STREET' => uc($c{'street_name'}),
 									'CITY' => uc($c{'suburb'}),
-									'STATE' => uc($state),
+									'STATE' => $state,
 									'COUNTRY' => $country,
-									'POSTCODE' => uc($c{'post_code'}),
+									'POSTCODE' => $post_code,
 								};
 								print(Data::Dumper->new([$row])->Dump()) if(DEBUG);
 								$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
