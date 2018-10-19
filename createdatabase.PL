@@ -1140,16 +1140,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 										$c{'street_name'} .= " $type";
 									}
 									if($number && ($c{'property_identifier'} ne $number)) {
-										print "diff number\n";
+										print "diff number\n" if(DEBUG);
 									}
 									if(uc($c{'street_name'}) ne $street) {
-										print "diff street ($street/$c{street_name})\n";
+										print "diff street ($street/$c{street_name})\n" if(DEBUG);
 									}
 									if(uc($c{'suburb'}) ne uc($city)) {
-										print "diff city ($city/$c{suburb})\n";
+										print "diff city ($city/$c{suburb})\n" if(DEBUG);
 									}
 									if($post_code && ($post_code ne $postcode)) {
-										print "diff postcode\n";
+										print "diff postcode\n" if(DEBUG);
 									}
 									if(($number && ($c{'property_identifier'} ne $number)) ||
 									   (uc($c{'street_name'}) ne $street) ||
