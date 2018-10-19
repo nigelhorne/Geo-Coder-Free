@@ -898,6 +898,8 @@ sub _normalize {
 		return 'PL';
 	} elsif(($type eq 'GRDNS') || ($type eq 'GARDENS')) {
 		return 'GRDNS';
+	} elsif(($type eq 'HWY') || ($type eq 'HIGHWAY')) {
+		return 'HWY';
 	}
 
 	# Most likely failure of Geo::StreetAddress::US, but warn anyway, just in case
