@@ -1152,9 +1152,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 										print "diff postcode\n" if(DEBUG);
 									}
 									if(($number && ($c{'property_identifier'} ne $number)) ||
-									   (uc($c{'street_name'}) ne $street) ||
+									   ($street && (uc($c{'street_name'}) ne $street)) ||
 									   (uc($c{'suburb'}) ne uc($city)) ||
-									   ($post_code && ($post_code ne $postcode))) {
+									   ($postcode && ($post_code && ($post_code ne $postcode)))) {
 										print 'After ', Data::Dumper->new([$row])->Dump() if(DEBUG);
 										$row = {
 											'LAT' => $properties->{'geom:latitude'},
