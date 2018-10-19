@@ -1136,7 +1136,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									if($post_code) {
 										$post_code = uc($post_code);
 									}
-									if(my $type = $c{'street_type'}) {
+									if($c{'street_name'} && (my $type = $c{'street_type'})) {
 										$c{'street_name'} .= " $type";
 									}
 									if($number && ($c{'property_identifier'} ne $number)) {
