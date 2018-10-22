@@ -500,6 +500,8 @@ if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 
 exit(0) if($ENV{'AUTOMATED_TESTING'});
 
+$Data::Dumper::Sortkeys = 1;
+
 if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# Import openaddresses.io data into an SQLite database
 	# TODO: download and unzip the files from results.openaddresses.io
@@ -675,6 +677,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# print "processing ", $properties->{'wof:id'}, "\n";
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
 				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+				next if(exists($properties->{'src:geom'}) && ($properties->{'src:geom'} eq 'missing'));	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1346
 				my $placetype = $properties->{'wof:placetype'};
 				next if($placetype eq 'country');
 				next if($placetype eq 'marketarea');
@@ -852,8 +855,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if(my $name = $properties->{'wof:name'}) {
 					if($name ne $city) {
 						my $row = {
-							'LAT' => $properties->{'geom:latitude'},
-							'LON' => $properties->{'geom:longitude'},
+							'LAT' => $properties->{'geom:latitude'} || $properties->{'lbl:latitude'},
+							'LON' => $properties->{'geom:longitude'} || $properties->{'lbl:longitude'},
 							'NAME' => uc($name),
 							'NUMBER' => $number,
 							'STREET' => $street,
@@ -862,6 +865,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							'COUNTRY' => $country,
 							'POSTCODE' => $postcode,
 						};
+						unless($row->{'LAT'} && $row->{'LON'}) {
+							# die 'Entry LAT/LON in WOF entry ', $properties->{'wof:id'}, " in $file\n" if(DEBUG);
+							print 'Entry LAT/LON in WOF entry ', $properties->{'wof:id'}, " in $file\n" if(DEBUG);
+							next;
+						}
 						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
 					}
 				}
@@ -926,7 +934,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/mo\//);
+			# next unless($csv_file =~ /us\/az\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -1283,7 +1291,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					# Don't trust sg:city to be correct
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-						print 'Check locality_id at ', __LINE__, "\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG);
+						# print 'Check locality_id at ', __LINE__, "\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG);
 						if(my $w = get_wof($wof_global_dbh, $locality)) {
 							$city = $w;
 						}
@@ -1805,7 +1813,7 @@ sub insert {
 		$digest .= $columns->{$column} if($columns->{$column});
 	}
 	# print "$digest\n";
-	$digest = hash($global, Encode::encode_utf8($digest));
+	$digest = create_md5($global, Encode::encode_utf8($digest));
 
 	if(!defined($digest)) {
 		# print "Ignore ", join(',', values(%{$columns})), "\n";
@@ -1814,8 +1822,7 @@ sub insert {
 
 	# print "$digest\n";
 
-	# my $q = "SELECT * FROM openaddresses WHERE MD5 = '$digest'";
-	# my $sth = $dbh->prepare($q);
+	# $dbh->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
 	# $sth->execute();
 	# while(my $href = $sth->fetchrow_hashref()) {
 		# my @call_details = caller(0);
@@ -1841,12 +1848,12 @@ sub insert {
 	if($columns->{'STREET'} && ($columns->{'STREET'} =~ /^[A-Z]\s\w+\s\w+$/)) {
 		# Handle https://rt.cpan.org/Public/Bug/Display.html?id=124919
 		$columns->{'STREET'} =~ s/\s+//g;
-		$digest = '';
+		$digest = undef;
 
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 			$digest .= $columns->{$column} if($columns->{$column});
 		}
-		if($digest = hash($global, Encode::encode_utf8($digest))) {
+		if($digest = create_md5($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = $columns;
 			return 2;
 		# } else {
@@ -1872,10 +1879,11 @@ sub flush_queue
 	keys %queued_commits;
 	# print scalar(keys %queued_commits), "\n";
 	while(my($md5, $row) = each %queued_commits) {
+		die if(ref($row) ne 'HASH');
 		my $country = $row->{'COUNTRY'};
 		if(!defined($country)) {
 			my @call_details = caller(0);
-			print "flush_queue: called from line " . $call_details[2], "\n";
+			print "flush_queue: called from line ", $call_details[2], "\n";
 			die Data::Dumper->new([$row])->Dump();
 		}
 		my $state = $row->{'STATE'};
@@ -1893,6 +1901,8 @@ sub flush_queue
 		} else {
 			$query .= ',(';
 		}
+
+		die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
 
 		# print join(',', @columns), ": $md5\n";
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
@@ -1919,7 +1929,7 @@ sub flush_queue
 	my $tree_query;
 	# while(my($md5, $row) = each %queued_commits) {
 	if(0) {
-	my $row;
+		my $row;
 		my $digest = $row->{'COUNTRY'};
 		my $parent_md5;
 
@@ -2037,7 +2047,9 @@ sub flush_queue
 		try {
 			$dbh->do($query);
 		} catch {
-			print Data::Dumper->new([\%queued_commits])->Dump();
+			my @call_details = caller(1);
+			print "Error in flush_queue called from line ", $call_details[2], "\n\t",
+				Data::Dumper->new([\%queued_commits])->Dump();
 			die $_;
 		};
 	}
@@ -2057,13 +2069,13 @@ sub flush_queue
 	%queued_commits = ();
 }
 
-sub hash
+sub create_md5
 {
 	my $global = shift;
 
 	# my $digest = Digest::MD5::md5_base64(@_);
 	my $digest = substr Digest::MD5::md5_base64(@_), 0, 16;
-	return if($global_md5s{$digest} || $state_md5s{$digest});
+	return if($global_md5s{$digest} || $state_md5s{$digest} || $queued_commits{$digest});
 
 	# print join(',', @_), ": $digest\n";
 	if($global) {
