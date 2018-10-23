@@ -1902,7 +1902,13 @@ sub flush_queue
 			$query .= ',(';
 		}
 
-		die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
+		# die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
+		unless ($row->{'LAT'} && $row->{'LON'}) {
+			my @call_details = caller(0);
+			print "flush_queue: ignoring blank entry called from line ", $call_details[2], "\n\t";
+				Data::Dumper->new([$row])->Dump();
+			next;
+		}
 
 		# print join(',', @columns), ": $md5\n";
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
