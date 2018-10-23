@@ -1900,7 +1900,7 @@ sub flush_queue
 		unless ($row->{'LAT'} && $row->{'LON'}) {
 			my @call_details = caller(0);
 			print "flush_queue: ignoring blank entry called from line ", $call_details[2], "\n\t";
-				Data::Dumper->new([$row])->Dump();
+				Data::Dumper->new([$row])->Dump() if(DEBUG);
 			next;
 		}
 
