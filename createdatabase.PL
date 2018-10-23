@@ -616,6 +616,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 			}
+			close($fin);
+
 			flush_queue($dbh);
 		}
 
@@ -1220,6 +1222,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$inserts = 0;
 					}
 				}
+
+				close($fin);
 			}
 		}
 
