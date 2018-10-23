@@ -1896,18 +1896,18 @@ sub flush_queue
 			next;
 		}
 
-		if(!defined($query)) {
-			$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
-		} else {
-			$query .= ',(';
-		}
-
 		# die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
 		unless ($row->{'LAT'} && $row->{'LON'}) {
 			my @call_details = caller(0);
 			print "flush_queue: ignoring blank entry called from line ", $call_details[2], "\n\t";
 				Data::Dumper->new([$row])->Dump();
 			next;
+		}
+
+		if(!defined($query)) {
+			$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
+		} else {
+			$query .= ',(';
 		}
 
 		# print join(',', @columns), ": $md5\n";
@@ -2054,7 +2054,7 @@ sub flush_queue
 			$dbh->do($query);
 		} catch {
 			my @call_details = caller(1);
-			print "Error in flush_queue called from line ", $call_details[2], "\n\t",
+			print "Error in flush_queue ($query) called from line ", $call_details[2], "\n\t",
 				Data::Dumper->new([\%queued_commits])->Dump();
 			die $_;
 		};
