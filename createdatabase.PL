@@ -684,6 +684,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# print "processing ", $properties->{'wof:id'}, "\n";
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
 				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+				# TODO: this may not need to be true
+				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 				next if(exists($properties->{'src:geom'}) && ($properties->{'src:geom'} eq 'missing'));	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1346
 				my $placetype = $properties->{'wof:placetype'};
 				next if($placetype eq 'country');
@@ -1048,6 +1050,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						my $properties = $data->{'properties'};
 						next if(scalar(@{$properties->{'wof:superseded_by'}}));
 						next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+						# TODO: this may not need to be true
+						next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 						next if($properties->{'wof:country'} ne uc($country));
 						my $city = $properties->{'sg:city'};
 						# Don't trust sg:city to be correct
@@ -1302,6 +1306,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					my $properties = $data->{'properties'};
 					next if(scalar(@{$properties->{'wof:superseded_by'}}));
 					next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+					# TODO: this may not need to be true
+					next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 					next if($properties->{'wof:country'} ne uc($country));
 					my $street = $properties->{'addr:street'};
 					# next if(!defined($street));
@@ -2190,6 +2196,8 @@ sub get_wof {
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+	# TODO: this may not need to be true
+	next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 	# if($properties->{'wof:name'}) {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = $properties->{'wof:country'};
