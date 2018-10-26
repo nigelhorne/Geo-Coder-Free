@@ -803,7 +803,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 					$city = $properties->{'wof:name'};
 					if(($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
-						$city = "$city, " . get_wof($wof_global_dbh, $parent);
+						if(my $parent = get_wof($wof_global_dbh, $parent)) {
+							$city = "$city, $parent";
+						# } else {
+							# Most likely the parent is in a different database
+							# die "Can't determine the parent for $city in ", $properties->{'wof:id'}, "->$parent";
+						}
 					}
 					die "Can't determine the city" if(!defined($city));
 				} else {
