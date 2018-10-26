@@ -2197,7 +2197,7 @@ sub get_wof {
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
 	# TODO: this may not need to be true
-	next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
+	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 	# if($properties->{'wof:name'}) {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = $properties->{'wof:country'};
