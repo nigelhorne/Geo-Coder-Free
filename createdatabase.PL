@@ -689,8 +689,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# print "processing ", $properties->{'wof:id'}, "\n";
 				next if(scalar(@{$properties->{'wof:superseded_by'}}));
 				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-				# TODO: this may not need to be true
-				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 				next if(exists($properties->{'src:geom'}) && ($properties->{'src:geom'} eq 'missing'));	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1346
 				my $placetype = $properties->{'wof:placetype'};
 				next if($placetype eq 'country');
@@ -1060,8 +1058,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						my $properties = $data->{'properties'};
 						next if(scalar(@{$properties->{'wof:superseded_by'}}));
 						next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-						# TODO: this may not need to be true
-						next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 						next if($properties->{'wof:country'} ne uc($country));
 						my $city = $properties->{'sg:city'};
 						# Don't trust sg:city to be correct
@@ -1327,8 +1323,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					my $properties = $data->{'properties'};
 					next if(scalar(@{$properties->{'wof:superseded_by'}}));
 					next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-					# TODO: this may not need to be true
-					next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 					next if($properties->{'wof:country'} ne uc($country));
 					my $street = $properties->{'addr:street'};
 					# next if(!defined($street));
@@ -1942,11 +1936,11 @@ sub flush_queue
 	# while(my($md5, $row) = each %queued_commits) {
 	foreach my $md5(keys %queued_commits) {
 		my $row = $queued_commits{$md5};
-		if($md5 eq 'D8GO4pMZCAYej/OR') {
-			my @call_details = caller(0);
-			print "flush_queue: Flomation called from line ", $call_details[2], "\n\t",
-				Data::Dumper->new([\%queued_commits])->Dump();
-		}
+		# if($md5 eq 'D8GO4pMZCAYej/OR') {
+			# my @call_details = caller(0);
+			# print "flush_queue: Flomation called from line ", $call_details[2], "\n\t",
+				# Data::Dumper->new([\%queued_commits])->Dump();
+		# }
 		die if(ref($row) ne 'HASH');
 		my $country = $row->{'COUNTRY'};
 		if(!defined($country)) {
@@ -2220,8 +2214,6 @@ sub get_wof {
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-	# TODO: this may not need to be true
-	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == -1));
 	# if($properties->{'wof:name'}) {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = uc($properties->{'wof:country'});
