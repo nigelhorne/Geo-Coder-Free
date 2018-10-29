@@ -43,6 +43,7 @@ WHOSONFIRST: {
 				delta_within($location->{latitude}, 39.06, 1e-2);
 				delta_within($location->{longitude}, -77.12, 1e-2);
 
+				# https://spelunker.whosonfirst.org/id/772834215/
 				$location = $geocoder->geocode('Rock Bottom, Norfolk Ave, Bethesda, MD, USA');
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
@@ -89,8 +90,8 @@ WHOSONFIRST: {
 				$location = $geocoder->geocode(location => '13 Ashburnham Road, St Lawrence, Thanet, Kent, England');
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
-				delta_within($location->{latitude}, 51.36, 1e-2);
-				delta_within($location->{longitude}, 1.42, 1e-2);
+				delta_within($location->{latitude}, 51.33, 1e-2);
+				delta_within($location->{longitude}, 1.41, 1e-2);
 
 				$location = $geocoder->geocode('Wickhambreaux, Kent, England');
 				ok(defined($location));

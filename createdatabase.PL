@@ -1048,7 +1048,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						# next if(!defined($data));
 					my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
 					while(my $aref = shift(@{$rowcache})) {
-						die if($state ne uc($components[1]));
 						if(scalar(@{$rowcache}) == 0) {
 							$rowcache = $sth->fetchall_arrayref(undef, 10_000);
 						}
