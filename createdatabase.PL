@@ -103,8 +103,8 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 my %openaddresses_supported_countries = (
-	'au' => 1,
-	'ca' => 1,
+	# 'au' => 1,
+	# 'ca' => 1,
 	'us' => 1,
 );
 my @whosonfirst_only_countries = (
@@ -948,7 +948,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
-			# next unless($csv_file =~ /us\/md\/statewide/);
+			next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/al\//);
 
@@ -1770,7 +1770,7 @@ sub import {
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
 				$inserts += insert($dbh, $global, %columns);
-				# print "$1\n";
+				print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
 				$inserts += insert($dbh, $global, %columns);
@@ -1784,7 +1784,7 @@ sub import {
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
 					$inserts += insert($dbh, $global, %columns);
-					# print "$1\n";
+					print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
@@ -1798,7 +1798,7 @@ sub import {
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
 						$inserts += insert($dbh, $global, %columns);
-						# print "$1\n";
+						print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
@@ -1812,7 +1812,7 @@ sub import {
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
 				$inserts += insert($dbh, $global, %columns);
-				# print "$1\n";
+				print "RESTAURANT: $1\n";
 			}
 		}
 	}
