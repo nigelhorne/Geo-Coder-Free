@@ -149,13 +149,13 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
 				ok(defined($location));
-				delta_within($location->{latitude}, 39.07, 1e-2);
-				delta_within($location->{longitude}, -77.13, 1e-2);
+				delta_within($location->{latitude}, 39.06, 1e-2);
+				delta_within($location->{longitude}, -77.12, 1e-2);
 
 				$location = $geo_coder->geocode('Rockville Pike, Rockville, MD, USA');
 				ok(defined($location));
-				delta_within($location->{latitude}, 39.07, 1e-2);
-				delta_within($location->{longitude}, -77.13, 1e-2);
+				delta_within($location->{latitude}, 39.06, 1e-2);
+				delta_within($location->{longitude}, -77.12, 1e-2);
 
 				$location = $geo_coder->geocode('8600 Rockville Pike, Bethesda, MD 20894, USA');
 				ok(defined($location));
@@ -217,8 +217,8 @@ OPENADDR: {
 				delta_within($location->{longitude}, -123.36, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
-				delta_within($location->{latitude}, -27.08, 1e-2);
-				delta_within($location->{longitude}, 152.95, 1e-2);
+				delta_within($location->{latitude}, -27.06, 1e-2);
+				delta_within($location->{longitude}, 152.97, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Whitley, Indiana, USA');
 				ok(defined($location));
