@@ -103,8 +103,8 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 my %openaddresses_supported_countries = (
-	# 'au' => 1,
-	# 'ca' => 1,
+	'au' => 1,
+	'ca' => 1,
 	'us' => 1,
 );
 my @whosonfirst_only_countries = (
@@ -866,7 +866,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if($number) {
 					$number = uc($number);
 				}
-				$country = uc($country);
 				$state = uc($state);
 				# print "\tqueuing ", $properties->{'wof:id'}, ': ', $properties->{'wof:name'}, ", $city, $state, $country\n";
 				if(my $name = $properties->{'wof:name'}) {
@@ -948,7 +947,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
-			next unless($csv_file =~ /us\/md\/statewide/);
+			# next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
 			# next unless($csv_file =~ /us\/al\//);
 
@@ -1012,11 +1011,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				foreach my $wof_file (keys %whosonfirst) {
 					if($state && ($country eq 'US')) {
 						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
-						next if((lc($1) ne $country) || (uc($2) ne $state));
+						next if((uc($1) ne $country) || (uc($2) ne $state));
 					} else {
 						next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-						my $c = lc($1);
-						next if($c ne $country);
+						next if(uc($1) ne $country);
 					}
 				# if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
 					# my $wof_file;
@@ -1057,7 +1055,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						my $properties = $data->{'properties'};
 						next if(scalar(@{$properties->{'wof:superseded_by'}}));
 						next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-						next if($properties->{'wof:country'} ne uc($country));
+						next if($properties->{'wof:country'} ne $country);
 						my $city = $properties->{'sg:city'};
 						# Don't trust sg:city to be correct
 						my @hierarchy = @{$properties->{'wof:hierarchy'}};
@@ -1117,7 +1115,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						if(!defined($city)) {
 							my $address = $properties->{'addr:full'};
 							next if(!defined($address));
-							if($country eq 'us') {
+							if($country eq 'US') {
 								if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
 									if($href->{city}) {
 										$city = $href->{city};
@@ -1166,11 +1164,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								$address_parsers{'GB'} ||= Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
 								$ap = $address_parsers{'GB'};
 							} else {
-								$address_parsers{uc($country)} ||= Lingua::EN::AddressParse->new(country => uc($country), auto_clean => 1, force_case => 1, force_post_code => 0);
-								$ap = $address_parsers{uc($country)};
+								$address_parsers{$country} ||= Lingua::EN::AddressParse->new(country => $country, auto_clean => 1, force_case => 1, force_post_code => 0);
+								$ap = $address_parsers{$country};
 							}
 							if($ap) {
-								die if($state ne uc($components[1]));
+								if($country eq 'us') {
+									die if($state ne uc($components[1]));
+								}
 								if(my $error = $ap->parse($addr_full)) {
 									# print STDERR 'Address parse failed: ', $ap->report(), "\n";
 								} else {
@@ -1194,7 +1194,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									if(defined($postcode) && ($post_code && ($post_code ne $postcode))) {
 										print "diff postcode\n" if(DEBUG&DEBUG_L_EN_A);
 									}
-									die if($state ne uc($components[1]));
 									if(($number && ($c{'property_identifier'} ne $number)) ||
 									   ($street && (uc($c{'street_name'}) ne $street)) ||
 									   (uc($c{'suburb'}) ne uc($city)) ||
@@ -1221,7 +1220,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							flush_queue($dbh);
 							$inserts = 0;
 						}
-						die if($state ne uc($components[1]));
 					}
 					$wof_dbh->disconnect();
 					delete $whosonfirst{$wof_file};
@@ -1265,6 +1263,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 
+		# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
+		# $dbh->commit();
+		# $dbh->disconnect();
+		# $wof_global_dbh->disconnect();
+		# exit(0);
+
 		flush_queue($dbh);	# Check for hanging dups in last state
 		%state_md5s = ();
 		%state_parent_md5s = ();
@@ -1287,8 +1291,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# Import this country's Who's on First data
 			foreach my $wof_file (keys %whosonfirst) {
 				next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-				my $c = lc($1);
-				next if($c ne $country);
+				next if(uc($1) ne $country);
 				my $file = basename($wof_file);
 				$| = 1;
 				printf "%-70s\r", $file;
@@ -1322,7 +1325,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					my $properties = $data->{'properties'};
 					next if(scalar(@{$properties->{'wof:superseded_by'}}));
 					next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-					next if($properties->{'wof:country'} ne uc($country));
+					next if($properties->{'wof:country'} ne $country);
 					my $street = $properties->{'addr:street'};
 					# next if(!defined($street));
 					# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
@@ -1403,8 +1406,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							$address_parsers{'GB'} ||= Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
 							$ap = $address_parsers{'GB'};
 						} else {
-							$address_parsers{uc($country)} ||= Lingua::EN::AddressParse->new(country => uc($country), auto_clean => 1, force_case => 1, force_post_code => 0);
-							$ap = $address_parsers{uc($country)};
+							$address_parsers{$country} ||= Lingua::EN::AddressParse->new(country => $country, auto_clean => 1, force_case => 1, force_post_code => 0);
+							$ap = $address_parsers{$country};
 						}
 						if($ap) {
 							if(my $error = $ap->parse($addr_full)) {
@@ -1770,7 +1773,7 @@ sub import {
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
 				$inserts += insert($dbh, $global, %columns);
-				print "RESTAURANT: $1\n";
+				# print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
 				$inserts += insert($dbh, $global, %columns);
@@ -1784,7 +1787,7 @@ sub import {
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
 					$inserts += insert($dbh, $global, %columns);
-					print "RESTAURANT: $1\n";
+					# print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
@@ -1798,7 +1801,7 @@ sub import {
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
 						$inserts += insert($dbh, $global, %columns);
-						print "RESTAURANT: $1\n";
+						# print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
@@ -1812,7 +1815,7 @@ sub import {
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
 				$inserts += insert($dbh, $global, %columns);
-				print "RESTAURANT: $1\n";
+				# print "RESTAURANT: $1\n";
 			}
 		}
 	}
