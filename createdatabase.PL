@@ -1086,7 +1086,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									next if($region < 0);
 									print "Getting state from hierachy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_ALL);
 									my $state = get_wof($wof_global_dbh, $region);
-									die $properties if($state ne uc($components[1]));
 									# Remember the region's name, since consecutive entries in the file are often the same,
 									# this is save a number of calls to get_wof()
 									$region_id = $region;
