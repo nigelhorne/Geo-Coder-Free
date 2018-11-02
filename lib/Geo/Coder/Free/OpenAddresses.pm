@@ -496,6 +496,7 @@ sub geocode {
 								if($href->{'number'}) {
 									if($county) {
 										if($rc = $self->_get($href->{'number'}, "$street$city$county$state", 'US')) {
+											$rc->{'country'} = 'US';
 											return $rc;
 										}
 									}
@@ -611,16 +612,19 @@ sub geocode {
 						my $first = uc($1);
 						my $second = uc($2);
 						if($rc = $self->_get("$first$second$state", 'CA')) {
+							$rc->{'country'} = 'CA';
 							return $rc;
 						}
 						# Perhaps it's a city in a county?
 						# Silver Spring, Montgomery County, MD, USA
 						$second =~ s/\s+COUNTY$//;
 						if($rc = $self->_get("$first$second$state", 'CA')) {
+							$rc->{'country'} = 'CA';
 							return $rc;
 						}
 						# Not all the database has the county
 						if($rc = $self->_get("$first$state", 'CA')) {
+							$rc->{'country'} = 'CA';
 							return $rc;
 						}
 						# Brute force last ditch approach
@@ -643,17 +647,21 @@ sub geocode {
 			} else {
 				# Currently only handles Town, Region, Country
 				# TODO: add addresses support
-				if($c eq 'au') {
+				if(($c eq 'au') && (length($state) > 3)) {
 					if(my $abbrev = Locale::SubCountry->new('AU')->code(ucfirst(lc($state)))) {
 						if($abbrev ne 'unknown') {
 							$state = $abbrev;
 						}
 					}
 				}
-				if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
+				if($city =~ /^(\w[\w\s]+),\s*([,\w\s]+)/) {
 					# City includes a street name
 					my $street = uc($1);
 					$city = uc($2);
+					# TODO: Configurable - or better still remove the need
+					if($city eq 'MINSTER, THANET') {
+						$city = 'MINSTER, RAMSGATE';
+					}
 					if($street =~ /(.+)\s+STREET$/) {
 						$street = "$1 ST";
 					} elsif($street =~ /(.+)\s+ROAD$/) {
@@ -692,7 +700,14 @@ sub geocode {
 					}
 				}
 				if(my $rc = $self->_get("$city$state$c")) {
-					return $rc;
+					return {
+						'number' => undef,
+						'street' => undef,
+						'city' => $city,
+						'state' => $state,
+						'country' => $country,
+						%{$rc}
+					};
 				}
 			}
 		}
