@@ -660,7 +660,7 @@ sub geocode {
 					$city = uc($2);
 					# TODO: Configurable - or better still remove the need
 					if($city eq 'MINSTER, THANET') {
-						$city = 'MINSTER, RAMSGATE';
+						$city = 'RAMSGATE';
 					}
 					if($street =~ /(.+)\s+STREET$/) {
 						$street = "$1 ST";

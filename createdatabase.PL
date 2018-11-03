@@ -419,7 +419,8 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => 1.31680853,
 			'NAME' => 'HOLIDAY INN EXPRESS',
 			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER, RAMSGATE',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -427,7 +428,8 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => 1.31570211,
 			'NUMBER' => 106,
 			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER, RAMSGATE',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -435,7 +437,8 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => 1.31580976,
 			'NUMBER' => 114,
 			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER, RAMSGATE',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -444,7 +447,8 @@ my %known_places = (	# Places I've checked with my GPS
 			'NAME' => 'MINSTER CEMETERY',
 			'NUMBER' => 116,
 			'STREET' => 'TOTHILL ST',
-			'CITY' => 'MINSTER, RAMSGATE',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -452,7 +456,8 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => 1.31559716,
 			'NAME' => 'ST MARY THE VIRGIN CHURCH',
 			'STREET' => 'CHURCH ST',
-			'CITY' => 'MINSTER, RAMSGATE',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
@@ -1278,7 +1283,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			if(my $k = $known_places{'other'}) {
 				# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 				foreach my $row(@{$k}) {
-					$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, global => 1);
+					$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh);
 				}
 			}
 
