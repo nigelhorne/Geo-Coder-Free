@@ -84,8 +84,8 @@ WHOSONFIRST: {
 				$location = $geocoder->geocode({ location => '106 Tothill St, Minster, Thanet, Kent, England' });
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
-				delta_within($location->{latitude}, 51.35, 1e-2);
-				delta_within($location->{longitude}, 1.42, 1e-2);
+				delta_within($location->{latitude}, 51.34, 1e-2);
+				delta_within($location->{longitude}, 1.32, 1e-2);
 
 				$location = $geocoder->geocode(location => '13 Ashburnham Road, St Lawrence, Thanet, Kent, England');
 				ok(defined($location));
