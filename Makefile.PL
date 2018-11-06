@@ -37,7 +37,6 @@ my %urls = (
 	'http://download.maxmind.com/download/worldcities/worldcitiespop.txt.gz' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz',
 );
 
-
 # unlink('lib/Geo/Coder/Free/MaxMind/databases/cities.sql');
 
 foreach my $url(keys %urls) {
