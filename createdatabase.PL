@@ -1572,7 +1572,7 @@ sub import {
 		} elsif(!defined($city)) {
 			$city = $file;
 			$city =~ s/\.csv$//;
-		} elsif($file !~ /^WHOSONFIRST\-DATA/i) {
+		} elsif(($file !~ /^WHOSONFIRST\-DATA/i) && ($file !~ /countrywide/)) {
 			$county = $file;
 			$county =~ s/\.csv$//;
 		}
@@ -1840,9 +1840,11 @@ sub insert {
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'CITY'} && (uc($columns{'CITY'}) eq 'INDIANAPOLIS'));
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'NAME'} && (uc($columns{'NAME'}) eq 'EL PAPI STREET TACOS'));
-	# my @call_details = caller(0);
-	# print "line " . $call_details[2], "\n";
-	# print Data::Dumper->new([$columns])->Dump();
+	# {
+		# my @call_details = caller(0);
+		# print "line " . $call_details[2], "\n";
+		# print Data::Dumper->new([\%columns])->Dump();
+	# }
 
 	my $lat = $columns{'LAT'};
 	my $lon = $columns{'LON'};
