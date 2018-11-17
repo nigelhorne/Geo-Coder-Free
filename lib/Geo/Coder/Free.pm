@@ -17,11 +17,13 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.14
+Version 0.15
 
 =cut
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
+
+our $alternatives;
 
 =head1 SYNOPSIS
 
@@ -71,11 +73,16 @@ sub new {
 	# Geo::Coder::Free->new not Geo::Coder::Free::new
 	return unless($class);
 
-	my $pos = tell(DATA);
-	my $alternatives = Config::Auto->new(source => <DATA>)->parse();
-	seek(DATA, $pos, 0);	# Go back to the start so that subsequent objects also read the table
-	foreach my $entry(keys %{$alternatives}) {
-		$alternatives->{$entry} = join(', ', @{$alternatives->{$entry}});
+	if(!$alternatives) {
+		my $keep = $/;
+		local $/ = undef;
+		my $data = <DATA>;
+		$/ = $keep;
+
+		$alternatives = Config::Auto->new(source => $data)->parse();
+		foreach my $entry(keys %{$alternatives}) {
+			$alternatives->{$entry} = join(', ', @{$alternatives->{$entry}});
+		}
 	}
 
 	my $rc = {
@@ -310,3 +317,4 @@ See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.m
 # Would be nice to read this from somewhere on-line
 __DATA__
 St Lawrence, Thanet, Kent = Ramsgate, Kent
+St Peters, Thanet, Kent = St Peters, Kent

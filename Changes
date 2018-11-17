@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.15
+0.15	Thu Nov 15 21:10:51 EST 2018
 	Added alternatives table, for when a place could be listed elsewhere
 	Support lookups of British counties e.g. 'Kent, England'
 
