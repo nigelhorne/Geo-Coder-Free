@@ -658,6 +658,7 @@ sub geocode {
 					# City includes a street name
 					my $street = uc($1);
 					$city = uc($2);
+
 					# TODO: Configurable - or better still remove the need
 					if($city eq 'MINSTER, THANET') {
 						$city = 'RAMSGATE';

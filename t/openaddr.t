@@ -47,11 +47,11 @@ OPENADDR: {
 				# delta_ok($location->{longt}, -64.87);
 
 				TODO: {
-					local $TODO = "Not in the database";
+					local $TODO = 'Not in the database';
 
 					eval {
 						$location = $geo_coder->geocode({ location => 'Osceola, Polk, Nebraska, USA' });
-						ok(!defined($location));
+						ok(defined($location));
 					};
 				}
 
