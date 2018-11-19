@@ -211,6 +211,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 		}, {
+			'NAME' => 'FOREST GLEN MEDICAL CENTER',
+			'LAT' => 39.016042,
+			'LON' => -77.042148,
+			'NUMBER' => 9801,
+			'STREET' => 'GEORGIA AVE',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20902,
+		}, {
 			'NAME' => 'SNIDERS',
 			'LAT' => 39.0088797,
 			'LON' => -77.04162824,
@@ -407,6 +418,14 @@ my %known_places = (	# Places I've checked with my GPS
 		}
 	], 'other' => [
 		{
+			'LAT' => 51.926793,
+			'LON' => 0.70408,
+			'NAME' => 'ST ANDREWS CHURCH',
+			'STREET' => 'CHURCH HILL',
+			'CITY' => 'EARLS COLNE',
+			'STATE' => 'ESSEX',
+			'COUNTRY' => 'GB'
+		}, {
 			'LAT' => 51.37875,
 			'LON' => 1.1955,
 			'NAME' => 'RECULVER ABBEY',
