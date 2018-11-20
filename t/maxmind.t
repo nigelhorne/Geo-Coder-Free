@@ -164,6 +164,12 @@ LOOKUP: {
 			delta_within($location->{latitude}, 51.25, 1e-2);
 			delta_within($location->{longitude}, 0.75, 1e-2);
 
+			$location = $geocoder->geocode('Wickhambreaux, Kent, England');
+			ok(defined($location));
+			ok(ref($location) eq 'HASH');
+			delta_within($location->{latitude}, 51.28, 1e-2);
+			delta_within($location->{longitude}, 1.18, 1e-2);
+
 			$location = $geocoder->geocode('Vessels, Misc Ships At sea or abroad, England');
 			ok(!defined($location));
 

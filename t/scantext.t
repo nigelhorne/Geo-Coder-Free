@@ -24,8 +24,8 @@ SCANTEXT: {
 			ok(scalar(@locations) == 1);
 			my $location = $locations[0];
 			ok(ref($location) eq 'HASH');
-			delta_within($location->{latitude}, 51.34, 1e-2);
-			delta_within($location->{longitude}, 1.32, 1e-2);
+			delta_within($location->{latitude}, 51.36, 1e-2);
+			delta_within($location->{longitude}, 1.41, 1e-2);
 			ok(defined($location->{'confidence'}));
 			ok($location->{'location'} eq 'Ramsgate, Kent, England');
 
@@ -50,7 +50,7 @@ SCANTEXT: {
 				next unless($location->{'location'} eq 'Newark, DE, USA');
 				$found++;
 				delta_within($location->{latitude}, 39.68, 1e-2);
-				delta_within($location->{longitude}, -75.76, 1e-2);
+				delta_within($location->{longitude}, -75.79, 1e-2);
 				ok(defined($location->{'confidence'}));
 			}
 			ok($found == 1);

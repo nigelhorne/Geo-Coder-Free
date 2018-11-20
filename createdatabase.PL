@@ -102,6 +102,7 @@ my %zipcodes = (
 	'80645' => { city => 'La Salle', county => 'Weld' },
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
+
 my %openaddresses_supported_countries = (
 	'au' => 1,
 	'ca' => 1,
@@ -652,7 +653,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 			close($fin);
 
-			flush_queue($dbh);
 		}
 
 		my $current_state;
@@ -679,6 +679,105 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 		$ua->throttle({ 'api.zippopotam.us' => 1 });
 		$ua->env_proxy(1);
+
+		# Import the Maxmind databases
+		if(open(my $fin, '<', 'lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt') &&
+		   open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
+		   open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
+			$| = 1;
+			printf "%-70s\r", 'lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt';
+			$| = 0;
+
+			# $csv->column_names(['key', 'name', 'asciiname', 'lat', 'long', 'skip1', 'skip2', 'country', 'state', 'county', 'skip3', 'skip4', 'skip5', 'skip6', 'skip7', 'skip8']);
+
+			my $csv = Text::CSV->new({
+				sep_char => "\t",
+				allow_loose_quotes => 1,
+				blank_is_undef => 1,
+				empty_is_undef => 1,
+				binary => 1,
+				# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
+				# escape_char => '\\',	# Put back once issue 3905 has been fixed
+			});
+
+			$csv->column_names(['concatenated_codes', 'name', 'asciiname', 'geonameId']);
+
+			my %admin1;
+
+			while(my $row = $csv->getline_hr($fin1)) {
+				$admin1{$row->{'concatenated_codes'}} = $row->{'asciiname'};
+			}
+			close($fin1);
+
+			my %admin2;
+
+			while(my $row = $csv->getline_hr($fin2)) {
+				$admin2{$row->{'concatenated_codes'}} = $row->{'asciiname'};
+			}
+			close($fin2);
+
+			my $inserts = 0;
+
+			while(my $line = <$fin>) {
+				my @fields = split(/\t/, $line);
+
+				my $country = lc($fields[8]);
+				if(!$openaddresses_supported_countries{$country}) {
+					my $found = 0;
+					foreach my $c(@whosonfirst_only_countries) {
+						if($country eq $c) {
+							$found = 1;
+							last;
+						}
+					}
+					next if(!$found);
+				}
+				my $city = $fields[2];
+				my $latitude = $fields[4];
+				my $longitude = $fields[5];
+				my %columns;
+				if($country eq 'gb') {
+					my $state = $admin2{uc($country) . '.' . uc($fields[10]) . '.' . uc($fields[11])};
+					next if(!defined($state));
+
+					%columns = (
+						'CITY' => uc($city),
+						'STATE' => uc($state),
+						'COUNTRY' => 'GB',
+						'LAT' => $latitude,
+						'LON' => $longitude,
+					);
+				} else {
+					my $state = $admin1{uc($country) . '.' . uc($fields[10])};
+					next if(!defined($state));
+					if($city =~ /(.+)\s+county$/i) {
+						%columns = (
+							'COUNTY' => uc($1),
+							'STATE' => uc($state),
+							'COUNTRY' => uc($country),
+							'LAT' => $latitude,
+							'LON' => $longitude,
+						);
+					} else {
+						%columns = (
+							'CITY' => uc($city),
+							'STATE' => uc($state),
+							'COUNTRY' => uc($country),
+							'LAT' => $latitude,
+							'LON' => $longitude,
+						);
+					}
+				}
+				# print Data::Dumper->new([\%columns])->Dump();
+				$inserts += import(row => \%columns, file => 'allCountries.txt', ua => $ua, dbh => $dbh, global => 1);
+				if($inserts >= MAX_INSERT_COUNT) {
+					flush_queue($dbh);
+					$inserts = 0;
+				}
+			}
+			close($fin);
+		}
+		flush_queue($dbh);
 
 		if($wof_global_dbh) {
 			$wof_global_dbh->do('PRAGMA cache_size = 65536');
@@ -1314,7 +1413,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# Import this country's Who's on First data
 			foreach my $wof_file (keys %whosonfirst) {
 				next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-				next if(uc($1) ne $country);
+				next if(lc($1) ne $country);
 				my $file = basename($wof_file);
 				$| = 1;
 				printf "%-70s\r", $file;
@@ -1486,7 +1585,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# (($county eq 0) ? "NULL," : "'$county',") .
 				# "'$state'," .
 				# "'$country')";
-# 
+
 			# # print "$query\n";
 			# $dbh->do($query);
 		}
@@ -1516,8 +1615,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$dbh->disconnect();
 		print ' ' x 70, "\r" if(!DEBUG);
 	}
-
-	# TODO: Import the Maxmind databases
 }
 
 # Return a list of all .csv files under the given directory
