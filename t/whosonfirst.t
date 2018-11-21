@@ -28,7 +28,7 @@ WHOSONFIRST: {
 				my $geocoder = new_ok('Geo::Coder::Free');
 				my $location = $geocoder->geocode(location => 'Margate, Kent, England');
 				delta_within($location->{latitude}, 51.38, 1e-2);
-				delta_within($location->{longitude}, 1.36, 1e-2);
+				delta_within($location->{longitude}, 1.39, 1e-2);
 
 				TODO: {
 					local $TODO = 'UK only supports towns and venues';
@@ -73,7 +73,7 @@ WHOSONFIRST: {
 				delta_within($location->{longitude}, -77.12, 1e-2);
 
 				$location = $geocoder->geocode(location => 'Ramsgate, Kent, England');
-				delta_within($location->{latitude}, 51.36, 1e-2);
+				delta_within($location->{latitude}, 51.34, 1e-2);
 				delta_within($location->{longitude}, 1.42, 1e-2);
 
 				$location = $geocoder->geocode({ location => 'Silver Diner, Rockville Pike, Rockville, MD, USA' });
@@ -100,14 +100,14 @@ WHOSONFIRST: {
 				$location = $geocoder->geocode(location => '13 Ashburnham Road, St Lawrence, Thanet, Kent, England');
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
-				delta_within($location->{latitude}, 51.36, 1e-2);
+				delta_within($location->{latitude}, 51.34, 1e-2);
 				delta_within($location->{longitude}, 1.41, 1e-2);
 
 				$location = $geocoder->geocode('Wickhambreaux, Kent, England');
 				ok(defined($location));
 				ok(ref($location) eq 'HASH');
-				delta_within($location->{latitude}, 51.28, 1e-2);
-				delta_within($location->{longitude}, 1.18, 1e-2);
+				delta_within($location->{latitude}, 51.30, 1e-2);
+				delta_within($location->{longitude}, 1.19, 1e-2);
 				# diag(Data::Dumper->new([$location])->Dump());
 			} else {
 				diag('Author tests not required for installation');

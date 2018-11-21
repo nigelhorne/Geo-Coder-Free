@@ -448,6 +448,8 @@ The MaxMind data only contains cities.
 
 Can't parse and handle "London, England".
 
+The GeoNames admin databases are in this class, they should be in Geo::Coder::GeoNames.
+
 =head1 SEE ALSO
 
 VWF, MaxMind and geonames.

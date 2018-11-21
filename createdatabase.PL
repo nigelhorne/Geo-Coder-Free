@@ -534,6 +534,10 @@ if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 
 exit(0) if($ENV{'AUTOMATED_TESTING'});
 
+if(!(-r 'lib/Geo/Coder/Free/Geonames/databases/allCountries.txt')) {
+	print "Consider downloading http://download.geonames.org/export/dump/allCountries.zip to lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt\n";
+}
+
 $Data::Dumper::Sortkeys = 1;
 
 if(my $oa = $ENV{'OPENADDR_HOME'}) {
@@ -681,11 +685,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$ua->env_proxy(1);
 
 		# Import the Maxmind databases
-		if(open(my $fin, '<', 'lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt') &&
+		if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
+		   open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		   open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
 		   open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 			$| = 1;
-			printf "%-70s\r", 'lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt';
+			printf "%-70s\r", 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
 			$| = 0;
 
 			# $csv->column_names(['key', 'name', 'asciiname', 'lat', 'long', 'skip1', 'skip2', 'country', 'state', 'county', 'skip3', 'skip4', 'skip5', 'skip6', 'skip7', 'skip8']);
