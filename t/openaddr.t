@@ -35,8 +35,8 @@ OPENADDR: {
 				$location = $geo_coder->geocode('Indianapolis, Indiana, USA');
 				ok(defined($location));
 				if($ENV{'WHOSONFIRST_HOME'}) {
-					delta_within($location->{latitude}, 39.91, 1e-2);
-					delta_within($location->{longitude}, -86.05, 1e-2);
+					delta_within($location->{latitude}, 39.78, 1e-2);
+					delta_within($location->{longitude}, -86.15, 1e-2);
 				} else {
 					delta_within($location->{latitude}, 39.81, 1e-2);
 					delta_within($location->{longitude}, -86.10, 1e-2);
@@ -107,8 +107,8 @@ OPENADDR: {
 				$location = $geo_coder->geocode(location => 'Edmonton, Alberta, Canada');
 				ok(defined($location));
 				if($ENV{'WHOSONFIRST_HOME'}) {
-					delta_within($location->{latitude}, 53.51, 1e-2);
-					delta_within($location->{longitude}, -113.44, 1e-2);
+					delta_within($location->{latitude}, 53.58, 1e-2);
+					delta_within($location->{longitude}, -113.52, 1e-2);
 				} else {
 					delta_within($location->{latitude}, 53.55, 1e-2);
 					delta_within($location->{longitude}, -113.53, 1e-2);
@@ -204,7 +204,7 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode({ location => 'St Louis, Missouri, USA' });
 				delta_within($location->{latitude}, 38.63, 1e-2);
-				delta_within($location->{longitude}, -90.28, 1e-2);
+				delta_within($location->{longitude}, -90.25, 1e-2);
 
 				$location = $geo_coder->geocode({ location => 'Saint Louis, Missouri, USA' });
 				delta_within($location->{latitude}, 38.63, 1e-2);
