@@ -50,7 +50,7 @@ SCANTEXT: {
 				next unless($location->{'location'} eq 'Newark, DE, USA');
 				$found++;
 				delta_within($location->{latitude}, 39.68, 1e-2);
-				delta_within($location->{longitude}, -75.79, 1e-2);
+				delta_within($location->{longitude}, -75.8, 1e-1);
 				ok(defined($location->{'confidence'}));
 			}
 			ok($found == 1);
