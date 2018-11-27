@@ -391,12 +391,17 @@ sub geocode {
 		$state =~ s/\s$//g;
 		$country =~ s/\s$//g;
 
+		my $c;
+
 		if((uc($country) eq 'ENGLAND') ||
 		   (uc($country) eq 'SCOTLAND') ||
 		   (uc($country) eq 'WALES')) {
 			$country = 'Great Britain';
+			$c = 'gb';
+		} else {
+			$c = country2code($country);
 		}
-		if(my $c = country2code($country)) {
+		if($c) {
 			if($c eq 'us') {
 				if(length($state) > 2) {
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
