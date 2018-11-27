@@ -260,13 +260,17 @@ sub geocode {
 	}
 	my $ap;
 	if(($location =~ /USA$/) || ($location =~ /United States$/)) {
-		$ap = Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
-	} elsif($location =~ /England$/) {
-		$ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$ap = $self->{'ap'}->{'us'} // Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$self->{'ap'}->{'us'} = $ap;
+	} elsif($location =~ /(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) {
+		$ap = $self->{'ap'}->{'gb'} // Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$self->{'ap'}->{'gb'} = $ap;
 	} elsif($location =~ /Canada$/) {
-		$ap = Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$ap = $self->{'ap'}->{'ca'} // Lingua::EN::AddressParse->new(country => 'CA', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$self->{'ap'}->{'ca'} = $ap;
 	} elsif($location =~ /Australia$/) {
-		$ap = Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$ap = $self->{'ap'}->{'au'} // Lingua::EN::AddressParse->new(country => 'AU', auto_clean => 1, force_case => 1, force_post_code => 0);
+		$self->{'ap'}->{'au'} = $ap;
 	}
 	if($ap) {
 		if(my $error = $ap->parse($location)) {
