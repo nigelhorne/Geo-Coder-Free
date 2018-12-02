@@ -534,7 +534,7 @@ if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 
 exit(0) if($ENV{'AUTOMATED_TESTING'});
 
-if(!(-r 'lib/Geo/Coder/Free/Geonames/databases/allCountries.txt')) {
+if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
 	print "Consider downloading http://download.geonames.org/export/dump/allCountries.zip to lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt\n";
 }
 
