@@ -738,6 +738,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					next if(!$found);
 				}
 				my $city = $fields[2];
+				if($city =~ /(.+)\//) {
+					next if($fields[7] ne 'ADM1');
+					# Field with different languages, e.g. New Brunswick/Nouveau-Brunswick
+					$city = undef;
+				} else {
+					$city = uc($city);
+				}
+
 				my $latitude = $fields[4];
 				my $longitude = $fields[5];
 				my %columns;
@@ -746,7 +754,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					next if(!defined($state));
 
 					%columns = (
-						'CITY' => uc($city),
+						'CITY' => $city,
 						'STATE' => uc($state),
 						'COUNTRY' => 'GB',
 						'LAT' => $latitude,
@@ -755,7 +763,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					my $state = $admin1{uc($country) . '.' . uc($fields[10])};
 					next if(!defined($state));
-					if($city =~ /(.+)\s+county$/i) {
+					if(defined($city) && ($city =~ /(.+)\s+county$/i)) {
 						%columns = (
 							'COUNTY' => uc($1),
 							'STATE' => uc($state),
@@ -765,7 +773,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						);
 					} else {
 						%columns = (
-							'CITY' => uc($city),
+							'CITY' => $city,
 							'STATE' => uc($state),
 							'COUNTRY' => uc($country),
 							'LAT' => $latitude,

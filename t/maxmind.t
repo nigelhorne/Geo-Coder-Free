@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 75;
+use Test::Most tests => 77;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -164,6 +164,11 @@ LOOKUP: {
 			delta_within($location->{latitude}, 51.25, 1e-2);
 			delta_within($location->{longitude}, 0.75, 1e-2);
 
+			$location = $geocoder->geocode('New Brunswick, Canada');
+			ok(defined($location));
+			delta_within($location->{latitude}, 46.50, 1e-2);
+			delta_within($location->{longitude}, -65.00, 1e-2);
+
 			$location = $geocoder->geocode('Vessels, Misc Ships At sea or abroad, England');
 			ok(!defined($location));
 
@@ -179,7 +184,7 @@ LOOKUP: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 74);
+			skip('Author tests not required for installation', 76);
 		}
 	}
 }
