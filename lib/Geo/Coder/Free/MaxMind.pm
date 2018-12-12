@@ -129,7 +129,7 @@ sub geocode {
 		return $known_locations{$location};
 	}
 
-	# ::diag($location);
+	# ::diag(__LINE__, ": $location");
 	return unless(($location =~ /,/) || $param{'region'});	# Not well formed, or an attempt to find the location of an entire country
 
 	my $county;
@@ -174,7 +174,7 @@ sub geocode {
 		$location =~ s/^\s//g;
 		$location =~ s/\s$//g;
 		$country = uc($region);
-	} elsif($location =~ /^(\w+),\s*(\w+)$/) {
+	} elsif($location =~ /^([\w\s-]+),\s*(\w+)$/) {
 	# } elsif(0) {
 		$county = $1;
 		$country = $2;
@@ -236,9 +236,9 @@ sub geocode {
 	my @admin2s;
 	my $region;
 	my @regions;
-	if(($country =~ /^(United States|USA|US)$/) && $state && (length($state) > 2)) {
-		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
-			$state = $twoletterstate;
+	if(($country =~ /^(United States|USA|US)$/) && $county && (length($county) > 2)) {
+		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
+			$county = $twoletterstate;
 		}
 	} elsif(($country eq 'Canada') && (length($county) > 2)) {
 		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($county)}) {
@@ -326,8 +326,13 @@ sub geocode {
 		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new();
 	}
 
-	my $options = { City => lc($location) };
-	$options->{'City'} =~ s/,\s*\w+$//;
+	my $options;
+	if(defined($county) && ($county =~ /^[A-Z]{2}$/) && ($country =~ /^(United States|USA|US)$/)) {
+		$options = {};
+	} else {
+		$options = { City => lc($location) };
+		$options->{'City'} =~ s/,\s*\w+$//;
+	}
 	if($region) {
 		if($region =~ /^.+\.(.+)$/) {
 			$region = $1;

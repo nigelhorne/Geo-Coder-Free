@@ -43,8 +43,8 @@ use	constant	DEBUG_DATA_VALIDATE => 0x40;
 use	constant	DEBUG_ALL => 0xFF;
 use	constant	DEBUG => DEBUG_OFF;
 
-use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -689,9 +689,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		   open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		   open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
 		   open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
+			aio_readahead($fin1, 0, 10240);
+			aio_readahead($fin2, 0, 10240);
+			aio_readahead($fin, 0, 10240);
+
 			$| = 1;
 			printf "%-70s\r", 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
 			$| = 0;
+			print "\n" if(MAX_INSERT_COUNT == 1);
 
 			# $csv->column_names(['key', 'name', 'asciiname', 'lat', 'long', 'skip1', 'skip2', 'country', 'state', 'county', 'skip3', 'skip4', 'skip5', 'skip6', 'skip7', 'skip8']);
 
@@ -737,13 +742,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 					next if(!$found);
 				}
-				my $city = $fields[2];
-				if($city =~ /(.+)\//) {
-					next if($fields[7] ne 'ADM1');
-					# Field with different languages, e.g. New Brunswick/Nouveau-Brunswick
-					$city = undef;
-				} else {
-					$city = uc($city);
+				my $city;
+				if($fields[7] ne 'ADM1') {
+					# Not State/County/Province
+					$city = uc($fields[2]);
 				}
 
 				my $latitude = $fields[4];
@@ -763,6 +765,22 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					my $state = $admin1{uc($country) . '.' . uc($fields[10])};
 					next if(!defined($state));
+					$state = uc($state);
+					if($state eq 'YUKON') {
+						$state = 'YT';
+					} elsif($state eq 'WASHINGTON, D.C.') {
+						$state = 'DC';
+					} elsif(my $sc = Locale::SubCountry->new($country)) {
+						if(my $code = $sc->code($state)) {
+							$code = uc($code);
+							$state = $code if($code ne 'UNKNOWN');
+							# die "$state:\n", Data::Dumper->new([\@fields])->Dump();
+						} else {
+							die $state;
+						}
+					} else {
+						die "Locale::SubCountry failed on $country";
+					}
 					if(defined($city) && ($city =~ /(.+)\s+county$/i)) {
 						%columns = (
 							'COUNTY' => uc($1),
@@ -781,8 +799,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						);
 					}
 				}
-				# print Data::Dumper->new([\%columns])->Dump();
-				$inserts += import(row => \%columns, file => 'allCountries.txt', ua => $ua, dbh => $dbh, global => 1);
+				# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
+				$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
 					flush_queue($dbh);
 					$inserts = 0;
@@ -791,6 +809,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			close($fin);
 		}
 		flush_queue($dbh);
+
+		print "Debug exit\n" if(DEBUG&DEBUG_ALL);
+		$dbh->commit();
+		$dbh->disconnect();
+		$wof_global_dbh->disconnect();
+		exit(0);
+
+		my %address_parsers;
 
 		if($wof_global_dbh) {
 			$wof_global_dbh->do('PRAGMA cache_size = 65536');
@@ -1039,9 +1065,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if(my $addr_full = $properties->{'addr:full'}) {
 					my $ap;
 					if($country =~ /^ENGLAND/) {
-						$ap = Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+						$address_parsers{'GB'} ||= Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
+						$ap = $address_parsers{'GB'};
 					} else {
-						$ap = Lingua::EN::AddressParse->new(country => $country, auto_clean => 1, force_case => 1, force_post_code => 0);
+						$address_parsers{$country} ||= Lingua::EN::AddressParse->new(country => $country, auto_clean => 1, force_case => 1, force_post_code => 0);
+						$ap = $address_parsers{$country};
 					}
 					if($ap) {
 						if(my $error = $ap->parse($addr_full)) {
@@ -1078,8 +1106,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		# $dbh->disconnect();
 		# $wof_global_dbh->disconnect();
 		# exit(0);
-
-		my %address_parsers;
 
 		# Find all of the .csv files in $OPENADDR_HOME
 		foreach my $csv_file (uniq(create_tree($oa))) {
@@ -1685,7 +1711,7 @@ sub import {
 
 	my $city = $row->{'CITY'};
 	my $county = $row->{'COUNTY'};
-	if(($file !~ /^statewide/) && ($file !~ /^province/) && ($file !~ /^countrywide/)) {
+	if(($file !~ /^statewide/) && ($file !~ /^province/) && ($file !~ /countrywide/)) {
 		if($file =~ /^city_of_(.+).csv$/) {
 			$city = $1;
 		} elsif($file =~ /^town_of_(.+).csv$/) {
@@ -1707,6 +1733,7 @@ sub import {
 		}
 	}
 	if(!defined($city)) {
+		# print "$state:\n", Data::Dumper->new([\$row])->Dump();
 		my $zip = $row->{'POSTCODE'};
 		if((!defined($city)) && defined($zip) && (my $info = $zipcodes{$zip})) {
 			$city = $info->{'city'};
@@ -1747,13 +1774,13 @@ sub import {
 					'LON' => $place->{'longitude'},
 				);
 				# print "$zip => $query\n";
-				$inserts += insert($dbh, $global, %columns);
+				$inserts = insert($dbh, $global, %columns);
 			}
 		}
-		if(!defined($city)) {
+		if((!defined($city)) && !defined($state)) {
+			# die Data::Dumper->new([\$row])->Dump();
 			return 0 if(!$zip);
 			return 0 if($zip !~ /^\d{5}/);
-			# print "\n", Data::Dumper->new([\$row])->Dump();
 			$dbh->disconnect();
 			die $file;
 		}
@@ -1776,18 +1803,20 @@ sub import {
 			print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
 		}
 	}
-	$city =~ s/\.csv$//;
-	$city =~ s/[_,\-\.]/ /g;
-	$city = uc($city);
-	$city =~ s/\s+BORO$//;
-	$city =~ s/\s+TWP$//;
-	$city =~ s/^TOWN\s+OF\s+//;
-	$city =~ s/^CITY\s+OF\s+//i;
-	$city =~ s/^THE\s+CITY\s+OF\s+//i;
-	$city =~ s/^TOWNSHIP\s+OF\s+//;
-	$city =~ s/\s\s+/ /g;
-	$city =~ s/\s+$//g;
-	$city =~ s/^\s+//g;
+	if($city) {
+		$city =~ s/\.csv$//;
+		$city =~ s/[_,\-\.]/ /g;
+		$city = uc($city);
+		$city =~ s/\s+BORO$//;
+		$city =~ s/\s+TWP$//;
+		$city =~ s/^TOWN\s+OF\s+//;
+		$city =~ s/^CITY\s+OF\s+//i;
+		$city =~ s/^THE\s+CITY\s+OF\s+//i;
+		$city =~ s/^TOWNSHIP\s+OF\s+//;
+		$city =~ s/\s\s+/ /g;
+		$city =~ s/\s+$//g;
+		$city =~ s/^\s+//g;
+	}
 	if($street) {
 		$street = uc($street);
 		if($street =~ /(.+)\s+STREET$/) {
@@ -1827,7 +1856,7 @@ sub import {
 	}
 	if($file =~ /^(.+)[_\-]county.csv$/) {
 		$county = $1;
-	} elsif(!defined($county)) {
+	} elsif((!defined($county)) && defined($city)) {
 		if($city =~ /(.+)\s+COUNTY$/i) {
 			$county = $1;
 			$city = undef;
@@ -1876,8 +1905,7 @@ sub import {
 			}
 		}
 	}
-	if(($city && ($city !~ /^\s+$/)) || $county) {
-		# Counties and states alone have already been read in
+	if(($city && ($city !~ /^\s+$/)) || $county || $state) {
 		my %columns = (
 			'COUNTRY' => $country,
 			'CITY' => $city,
@@ -1889,11 +1917,16 @@ sub import {
 			$row->{'STREET'} =~ s/\s\s+/ /g;
 		}
 		foreach my $c('LAT', 'LON', 'NAME', 'NUMBER') {
-			$columns{$c} = delete $row->{$c};
+			$columns{$c} = $row->{$c};
 		}
-		if(($country eq 'GB') && ($city eq 'LONDON') && defined($state) && ($state eq 'LONDON')) {
+		if((!defined($city)) ||
+		   ($country eq 'GB') && ($city eq 'LONDON') && defined($state) && ($state eq 'LONDON')) {
 			delete $columns{'CITY'};
 		}
+		foreach my $column(keys %columns) {
+			delete $columns{$column} if(!defined($columns{$column}));
+		}
+		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
 		$inserts += insert($dbh, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			$inserts += insert($dbh, $global, %columns);
@@ -1998,10 +2031,14 @@ sub insert {
 	$digest = create_md5($global, Encode::encode_utf8($digest));
 
 	if(!defined($digest)) {
-		# print "Ignore ", join(',', values(%{$columns})), "\n";
+		# print "Ignore ", join(',', values(%columns)), "\n";
 		return 0;
 	}
+print __LINE__, "\n" if($digest eq 'FMh3hBuJTeqTUWtr');
 
+	if(!defined($columns{'CITY'}) && !defined($columns{'COUNTY'})) {
+		print "$digest:\n", Data::Dumper->new([\%columns])->Dump() if($columns{'COUNTRY'} eq 'US');
+	}
 	# print "$digest\n";
 
 	# $dbh->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
@@ -2072,6 +2109,7 @@ sub flush_queue
 	# print scalar(keys %queued_commits), "\n";
 	# while(my($md5, $row) = each %queued_commits) {
 	foreach my $md5(keys %queued_commits) {
+	print __LINE__, "\n" if($md5 eq 'FMh3hBuJTeqTUWtr');
 		my $row = $queued_commits{$md5};
 		# if($md5 eq 'D8GO4pMZCAYej/OR') {
 			# my @call_details = caller(0);
@@ -2095,13 +2133,15 @@ sub flush_queue
 			next;
 		}
 
+	print __LINE__, "\n" if($md5 eq 'FMh3hBuJTeqTUWtr');
 		# die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
 		unless ($row->{'LAT'} && $row->{'LON'}) {
 			my @call_details = caller(0);
 			print "flush_queue: ignoring blank entry called from line ", $call_details[2], "\n\t",
-				Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_ALL);
+				Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_DATA_VALIDATE);
 			next;
 		}
+	print __LINE__, "\n" if($md5 eq 'FMh3hBuJTeqTUWtr');
 
 		if(!defined($query)) {
 			$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';

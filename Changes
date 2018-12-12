@@ -1,7 +1,7 @@
 Revision history for Geo-Coder-Free
 
 0.16
-	Import MaxMind's allCountries data
+	Import GeoName's allCountries data
 	Remember L:E:AddressParser objects to speed up parsing. RT#127814
 
 0.15	Thu Nov 15 21:10:51 EST 2018
