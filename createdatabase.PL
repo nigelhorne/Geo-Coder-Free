@@ -810,11 +810,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		}
 		flush_queue($dbh);
 
-		print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-		$dbh->commit();
-		$dbh->disconnect();
-		$wof_global_dbh->disconnect();
-		exit(0);
+		# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
+		# $dbh->commit();
+		# $dbh->disconnect();
+		# $wof_global_dbh->disconnect();
+		# exit(0);
 
 		my %address_parsers;
 

@@ -60,15 +60,15 @@ foreach my $url(keys %urls) {
 if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
 	system('unzip lib/Geo/Coder/Free/GeoNames/databases/allCountries.zip');
 	rename 'allCountries.txt', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
-}
 
-# London's areas are not complete within Maxmind.  Here are a few to get started
-if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/GeoNames/databases/admin2.db')) {
-	print $admin2 "GB.ENG.E7\tLondon\tLondon\t2648110\n",
-		"GB.ENG.H1\tLondon\tLondon\t2648110\n",	# Lambeth
-		"GB.ENG.O5\tLondon\tLondon\t2648110\n",
-		"GB.ENG.I8\tLondon\tLondon\t2648110\n",
-		"GB.ENG.P5\tLondon\tLondon\t2648110\n";
+	# London's areas are not complete within Maxmind.  Here are a few to get started
+	if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/GeoNames/databases/admin2.db')) {
+		print $admin2 "GB.ENG.E7\tLondon\tLondon\t2648110\n",
+			"GB.ENG.H1\tLondon\tLondon\t2648110\n",	# Lambeth
+			"GB.ENG.O5\tLondon\tLondon\t2648110\n",
+			"GB.ENG.I8\tLondon\tLondon\t2648110\n",
+			"GB.ENG.P5\tLondon\tLondon\t2648110\n";
+	}
 }
 
 WriteMakefile(
