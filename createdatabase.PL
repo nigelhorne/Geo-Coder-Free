@@ -1887,7 +1887,12 @@ sub import {
 		$county =~ s/\s+$//g;
 		$county =~ s/^\s+//g;
 	}
-	if(!defined($state)) {
+	if(defined($state)) {
+		if((!defined($city)) && !defined($county)) {
+			$county = $row->{'REGION'};
+			die $county if($county);
+		}
+	} else {
 		$state = $row->{'REGION'};
 	}
 	if(defined($state)) {
