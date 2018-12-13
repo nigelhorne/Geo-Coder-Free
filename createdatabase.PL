@@ -104,8 +104,8 @@ my %zipcodes = (
 );
 
 my %openaddresses_supported_countries = (
-	'au' => 1,
-	'ca' => 1,
+	# 'au' => 1,
+	# 'ca' => 1,
 	'us' => 1,
 );
 my @whosonfirst_only_countries = (
@@ -1111,7 +1111,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/al\//);
+			next unless($csv_file =~ /us\/al\/shelby/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -1888,14 +1888,6 @@ sub import {
 		$county =~ s/^\s+//g;
 	}
 	if(defined($state)) {
-		if((!defined($city)) && !defined($county)) {
-			$county = $row->{'REGION'};
-			die $county if($county);
-		}
-	} else {
-		$state = $row->{'REGION'};
-	}
-	if(defined($state)) {
 		if($state eq 'IN') {
 			if(defined($city) && ($city eq 'FW')) {
 				$city = 'FORT WAYNE';
@@ -1931,9 +1923,14 @@ sub import {
 		foreach my $column(keys %columns) {
 			delete $columns{$column} if(!defined($columns{$column}));
 		}
+		if((!defined($city)) && defined($street) && !defined($county)) {
+			$county = $row->{'REGION'};
+			die $county if($county);
+		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
 		$inserts += insert($dbh, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
+			return $inserts if(!defined($city));
 			$inserts += insert($dbh, $global, %columns);
 		}
 		my $name = $columns{'NAME'};
@@ -2039,10 +2036,10 @@ sub insert {
 		# print "Ignore ", join(',', values(%columns)), "\n";
 		return 0;
 	}
-print __LINE__, "\n" if($digest eq 'FMh3hBuJTeqTUWtr');
 
 	if(!defined($columns{'CITY'}) && !defined($columns{'COUNTY'})) {
-		print "$digest:\n", Data::Dumper->new([\%columns])->Dump() if($columns{'COUNTRY'} eq 'US');
+		my @call_details = caller(0);
+		print $call_details[2], '->', __LINE__, ": $digest:\n", Data::Dumper->new([\%columns])->Dump() if($columns{'COUNTRY'} eq 'US');
 	}
 	# print "$digest\n";
 
@@ -2114,7 +2111,6 @@ sub flush_queue
 	# print scalar(keys %queued_commits), "\n";
 	# while(my($md5, $row) = each %queued_commits) {
 	foreach my $md5(keys %queued_commits) {
-	print __LINE__, "\n" if($md5 eq 'FMh3hBuJTeqTUWtr');
 		my $row = $queued_commits{$md5};
 		# if($md5 eq 'D8GO4pMZCAYej/OR') {
 			# my @call_details = caller(0);
@@ -2138,7 +2134,6 @@ sub flush_queue
 			next;
 		}
 
-	print __LINE__, "\n" if($md5 eq 'FMh3hBuJTeqTUWtr');
 		# die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
 		unless ($row->{'LAT'} && $row->{'LON'}) {
 			my @call_details = caller(0);
@@ -2146,7 +2141,6 @@ sub flush_queue
 				Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_DATA_VALIDATE);
 			next;
 		}
-	print __LINE__, "\n" if($md5 eq 'FMh3hBuJTeqTUWtr');
 
 		if(!defined($query)) {
 			$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
