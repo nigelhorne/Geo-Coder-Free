@@ -1787,7 +1787,7 @@ sub import {
 	}
 	return 0 if(($row->{'LAT'} == 0) && ($row->{'LON'} == 0));
 	my $street = $row->{'STREET'};
-	if($street && ($city =~ /(.+),\s*(.+)/)) {
+	if($street && $city && ($city =~ /(.+),\s*(.+)/)) {
 		# For example the city could be "North Side, Chicago", which comes from the case when a borough record
 		# has been added.  Let's allow searches on the borough or the city alone
 		my $borough = $1;
