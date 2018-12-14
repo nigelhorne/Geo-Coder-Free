@@ -1111,7 +1111,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			next unless($csv_file =~ /us\/al\/shelby/);
+			# next unless($csv_file =~ /us\/al\/);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -2037,10 +2037,10 @@ sub insert {
 		return 0;
 	}
 
-	if(!defined($columns{'CITY'}) && !defined($columns{'COUNTY'})) {
-		my @call_details = caller(0);
-		print $call_details[2], '->', __LINE__, ": $digest:\n", Data::Dumper->new([\%columns])->Dump() if($columns{'COUNTRY'} eq 'US');
-	}
+	# if(!defined($columns{'CITY'}) && !defined($columns{'COUNTY'})) {
+		# my @call_details = caller(0);
+		# print $call_details[2], '->', __LINE__, ": $digest:\n", Data::Dumper->new([\%columns])->Dump() if($columns{'COUNTRY'} eq 'US');
+	# }
 	# print "$digest\n";
 
 	# $dbh->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
