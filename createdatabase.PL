@@ -1923,7 +1923,7 @@ sub import {
 		foreach my $column(keys %columns) {
 			delete $columns{$column} if(!defined($columns{$column}));
 		}
-		if((!defined($city)) && defined($street) && defined($row->{'REGION'}) !defined($county)) {
+		if((!defined($city)) && defined($street) && defined($row->{'REGION'}) && !defined($county)) {
 			$county = uc($row->{'REGION'});
 			if(!defined($street)) {
 				print "County and street with no city:\n", Data::Dumper->new([$row])->Dump() if($county && (DEBUG&DEBUG_DATA_VALIDATE));
