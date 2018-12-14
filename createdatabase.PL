@@ -43,8 +43,8 @@ use	constant	DEBUG_DATA_VALIDATE => 0x40;
 use	constant	DEBUG_ALL => 0xFF;
 use	constant	DEBUG => DEBUG_OFF;
 
-# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -1111,7 +1111,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		foreach my $csv_file (uniq(create_tree($oa))) {
 			# next unless($csv_file =~ /us\/md\/statewide/);
 			# next unless($csv_file =~ /us\/ne\/dawes/);
-			# next unless($csv_file =~ /us\/al\/);
+			# next unless($csv_file =~ /us\/in\//);
 
 			# Handle https://github.com/openaddresses/openaddresses/issues/3928
 			# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -1924,8 +1924,11 @@ sub import {
 			delete $columns{$column} if(!defined($columns{$column}));
 		}
 		if((!defined($city)) && defined($street) && !defined($county)) {
-			$county = $row->{'REGION'};
-			die $county if($county);
+			$county = uc($row->{'REGION'});
+			if(!defined($street)) {
+				print "County and street with no city:\n", Data::Dumper->new([$row])->Dump() if($county && (DEBUG&DEBUG_DATA_VALIDATE));
+				return $inserts;
+			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
 		$inserts += insert($dbh, $global, %columns);
