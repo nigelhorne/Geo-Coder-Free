@@ -64,8 +64,7 @@ if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
 
 # London's areas are not complete within Maxmind.  Here are a few to get started
 if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
-	print $admin2 "GB.ENG.E7\tLondon\tLondon\t2648110\n",
-		"GB.ENG.H1\tLondon\tLondon\t2648110\n",	# Lambeth
+	print $admin2 "GB.ENG.E7\tLondon\tLondon\t2648110\n",	# Woolwich
 		"GB.ENG.O5\tLondon\tLondon\t2648110\n",
 		"GB.ENG.I8\tLondon\tLondon\t2648110\n",
 		"GB.ENG.P5\tLondon\tLondon\t2648110\n";
