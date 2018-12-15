@@ -207,8 +207,8 @@ OPENADDR: {
 				delta_within($location->{longitude}, -90.2, 1e-1);
 
 				$location = $geo_coder->geocode({ location => 'Saint Louis, Missouri, USA' });
-				delta_within($location->{latitude}, 38.63, 1e-2);
-				delta_within($location->{longitude}, -90.20, 1e-2);
+				delta_within($location->{latitude}, 38.64, 1e-2);
+				delta_within($location->{longitude}, -90.44, 1e-2);
 
 				$location = $geo_coder->geocode('716 Yates Street, Victoria, British Columbia, Canada');
 				ok(defined($location));
@@ -217,8 +217,8 @@ OPENADDR: {
 				delta_within($location->{longitude}, -123.36, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
-				delta_within($location->{latitude}, -27.06, 1e-2);
-				delta_within($location->{longitude}, 152.97, 1e-2);
+				delta_within($location->{latitude}, -27.09, 1e-2);
+				delta_within($location->{longitude}, 152.96, 1e-2);
 
 				$location = $geo_coder->geocode(location => 'Whitley, Indiana, USA');
 				ok(defined($location));
