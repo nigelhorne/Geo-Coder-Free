@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 78;
+use Test::Most tests => 79;
 use Test::Number::Delta;
 use Test::Carp;
 use lib 't/lib';
@@ -164,6 +164,9 @@ LOOKUP: {
 			delta_within($location->{latitude}, 38.25, 1e-2);
 			delta_within($location->{longitude}, -76.74, 1e-2);
 
+			$location = $geocoder->geocode('Nebraska, USA');
+			ok(defined($location));
+
 			$location = $geocoder->geocode('New Brunswick, Canada');
 			ok(defined($location));
 			delta_within($location->{latitude}, 39.95, 1e-2);
@@ -184,7 +187,7 @@ LOOKUP: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 77);
+			skip('Author tests not required for installation', 78);
 		}
 	}
 }
