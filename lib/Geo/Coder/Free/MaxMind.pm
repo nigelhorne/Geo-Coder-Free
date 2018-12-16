@@ -311,6 +311,9 @@ sub geocode {
 			}
 		} else {
 			# e.g. states in the US
+			if(!defined($self->{'admin1'})) {
+				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new() or die "Can't open the admin1 database";
+			}
 			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
 				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
