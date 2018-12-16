@@ -2062,7 +2062,6 @@ sub insert {
 		flush_queue($dbh);
 	}
 	if(!defined($columns{'COUNTRY'})) {
-		my @call_details = caller(0);
 		print "insert: no country. Called from line " . $call_details[2], "\n";
 		die Data::Dumper->new([\%columns])->Dump();
 	}
