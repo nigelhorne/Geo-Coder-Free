@@ -163,7 +163,7 @@ sub geocode {
 
 				}
 			}
-			return @rc if($rc[0]);
+			return @rc if(scalar(@rc) && $rc[0]);
 		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
 		}
@@ -185,7 +185,12 @@ sub geocode {
 
 	# FIXME:  scantext only works if OPENADDR_HOME is set
 	if($param{'location'}) {
-		return $self->{'maxmind'}->geocode(\%param);
+		if(wantarray) {
+			my @rc = $self->{'maxmind'}->geocode(\%param);
+			return @rc;
+		} else {
+			return $self->{'maxmind'}->geocode(\%param);
+		}
 	}
 	if(!$param{'scantext'}) {
 		Carp::croak('Usage: geocode(location => $location|scantext => $text)');

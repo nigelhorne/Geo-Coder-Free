@@ -192,6 +192,7 @@ sub geocode {
 			$concatenated_codes = 'GB';
 		}
 		my $countrycode = country2code($country);
+		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
 
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
@@ -230,9 +231,8 @@ sub geocode {
 	}
 	return unless(defined($concatenated_codes));
 
-	if(!defined($self->{'admin2'})) {
-		$self->{'admin2'} = Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-	}
+	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+
 	my @admin2s;
 	my $region;
 	my @regions;
@@ -256,7 +256,11 @@ sub geocode {
 		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
 			$region = $admin2cache{$state};
 		} else {
-			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
+			if($county eq 'London') {
+				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
+			} else {
+				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
+			}
 			foreach my $admin2(@admin2s) {
 				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
 					$region = $admin2->{'concatenated_codes'};
@@ -296,6 +300,8 @@ sub geocode {
 
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
+		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
+		# ::diag(__LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
@@ -360,7 +366,11 @@ sub geocode {
 	if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
-			return;
+			@rc = $self->{'cities'}->selectall_hash('Region' => $options->{'Region'});
+			if(scalar(@rc) == 0) {
+				# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+				return;
+			}
 		}
 		# ::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {
