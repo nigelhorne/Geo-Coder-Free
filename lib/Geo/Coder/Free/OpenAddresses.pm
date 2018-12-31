@@ -472,13 +472,18 @@ sub geocode {
 					warn "Fast lookup of US location' $location' failed";
 				} else {
 					if($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
-						if(my $href = (Geo::StreetAddress::US->parse_address("$1, $2, $state") || Geo::StreetAddress::US->parse_location("$1, $2, $state"))) {
+						my $lookup = "$1, $2, $state";
+						if(my $href = (Geo::StreetAddress::US->parse_address($lookup) || Geo::StreetAddress::US->parse_location($lookup))) {
 							# Street, City, County
 							# 105 S. West Street, Spencer, Owen, Indiana, USA
 							# ::diag(Data::Dumper->new([\$href])->Dump());
 							$county = $3;
 							$county =~ s/\s*county$//i;
-							$state = $href->{'state'};
+							if($href->{'state'}) {
+								$state = $href->{'state'};
+							} else {
+								Carp::croak(__PACKAGE__, ": Geo::StreetAddress::US couldn't find the state in '$lookup'");
+							}
 							if(length($state) > 2) {
 								if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
 									$state = $twoletterstate;
