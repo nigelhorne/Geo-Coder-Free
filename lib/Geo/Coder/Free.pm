@@ -17,11 +17,11 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.15
+Version 0.16
 
 =cut
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 our $alternatives;
 
@@ -302,7 +302,7 @@ L<http://results.openaddresses.io/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2018 Nigel Horne.
+Copyright 2017-2019 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
