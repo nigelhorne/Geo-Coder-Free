@@ -71,6 +71,22 @@ if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 		"GB.ENG.P5\tLondon\tLondon\t2648110\n";
 }
 
+my $test_requires = {
+	'CGI::IDS' => 0,
+	'CGI::Lingua' => 0,
+	'Data::Throttler' => 0,
+	'Test::Most' => 0,
+	'Test::NoWarnings' => 0,
+	'Test::Number::Delta' => 0,
+	'Test::Carp' => 0
+};
+
+if($ENV{'AUTHOR_TESTING'}) {
+	$test_requires->{'IPC::System::Simple'} = 0;
+	$test_requires->{'FCGI::Buffer'} = 0;
+	$test_requires->{'Log::WarnDie'} = 0;
+}
+
 WriteMakefile(
 	NAME		=> 'Geo::Coder::Free',
 	AUTHOR		=> q{Nigel Horne <njh@bandsman.co.uk>},
@@ -95,15 +111,7 @@ WriteMakefile(
 		'LWP::UserAgent::Throttled' => 0,
 		'Try::Tiny' => 0,
 	},
-	TEST_REQUIRES => {
-		'CGI::IDS' => 0,
-		'CGI::Lingua' => 0,
-		'Data::Throttler' => 0,
-		'Test::Most' => 0,
-		'Test::NoWarnings' => 0,
-		'Test::Number::Delta' => 0,
-		'Test::Carp' => 0,
-	},
+	TEST_REQUIRES => $test_requires,
 	PREREQ_PM => {
 		'Carp' => 0,
 		'DBI' => 0,
