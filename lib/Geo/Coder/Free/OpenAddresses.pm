@@ -48,7 +48,7 @@ our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
-    use Geo::Coder::Free::OpenAddresses
+    use Geo::Coder::Free::OpenAddresses;
 
     # Use a local download of http://results.openaddresses.io/
     my $geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
@@ -981,6 +981,18 @@ The openaddresses data doesn't cover the globe.
 Can't parse and handle "London, England".
 
 Currently only searches US and Canadian data.
+
+If you do search in the UK, only look up towns, full addresses aren't
+included.  So these will print the same.
+
+    use Geo::Coder::Free::OpenAddresses;
+
+    $location = $geo_coder->geocode(location => '22 Central Road, Ramsgate, Kent, England');
+    print $location->{latitude}, "\n";
+    print $location->{longitude}, "\n";
+    $location = $geo_coder->geocode(location => '7 Hillbrow Road, St Lawrence, Thanet, Kent, England');
+    print $location->{latitude}, "\n";
+    print $location->{longitude}, "\n";
 
 =head1 SEE ALSO
 
