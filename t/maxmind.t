@@ -12,7 +12,7 @@ BEGIN {
 	use_ok('Geo::Coder::Free');
 }
 
-LOOKUP: {
+MAXMIND: {
 	SKIP: {
 		if($ENV{AUTHOR_TESTING}) {
 			diag('This may take some time and consume a lot of memory if the database is not SQLite');
