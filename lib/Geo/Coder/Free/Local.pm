@@ -304,7 +304,6 @@ sub _search {
 			}
 		}
 		# ::diag("match: $match");
-		# return $row if($match);
 		if($match) {
 			return Location::GeoTool->create_coord($row->{'latitude'}, $row->{'longitude'}, $data->{'location'}, 'Degree');
 		}

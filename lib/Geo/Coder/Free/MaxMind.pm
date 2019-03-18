@@ -6,6 +6,7 @@ use warnings;
 use Geo::Coder::Free::DB::MaxMind::admin1;
 use Geo::Coder::Free::DB::MaxMind::admin2;
 use Geo::Coder::Free::DB::MaxMind::cities;
+use Location::GeoTool;
 use Module::Info;
 use Carp;
 use File::Spec;
@@ -95,8 +96,8 @@ sub new {
 
     $location = $geocoder->geocode(location => $location);
 
-    print 'Latitude: ', $location->{'latitude'}, "\n";
-    print 'Longitude: ', $location->{'longitude'}, "\n";
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
 
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
@@ -404,7 +405,14 @@ sub geocode {
 			}
 			$city->{'location'} = $l;
 		}
-		return @rc;
+		# return @rc;
+		my @locations;
+
+		foreach my $l(@rc) {
+			push @locations, Location::GeoTool->create_coord($l->{'latitude'}, $l->{'longitude'}, $location, 'Degree');
+		}
+
+		return @locations;
 	}
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {
@@ -425,8 +433,9 @@ sub geocode {
 		$city->{'latitude'} = delete $city->{'Latitude'};
 		$city->{'longitude'} = delete $city->{'Longitude'};
 		$city->{'confidence'} = $confidence;
+		return Location::GeoTool->create_coord($city->{'latitude'}, $city->{'longitude'}, $location, 'Degree');
 	}
-	return $city;
+	# return $city;
 }
 
 =head2 reverse_geocode
