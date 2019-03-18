@@ -75,10 +75,11 @@ my $test_requires = {
 	'CGI::IDS' => 0,
 	'CGI::Lingua' => 0,
 	'Data::Throttler' => 0,
+	'Test::Carp' => 0,
+	'Test::Deep' => 0,
 	'Test::Most' => 0,
 	'Test::NoWarnings' => 0,
-	'Test::Number::Delta' => 0,
-	'Test::Carp' => 0
+	'Test::Number::Delta' => 0
 };
 
 if($ENV{'AUTHOR_TESTING'}) {
