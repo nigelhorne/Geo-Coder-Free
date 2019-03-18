@@ -108,6 +108,7 @@ WriteMakefile(
 		'IO::AIO' => 0,
 		'IPC::System::Simple' => 0,
 		'JSON' => 0,
+		'Location::GeoTool' => 0,
 		'LWP::UserAgent::Throttled' => 0,
 		'Try::Tiny' => 0,
 	},

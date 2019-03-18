@@ -17,8 +17,8 @@ LOCAL: {
 
 	my $location = $geo_coder->geocode('NCBI, MEDLARS DR, BETHESDA, MONTGOMERY, MD, USA');
 	ok(defined($location));
-	delta_within($location->{latitude}, 39.00, 1e-2);
-	delta_within($location->{longitude}, -77.10, 1e-2);
+	delta_within($location->lat(), 39.00, 1e-2);
+	delta_within($location->long(), -77.10, 1e-2);
 
 	TODO: {
 		local $TODO = "Can't parse this yet";
@@ -33,6 +33,6 @@ LOCAL: {
 
 	$location = $geo_coder->geocode(location => '106, Tothill St, Minster, Thanet, Kent, England');
 	ok(defined($location));
-	delta_within($location->{latitude}, 51.34, 1e-2);
-	delta_within($location->{longitude}, 1.32, 1e-2);
+	delta_within($location->lat(), 51.34, 1e-2);
+	delta_within($location->long(), 1.32, 1e-2);
 }

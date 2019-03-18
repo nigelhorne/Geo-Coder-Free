@@ -6,6 +6,7 @@ use warnings;
 use Lingua::EN::AddressParse;
 use Locale::CA;
 use Locale::US;
+use Location::GeoTool;
 use Text::xSV::Slurp;
 
 =head1 NAME
@@ -81,8 +82,8 @@ sub new {
 
     $location = $geocoder->geocode(location => $location);
 
-    print 'Latitude: ', $location->{'latitude'}, "\n";
-    print 'Longitude: ', $location->{'longitude'}, "\n";
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
 
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
@@ -132,7 +133,7 @@ sub geocode {
 		} else {
 			my %c = $ap->components();
 			# ::diag(Data::Dumper->new([\%c])->Dump());
-			my %addr;
+			my %addr = ( 'location' => $l );
 			my $street = $c{'street_name'};
 			if(my $type = $c{'street_type'}) {
 				$type = uc($type);
@@ -196,7 +197,8 @@ sub geocode {
 	}
 
 	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
-		# print Data::Dumper->new([\%addr])->Dump();
+		# ::diag(Data::Dumper->new([\%addr])->Dump());
+		$addr{'location'} = $location;
 		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
 			if(my $street = $addr{'road'}) {
 				$street = uc($street);
@@ -302,7 +304,10 @@ sub _search {
 			}
 		}
 		# ::diag("match: $match");
-		return $row if($match);
+		# return $row if($match);
+		if($match) {
+			return Location::GeoTool->create_coord($row->{'latitude'}, $row->{'longitude'}, $data->{'location'}, 'Degree');
+		}
 	}
 }
 
