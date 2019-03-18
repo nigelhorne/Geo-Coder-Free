@@ -27,6 +27,13 @@ use constant	LIBPOSTAL_INSTALLED => 1;
 use constant	LIBPOSTAL_NOT_INSTALLED => -1;
 our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 
+# See also lib/Geo/Coder/Free.pm
+our %alternatives = (
+	'St Lawrence, Thanet, Kent' => 'Ramsgate, Kent',
+	'St Peters, Thanet, Kent' => 'St Peters, Kent',
+	'Minster, Thanet, Kent' => 'Ramsgate, Kent',
+);
+
 =head1 SYNOPSIS
 
     use Geo::Coder::Free::Local;
@@ -115,7 +122,11 @@ sub geocode {
 		$self->{'ap'}->{'au'} = $ap;
 	}
 	if($ap) {
-		if(my $error = $ap->parse($location)) {
+		my $l = $location;
+		if($l =~ /(.+), (England|UK)$/) {
+			$l = "$1, GB";
+		}
+		if(my $error = $ap->parse($l)) {
 			# Carp::croak($ap->report());
 			# ::diag('Address parse failed: ', $ap->report());
 		} else {
@@ -131,6 +142,8 @@ sub geocode {
 					$street = "$street RD";
 				} elsif($type eq 'AVENUE') {
 					$street = "$street AVE";
+				} else {
+					$street .= " $type";
 				}
 				if(my $suffix = $c{'street_direction_suffix'}) {
 					$street .= " $suffix";
@@ -150,6 +163,11 @@ sub geocode {
 					$addr{'country'} = 'US';
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
+					}
+				} elsif($c{'country'}) {
+					$addr{'country'} = $c{'country'};
+					if($c{'subcountry'}) {
+						$addr{'state'} = $c{'subcountry'};
 					}
 				}
 			}
@@ -241,6 +259,20 @@ sub geocode {
 			}
 		}
 	}
+
+	foreach my $left(keys %alternatives) {
+		if($location =~ $left) {
+			# ::diag($left, '=>', $alternatives{$left});
+			$location =~ s/$left/$alternatives{$left}/;
+			$param{'location'} = $location;
+			# ::diag($location, '>>>>>>');
+			if(my $rc = $self->geocode(\%param)) {
+				# ::diag($location, '<<<<<<');
+				return $rc;
+			}
+		}
+	}
+	undef;
 }
 
 # $data is a hashref to data such as returned by Geo::libpostal::parse_address
@@ -320,8 +352,43 @@ must apply in writing for a licence for use from Nigel Horne at `<njh at nigelho
 
 __DATA__
 "name","house_number","road","city","state_district","state","country","latitude","longitude"
+"ST ANDREWS CHURCH",,"CHURCH HILL","EARLS COLNE",,"ESSEX","GB",51.926793,0.70408
+"RECULVER ABBEY",,"RECULVER","HERNE BAY",,"KENT","GB",51.37875,1.1955
+"HOLIDAY INN EXPRESS",,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34320725,1.31680853
+"",106,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.33995174,1.31570211
+"",114,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34015944,1.31580976
+"MINSTER CEMETERY",116,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34203083,1.31609075
+"ST MARY THE VIRGIN CHURCH",,"CHURCH ST","RAMSGATE",,"KENT","GB",51.33090893,1.31559716
+"",20,"MELBOURNE AVE","RAMSGATE",,"KENT","GB",51.34772374,1.39532565
+"",,"WESTCLIFF PROMENADE","RAMSGATE",,"KENT","GB",51.32711,1.406806
+"TOWER OF LONDON",35,"TOWER HILL","LONDON",,"LONDON","GB",51.5082675,-0.0754225
+"",5350,"CHILLUM PLACE NE","WASHINGTON",,"DC","US",38.955403,-76.996241
 "NCBI",,"MEDLARS DR","BETHESDA","MONTGOMERY","MD","US",38.99516556,-77.09943963
 "",,"CENTER DR","BETHESDA","MONTGOMERY","MD","US",38.99698114,-77.10031119
-"",,"NORFOLK AVE","BETHESDA","MONTGOMERY","MD","US",38.98939358,-77.09819543,
+"",,"NORFOLK AVE","BETHESDA","MONTGOMERY","MD","US",38.98939358,-77.09819543
 "ALBERT EINSTEIN HIGH SCHOOL",11135,"NEWPORT MILL RD","KENSINGTON","MONTGOMERY","MD","US",39.03869019,-77.0682871
 "POST OFFICE",10325,"KENSINGTON PKWY","KENSINGTON","MONTGOMERY","MD","US",39.02554455,-77.07178215
+"NEWPORT MILL MIDDLE SCHOOL",11311,"NEWPORT MILL RD","KENSINGTON","MONTGOMERY","MD","US",39.0416107,-77.06884708
+"SAFEWAY",10541,"HOWARD AVE","KENSINGTON","MONTGOMERY","MD","US",39.02822438,-77.0755196
+"HAIR CUTTERY",3731,"CONNECTICUT AVE","KENSINGTON","MONTGOMERY","MD","US",39.03323865,-77.07368044
+"STROSNIDERS",10504,"CONNECTICUT AVE","KENSINGTON","MONTGOMERY","MD","US",39.02781493,-77.07740792
+"FOREST GLEN MEDICAL CENTER",9801,"GEORGIA AVE","SILVER SPRING","MONTGOMERY","MD","US",39.016042,-77.042148
+"LA CASITA PUPESERIA AND MARKET",8214,"PINEY BRANCH ROAD","SILVER SPRING","MONTGOMERY","MD","US",38.993369,-77.009501
+"SNIDERS",1936,"SEMINARY RD","SILVER SPRING","MONTGOMERY","MD","US",39.0088797,-77.04162824
+"",1954,"SEMINARY RD","SILVER SPRING","MONTGOMERY","MD","US",39.008961,-77.04303
+"",1956,"SEMINARY RD","SILVER SPRING","MONTGOMERY","MD","US",39.008845,-77.043317
+"",9315,"WARREN ST","SILVER SPRING","MONTGOMERY","MD","US",39.00881,-77.048953
+"",9411,"WARREN ST","SILVER SPRING","MONTGOMERY","MD","US",39.010436,-77.04855
+"SILVER DINER",12276,"ROCKVILLE PIKE","ROCKVILLE","MONTGOMERY","MD","US",39.05798753,-77.12165374
+"",1605,"VIERS MILL ROAD","ROCKVILLE","MONTGOMERY","MD","US",39.07669788,-77.12306436
+"",1406,"LANGBROOK PLACE","ROCKVILLE","MONTGOMERY","MD","US",39.075583,-77.123833
+"BP",2601,"FOREST GLEN ROAD","SILVER SPRING","MONTGOMERY","MD","US",39.0147541,-77.05466857
+"OMEGA STUDIOS",12412,,"ROCKVILLE","MONTGOMERY","MD","US",39.06412645,-77.11252263
+"",7001,,"COLUMBIA","HOWARD","MD","US",39.190009,-76.841152
+"",86,"ALLEN POINT LANE","BLUE HILLS","HANCOCK","ME","US",44.35378018,-68.57383976
+"TRADEWINDS",15,"SOUTH STREET","BLUE HILLS","HANCOCK","ME","US",44.40670019,-68.59711438
+"RITE AID",17,"SOUTH STREET","BLUE HILLS","HANCOCK","ME","US",44.40662476,-68.59610059
+"JOHN GLENN AIRPORT",4600,,"COLUMBUS","FRANKLIN","OH","US",39.997959,-82.88132
+"RESIDENCE INN BY MARRIOTT",6364,"FRANTZ RD","DUBLIN",,"OH","US",40.097097,-83.123745
+"THE PURE PASTY COMPANY",128C,"MAPLE AVE W","VIENNA","FAIRFAX","VA","US",44.40662476,-68.59610059
+"THE CAPITAL GRILLE RESTAURANT",1861,,"MCLEAN","FAIRFAX","VA","US",38.915635,-77.22573

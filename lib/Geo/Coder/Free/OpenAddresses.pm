@@ -273,7 +273,11 @@ sub geocode {
 		$self->{'ap'}->{'au'} = $ap;
 	}
 	if($ap) {
-		if(my $error = $ap->parse($location)) {
+		my $l = $location;
+		if($l =~ /(.+), (England|UK)$/) {
+			$l = "$1, GB";
+		}
+		if(my $error = $ap->parse($l)) {
 			# Carp::croak($ap->report());
 			# ::diag('Address parse failed: ', $ap->report());
 		} else {
@@ -289,6 +293,8 @@ sub geocode {
 					$street = "$street RD";
 				} elsif($type eq 'AVENUE') {
 					$street = "$street AVE";
+				} else {
+					$street .= " $type";
 				}
 				if(my $suffix = $c{'street_direction_suffix'}) {
 					$street .= " $suffix";
@@ -308,6 +314,11 @@ sub geocode {
 					$addr{'country'} = 'US';
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
+					}
+				} elsif($c{'country'}) {
+					$addr{'country'} = $c{'country'};
+					if($c{'subcountry'}) {
+						$addr{'state'} = $c{'subcountry'};
 					}
 				}
 			}

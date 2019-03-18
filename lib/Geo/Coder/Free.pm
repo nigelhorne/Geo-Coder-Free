@@ -320,6 +320,7 @@ See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.m
 
 # Common mappings allowing looser lookups
 # Would be nice to read this from somewhere on-line
+# See also lib/Geo/Coder/Free/Local.pm
 __DATA__
 St Lawrence, Thanet, Kent = Ramsgate, Kent
 St Peters, Thanet, Kent = St Peters, Kent
