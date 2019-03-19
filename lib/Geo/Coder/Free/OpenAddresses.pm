@@ -102,8 +102,8 @@ sub new {
 
     $location = $geocoder->geocode(location => $location);
 
-    print 'Latitude: ', $location->{'latitude'}, "\n";
-    print 'Longitude: ', $location->{'longitude'}, "\n";
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
 
     # TODO:
     # @locations = $geocoder->geocode('Portland, USA');
@@ -204,14 +204,15 @@ sub geocode {
 			}
 			$offset++;
 		}
-		# return @rc;
-		my @locations;
+		return @rc;
+		# my @locations;
 
-		foreach my $l(@rc) {
-			push @locations, Location::GeoTool->create_coord($l->{'latitude'}, $l->{'longitude'}, $l->{'location'}, 'Degree');
-		}
+		# foreach my $l(@rc) {
+			# ::diag(__LINE__, ': ', Data::Dumper->new([$l])->Dump());
+			# push @locations, Location::GeoTool->create_coord($l->{'latitude'}, $l->{'longitude'}, $l->{'location'}, 'Degree');
+		# }
 
-		return @locations;
+		# return @locations;
 	}
 
 	my $location = $param{location}

@@ -32,9 +32,15 @@ our $alternatives;
     my $geo_coder = Geo::Coder::Free->new();
     my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
 
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
+
     # Use a local download of http://results.openaddresses.io/
     my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
     $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
 
 =head1 DESCRIPTION
 
@@ -287,6 +293,9 @@ There is a sample website at L<https://geocode.nigelhorne.com/>.  The source cod
 =head1 BUGS
 
 Some lookups fail at the moments, if you find one please file a bug report.
+
+Doesn't include results from
+L<Geo::Coder::Free::Local>.
 
 The MaxMind data only contains cities.
 The OpenAddresses data doesn't cover the globe.
