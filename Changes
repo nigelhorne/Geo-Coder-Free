@@ -2,7 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.18
 	Added Geo::Coder::Free::Local
-	Geo::Coder::MaxMind now returns Location::GeoTool object
+	Geo::Coder::MaxMind/OpenAddresses now return Location::GeoTool object
 
 0.17	Sat 23 Feb 17:21:41 EST 2019
 	Maxmind download of worldcitiespop.txt has been removed

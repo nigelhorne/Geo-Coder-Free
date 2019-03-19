@@ -5,6 +5,7 @@ use warnings;
 
 use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
 use Geo::Coder::Free::DB::openaddresses;	# The original CSV files
+use Location::GeoTool;
 use Module::Info;
 use Carp;
 use File::Spec;
@@ -203,7 +204,14 @@ sub geocode {
 			}
 			$offset++;
 		}
-		return @rc;
+		# return @rc;
+		my @locations;
+
+		foreach my $l(@rc) {
+			push @locations, Location::GeoTool->create_coord($l->{'latitude'}, $l->{'longitude'}, $l->{'location'}, 'Degree');
+		}
+
+		return @locations;
 	}
 
 	my $location = $param{location}
@@ -221,8 +229,9 @@ sub geocode {
 		$location = "$1, Washington, DC, $2";
 	}
 
-	if($known_locations{$location}) {
-		return $known_locations{$location};
+	if(my $rc = $known_locations{$location}) {
+		# return $known_locations{$location};
+		return Location::GeoTool->create_coord($rc->{'latitude'}, $rc->{'longitude'}, $location, 'Degree');
 	}
 
 	$self->{'location'} = $location;
@@ -726,14 +735,15 @@ sub geocode {
 					}
 				}
 				if(my $rc = $self->_get("$city$state$c")) {
-					return {
-						'number' => undef,
-						'street' => undef,
-						'city' => $city,
-						'state' => $state,
-						'country' => $country,
-						%{$rc}
-					};
+					# return {
+						# 'number' => undef,
+						# 'street' => undef,
+						# 'city' => $city,
+						# 'state' => $state,
+						# 'country' => $country,
+						# %{$rc}
+					# };
+					return $rc;
 				}
 			}
 		}
@@ -871,6 +881,7 @@ sub _get {
 	# ::diag("$location: $digest");
 	if(my $cache = $self->{'cache'}) {
 		if(my $rc = $cache->get_object($digest)) {
+			# ::diag(__LINE__, ': retrieved from cache');
 			return Storable::thaw($rc->value());
 		}
 	}
@@ -892,6 +903,7 @@ sub _get {
 			# }
 		# }
 		# ::diag(Data::Dumper->new([\$rc])->Dump());
+		$rc = Location::GeoTool->create_coord($rc->{'latitude'}, $rc->{'longitude'}, $location, 'Degree');
 		if(my $cache = $self->{'cache'}) {
 			$cache->set($digest, Storable::freeze($rc), '1 week');
 		}

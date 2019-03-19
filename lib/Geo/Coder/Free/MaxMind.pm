@@ -370,11 +370,11 @@ sub geocode {
 		if(scalar(@rc) == 0) {
 			@rc = $self->{'cities'}->selectall_hash('Region' => $options->{'Region'});
 			if(scalar(@rc) == 0) {
-	# 			::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;
 			}
 		}
-	# 	::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
+	 	# ::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {
 			if($city->{'Latitude'}) {
 				$city->{'latitude'} = delete $city->{'Latitude'};
@@ -439,7 +439,7 @@ sub geocode {
 		return Location::GeoTool->create_coord($city->{'latitude'}, $city->{'longitude'}, $location, 'Degree');
 	}
 	# return $city;
-	return;	# ensure undef is returned
+	undef;
 }
 
 =head2 reverse_geocode
