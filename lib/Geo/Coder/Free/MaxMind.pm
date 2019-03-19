@@ -126,8 +126,9 @@ sub geocode {
 		$location = "$1, Washington, DC, $2";
 	}
 
-	if($known_locations{$location}) {
-		return $known_locations{$location};
+	if(my $rc = $known_locations{$location}) {
+		# return $known_locations{$location};
+		return Location::GeoTool->create_coord($rc->{'latitude'}, $rc->{'longitude'}, $location, 'Degree');
 	}
 
 	# ::diag(__LINE__, ": $location");
@@ -193,7 +194,7 @@ sub geocode {
 			$concatenated_codes = 'GB';
 		}
 		my $countrycode = country2code($country);
-		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
+	# 	::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
 
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
@@ -229,6 +230,7 @@ sub geocode {
 			}
 		}
 	}
+	# ::diag(__LINE__, ": $concatenated_codes");
 	return unless(defined($concatenated_codes));
 
 	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
@@ -301,7 +303,7 @@ sub geocode {
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
-		# ::diag(__LINE__, ": $location");
+	# 	::diag(__LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
@@ -368,11 +370,11 @@ sub geocode {
 		if(scalar(@rc) == 0) {
 			@rc = $self->{'cities'}->selectall_hash('Region' => $options->{'Region'});
 			if(scalar(@rc) == 0) {
-				# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+	# 			::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;
 			}
 		}
-		# ::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
+	# 	::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {
 			if($city->{'Latitude'}) {
 				$city->{'latitude'} = delete $city->{'Latitude'};
@@ -429,6 +431,7 @@ sub geocode {
 		}
 	}
 
+	# ::diag(__LINE__, Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
 		$city->{'latitude'} = delete $city->{'Latitude'};
 		$city->{'longitude'} = delete $city->{'Longitude'};
@@ -436,6 +439,7 @@ sub geocode {
 		return Location::GeoTool->create_coord($city->{'latitude'}, $city->{'longitude'}, $location, 'Degree');
 	}
 	# return $city;
+	return;	# ensure undef is returned
 }
 
 =head2 reverse_geocode

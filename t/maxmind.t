@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 79;
+use Test::Most tests => 38;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -87,20 +87,20 @@ MAXMIND: {
 			cmp_deeply($l,
 				methods('lat' => num(39.00, 1e-2), 'long' => num(-77.03, 1e-2)));
 
-			my $location = $geo_coder->geocode('Montgomery County, Maryland, USA');
-			ok(!defined($location));
+			$l = $geo_coder->geocode('Montgomery County, Maryland, USA');
+			ok(!defined($l));
 
 			cmp_deeply($geo_coder->geocode('St Nicholas-at-Wade, Kent, UK'),
 				methods('lat' => num(51.35, 1e-2), 'long' => num(1.25, 1e-2)));
 
 			TODO: {
 				local $TODO = "Don't know how to parse counties in the USA";
-				$location = $geo_coder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
+				my $location = $geo_coder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
 				ok(!defined($location));
 			}
 
 			# FIXME:  this actually does a look up that fails
-			$location = $geo_coder->geocode('Rockville Pike, Rockville, MD, USA');
+			my $location = $geo_coder->geocode('Rockville Pike, Rockville, MD, USA');
 			ok(!defined($location));
 
 			cmp_deeply($geo_coder->geocode('Rockville, Montgomery County, MD, USA'),
@@ -123,9 +123,11 @@ MAXMIND: {
 			my @locations = $geo_coder->geocode(location => 'Temple Ewell, Kent, England');
 			ok(defined($locations[0]));
 			cmp_deeply($locations[0],
-				methods('lat' => num(53.55, 1e-2), 'long' => num(-113.50, 1e-2)));
+				methods('lat' => num(51.15, 1e-2), 'long' => num(1.27, 1e-2)));
 
-			cmp_deeply($geo_coder->geocode('Newport Pagnell, Buckinghamshire, England'),
+			$l = $geo_coder->geocode('Newport Pagnell, Buckinghamshire, England');
+			ok(defined($l));
+			cmp_deeply($l,
 				methods('lat' => num(52.08, 1e-2), 'long' => num(-0.72, 1e-2)));
 
 			$location = $geo_coder->geocode('Thanet, Kent, England');
@@ -134,13 +136,15 @@ MAXMIND: {
 			cmp_deeply($geo_coder->geocode('Kent, England'),
 				methods('lat' => num(51.25, 1e-2), 'long' => num(0.75, 1e-2)));
 
-			cmp_deeply($geo_coder->geocode('Maryland, USA'),
-				methods('lat' => num(38.25, 1e-2), 'long' => num(-75.74, 1e-2)));
+			$l = $geo_coder->geocode('Maryland, USA');
+			cmp_deeply($l,
+				methods('lat' => num(38.25, 1e-2), 'long' => num(-76.74, 1e-2)));
 
 			$location = $geo_coder->geocode('Nebraska, USA');
 			ok(defined($location));
 
-			cmp_deeply($geo_coder->geocode('New Brunswick, Canada'),
+			$l = $geo_coder->geocode('New Brunswick, Canada');
+			cmp_deeply($l,
 				methods('lat' => num(39.95, 1e-2), 'long' => num(-86.52, 1e-2)));
 
 			$location = $geo_coder->geocode('Vessels, Misc Ships At sea or abroad, England');
@@ -158,7 +162,7 @@ MAXMIND: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 78);
+			skip('Author tests not required for installation', 37);
 		}
 	}
 }
