@@ -208,7 +208,7 @@ OPENADDR: {
 
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 97);
+				skip('Author tests not required for installation', 47);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');

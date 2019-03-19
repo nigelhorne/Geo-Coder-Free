@@ -97,7 +97,7 @@ WHOSONFIRST: {
 				# diag(Data::Dumper->new([$location])->Dump());
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 44);
+				skip('Author tests not required for installation', 16);
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');

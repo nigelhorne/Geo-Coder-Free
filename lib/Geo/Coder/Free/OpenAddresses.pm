@@ -226,8 +226,8 @@ sub geocode {
 		$location = $1;
 	}
 
-	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
-		$location = "$1, Washington, DC, $2";
+	if($location =~ /^(.+),?\s*Washington\s*DC/i) {
+		$location = "$1, Washington, DC, USA";
 	}
 
 	if(my $rc = $known_locations{$location}) {
