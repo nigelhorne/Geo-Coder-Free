@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.18
+0.18	Wed 20 Mar 17:00:52 EDT 2019
 	Added Geo::Coder::Free::Local
 	Now return Geo::Location::Point object
 
