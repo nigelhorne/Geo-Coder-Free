@@ -199,7 +199,7 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode(location => 'Whitley, Indiana, USA');
 				ok(defined($location));
-				ok(ref($location) eq 'Location::GeoTool');
+				ok(ref($location) eq 'Geo::Location::Point');
 
 				# RT#127140
 				# $location = $geo_coder->geocode({ location => '131 107th St, Manhattan, New York, New York, USA' });

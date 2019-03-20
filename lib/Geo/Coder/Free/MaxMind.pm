@@ -6,7 +6,7 @@ use warnings;
 use Geo::Coder::Free::DB::MaxMind::admin1;
 use Geo::Coder::Free::DB::MaxMind::admin2;
 use Geo::Coder::Free::DB::MaxMind::cities;
-use Location::GeoTool;
+use Geo::Location::Point;
 use Module::Info;
 use Carp;
 use File::Spec;
@@ -128,7 +128,11 @@ sub geocode {
 
 	if(my $rc = $known_locations{$location}) {
 		# return $known_locations{$location};
-		return Location::GeoTool->create_coord($rc->{'latitude'}, $rc->{'longitude'}, $location, 'Degree');
+		return Geo::Location::Point->new({
+			'lat' => $rc->{'latitude'},
+			'long' => $rc->{'longitude'},
+			'location' => $location
+		});
 	}
 
 	# ::diag(__LINE__, ": $location");
@@ -411,7 +415,11 @@ sub geocode {
 		my @locations;
 
 		foreach my $l(@rc) {
-			push @locations, Location::GeoTool->create_coord($l->{'latitude'}, $l->{'longitude'}, $location, 'Degree');
+			push @locations, Geo::Location::Point->new({
+				'lat' => $l->{'latitude'},
+				'long' => $l->{'longitude'},
+				'location' => $location
+			});
 		}
 
 		return @locations;
@@ -436,7 +444,11 @@ sub geocode {
 		$city->{'latitude'} = delete $city->{'Latitude'};
 		$city->{'longitude'} = delete $city->{'Longitude'};
 		$city->{'confidence'} = $confidence;
-		return Location::GeoTool->create_coord($city->{'latitude'}, $city->{'longitude'}, $location, 'Degree');
+		return Geo::Location::Point->new({
+			'lat' => $city->{'latitude'},
+			'long' => $city->{'longitude'},
+			'location' => $location
+		});
 	}
 	# return $city;
 	undef;

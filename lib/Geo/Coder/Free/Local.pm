@@ -6,7 +6,7 @@ use warnings;
 use Lingua::EN::AddressParse;
 use Locale::CA;
 use Locale::US;
-use Location::GeoTool;
+use Geo::Location::Point;
 use Text::xSV::Slurp;
 
 =head1 NAME
@@ -305,7 +305,11 @@ sub _search {
 		}
 		# ::diag("match: $match");
 		if($match) {
-			return Location::GeoTool->create_coord($row->{'latitude'}, $row->{'longitude'}, $data->{'location'}, 'Degree');
+			return Geo::Location::Point->new(
+				'lat' => $row->{'latitude'},
+				'long' => $row->{'longitude'},
+				'location' => $data->{'location'}
+			);
 		}
 	}
 }

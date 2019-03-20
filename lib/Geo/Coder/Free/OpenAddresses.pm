@@ -5,7 +5,7 @@ use warnings;
 
 use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
 use Geo::Coder::Free::DB::openaddresses;	# The original CSV files
-use Location::GeoTool;
+use Geo::Location::Point;
 use Module::Info;
 use Carp;
 use File::Spec;
@@ -157,47 +157,47 @@ sub geocode {
 				# TODO: Support longer addresses
 				if($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
-						$l->{'confidence'} = 0.8;
-						$l->{'location'} = "$addr, USA";
-						$l->{'country'} = 'US';
+						$l->confidence(0.8);
+						$l->location("$addr, USA");
+						$l->country('US');
 						push @rc, $l;
 					}
 				} elsif($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
-						$l->{'confidence'} = 0.8;
-						$l->{'location'} = "$addr, Canada";
-						$l->{'country'} = 'CA';
+						$l->confidence(0.8);
+						$l->location("$addr, Canada");
+						$l->country('CA');
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
-						$l->{'confidence'} = 0.6;
-						$l->{'location'} = "$addr, USA";
-						$l->{'city'} = uc($1);
-						$l->{'state'} = uc($3);
-						$l->{'country'} = 'US';
+						$l->confidence(0.6);
+						$l->location("$addr, USA");
+						$l->city(uc($1));
+						$l->state(uc($3));
+						$l->country('US');
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
-						$l->{'confidence'} = 0.6;
-						$l->{'location'} = "$addr, Canada";
-						$l->{'city'} = uc($1);
-						$l->{'state'} = uc($3);
-						$l->{'country'} = 'CA';
+						$l->confidence(0.6);
+						$l->location("$addr, Canada");
+						$l->city(uc($1));
+						$l->state(uc($3));
+						$l->country('US');
 						push @rc, $l;
 					}
 				}
 				if(($l = $self->geocode(location => $addr)) && ref($l)) {
-					$l->{'confidence'} = 0.1;
-					$l->{'location'} = $addr;
+					$l->confidence(0.1);
+					$l->location($addr);
 					push @rc, $l;
 				}
 				if($offset < $count - 2) {
 					$addr = join(', ', $words[$offset], $words[$offset + 1], $words[$offset + 2]);
 					if(($l = $self->geocode(location => $addr)) && ref($l)) {
-						$l->{'confidence'} = 1.0;
-						$l->{'location'} = $addr;
+						$l->confidence(1.0);
+						$l->location($addr);
 						push @rc, $l;
 					}
 				}
@@ -232,7 +232,11 @@ sub geocode {
 
 	if(my $rc = $known_locations{$location}) {
 		# return $known_locations{$location};
-		return Location::GeoTool->create_coord($rc->{'latitude'}, $rc->{'longitude'}, $location, 'Degree');
+		return Geo::Location::Point->new({
+			'lat' => $rc->{'latitude'},
+			'long' => $rc->{'longitude'},
+			'location' => $location
+		});
 	}
 
 	$self->{'location'} = $location;
@@ -904,7 +908,11 @@ sub _get {
 			# }
 		# }
 		# ::diag(Data::Dumper->new([\$rc])->Dump());
-		$rc = Location::GeoTool->create_coord($rc->{'latitude'}, $rc->{'longitude'}, $location, 'Degree');
+		$rc = Geo::Location::Point->new({
+			'lat' => $rc->{'latitude'},
+			'long' => $rc->{'longitude'},
+			'location' => $location
+		});
 		if(my $cache = $self->{'cache'}) {
 			$cache->set($digest, Storable::freeze($rc), '1 week');
 		}
