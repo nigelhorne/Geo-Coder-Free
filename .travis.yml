@@ -25,4 +25,4 @@ install:
 
 script:
   env: TEST_VERBOSE=1
-  perl Makefile.PL && make && cover -test -report coveralls
+  perl Makefile.PL && make && TEST_VERBOSE=1 cover -test -report coveralls
