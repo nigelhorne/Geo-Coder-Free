@@ -24,4 +24,5 @@ install:
   - cpanm -v --installdeps --notest .
 
 script:
+  env: TEST_VERBOSE=1
   perl Makefile.PL && make && cover -test -report coveralls
