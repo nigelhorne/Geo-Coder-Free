@@ -285,8 +285,7 @@ sub _search {
 	my $location;
 
 	# FIXME: linear search
-	my $row;
-	foreach $row(@{$self->{'data'}}) {
+	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
 	# ::diag(Data::Dumper->new([$self->{data}])->Dump());
 	# ::diag(Data::Dumper->new([\@columns])->Dump());
@@ -314,16 +313,56 @@ sub _search {
 	}
 }
 
-=head2 reverse_geocode
+=head2	reverse_geocode
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
-
-To be done.
 
 =cut
 
 sub reverse_geocode {
-	Carp::croak('Reverse lookup is not yet supported');
+	my $self = shift;
+
+	my %param;
+	if(ref($_[0]) eq 'HASH') {
+		%param = %{$_[0]};
+	} elsif(ref($_[0])) {
+		Carp::croak('Usage: geocode(latlng => $location)');
+	} elsif(@_ % 2 == 0) {
+		%param = @_;
+	} else {
+		$param{'latlng'} = shift;
+	}
+
+	my $latlng = $param{'latlng'}
+		or Carp::croak('Usage: geocode(latlng => $location)');
+
+	my $latitude;
+	my $longitude;
+
+	if($latlng) {
+		($latitude, $longitude) = split(/,/, $latlng);
+	} else {
+		$latitude //= $param{'lat'};
+		$longitude //= $param{'lon'};
+		$longitude //= $param{'long'};
+	}
+
+	my @rc;
+	foreach my $row(@{$self->{'data'}}) {
+		if(defined($row->{'latitude'}) && defined($row->{'longitude'})) {
+			if(($row->{'latitude'} == $latitude) &&
+			   ($row->{'longitude'} == $longitude)) {
+				my $point = Geo::Location::Point->new($row);
+				if(wantarray) {
+					push @rc, $point->as_string();
+				} else {
+					return $point->as_string();
+				}
+			}
+		}
+	}
+
+	return @rc;
 }
 
 =head2	ua
