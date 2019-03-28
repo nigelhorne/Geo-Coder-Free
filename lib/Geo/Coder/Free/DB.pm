@@ -58,7 +58,7 @@ sub new {
 
 	my $class = ref($proto) || $proto;
 
-	if($class eq 'Geo::Coder::Free::DB') {
+	if($class eq __PACKAGE__) {
 		die "$class: abstract class";
 	}
 
@@ -273,26 +273,26 @@ sub selectall_hash {
 	}
 
 	my $query = "SELECT * FROM $table";
-	my @args;
+	my @query_args;
 	foreach my $c1(sort keys(%params)) {	# sort so that the key is always the same
-		if(scalar(@args) == 0) {
+		if(scalar(@query_args) == 0) {
 			$query .= ' WHERE';
 		} else {
 			$query .= ' AND';
 		}
 		$query .= " $c1 = ?";
-		push @args, $params{$c1};
+		push @query_args, $params{$c1};
 	}
 	if($self->{'logger'}) {
-		if(defined($args[0])) {
-			$self->{'logger'}->debug("selectall_hash $query: ", join(', ', @args));
+		if(defined($query_args[0])) {
+			$self->{'logger'}->debug("selectall_hash $query: ", join(', ', @query_args));
 		} else {
 			$self->{'logger'}->debug("selectall_hash $query");
 		}
 	}
 	my $key = $query;
-	if(defined($args[0])) {
-		$key .= ' ' . join(', ', @args);
+	if(defined($query_args[0])) {
+		$key .= ' ' . join(', ', @query_args);
 	}
 	my $c;
 	if($c = $self->{cache}) {
@@ -300,19 +300,23 @@ sub selectall_hash {
 			return @{$rc};
 		}
 	}
-	my $sth = $self->{$table}->prepare($query);
-	$sth->execute(@args) || throw Error::Simple("$query: @args");
 
-	my @rc;
-	while(my $href = $sth->fetchrow_hashref()) {
-		push @rc, $href;
-		last if(!wantarray);
-	}
-	if($c && wantarray) {
-		$c->set($key, \@rc, '1 hour');
-	}
+	if(my $sth = $self->{$table}->prepare($query)) {
+		$sth->execute(@query_args) || throw Error::Simple("$query: @query_args");
 
-	return @rc;
+		my @rc;
+		while(my $href = $sth->fetchrow_hashref()) {
+			push @rc, $href;
+			last if(!wantarray);
+		}
+		if($c && wantarray) {
+			$c->set($key, \@rc, '1 hour');
+		}
+
+		return @rc;
+	}
+	$self->{'logger'}->warn("selectall_hash failure on $query: @query_args");
+	throw Error::Simple("$query: @query_args");
 }
 
 # Returns a hash reference for one row in a table
