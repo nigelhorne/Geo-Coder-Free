@@ -338,7 +338,8 @@ sub geocode {
 	}
 
 	if(!defined($self->{'cities'})) {
-		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new();
+		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new(
+			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {}));
 	}
 
 	my $options;
@@ -463,6 +464,44 @@ To be done.
 =cut
 
 sub reverse_geocode {
+	my $self = shift;
+
+	my %param;
+	if(ref($_[0]) eq 'HASH') {
+		%param = %{$_[0]};
+	} elsif(ref($_[0])) {
+		Carp::croak('Usage: reverse_geocode(latlng => $location)');
+	} elsif(@_ % 2 == 0) {
+		%param = @_;
+	} else {
+		$param{'latlng'} = shift;
+	}
+
+	my $latlng = $param{'latlng'}
+		or Carp::croak('Usage: reverse_geocode(latlng => $location)');
+
+	my $latitude;
+	my $longitude;
+
+	if($latlng) {
+		($latitude, $longitude) = split(/,/, $latlng);
+	} else {
+		$latitude //= $param{'lat'};
+		$longitude //= $param{'lon'};
+		$longitude //= $param{'long'};
+	}
+
+	if(!defined($self->{'cities'})) {
+		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new(
+			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
+		);
+	}
+
+	if(wantarray) {
+		my @rc = $self->{'cities'}->execute({ "SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01)" });
+	}
+	return $self->{'cities'}->execute({ "SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01) LIMIT 1" });
+	
 	Carp::croak('Reverse lookup is not yet supported');
 }
 

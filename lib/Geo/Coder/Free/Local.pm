@@ -326,7 +326,7 @@ sub reverse_geocode {
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(latlng => $location)');
+		Carp::croak('Usage: reverse_geocode(latlng => $location)');
 	} elsif(@_ % 2 == 0) {
 		%param = @_;
 	} else {
@@ -334,7 +334,7 @@ sub reverse_geocode {
 	}
 
 	my $latlng = $param{'latlng'}
-		or Carp::croak('Usage: geocode(latlng => $location)');
+		or Carp::croak('Usage: reverse_geocode(latlng => $location)');
 
 	my $latitude;
 	my $longitude;
