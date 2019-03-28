@@ -8,6 +8,7 @@ image:
 environment:
   PERL5LIB: /home/appveyor/perl5/lib/perl5
   AUTOMATED_TESTING: 1
+  TEST_VERBOSE: 1
 
 platform: x64
 
@@ -38,4 +39,4 @@ build_script:
 
 test_script:
   - cmd: gmake test
-  - sh: make test
+  - sh: TEST_VERBOSE=1 make test
