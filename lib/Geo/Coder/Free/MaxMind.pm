@@ -454,7 +454,7 @@ sub geocode {
 	undef;
 }
 
-=head2 reverse_geocode
+=head2	reverse_geocode
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
 
