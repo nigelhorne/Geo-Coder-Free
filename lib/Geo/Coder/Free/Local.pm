@@ -350,8 +350,8 @@ sub reverse_geocode {
 	my @rc;
 	foreach my $row(@{$self->{'data'}}) {
 		if(defined($row->{'latitude'}) && defined($row->{'longitude'})) {
-			if(($row->{'latitude'} == $latitude) &&
-			   ($row->{'longitude'} == $longitude)) {
+			if(_equal($row->{'latitude'}, $latitude, 4) &&
+			   _equal($row->{'longitude'}, $longitude, 4)) {
 				my $point = Geo::Location::Point->new($row);
 				if(wantarray) {
 					push @rc, $point->as_string();
@@ -361,8 +361,16 @@ sub reverse_geocode {
 			}
 		}
 	}
-
 	return @rc;
+}
+
+# https://www.oreilly.com/library/view/perl-cookbook/1565922433/ch02s03.html
+# equal(NUM1, NUM2, ACCURACY) : returns true if NUM1 and NUM2 are
+# equal to ACCURACY number of decimal places
+sub _equal {
+	my ($A, $B, $dp) = @_;
+
+	return sprintf("%.${dp}g", $A) eq sprintf("%.${dp}g", $B);
 }
 
 =head2	ua
