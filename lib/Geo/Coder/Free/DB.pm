@@ -285,7 +285,7 @@ sub selectall_hash {
 	}
 	if($self->{'logger'}) {
 		if(defined($args[0])) {
-			$self->{'logger'}->debug("selectall_hash $query: " . join(', ', @args));
+			$self->{'logger'}->debug("selectall_hash $query: ", join(', ', @args));
 		} else {
 			$self->{'logger'}->debug("selectall_hash $query");
 		}
@@ -347,7 +347,7 @@ sub fetchrow_hashref {
 	$query .= ' LIMIT 1';
 	if($self->{'logger'}) {
 		if(defined($args[0])) {
-			$self->{'logger'}->debug("fetchrow_hashref $query: " . join(', ', @args));
+			$self->{'logger'}->debug("fetchrow_hashref $query: ", join(', ', @args));
 		} else {
 			$self->{'logger'}->debug("fetchrow_hashref $query");
 		}
