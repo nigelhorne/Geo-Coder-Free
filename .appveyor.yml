@@ -29,7 +29,8 @@ install:
   - perl -V
   - cmd: mkdir %APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
-  - cpan App::cpanminus
+  - cmd: cpan App::cpanminus
+  - sh: sudo apt-get install -y cpanminus
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
   - cpanm -v --installdeps .
   - cmd: 'echo End install at: & time /t'
