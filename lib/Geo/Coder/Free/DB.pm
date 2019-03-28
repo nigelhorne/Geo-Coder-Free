@@ -1,7 +1,7 @@
 package Geo::Coder::Free::DB;
 
 # Author Nigel Horne: njh@bandsman.co.uk
-# Copyright (C) 2015-2018, Nigel Horne
+# Copyright (C) 2015-2019, Nigel Horne
 
 # Usage is subject to licence terms.
 # The licence terms of this software are as follows:
@@ -10,19 +10,29 @@ package Geo::Coder::Free::DB;
 #	must apply in writing for a licence for use from Nigel Horne at the
 #	above e-mail.
 
-# TODO: support a directory hierachy of databases
+# Abstract class giving read-only access to CSV, XML and SQLite databases via Perl without writing any SQL.
+# Look for databases in $directory in this order;
+#	SQLite (file ends with .sql)
+#	CSV (file ends with .csv or .db, can be gzipped)
+#	XML (file ends with .xml)
 
-# Abstract class giving read-only access to CSV, XML and SQLite databases
-
-# You can then access the files in $directory/foo.csv via this class:
+# For example, you can access the files in /var/db/foo.csv via this class:
 
 # package MyPackageName::DB::foo;
 
-# use Geo::Coder::Free::DB
+# use NJH::Snippets::DB;
 
-# our @ISA = ('Geo::Coder::Free::DB');
+# our @ISA = ('NJH::Snippets::DB');
 
 # 1;
+
+# You can then access the data using:
+# my $foo = MyPackageName::DB::foo->new(directory => '/var/db');
+# my $row = $foo->fetchrow_hashref(customer_id => '12345);
+# print Data::Dumper->new([$row])->Dump();
+
+# TODO: support a directory hierachy of databases
+# TODO: consider returning an object or array of objects, rather than hashes
 
 use warnings;
 use strict;
@@ -451,7 +461,7 @@ sub AUTOLOAD {
 	}
 	if($self->{'logger'}) {
 		if(scalar(@args) && $args[0]) {
-			$self->{'logger'}->debug("AUTOLOAD $query: " . join(', ', @args));
+			$self->{'logger'}->debug("AUTOLOAD $query: ", join(', ', @args));
 		} else {
 			$self->{'logger'}->debug("AUTOLOAD $query");
 		}
