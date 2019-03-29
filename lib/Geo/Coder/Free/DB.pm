@@ -374,7 +374,8 @@ sub fetchrow_hashref {
 }
 
 # Execute the given SQL on the data
-# In an array context, returns an array of hash refs, in a scalar context returns a hash of the first row
+# In an array context, returns an array of hash refs,
+#	in a scalar context returns a hash of the first row
 sub execute {
 	my $self = shift;
 	my %args;
@@ -406,7 +407,7 @@ sub execute {
 		push @rc, $href;
 	}
 
-	return \@rc;
+	return @rc;
 }
 
 # Time that the database was last updated
