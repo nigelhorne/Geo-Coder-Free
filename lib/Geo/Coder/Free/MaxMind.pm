@@ -158,7 +158,7 @@ sub geocode {
 		if($location =~ /^St\.? (.+)/) {
 			$location = "Saint $1";
 		}
-		if(($country =~ /^(United States|USA|US)$/)) {
+		if(($country =~ /^(Canada|United States|USA|US)$/)) {
 			$state = $county;
 			$county = undef;
 		}
@@ -198,7 +198,7 @@ sub geocode {
 			$concatenated_codes = 'GB';
 		}
 		my $countrycode = country2code($country);
-	# 	::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
+		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
 
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
@@ -237,37 +237,48 @@ sub geocode {
 	# ::diag(__LINE__, ": $concatenated_codes");
 	return unless(defined($concatenated_codes));
 
-	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-
 	my @admin2s;
 	my $region;
 	my @regions;
+	# ::diag(__LINE__, ": $country");
 	if(($country =~ /^(United States|USA|US)$/) && $county && (length($county) > 2)) {
 		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 			$county = $twoletterstate;
 		}
-	} elsif(($country eq 'Canada') && (length($county) > 2)) {
-		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($county)}) {
-			$county = $twoletterstate;
+	} elsif(($country eq 'Canada') && (length($state) > 2)) {
+		# ::diag(__LINE__, ": $county");
+		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+			# FIXME:  I can't see that province locations are stored in cities.csv
+			return unless(defined($location));	# OK if searching for a city, that works
+			# $state = $twoletterstate;
 		}
 	}
+
+	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+
 	if(defined($county) && ($county =~ /^[A-Z]{2}$/) && ($country =~ /^(United States|USA|US)$/)) {
 		# US state. Not Canadian province.
 		$region = $county;
 	} else {
 		if($county && $admin1cache{$county}) {
+		# ::diag(__LINE__);
 			$region = $admin1cache{$county};
 		} elsif($county && $admin2cache{$county}) {
+		# ::diag(__LINE__);
 			$region = $admin2cache{$county};
 		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
+		# ::diag(__LINE__);
 			$region = $admin2cache{$state};
 		} else {
+		# ::diag(__LINE__);
 			if(defined($county) && ($county eq 'London')) {
 				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 			} else {
+			# ::diag(__LINE__, ": $county");
 				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
 			}
 			foreach my $admin2(@admin2s) {
+				# ::diag(__LINE__, Data::Dumper->new([$admin2])->Dump());
 				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
 					$region = $admin2->{'concatenated_codes'};
 					if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
@@ -307,7 +318,7 @@ sub geocode {
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
-	# 	::diag(__LINE__, ": $location");
+	# 	# ::diag(__LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
@@ -328,6 +339,7 @@ sub geocode {
 			}
 			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
+				# ::diag(__LINE__, Data::Dumper->new([$admin1])->Dump());
 				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
 					$region = $admin1->{'concatenated_codes'};
 					$admin1cache{$county} = $region;
@@ -369,6 +381,7 @@ sub geocode {
 		$options->{'Country'} = lc($c);
 		$confidence = 0.1;
 	}
+	# ::diag(__LINE__, Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
@@ -442,14 +455,8 @@ sub geocode {
 
 	# ::diag(__LINE__, Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
-		$city->{'latitude'} = delete $city->{'Latitude'};
-		$city->{'longitude'} = delete $city->{'Longitude'};
 		$city->{'confidence'} = $confidence;
-		return Geo::Location::Point->new({
-			'lat' => $city->{'latitude'},
-			'long' => $city->{'longitude'},
-			'location' => $location
-		});
+		return Geo::Location::Point->new($city);
 	}
 	# return $city;
 	undef;
@@ -534,6 +541,8 @@ Lots of lookups fail at the moment.
 The MaxMind data only contains cities.
 
 Can't parse and handle "London, England".
+
+The database contains Canadian cities, but not provinces, so a search for "New Brunswick, Canada" won't work
 
 The GeoNames admin databases are in this class, they should be in Geo::Coder::GeoNames.
 

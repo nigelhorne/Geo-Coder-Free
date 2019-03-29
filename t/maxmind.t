@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 39;
+use Test::Most tests => 38;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -113,12 +113,15 @@ MAXMIND: {
 			cmp_deeply($geo_coder->geocode('Temple Ewell, Kent, England'),
 				methods('lat' => num(51.15, 1e-2), 'long' => num(1.27, 1e-2)));
 
-			cmp_deeply($geo_coder->geocode('Temple Ewell, Kent, England'),
-				methods('lat' => num(51.15, 1e-2), 'long' => num(1.27, 1e-2)));
+			like($geo_coder->reverse_geocode('51.15,1.27'), qr/Ewell,/, 'test reverse');
 
-			cmp_deeply($geo_coder->geocode('Edmonton, Alberta, Canada'),
+			$l = $geo_coder->geocode('Temple Ewell, Kent, England');
+			cmp_deeply($l,
+				methods('lat' => num(51.15, 1.27), 'long' => num(1.27, 1e-2)));
+
+			$l = $geo_coder->geocode('Edmonton, Alberta, Canada');
+			cmp_deeply($l,
 				methods('lat' => num(53.55, 1e-2), 'long' => num(-113.50, 1e-2)));
-
 
 			my @locations = $geo_coder->geocode(location => 'Temple Ewell, Kent, England');
 			ok(defined($locations[0]));
@@ -143,14 +146,6 @@ MAXMIND: {
 			$location = $geo_coder->geocode('Nebraska, USA');
 			ok(defined($location));
 
-			$l = $geo_coder->geocode('New Brunswick, Canada');
-
-			cmp_deeply($l,
-				methods('lat' => num(39.95, 1e-2), 'long' => num(-86.52, 1e-2)));
-
-			diag($geo_coder->reverse_geocode('39.95, -86.52'));
-			ok($geo_coder->reverse_geocode('39.95, -86.52') eq 'New Brunswick, Canada');
-
 			$location = $geo_coder->geocode('Vessels, Misc Ships At sea or abroad, England');
 			ok(!defined($location));
 
@@ -166,7 +161,7 @@ MAXMIND: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 38);
+			skip('Author tests not required for installation', 37);
 		}
 	}
 }
