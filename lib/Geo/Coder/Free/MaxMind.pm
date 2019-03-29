@@ -514,8 +514,6 @@ sub reverse_geocode {
 	}
 	my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01) LIMIT 1");
 	return Geo::Location::Point->new($rc)->as_string();
-
-	Carp::croak('Reverse lookup is not yet supported');
 }
 
 =head2	ua
