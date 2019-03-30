@@ -3,10 +3,11 @@ package Geo::Coder::Free::Local;
 use strict;
 use warnings;
 
+use Geo::Location::Point;
+use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
 use Locale::CA;
 use Locale::US;
-use Geo::Location::Point;
 use Text::xSV::Slurp;
 
 =head1 NAME
@@ -185,6 +186,83 @@ sub geocode {
 		}
 	}
 
+	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+		# Try Geo::StreetAddress::US, which is rather buggy
+
+		my $l = $1;
+		$l =~ s/,/ /g;
+		$l =~ s/\s\s+/ /g;
+
+		# Work around for RT#122617
+		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
+			if(my $state = $href->{'state'}) {
+				if(length($state) > 2) {
+					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						$state = $twoletterstate;
+					}
+				}
+				my $city;
+				if($href->{city}) {
+					$city = uc($href->{city});
+				}
+				if(my $street = $href->{street}) {
+					if($href->{'type'} && (my $type = $self->_normalize($href->{'type'}))) {
+						$street .= " $type";
+					}
+					if($href->{suffix}) {
+						$street .= ' ' . $href->{suffix};
+					}
+					if(my $prefix = $href->{prefix}) {
+						$street = "$prefix $street";
+					}
+					my %addr = (
+						house_number => $href->{'number'},
+						road => $street,
+						city => $city,
+						state => $state,
+						country => 'US'
+					);
+					if($href->{'number'}) {
+						if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+							$rc->{'country'} = 'US';
+							return $rc;
+						}
+					}
+					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state_district', 'state', 'country'))) {
+						$rc->{'country'} = 'US';
+						return $rc;
+					}
+				}
+			}
+		}
+
+		# Hack to find "name, street, town, state, US"
+		my @addr = split(/,\s*/, $location);
+		if(scalar(@addr) == 5) {
+			# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
+			my $state = $addr[3];
+			if(length($state) > 2) {
+				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					$state = $twoletterstate;
+				}
+			}
+			if(length($state) == 2) {
+				my %addr = (
+					house_number => $addr[0],
+					road => $addr[1],
+					city => $addr[2],
+					state => $state,
+					country => 'US'
+				);
+				if(my $rc = $self->_get($addr[0], $addr[1], $addr[2], $state, 'US')) {
+					# ::diag(Data::Dumper->new([$rc])->Dump());
+					$rc->{'country'} = 'US';
+					return $rc;
+				}
+			}
+		}
+	}
+
 	# Finally try libpostal,
 	# which is good but uses a lot of memory
 	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
@@ -277,6 +355,55 @@ sub geocode {
 	undef;
 }
 
+sub _normalize {
+	my ($self, $type) = @_;
+
+	$type = uc($type);
+
+	if(($type eq 'AVENUE') || ($type eq 'AVE')) {
+		return 'AVE';
+	} elsif(($type eq 'STREET') || ($type eq 'ST')) {
+		return 'ST';
+	} elsif(($type eq 'ROAD') || ($type eq 'RD')) {
+		return 'RD';
+	} elsif(($type eq 'COURT') || ($type eq 'CT')) {
+		return 'CT';
+	} elsif(($type eq 'CIR') || ($type eq 'CIRCLE')) {
+		return 'CIR';
+	} elsif(($type eq 'FT') || ($type eq 'FORT')) {
+		return 'FT';
+	} elsif(($type eq 'CTR') || ($type eq 'CENTER')) {
+		return 'CTR';
+	} elsif(($type eq 'PARKWAY') || ($type eq 'PKWY')) {
+		return 'PKWY';
+	} elsif($type eq 'BLVD') {
+		return 'BLVD';
+	} elsif($type eq 'PIKE') {
+		return 'PIKE';
+	} elsif(($type eq 'DRIVE') || ($type eq 'DR')) {
+		return 'DR';
+	} elsif(($type eq 'SPRING') || ($type eq 'SPG')) {
+		return 'SPRING';
+	} elsif(($type eq 'RDG') || ($type eq 'RIDGE')) {
+		return 'RDG';
+	} elsif(($type eq 'CRK') || ($type eq 'CREEK')) {
+		return 'CRK';
+	} elsif(($type eq 'LANE') || ($type eq 'LN')) {
+		return 'LN';
+	} elsif(($type eq 'PLACE') || ($type eq 'PL')) {
+		return 'PL';
+	} elsif(($type eq 'GRDNS') || ($type eq 'GARDENS')) {
+		return 'GRDNS';
+	} elsif(($type eq 'HWY') || ($type eq 'HIGHWAY')) {
+		return 'HWY';
+	}
+
+	# Most likely failure of Geo::StreetAddress::US, but warn anyway, just in case
+	if($ENV{AUTHOR_TESTING}) {
+		warn $self->{'location'}, ": add type $type";
+	}
+}
+
 # $data is a hashref to data such as returned by Geo::libpostal::parse_address
 # @columns is the key names to use in $data
 sub _search {
@@ -284,11 +411,12 @@ sub _search {
 
 	my $location;
 
-	# FIXME: linear search
+	# FIXME: linear search is slow
+	# ::diag(Data::Dumper->new([\@columns])->Dump());
+	# ::diag(Data::Dumper->new([$data])->Dump());
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
 	# ::diag(Data::Dumper->new([$self->{data}])->Dump());
-	# ::diag(Data::Dumper->new([\@columns])->Dump());
 		foreach my $column(@columns) {
 			# ::diag("$column: ", $row->{$column}, '/', $data->{$column});
 			if($data->{$column}) {

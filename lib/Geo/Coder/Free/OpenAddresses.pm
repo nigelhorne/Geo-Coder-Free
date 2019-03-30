@@ -378,14 +378,13 @@ sub geocode {
 					if(my $prefix = $href->{prefix}) {
 						$street = "$prefix $street";
 					}
-					my $rc;
 					if($href->{'number'}) {
-						if($rc = $self->_get($href->{'number'}, "$street$city$state", 'US')) {
+						if(my $rc = $self->_get($href->{'number'}, "$street$city$state", 'US')) {
 							$rc->{'country'} = 'US';
 							return $rc;
 						}
 					}
-					if($rc = $self->_get("$street$city$state", 'US')) {
+					if(my $rc = $self->_get("$street$city$state", 'US')) {
 						$rc->{'country'} = 'US';
 						return $rc;
 					}
