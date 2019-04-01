@@ -109,6 +109,21 @@ sub geocode {
 	my $location = $param{location}
 		or Carp::croak('Usage: geocode(location => $location)');
 
+	my $lc = lc($location);
+	foreach my $row(@{$self->{'data'}}) {
+		my $rc = Geo::Location::Point->new($row);
+		my $str = lc($rc->as_string());
+
+		if($str eq $lc) {
+			return $rc;
+		}
+		if($str =~ /, us$/) {
+			if("${str}a" eq $lc) {
+				return $rc;
+			}
+		}
+	}
+
 	my $ap;
 	if(($location =~ /USA$/) || ($location =~ /United States$/)) {
 		$ap = $self->{'ap'}->{'us'} // Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
@@ -416,7 +431,9 @@ sub _search {
 	# ::diag(Data::Dumper->new([$data])->Dump());
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
-	# ::diag(Data::Dumper->new([$self->{data}])->Dump());
+
+		# ::diag(Data::Dumper->new([$self->{data}])->Dump());
+
 		foreach my $column(@columns) {
 			# ::diag("$column: ", $row->{$column}, '/', $data->{$column});
 			if($data->{$column}) {
