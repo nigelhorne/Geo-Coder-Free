@@ -979,7 +979,7 @@ To be done.
 
 # At the moment this can't be supported as the DB only has an MD5 in it
 sub reverse_geocode {
-	Carp::croak('Reverse lookup is not yet supported');
+	Carp::croak(__PACKAGE__, ': Reverse lookup is not yet supported');
 }
 
 =head2	ua

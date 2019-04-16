@@ -466,7 +466,7 @@ sub geocode {
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
 
-To be done.
+Returns a string, or undef if it can't be found.
 
 =cut
 
@@ -513,8 +513,10 @@ sub reverse_geocode {
 		# return @rc;
 		return map { Geo::Location::Point->new($_)->as_string() } @locs;
 	}
-	my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01) LIMIT 1");
-	return Geo::Location::Point->new($rc)->as_string();
+	if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01) LIMIT 1")) {
+		return Geo::Location::Point->new($rc)->as_string();
+	}
+	return;
 }
 
 =head2	ua
