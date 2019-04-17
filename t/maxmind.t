@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 39;
+use Test::Most tests => 40;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -117,6 +117,8 @@ MAXMIND: {
 
 			# Hatteras Island
 			ok(!defined($geo_coder->reverse_geocode('35.2440910277778,-75.6151199166667')));
+			is($geo_coder->reverse_geocode('51.5028915277778,-0.119718833333333'), 'Charing Cross, London, GB', 'test reverse in London');
+			# diag($geo_coder->reverse_geocode('51.5028915277778,-0.119718833333333'));
 
 			$l = $geo_coder->geocode('Temple Ewell, Kent, England');
 			cmp_deeply($l,
@@ -164,7 +166,7 @@ MAXMIND: {
 			});
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 38);
+			skip('Author tests not required for installation', 39);
 		}
 	}
 }

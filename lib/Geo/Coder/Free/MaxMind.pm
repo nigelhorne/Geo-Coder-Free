@@ -506,6 +506,18 @@ sub reverse_geocode {
 
 	if(wantarray) {
 		my @locs = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01)");
+		# Change 'Charing Cross, P5, Gb' to 'Charing Cross, London, Gb'
+		foreach my $loc(@locs) {
+			if($loc->{'Region'}) {
+				# TODO: use admin2cache
+				$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+				my $row = $self->{'admin2'}->execute("SELECT * FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($loc->{'Region'} . "'"));
+				if($row->{'name'}) {
+					$loc->{'Region'} = $row->{'name'};
+				}
+			}
+		}
+		# ::diag(Data::Dumper->new([\@locs])->Dump());
 		# my @rc;
 		# foreach my $loc(@locs) {
 			# push @rc, Geo::Location::Point->new($loc)->as_string();
@@ -514,6 +526,14 @@ sub reverse_geocode {
 		return map { Geo::Location::Point->new($_)->as_string() } @locs;
 	}
 	if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01) LIMIT 1")) {
+		if($rc->{'Region'}) {
+			# TODO: use admin2cache
+			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+			my $row = $self->{'admin2'}->execute("SELECT * FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($rc->{'Region'} . "'"));
+			if($row->{'name'}) {
+				$rc->{'Region'} = $row->{'name'};
+			}
+		}
 		return Geo::Location::Point->new($rc)->as_string();
 	}
 	return;
