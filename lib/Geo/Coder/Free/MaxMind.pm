@@ -520,7 +520,7 @@ sub reverse_geocode {
 				} else {
 					$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
 					my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($region) . "'");
-					if($row->{'name'}) {
+					if(ref($row) && $row->{'name'}) {
 						$admin2cache{$row->{'name'}} = $region;
 						$loc->{'Region'} = $row->{'name'};
 					}
@@ -549,8 +549,11 @@ sub reverse_geocode {
 				$rc->{'Region'} = $county;
 			} else {
 				$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-				my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($region) . "'");
-				if($row->{'name'}) {
+				# ::diag("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($region) . "' LIMIT 1");
+				my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($region) . "' LIMIT 1");
+				# print Data::Dumper->new([$row])->Dump();
+				# ::diag(Data::Dumper->new([$row])->Dump());
+				if(ref($row) && $row->{'name'}) {
 					$admin2cache{$row->{'name'}} = $region;
 					$rc->{'Region'} = $row->{'name'};
 				}
