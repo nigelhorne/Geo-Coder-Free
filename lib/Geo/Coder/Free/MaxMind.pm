@@ -511,7 +511,7 @@ sub reverse_geocode {
 			if($loc->{'Region'}) {
 				# TODO: use admin2cache
 				$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-				my $row = $self->{'admin2'}->execute("SELECT * FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($loc->{'Region'} . "'"));
+				my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($loc->{'Region'} . "'"));
 				if($row->{'name'}) {
 					$loc->{'Region'} = $row->{'name'};
 				}
@@ -529,7 +529,7 @@ sub reverse_geocode {
 		if($rc->{'Region'}) {
 			# TODO: use admin2cache
 			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-			my $row = $self->{'admin2'}->execute("SELECT * FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($rc->{'Region'} . "'"));
+			my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($rc->{'Region'} . "'"));
 			if($row->{'name'}) {
 				$rc->{'Region'} = $row->{'name'};
 			}
