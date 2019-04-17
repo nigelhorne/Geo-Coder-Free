@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 40;
+use Test::Most tests => 42;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -164,9 +164,12 @@ MAXMIND: {
 			does_croak(sub {
 				$location = $geo_coder->reverse_geocode();
 			});
+
+			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin1cache) > 0);
+			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin2cache) > 0);
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 39);
+			skip('Author tests not required for installation', 41);
 		}
 	}
 }

@@ -16,7 +16,7 @@ use CHI;
 use Locale::Country;
 
 our %admin1cache;
-our %admin2cache;
+our %admin2cache;	# e.g. maps 'Kent' => 'P5'
 
 # Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
@@ -508,12 +508,22 @@ sub reverse_geocode {
 		my @locs = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01)");
 		# Change 'Charing Cross, P5, Gb' to 'Charing Cross, London, Gb'
 		foreach my $loc(@locs) {
-			if($loc->{'Region'}) {
-				# TODO: use admin2cache
-				$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-				my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($loc->{'Region'} . "'"));
-				if($row->{'name'}) {
-					$loc->{'Region'} = $row->{'name'};
+			if(my $region = $loc->{'Region'}) {
+				my $county;
+				foreach $county(keys %admin2cache) {
+					if($admin2cache{$county} eq $region) {
+						last;
+					}
+				}
+				if($county) {
+					$loc->{'Region'} = $county;
+				} else {
+					$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+					my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($region) . "'");
+					if($row->{'name'}) {
+						$admin2cache{$row->{'name'}} = $region;
+						$loc->{'Region'} = $row->{'name'};
+					}
 				}
 			}
 		}
@@ -525,13 +535,25 @@ sub reverse_geocode {
 		# return @rc;
 		return map { Geo::Location::Point->new($_)->as_string() } @locs;
 	}
+	# TODO - this is similar to the wantarray code, just the LIMIT 1 and
+	#	no map { } code.  Need to combine
 	if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01) LIMIT 1")) {
-		if($rc->{'Region'}) {
-			# TODO: use admin2cache
-			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
-			my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($rc->{'Region'} . "'"));
-			if($row->{'name'}) {
-				$rc->{'Region'} = $row->{'name'};
+		if(my $region = $rc->{'Region'}) {
+			my $county;
+			foreach $county(keys %admin2cache) {
+				if($admin2cache{$county} eq $region) {
+					last;
+				}
+			}
+			if($county) {
+				$rc->{'Region'} = $county;
+			} else {
+				$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+				my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($rc->{'Country'}) . '.%.' . uc($region) . "'");
+				if($row->{'name'}) {
+					$admin2cache{$row->{'name'}} = $region;
+					$rc->{'Region'} = $row->{'name'};
+				}
 			}
 		}
 		return Geo::Location::Point->new($rc)->as_string();
