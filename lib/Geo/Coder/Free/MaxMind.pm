@@ -511,10 +511,9 @@ sub reverse_geocode {
 		}
 		return map { Geo::Location::Point->new($_)->as_string() } @locs;
 	}
-	for my $radius(0.00001, 0.0001, 0.001, 0.01) {
-			::diag($radius);
+	# Try close in then zoom out, to a reasonable limit
+	foreach my $radius(0.000001, 0.00001, 0.0001, 0.001, 0.01) {
 		if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < $radius) AND (ABS(Longitude - $longitude) < $radius) LIMIT 1")) {
-		::diag(__LINE__);
 			$self->_prepare($rc);
 			return Geo::Location::Point->new($rc)->as_string();
 		}
