@@ -1132,7 +1132,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 			}
-			close $file;
 		}
 
 		# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
