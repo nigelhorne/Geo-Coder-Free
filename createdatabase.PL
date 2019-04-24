@@ -477,6 +477,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
+			'LAT' => 51.334522,
+			'LON' => 1.314417,
+			'NAME' => 'NEW INN',
+			'NUMBER' => 2,
+			'STREET' => 'TOTHILL ST',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
 			'LAT' => 51.33995174,
 			'LON' => 1.31570211,
 			'NUMBER' => 106,
