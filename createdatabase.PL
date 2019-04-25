@@ -276,6 +276,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20910,
 		}, {
+			'LAT' => 39.036439,
+			'LON' => -77.025502,
+			'NAME' => 'ARCOLA HEALTH AND REHABILITATION CENTER',
+			'NUMBER' => 901,
+			'STREET' => 'ARCOLA AVE',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20910,
+		}, {
 			'LAT' => 39.010436,
 			'LON' => -77.048550,
 			'NUMBER' => 9411,
