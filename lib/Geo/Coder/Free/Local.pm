@@ -188,12 +188,12 @@ sub geocode {
 					}
 				}
 			}
-			$addr{'house_number'} = $c{'property_identifier'};
+			$addr{'number'} = $c{'property_identifier'};
 			$addr{'city'} = $c{'suburb'};
-			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 				return $rc;
 			}
-			if($addr{'house_number'}) {
+			if($addr{'number'}) {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
@@ -231,19 +231,19 @@ sub geocode {
 						$street = "$prefix $street";
 					}
 					my %addr = (
-						house_number => $href->{'number'},
+						number => $href->{'number'},
 						road => $street,
 						city => $city,
 						state => $state,
 						country => 'US'
 					);
 					if($href->{'number'}) {
-						if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+						if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 							$rc->{'country'} = 'US';
 							return $rc;
 						}
 					}
-					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state_district', 'state', 'country'))) {
+					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 						$rc->{'country'} = 'US';
 						return $rc;
 					}
@@ -263,13 +263,13 @@ sub geocode {
 			}
 			if(length($state) == 2) {
 				my %addr = (
-					house_number => $addr[0],
+					number => $addr[0],
 					road => $addr[1],
 					city => $addr[2],
 					state => $state,
 					country => 'US'
 				);
-				if(my $rc = $self->_get($addr[0], $addr[1], $addr[2], $state, 'US')) {
+				if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 					# ::diag(Data::Dumper->new([$rc])->Dump());
 					$rc->{'country'} = 'US';
 					return $rc;
@@ -340,14 +340,14 @@ sub geocode {
 			}
 			if($addr{'state_district'}) {
 				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
-				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state_district', 'state', 'country'))) {
+				if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state_district', 'state', 'country'))) {
 					return $rc;
 				}
 			}
-			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
+			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 				return $rc;
 			}
-			if($addr{'house_number'}) {
+			if($addr{'number'}) {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
@@ -551,7 +551,7 @@ must apply in writing for a licence for use from Nigel Horne at `<njh at nigelho
 1;
 
 __DATA__
-"name","house_number","road","city","state_district","state","country","latitude","longitude"
+"name","number","road","city","state_district","state","country","latitude","longitude"
 "ST ANDREWS CHURCH",,"CHURCH HILL","EARLS COLNE",,"ESSEX","GB",51.926793,0.70408
 "RECULVER ABBEY",,"RECULVER","HERNE BAY",,"KENT","GB",51.37875,1.1955
 "HOLIDAY INN EXPRESS",,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34320725,1.31680853
