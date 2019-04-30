@@ -436,6 +436,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'PA',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 15639
+		}, {
+			'LAT' => 39.999154,
+			'LON' => -79.046526,
+			'NAME' => 'SOUTH SOMERSET SERVICE PLAZA',
+			'CITY' => 'SOMERSET',
+			'COUNTY' => 'SOMERSET',
+			'STATE' => 'PA',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 15501
 		}
 	], 'us/va/statewide.csv' => [
 		{
