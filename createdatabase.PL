@@ -417,6 +417,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 43219,
 		}, {
+			'LAT' => 41.291654,
+			'LON' => -81.675815,
+			'NAME' => 'TOWPATH TRAVEL PLAZA',
+			'CITY' => 'BROADVIEW HEIGHTS',
+			'COUNTY' => 'CUYAHOGA',
+			'STATE' => 'OH',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 44147
+		}, {
 			'LAT' => 40.097097,
 			'LON' => -83.123745,
 			'NAME' => 'RESIDENCE INN BY MARRIOTT',
