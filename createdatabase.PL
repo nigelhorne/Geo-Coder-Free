@@ -404,6 +404,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20011
 		}
+	], 'us/in/statewide.csv' => [
+		{
+			'LAT' => 41.074247,
+			'LON' => -85.138531,
+			'ROAD' => 'DOUGLAS AVE',
+			'CITY' => 'FORT WAYNE',
+			'COUNTY' => 'ALLEN',
+			'STATE' => 'IN',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 46802,
+		}
 	], 'us/oh/statewide.csv' => [
 		{
 			'LAT' => 39.997959,
