@@ -31,8 +31,8 @@ install:
   - cmd: set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: cpan App::cpanminus
   - sh: sudo apt-get install -y cpanminus
-  - sh: sudo cpanm -v --installdeps .
   - sh: sudo cpanm File::Fetch
+  - sh: sudo cpanm -v --installdeps .
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
   - cmd: cpanm -v --installdeps .
   - cmd: 'echo End install at: & time /t'
