@@ -428,14 +428,14 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 43219,
 		}, {
-			'LAT' => 41.291654,
-			'LON' => -81.675815,
-			'NAME' => 'TOWPATH TRAVEL PLAZA',
-			'CITY' => 'BROADVIEW HEIGHTS',
-			'COUNTY' => 'CUYAHOGA',
+			'LAT' => 41.379695,
+			'LON' => -82.222877,
+			'NAME' => 'MIDDLE RIDGE PLAZA',
+			'CITY' => 'AMHERST',
+			'COUNTY' => 'LOHRAIN',
 			'STATE' => 'OH',
 			'COUNTRY' => 'US',
-			'POSTCODE' => 44147
+			'POSTCODE' => 44001
 		}, {
 			'LAT' => 40.097097,
 			'LON' => -83.123745,
@@ -446,6 +446,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'OH',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 43017
+		}, {
+			'LAT' => 41.291654,
+			'LON' => -81.675815,
+			'NAME' => 'TOWPATH TRAVEL PLAZA',
+			'CITY' => 'BROADVIEW HEIGHTS',
+			'COUNTY' => 'CUYAHOGA',
+			'STATE' => 'OH',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 44147
 		}
 	], 'us/pa/statewide.csv' => [
 		{
