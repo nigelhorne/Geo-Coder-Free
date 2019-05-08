@@ -13,6 +13,7 @@ use warnings;
 # use autodie qw(:all);
 use autodie;	# Don't want system() to die, we catch failures
 use File::Copy;
+use File::Open::NoCache::ReadOnly;
 use DBI;
 use Data::Dumper;
 use JSON;
@@ -681,7 +682,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 			my $inserts = 0;
 
-			open(my $fin, '<', $filename);
+			my $fh = File::Open::NoCache::ReadOnly($filename);
+
+			my $fin = $fh->fd();
+
 			$csv->column_names($csv->getline($fin));
 
 			while(my $row = $csv->getline_hr($fin)) {
@@ -705,8 +709,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 
-			close($fin);
-
 			# Import the counties
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
 			$| = 1;
@@ -723,7 +725,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# escape_char => '\\',	# Put back once issue 3905 has been fixed
 			});
 
-			open($fin, '<', $filename);
+			$fh = File::Open::NoCache::ReadOnly($filename);
+
+			$fin = $fh->fd();
+
 			$csv->column_names($csv->getline($fin));
 
 			while(my $row = $csv->getline_hr($fin)) {
@@ -747,8 +752,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 			}
-			close($fin);
-
 		}
 
 		my $current_state;
