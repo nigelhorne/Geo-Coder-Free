@@ -30,8 +30,9 @@ install:
   - cmd: mkdir %APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: cpan App::cpanminus
-  - sh: sudo apt-get install -y cpanminus
+  - sh: sudo apt-get install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl
   - sh: sudo cpanm File::Fetch
+  - sh: sudo cpanm -f DBIx::TableLoader
   - sh: sudo cpanm -v --installdeps .
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
   - cmd: cpanm -v --installdeps .
