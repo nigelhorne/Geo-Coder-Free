@@ -1483,7 +1483,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 
-				open(my $fin, '<', $csv_file);
+				my $fh = File::Open::NoCache::ReadOnly($filename);
+
+				my $fin = $fh->fd();
 				aio_readahead($fin, 0, 10240);
 
 				$| = 1;
@@ -1514,8 +1516,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 				flush_queue($dbh);	# Check for hanging dups in current state
 				$inserts = 0;
-
-				close($fin);
 			}
 		}
 
