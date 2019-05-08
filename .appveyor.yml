@@ -24,7 +24,7 @@ install:
   # - cmd: cd C:\projects\%APPVEYOR_PROJECT_NAME%
   - sh: sudo apt-get update -q
   - sh: sudo apt-get install -y build-essential git libssl-dev
-  - sh: sudo apt-get install -y perl
+  - sh: sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
   - sh: export PATH=/home/appveyor/perl5/bin:$PATH
   - perl -V
   - cmd: mkdir %APPVEYOR_BUILD_FOLDER%\tmp
