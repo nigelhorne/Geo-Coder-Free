@@ -33,8 +33,8 @@ install:
   - sh: sudo apt-get install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
   - cpanm File::Fetch
   - cpanm -f DBIx::TableLoader
-  - cpanm -v --installdeps .
   - cmd: cpanm -q -v -f Log::Log4perl CGI::IDS
+  - cpanm -v --installdeps .
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
   - cmd: 'echo End install at: & time /t'
 
