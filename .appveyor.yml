@@ -34,7 +34,7 @@ install:
   - cpanm File::Fetch
   - cpanm -f DBIx::TableLoader
   - cpanm -v --installdeps .
-  - cmd: cpanm -q -v Log::Log4perl CGI::IDS
+  - cmd: cpanm -q -v -f Log::Log4perl CGI::IDS
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
   - cmd: 'echo End install at: & time /t'
 
