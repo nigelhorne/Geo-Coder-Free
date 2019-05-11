@@ -693,7 +693,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 			my $inserts = 0;
 
-			my $fh = File::Open::NoCache::ReadOnly($filename);
+			my $fh = File::Open::NoCache::ReadOnly->new($filename);
 
 			my $fin = $fh->fd();
 
@@ -736,7 +736,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# escape_char => '\\',	# Put back once issue 3905 has been fixed
 			});
 
-			$fh = File::Open::NoCache::ReadOnly($filename);
+			$fh = File::Open::NoCache::ReadOnly->new($filename);
 
 			$fin = $fh->fd();
 
@@ -794,10 +794,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		   open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		   open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
-		   open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
-			aio_readahead($fin1, 0, 10240);
-			aio_readahead($fin2, 0, 10240);
+		   (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 			aio_readahead($fin, 0, 10240);
+			aio_readahead($fin1, 0, 10240);
+		   	my $fin2 = $admin2->fd();
+			aio_readahead($fin2, 0, 10240);
 
 			$| = 1;
 			printf "%-70s\r", 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
@@ -1494,7 +1495,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 
-				my $fh = File::Open::NoCache::ReadOnly($filename);
+				my $fh = File::Open::NoCache::ReadOnly->new($filename);
 
 				my $fin = $fh->fd();
 				aio_readahead($fin, 0, 10240);
