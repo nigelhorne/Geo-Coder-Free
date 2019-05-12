@@ -831,7 +831,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			while(my $row = $csv->getline_hr($fin2)) {
 				$admin2{$row->{'concatenated_codes'}} = $row->{'asciiname'};
 			}
-			close($fin2);
 
 			my $inserts = 0;
 

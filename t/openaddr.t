@@ -55,6 +55,8 @@ OPENADDR: {
 				}
 
 				$location = $geo_coder->geocode('1363 Kelly Road, Coal City, Owen, Indiana, USA');
+				# ok(defined($location));
+				# diag(Data::Dumper->new([$location])->Dump());
 				cmp_deeply($location,
 					methods('lat' => num(39.27, 1e-2), 'long' => num(-87.03, 1e-2)));
 
