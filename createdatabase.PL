@@ -1892,6 +1892,11 @@ sub import {
 			die $file;
 		}
 	}
+	if((!defined($row->{'LAT'})) || !defined($row->{'LON'})) {
+		print 'Empty LAT/LON: ', Data::Dumper->new([\$row])->Dump()
+			if(DEBUG&DEBUG_DATA_VALIDATE);
+		return 0;
+	}
 	return 0 if(($row->{'LAT'} == 0) && ($row->{'LON'} == 0));
 	my $street = $row->{'STREET'};
 	if($street && $city && ($city =~ /(.+),\s*(.+)/)) {
