@@ -4,6 +4,7 @@
 # Set OPENADDR_HOME and WHOSONFIRST_HOME to the directories where the data has been downloaded
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
 # Download the WHOSONFIRST_HOME data using https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download
+# You can look up a WOF place by https://spelunker.whosonfirst.org/id/$locality_id
 
 # TODO: perhaps use a layered approach to the database schema
 
@@ -660,7 +661,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		# $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 		if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
-			warn "MAX_INSERT_COUNT not set to 1 in DEBUG&DEBUG_ALL mode";
+			warn "MAX_INSERT_COUNT not set to 1 in DEBUG mode";
 		}
 
 		if(MAX_INSERT_COUNT == 1) {
@@ -678,8 +679,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# Import US states and counties from https://github.com/openaddresses/openaddresses/tree/master/us-data
 			$| = 1;
 			printf "%-70s\r", $filename;
+			print "\n" if(DEBUG);
 			$| = 0;
 			my %state_fips;
+
 
 			my $csv = Text::CSV->new({
 				sep_char => "\t",
@@ -696,6 +699,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			my $fh = File::Open::NoCache::ReadOnly->new($filename);
 
 			my $fin = $fh->fd();
+
+			# open(my $fin, '<', $filename);
 
 			$csv->column_names($csv->getline($fin));
 
@@ -720,10 +725,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 
+			# close($fin);
+
 			# Import the counties
 			$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
 			$| = 1;
 			printf "%-70s\r", $filename;
+			print "\n" if(DEBUG);
 			$| = 0;
 
 			$csv = Text::CSV->new({
@@ -740,10 +748,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 			$fin = $fh->fd();
 
+			# open($fin, '<', $filename);
+
 			$csv->column_names($csv->getline($fin));
 
 			while(my $row = $csv->getline_hr($fin)) {
-				# print Data::Dumper->new([\$row])->Dump();
+				# print __LINE__, ': ', Data::Dumper->new([\$row])->Dump();
 				my $state = $state_fips{$row->{'State FIPS'}};
 				die $row->{'Name'} unless(defined($state));
 				my $county = uc($row->{'Name'});
@@ -763,6 +773,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 			}
+			# close($fin);
 		}
 
 		my $current_state;
@@ -773,6 +784,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
 			$| = 1;
 			printf "%-70s\r", "Traversing $whosonfirst";
+			print "\n" if(DEBUG);
 			$| = 0;
 			foreach my $file(<"$whosonfirst/*.db">) {
 				$whosonfirst{$file} = 1;
@@ -795,6 +807,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		   open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		   open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
 		   (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
+		   # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 			aio_readahead($fin, 0, 10240);
 			aio_readahead($fin1, 0, 10240);
 		   	my $fin2 = $admin2->fd();
@@ -831,6 +844,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			while(my $row = $csv->getline_hr($fin2)) {
 				$admin2{$row->{'concatenated_codes'}} = $row->{'asciiname'};
 			}
+
+			# close($fin2);
 
 			my $inserts = 0;
 
@@ -1085,7 +1100,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				} else {
 					$city = $properties->{'sg:city'};
 					# Don't trust sg:city to be correct
-					# You can look up a place by https://spelunker.whosonfirst.org/id/$locality_id
 					my @hierarchy = @{$properties->{'wof:hierarchy'}};
 					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
 						if(my $w = get_wof($wof_global_dbh, $locality)) {
@@ -1150,7 +1164,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							'POSTCODE' => $postcode,
 						};
 						unless($row->{'LAT'} && $row->{'LON'}) {
-							print 'Empty LAT/LON in WOF entry ', $properties->{'wof:id'}, " in $file\n" if(DEBUG&DEBUG_DATA_VALIDATE);
+							print 'Empty LAT/LON in WOF entry ',
+								$properties->{'wof:id'},
+								" in $file ",
+								Data::Dumper->new([$properties])->Dump()
+								if(DEBUG&DEBUG_DATA_VALIDATE);
 							next;
 						}
 						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
@@ -1352,7 +1370,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 									# print "Saved state = $state\n" if(DEBUG&DEBUG_ALL);
 								} else {
 									next if($region < 0);
-									print "Getting state from hierachy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_ALL);
+									print "Getting state from hierachy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
 									my $state = get_wof($wof_global_dbh, $region);
 									# Remember the region's name, since consecutive entries in the file are often the same,
 									# this is save a number of calls to get_wof()
@@ -1494,9 +1512,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$inserts = 0;
 				}
 
-				my $fh = File::Open::NoCache::ReadOnly->new($filename);
+				my $fh = File::Open::NoCache::ReadOnly->new($csv_file);
 
 				my $fin = $fh->fd();
+
+				# open(my $fin, '<', $csv_file);
 				aio_readahead($fin, 0, 10240);
 
 				$| = 1;
@@ -1518,12 +1538,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$csv->column_names($csv->getline($fin));
 
 				while(my $row = $csv->getline_hr($fin)) {
-					$inserts += import(country => $country, state => $state, row => $row, file => $file, ua => $ua, dbh => $dbh);
+					$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh);
 					if($inserts >= MAX_INSERT_COUNT) {
 						flush_queue($dbh);
 						$inserts = 0;
 					}
 				}
+
+				# close($fin);
 
 				flush_queue($dbh);	# Check for hanging dups in current state
 				$inserts = 0;
@@ -1717,6 +1739,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		$| = 1;
 		printf "%-70s\r", 'creating cities';
+		print "\n" if(DEBUG);
 		$| = 0;
 		foreach my $key(keys %cities) {
 			my ($city, $county, $state, $country) = split(/,/, $key);
@@ -1737,6 +1760,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		$| = 1;
 		printf "%-70s\r", 'creating indicies';
+		print "\n" if(DEBUG);
 		$| = 0;
 
 		# Reclaim memory
@@ -1755,6 +1779,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		$| = 1;
 		printf "%-70s\r", 'committing';
+		print "\n" if(DEBUG);
 		$| = 0;
 		$dbh->commit();
 		$dbh->disconnect();
@@ -1892,7 +1917,11 @@ sub import {
 		}
 	}
 	if((!defined($row->{'LAT'})) || !defined($row->{'LON'})) {
-		print 'Empty LAT/LON: ', Data::Dumper->new([\$row])->Dump()
+		my @call_details = caller(0);
+		print 'Empty LAT/LON in ',
+			($state ? "$state/" : ''),
+			"$file from line $call_details[2]: ",
+			Data::Dumper->new([$row])->Dump()
 			if(DEBUG&DEBUG_DATA_VALIDATE);
 		return 0;
 	}
