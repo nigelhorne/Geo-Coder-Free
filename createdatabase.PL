@@ -651,7 +651,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# TODO: only Australian, US and Canadian data is supported at the moment
 
 	my $sqlite_file = "$oa/openaddresses.sql";
-	return if(-r $sqlite_file);
+	exit(0) if(-r $sqlite_file);
 
 	my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
 	$dbh->do('PRAGMA cache_size = 65536');
