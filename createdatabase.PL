@@ -1513,7 +1513,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$inserts = 0;
 			}
 
-			my $fh = File::Open::NoCache::ReadOnly->new($csv_file);
+			my $fh = File::Open::NoCache::ReadOnly->new($csv_file)
+				or die($csv_file);
 
 			my $fin = $fh->fd();
 
