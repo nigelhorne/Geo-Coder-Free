@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 50;
+use Test::Most tests => 54;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -208,6 +208,12 @@ OPENADDR: {
 				# ok(defined($location));
 				# ok(ref($location) eq 'HASH');
 
+				$location = $geo_coder->geocode('5 Minnis Terrace, Dover, Kent, England');
+				ok(defined($location));
+				ok(ref($location) eq 'Geo::Location::Point');
+				$location = $geo_coder->geocode('Minnis Terrace, Dover, Kent, England');
+				ok(defined($location));
+				ok(ref($location) eq 'Geo::Location::Point');
 			} else {
 				diag('Author tests not required for installation');
 				skip('Author tests not required for installation', 47);
@@ -230,7 +236,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 49);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 53);
 		}
 	}
 }
