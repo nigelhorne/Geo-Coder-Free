@@ -493,7 +493,7 @@ sub geocode {
 							return $rc;
 						}
 					}
-					warn "Fast lookup of US location' $location' failed";
+					warn "Fast lookup of US location '$location' failed";
 				} else {
 					if($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
 						my $lookup = "$1, $2, $state";
