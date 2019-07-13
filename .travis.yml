@@ -39,7 +39,7 @@ before_install:
 
 install:
   - sudo apt-get update -q
-  - sudo apt-get install libtest-most-perl
+  - sudo apt-get install libtest-most-perl libchi-perl
   - cpan-install --deps
   - cpan-install --coverage
   # - cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp DBD::SQLite DBI CHI Test::Carp Test::Without::Module
