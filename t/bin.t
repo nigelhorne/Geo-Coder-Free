@@ -8,7 +8,7 @@ BIN: {
 	eval 'use Test::Script';
 
 	if($@) {
-		plan skip_all => 'Test::Script required for testing scripts';
+		skip('Test::Script required for testing scripts', 20);
 	} else {
 		SKIP: {
 			script_compiles('bin/testcgibin');
@@ -16,7 +16,7 @@ BIN: {
 			if($ENV{AUTHOR_TESTING}) {
 				my $foo;
 				script_runs(['bin/testcgibin', 3], { stdout => \$foo });
-				diag $foo;
+				diag($foo);
 
 				script_runs(['bin/testcgibin', 1]);
 				ok(script_stdout_like(qr/\-77\.03/, 'test 1'));
