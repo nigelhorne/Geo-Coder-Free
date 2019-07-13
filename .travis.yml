@@ -34,6 +34,7 @@ before_install:
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
+  - cpanm File::Fetch~0.56
   - build-dist
   - cd $BUILD_DIR
 
@@ -45,7 +46,6 @@ install:
   - cpan-install --deps
   - cpan-install --coverage
   # - cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp DBD::SQLite DBI CHI Test::Carp Test::Without::Module
-  - cpanm File::Fetch~0.56
   - cpanm -n Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie
 
 script:
