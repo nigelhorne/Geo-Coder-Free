@@ -1,0 +1,52 @@
+language: perl
+os:
+  - linux
+  # - osx
+
+perl:
+  - "5.28"
+  - "5.26"
+  - "5.24"
+  - "5.22"
+  - "5.20"
+  - "5.16"
+  - "5.14"
+  - "5.12"
+  - "5.24-shrplib"
+  - "5.22-shrplib"
+  - "5.20-shrplib"
+  - "5.18-shrplib"
+
+matrix:
+  allow_features:
+    - perl: blead
+  include:
+    - perl: 5.28
+      env: COVERAGE=1
+
+sudo: false
+
+before_script:
+  - coverage-setup
+
+before_install:
+  - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+  - source ~/travis-perl-helpers/init
+  - build-perl
+  - perl -V
+  - build-dist
+  - cd $BUILD_DIR
+
+install:
+  - sudo apt-get update -q
+  - sudo apt-get install libtest-most-perl
+  - cpan-install --deps
+  - cpan-install --coverage
+  # - cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp DBD::SQLite DBI CHI Test::Carp Test::Without::Module
+
+script:
+  # perl Makefile.PL && make && cover -test -report coveralls
+  - prove -l -j$(test-jobs) $(test-files)
+
+after_success:
+  - coverage-report
