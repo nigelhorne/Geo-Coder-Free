@@ -229,6 +229,7 @@ sub reverse_geocode {
 	if($self->{'openaddr'}) {
 		if(wantarray) {
 			my @rc = $self->{'openaddr'}->geocode(\%param);
+			return @rc;
 		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
 			return $rc;
 		}

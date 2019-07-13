@@ -31,9 +31,9 @@ our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 
 # See also lib/Geo/Coder/Free.pm
 our %alternatives = (
-	'St Lawrence, Thanet, Kent' => 'Ramsgate, Kent',
-	'St Peters, Thanet, Kent' => 'St Peters, Kent',
-	'Minster, Thanet, Kent' => 'Ramsgate, Kent',
+	'ST LAWRENCE, THANET, KENT' => 'RAMSGATE, KENT',
+	'ST PETERS, THANET, KENT' => 'ST PETERS, KENT',
+	'MINSTER, THANET, KENT' => 'RAMSGATE, KENT',
 );
 
 =head1 SYNOPSIS
@@ -140,7 +140,7 @@ sub geocode {
 	}
 	if($ap) {
 		my $l = $location;
-		if($l =~ /(.+), (England|UK)$/) {
+		if($l =~ /(.+), (England|UK)$/i) {
 			$l = "$1, GB";
 		}
 		if(my $error = $ap->parse($l)) {
@@ -355,19 +355,21 @@ sub geocode {
 		}
 	}
 
+	$location = uc($location);
 	foreach my $left(keys %alternatives) {
+		# ::diag("$location/$left");
 		if($location =~ $left) {
 			# ::diag($left, '=>', $alternatives{$left});
 			$location =~ s/$left/$alternatives{$left}/;
 			$param{'location'} = $location;
-			# ::diag($location, '>>>>>>');
+			# ::diag(__LINE__, ": $location");
 			if(my $rc = $self->geocode(\%param)) {
-				# ::diag($location, '<<<<<<');
+				# ::diag(__LINE__, ": $location");
 				return $rc;
 			}
 		}
 	}
-	undef;
+	return;
 }
 
 sub _normalize {
@@ -427,8 +429,7 @@ sub _search {
 	my $location;
 
 	# FIXME: linear search is slow
-	# ::diag(Data::Dumper->new([\@columns])->Dump());
-	# ::diag(Data::Dumper->new([$data])->Dump());
+	# ::diag(Data::Dumper->new([\@columns, $data])->Dump());
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
 
@@ -478,8 +479,7 @@ sub reverse_geocode {
 		$param{'latlng'} = shift;
 	}
 
-	my $latlng = $param{'latlng'}
-		or Carp::croak('Usage: reverse_geocode(latlng => $location)');
+	my $latlng = $param{'latlng'};
 
 	my $latitude;
 	my $longitude;
@@ -490,6 +490,10 @@ sub reverse_geocode {
 		$latitude //= $param{'lat'};
 		$longitude //= $param{'lon'};
 		$longitude //= $param{'long'};
+	}
+
+	if((!defined($latitude)) || !defined($longitude)) {
+		Carp::croak('Usage: reverse_geocode(latlng => $location)');
 	}
 
 	my @rc;

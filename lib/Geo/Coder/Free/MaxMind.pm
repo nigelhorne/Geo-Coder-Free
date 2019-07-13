@@ -484,8 +484,7 @@ sub reverse_geocode {
 		$param{'latlng'} = shift;
 	}
 
-	my $latlng = $param{'latlng'}
-		or Carp::croak('Usage: reverse_geocode(latlng => $location)');
+	my $latlng = $param{'latlng'};
 
 	my $latitude;
 	my $longitude;
@@ -496,6 +495,10 @@ sub reverse_geocode {
 		$latitude //= $param{'lat'};
 		$longitude //= $param{'lon'};
 		$longitude //= $param{'long'};
+	}
+
+	if((!defined($latitude)) || !defined($longitude)) {
+		Carp::croak('Usage: reverse_geocode(latlng => $location)');
 	}
 
 	if(!defined($self->{'cities'})) {

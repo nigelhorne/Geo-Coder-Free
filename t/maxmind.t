@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 43;
+use Test::Most tests => 59;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -73,6 +73,7 @@ MAXMIND: {
 			$l = $geo_coder->geocode('Silver Spring, Maryland, USA');
 			cmp_deeply($l,
 				methods('lat' => num(39.00, 1e-2), 'long' => num(-77.03, 1e-2)));
+			check($geo_coder, 'Silver Spring, MD, USA', 38.9905556, -77.0263889);
 
 			cmp_deeply($geo_coder->geocode('Silver Spring, MD, USA'),
 				methods('lat' => num(39.00, 1e-2), 'long' => num(-77.03, 1e-2)));
@@ -169,7 +170,118 @@ MAXMIND: {
 			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin2cache) > 0);
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 42);
+			skip('Author tests not required for installation', 58);
 		}
 	}
+}
+
+sub check {
+	my ($geo_coder, $location, $lat, $long) = @_;
+
+	# ::diag($location);
+	my @rc = $geo_coder->geocode({ location => $location });
+	# diag(Data::Dumper->new([\@rc])->Dump());
+	ok(scalar(@rc) > 0);
+	cmp_deeply(@rc,
+		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
+
+	@rc = $geo_coder->geocode(location => $location);
+	ok(scalar(@rc) > 0);
+	cmp_deeply(@rc,
+		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
+
+	@rc = $geo_coder->geocode($location);
+	ok(scalar(@rc) > 0);
+	cmp_deeply(@rc,
+		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
+
+	$location = uc($location);
+	@rc = $geo_coder->reverse_geocode(lat => $lat, long => $long);
+	ok(scalar(@rc) > 0);
+	my $found;
+
+	if($location =~ /(.+),\s+USA$/) {
+		$location = "$1, US";
+	}
+
+	foreach my $loc(@rc) {
+		if(uc($loc) eq $location) {
+			$found = 1;
+			last;
+		}
+	}
+
+	if(!$found) {
+		diag("Failed reverse lookup $location");
+		diag(Data::Dumper->new([\@rc])->Dump());
+	}
+	ok($found);
+
+	@rc = $geo_coder->reverse_geocode({ lat => $lat, long => $long });
+	ok(scalar(@rc) > 0);
+	$found = 0;
+
+	foreach my $loc(@rc) {
+		if(uc($loc) eq $location) {
+			$found = 1;
+			last;
+		}
+	}
+
+	if(!$found) {
+		diag("Failed reverse lookup $location");
+		diag(Data::Dumper->new([\@rc])->Dump());
+	}
+	ok($found);
+
+	@rc = $geo_coder->reverse_geocode(latlng => "$lat,$long");
+	ok(scalar(@rc) > 0);
+	$found = 0;
+
+	foreach my $loc(@rc) {
+		if(uc($loc) eq $location) {
+			$found = 1;
+			last;
+		}
+	}
+
+	if(!$found) {
+		diag("Failed reverse lookup $location");
+		diag(Data::Dumper->new([\@rc])->Dump());
+	}
+	ok($found);
+
+	@rc = $geo_coder->reverse_geocode({ latlng => "$lat,$long" });
+	ok(scalar(@rc) > 0);
+	$found = 0;
+
+	foreach my $loc(@rc) {
+		if(uc($loc) eq $location) {
+			$found = 1;
+			last;
+		}
+	}
+
+	if(!$found) {
+		diag("Failed reverse lookup $location");
+		diag(Data::Dumper->new([\@rc])->Dump());
+	}
+	ok($found);
+
+	@rc = $geo_coder->reverse_geocode("$lat,$long");
+	ok(scalar(@rc) > 0);
+	$found = 0;
+
+	foreach my $loc(@rc) {
+		if(uc($loc) eq $location) {
+			$found = 1;
+			last;
+		}
+	}
+
+	if(!$found) {
+		diag("Failed reverse lookup $location");
+		diag(Data::Dumper->new([\@rc])->Dump());
+	}
+	ok($found);
 }
