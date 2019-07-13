@@ -2,12 +2,13 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 59;
+use Test::Most tests => 60;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
 use lib 't/lib';
 use MyLogger;
+# use Test::Without::Module qw(Geo::libpostal);
 
 BEGIN {
 	use_ok('Geo::Coder::Free');
@@ -118,7 +119,8 @@ MAXMIND: {
 
 			# Hatteras Island
 			ok(!defined($geo_coder->reverse_geocode('35.2440910277778,-75.6151199166667')));
-			is($geo_coder->reverse_geocode('51.5028915277778,-0.119718833333333'), 'Charing Cross, London, GB', 'test reverse in London');
+			like($geo_coder->reverse_geocode('51.5029,-0.1197'), qr/London, GB$/, 'test reverse in London');
+			like($geo_coder->reverse_geocode('51.15,1.27'), qr/Ewell,/, 'test reverse');
 			like($geo_coder->reverse_geocode('39.0075611111111,-77.0476'), qr/Forest Glen/i, 'test reverse');
 
 			$l = $geo_coder->geocode('Temple Ewell, Kent, England');
@@ -143,7 +145,7 @@ MAXMIND: {
 			ok(defined($location));
 
 			cmp_deeply($geo_coder->geocode('Kent, England'),
-				methods('lat' => num(51.25, 1e-2), 'long' => num(0.75, 1e-2)));
+				methods('lat' => num(51, 1), 'long' => num(0.75, 1e-2)));
 
 			$l = $geo_coder->geocode('Maryland, USA');
 			cmp_deeply($l,
@@ -170,7 +172,7 @@ MAXMIND: {
 			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin2cache) > 0);
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 58);
+			skip('Author tests not required for installation', 59);
 		}
 	}
 }

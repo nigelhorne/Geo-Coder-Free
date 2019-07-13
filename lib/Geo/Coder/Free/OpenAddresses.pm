@@ -235,7 +235,8 @@ sub geocode {
 		return Geo::Location::Point->new({
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
-			'location' => $location
+			'location' => $location,
+			'database' => 'OpenAddresses'
 		});
 	}
 
@@ -851,6 +852,9 @@ sub geocode {
 			}
 		}
 	}
+	if($location =~ s/,//g) {
+		return $self->geocode($location);
+	}
 	undef;
 }
 
@@ -880,7 +884,7 @@ sub _get {
 	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
 	# my @call_details = caller(0);
 	# print "line ", $call_details[2], "\n";
-	# print("$location: $digest\n");
+	# print "$location: $digest\n";
 	# ::diag("line " . $call_details[2]);
 	# ::diag("$location: $digest");
 	if(my $cache = $self->{'cache'}) {
@@ -910,7 +914,8 @@ sub _get {
 		$rc = Geo::Location::Point->new({
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
-			'location' => $location
+			'location' => $location,
+			'database' => 'OpenAddresses'
 		});
 		if(my $cache = $self->{'cache'}) {
 			$cache->set($digest, Storable::freeze($rc), '1 week');

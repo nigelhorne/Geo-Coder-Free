@@ -131,7 +131,8 @@ sub geocode {
 		return Geo::Location::Point->new({
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
-			'location' => $location
+			'location' => $location,
+			'database' => 'Maxmind'
 		});
 	}
 
@@ -432,7 +433,8 @@ sub geocode {
 			push @locations, Geo::Location::Point->new({
 				'lat' => $l->{'latitude'},
 				'long' => $l->{'longitude'},
-				'location' => $location
+				'location' => $location,
+				'database' => 'Maxmind'
 			});
 		}
 
