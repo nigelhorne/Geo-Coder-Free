@@ -9,7 +9,7 @@ BIN: {
 		eval 'use Test::Script';
 
 		if($@) {
-			skip('Test::Script required for testing scripts', 20);
+			skip('Test::Script required for testing scripts', 22);
 		} else {
 			script_compiles('bin/testcgibin');
 			script_compiles('bin/address_lookup');
