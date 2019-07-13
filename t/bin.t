@@ -5,12 +5,12 @@ use strict;
 use Test::Most tests => 22;
 
 BIN: {
-	eval 'use Test::Script';
+	SKIP: {
+		eval 'use Test::Script';
 
-	if($@) {
-		skip('Test::Script required for testing scripts', 20);
-	} else {
-		SKIP: {
+		if($@) {
+			skip('Test::Script required for testing scripts', 20);
+		} else {
 			script_compiles('bin/testcgibin');
 			script_compiles('bin/address_lookup');
 			if($ENV{AUTHOR_TESTING}) {
