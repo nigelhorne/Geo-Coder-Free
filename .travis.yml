@@ -50,8 +50,7 @@ install:
 
 script:
   # perl Makefile.PL && make && cover -test -report coveralls
-  perl Makefile.PL && make
-  - prove -l -j$(test-jobs) $(test-files)
+  - perl Makefile.PL && make && prove -l -j$(test-jobs) $(test-files)
 
 after_success:
   - coverage-report
