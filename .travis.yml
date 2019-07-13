@@ -39,7 +39,9 @@ before_install:
 
 install:
   - sudo apt-get update -q
+  - sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
   - sudo apt-get install libtest-most-perl libchi-perl
+  - sudo apt-get install -y cpanminus libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
   - cpan-install --deps
   - cpan-install --coverage
   # - cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp DBD::SQLite DBI CHI Test::Carp Test::Without::Module
