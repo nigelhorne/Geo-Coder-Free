@@ -394,7 +394,7 @@ sub geocode {
 				return;
 			}
 		}
-	 	::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
+	 	::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {
 			if($city->{'Latitude'}) {
 				$city->{'latitude'} = delete $city->{'Latitude'};
