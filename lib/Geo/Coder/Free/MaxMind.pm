@@ -390,11 +390,11 @@ sub geocode {
 		if(scalar(@rc) == 0) {
 			@rc = $self->{'cities'}->selectall_hash('Region' => $options->{'Region'});
 			if(scalar(@rc) == 0) {
-	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+	 			::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;
 			}
 		}
-	 	# ::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
+	 	::diag(__LINE__, Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {
 			if($city->{'Latitude'}) {
 				$city->{'latitude'} = delete $city->{'Latitude'};
@@ -456,13 +456,13 @@ sub geocode {
 		}
 	}
 
-	# ::diag(__LINE__, Data::Dumper->new([$city])->Dump());
+	::diag(__LINE__, Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
 		$city->{'confidence'} = $confidence;
 		return Geo::Location::Point->new($city);
 	}
 	# return $city;
-	undef;
+	return;
 }
 
 =head2	reverse_geocode

@@ -126,6 +126,7 @@ sub _open {
 	if($self->{'logger'}) {
 		$self->{'logger'}->debug("_open: try to open $slurp_file");
 	}
+
 	if(-r $slurp_file) {
 		$dbh = DBI->connect("dbi:SQLite:dbname=$slurp_file", undef, undef, {
 			sqlite_open_flags => SQLITE_OPEN_READONLY,
@@ -192,6 +193,16 @@ sub _open {
 					# }
 				# }
 			};
+
+			# my %options = (
+				# allow_loose_quotes => 1,
+				# blank_is_undef => 1,
+				# empty_is_undef => 1,
+				# binary => 1,
+				# f_file => $slurp_file,
+				# escape_char => '\\',
+				# sep_char => $sep_char,
+			# );
 
 			# $dbh->{csv_tables}->{$table} = \%options;
 			# delete $options{f_file};
