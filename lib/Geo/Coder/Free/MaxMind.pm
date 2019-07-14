@@ -200,9 +200,9 @@ sub geocode {
 		}
 		my $countrycode = country2code($country);
 		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
-		if($county && $countrycode) {
-			::diag(__LINE__, ": country $countrycode, county $county, location $location");
-		}
+		# if($county && $countrycode) {
+			# ::diag(__LINE__, ": country $countrycode, county $county, location $location");
+		# }
 
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
@@ -239,12 +239,12 @@ sub geocode {
 		}
 	}
 	return unless(defined($concatenated_codes));
-	::diag(__LINE__, ": $concatenated_codes");
+	# ::diag(__LINE__, ": $concatenated_codes");
 
 	my @admin2s;
 	my $region;
 	my @regions;
-	::diag(__LINE__, ": $country");
+	# ::diag(__LINE__, ": $country");
 	if(($country =~ /^(United States|USA|US)$/) && $county && (length($county) > 2)) {
 		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 			$county = $twoletterstate;
@@ -264,16 +264,16 @@ sub geocode {
 		# US state. Not Canadian province.
 		$region = $county;
 	} elsif($county && $admin1cache{$county}) {
-		::diag(__LINE__);
+		# ::diag(__LINE__);
 		$region = $admin1cache{$county};
 	} elsif($county && $admin2cache{$county}) {
 		$region = $admin2cache{$county};
-		::diag(__LINE__, ": $county");
+		# ::diag(__LINE__, ": $county");
 	} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
-		::diag(__LINE__);
+		# ::diag(__LINE__);
 		$region = $admin2cache{$state};
 	} else {
-		::diag(__LINE__);
+		# ::diag(__LINE__);
 		if(defined($county) && ($county eq 'London')) {
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		} else {
@@ -320,7 +320,7 @@ sub geocode {
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
-		::diag(__LINE__, ": $location");
+		# ::diag(__LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
@@ -383,18 +383,18 @@ sub geocode {
 		$options->{'Country'} = lc($c);
 		$confidence = 0.1;
 	}
-	::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
+	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
 			@rc = $self->{'cities'}->selectall_hash('Region' => $options->{'Region'});
 			if(scalar(@rc) == 0) {
-	 			::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;
 			}
 		}
-	 	::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
+	 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {
 			if($city->{'Latitude'}) {
 				$city->{'latitude'} = delete $city->{'Latitude'};
@@ -441,10 +441,10 @@ sub geocode {
 
 		return @locations;
 	}
-	::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
+	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {
-		::diag(__LINE__, ': ', scalar(@regions));
+		# ::diag(__LINE__, ': ', scalar(@regions));
 		foreach $region(@regions) {
 			if($region =~ /^.+\.(.+)$/) {
 				$region = $1;
@@ -458,7 +458,7 @@ sub geocode {
 		}
 	}
 
-	::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
+	# ::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
 		$city->{'confidence'} = $confidence;
 		return Geo::Location::Point->new($city);
@@ -580,6 +580,11 @@ Can't parse and handle "London, England".
 The database contains Canadian cities, but not provinces, so a search for "New Brunswick, Canada" won't work
 
 The GeoNames admin databases are in this class, they should be in Geo::Coder::GeoNames.
+
+The data at
+L<https://github.com/apache/commons-csv/blob/master/src/test/resources/perf/worldcitiespop.txt.gz?raw=true>
+are 7 years out of date,
+and are unconsistent with the Geonames database.
 
 =head1 SEE ALSO
 

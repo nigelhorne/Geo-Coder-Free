@@ -143,7 +143,6 @@ MAXMIND: {
 			cmp_deeply($l,
 				methods('lat' => num(52.08, 1e-2), 'long' => num(-0.72, 1e-2)));
 
-			diag(__LINE__);
 			$location = $geo_coder->geocode('Thanet, Kent, England');
 			ok(defined($location));
 
@@ -154,20 +153,16 @@ MAXMIND: {
 			# cmp_deeply($l,
 				# methods('lat' => num(51, 1), 'long' => num(0.75, 1e-2)));
 
-			diag(__LINE__);
 			$l = $geo_coder->geocode('Maryland, USA');
 			cmp_deeply($l,
 				methods('lat' => num(38.25, 1e-2), 'long' => num(-76.74, 1e-2)));
 
-			diag(__LINE__);
 			$location = $geo_coder->geocode('Nebraska, USA');
 			ok(defined($location));
 
-			diag(__LINE__);
 			$location = $geo_coder->geocode('Vessels, Misc Ships At sea or abroad, England');
 			ok(!defined($location));
 
-			diag(__LINE__);
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
 			# like($address->{'city'}, qr/^London$/i, 'test reverse');
 
