@@ -17,6 +17,8 @@ BEGIN {
 MAXMIND: {
 	SKIP: {
 		if($ENV{AUTHOR_TESTING}) {
+			delete $ENV{'OPENADDR_HOME'};
+			delete $ENV{'WHOSONFIRST_HOME'};
 			diag('This may take some time and consume a lot of memory if the database is not SQLite');
 
 			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
