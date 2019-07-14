@@ -123,12 +123,10 @@ MAXMIND: {
 			like($geo_coder->reverse_geocode('51.15,1.27'), qr/Ewell,/, 'test reverse');
 			like($geo_coder->reverse_geocode('39.0075611111111,-77.0476'), qr/Forest Glen/i, 'test reverse');
 
-			diag(__LINE__);
 			$l = $geo_coder->geocode('Temple Ewell, Kent, England');
 			cmp_deeply($l,
 				methods('lat' => num(51.15, 1e-2), 'long' => num(1.27, 1e-2)));
 
-			diag(__LINE__);
 			$l = $geo_coder->geocode('Edmonton, Alberta, Canada');
 			cmp_deeply($l,
 				methods('lat' => num(53.55, 1e-2), 'long' => num(-113.50, 1e-2)));
@@ -139,6 +137,7 @@ MAXMIND: {
 			cmp_deeply($locations[0],
 				methods('lat' => num(51.15, 1e-2), 'long' => num(1.27, 1e-2)));
 
+			diag(__LINE__);
 			$l = $geo_coder->geocode('Newport Pagnell, Buckinghamshire, England');
 			ok(defined($l));
 			cmp_deeply($l,
