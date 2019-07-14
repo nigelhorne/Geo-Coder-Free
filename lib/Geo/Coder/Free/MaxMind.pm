@@ -238,13 +238,13 @@ sub geocode {
 			}
 		}
 	}
-	::diag(__LINE__, ": $concatenated_codes");
 	return unless(defined($concatenated_codes));
+	::diag(__LINE__, ": $concatenated_codes");
 
 	my @admin2s;
 	my $region;
 	my @regions;
-	# ::diag(__LINE__, ": $country");
+	::diag(__LINE__, ": $country");
 	if(($country =~ /^(United States|USA|US)$/) && $county && (length($county) > 2)) {
 		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 			$county = $twoletterstate;
@@ -265,16 +265,16 @@ sub geocode {
 		$region = $county;
 	} else {
 		if($county && $admin1cache{$county}) {
-		# ::diag(__LINE__);
+			::diag(__LINE__);
 			$region = $admin1cache{$county};
 		} elsif($county && $admin2cache{$county}) {
-		# ::diag(__LINE__);
+			::diag(__LINE__);
 			$region = $admin2cache{$county};
 		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
-		# ::diag(__LINE__);
+			::diag(__LINE__);
 			$region = $admin2cache{$state};
 		} else {
-		# ::diag(__LINE__);
+			::diag(__LINE__);
 			if(defined($county) && ($county eq 'London')) {
 				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 			} else {
