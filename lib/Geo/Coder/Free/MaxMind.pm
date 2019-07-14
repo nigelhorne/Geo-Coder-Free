@@ -268,8 +268,8 @@ sub geocode {
 			::diag(__LINE__);
 			$region = $admin1cache{$county};
 		} elsif($county && $admin2cache{$county}) {
-			::diag(__LINE__);
 			$region = $admin2cache{$county};
+			::diag(__LINE__, ": $county");
 		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
 			::diag(__LINE__);
 			$region = $admin2cache{$state};
