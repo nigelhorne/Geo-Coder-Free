@@ -200,6 +200,9 @@ sub geocode {
 		}
 		my $countrycode = country2code($country);
 		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
+		if($county) {
+			::diag(__LINE__, ": country $countrycode, county $county, location $location");
+		}
 
 		if($state && $admin1cache{$state}) {
 			$concatenated_codes = $admin1cache{$state};
