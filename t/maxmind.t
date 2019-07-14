@@ -131,7 +131,6 @@ MAXMIND: {
 			cmp_deeply($l,
 				methods('lat' => num(53.55, 1e-2), 'long' => num(-113.50, 1e-2)));
 
-			diag(__LINE__);
 			my @locations = $geo_coder->geocode(location => 'Temple Ewell, Kent, England');
 			ok(defined($locations[0]));
 			cmp_deeply($locations[0],
@@ -143,6 +142,7 @@ MAXMIND: {
 			cmp_deeply($l,
 				methods('lat' => num(52.08, 1e-2), 'long' => num(-0.72, 1e-2)));
 
+			diag(__LINE__);
 			$location = $geo_coder->geocode('Thanet, Kent, England');
 			ok(defined($location));
 
