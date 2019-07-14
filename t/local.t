@@ -8,6 +8,7 @@ use Test::Carp;
 use Test::Deep;
 use lib 't/lib';
 use MyLogger;
+# use Test::Without::Module qw(Geo::libpostal);
 
 BEGIN {
 	use_ok('Geo::Coder::Free::Local');
@@ -21,8 +22,18 @@ LOCAL: {
 
 	like($geo_coder->reverse_geocode('39,-77.10'), qr/Bethesda/i, 'test reverse_geocode');
 
-	cmp_deeply($geo_coder->geocode(location => 'NCBI, Bethesda, Maryland, USA'),
-		methods('lat' => num(39.00, 1e-2), 'long' => num(-77.10, 1e-2)));
+	my $libpostal_is_installed = 0;
+	if(eval { require Geo::libpostal; }) {
+		$libpostal_is_installed = 1;
+	}
+
+	if($libpostal_is_installed) {
+		cmp_deeply($geo_coder->geocode(location => 'NCBI, Bethesda, Maryland, USA'),
+			methods('lat' => num(39.00, 1e-2), 'long' => num(-77.10, 1e-2)));
+	} else {
+		cmp_deeply($geo_coder->geocode('NCBI, MEDLARS DR, BETHESDA, MONTGOMERY, MD, USA'),
+			methods('lat' => num(39.00, 1e-2), 'long' => num(-77.10, 1e-2)));
+	}
 
 	check($geo_coder,
 		'NCBI, MEDLARS DR, BETHESDA, MONTGOMERY, MD, USA',
