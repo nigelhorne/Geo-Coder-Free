@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 60;
+use Test::Most tests => 61;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -147,6 +147,7 @@ MAXMIND: {
 
 			diag(__LINE__);
 			$l = $geo_coder->geocode('Kent, England');
+			ok(defined($l));
 			cmp_deeply($l,
 				methods('lat' => num(51, 1), 'long' => num(0.75, 1e-2)));
 
@@ -179,7 +180,7 @@ MAXMIND: {
 			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin2cache) > 0);
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 59);
+			skip('Author tests not required for installation', 60);
 		}
 	}
 }
