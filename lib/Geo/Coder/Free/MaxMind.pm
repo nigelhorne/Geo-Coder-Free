@@ -444,6 +444,7 @@ sub geocode {
 	::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {
+		::diag(__LINE__, ': ', scalar(@regions));
 		foreach $region(@regions) {
 			if($region =~ /^.+\.(.+)$/) {
 				$region = $1;
