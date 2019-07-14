@@ -144,7 +144,8 @@ MAXMIND: {
 			$location = $geo_coder->geocode('Thanet, Kent, England');
 			ok(defined($location));
 
-			cmp_deeply($geo_coder->geocode('Kent, England'),
+			$l = $geo_coder->geocode('Kent, England');
+			cmp_deeply($l,
 				methods('lat' => num(51, 1), 'long' => num(0.75, 1e-2)));
 
 			$l = $geo_coder->geocode('Maryland, USA');
