@@ -238,7 +238,7 @@ sub geocode {
 			}
 		}
 	}
-	# ::diag(__LINE__, ": $concatenated_codes");
+	::diag(__LINE__, ": $concatenated_codes");
 	return unless(defined($concatenated_codes));
 
 	my @admin2s;
