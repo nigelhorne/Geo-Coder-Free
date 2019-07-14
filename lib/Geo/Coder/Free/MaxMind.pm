@@ -200,7 +200,7 @@ sub geocode {
 		}
 		my $countrycode = country2code($country);
 		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
-		if($county) {
+		if($county && $countrycode) {
 			::diag(__LINE__, ": country $countrycode, county $county, location $location");
 		}
 
@@ -263,56 +263,54 @@ sub geocode {
 	if(defined($county) && ($county =~ /^[A-Z]{2}$/) && ($country =~ /^(United States|USA|US)$/)) {
 		# US state. Not Canadian province.
 		$region = $county;
+	} elsif($county && $admin1cache{$county}) {
+		::diag(__LINE__);
+		$region = $admin1cache{$county};
+	} elsif($county && $admin2cache{$county}) {
+		$region = $admin2cache{$county};
+		::diag(__LINE__, ": $county");
+	} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
+		::diag(__LINE__);
+		$region = $admin2cache{$state};
 	} else {
-		if($county && $admin1cache{$county}) {
-			::diag(__LINE__);
-			$region = $admin1cache{$county};
-		} elsif($county && $admin2cache{$county}) {
-			$region = $admin2cache{$county};
-			::diag(__LINE__, ": $county");
-		} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
-			::diag(__LINE__);
-			$region = $admin2cache{$state};
+		::diag(__LINE__);
+		if(defined($county) && ($county eq 'London')) {
+			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		} else {
-			::diag(__LINE__);
-			if(defined($county) && ($county eq 'London')) {
-				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
-			} else {
-			# ::diag(__LINE__, ": $county");
-				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
-			}
-			foreach my $admin2(@admin2s) {
-				# ::diag(__LINE__, Data::Dumper->new([$admin2])->Dump());
-				if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-					$region = $admin2->{'concatenated_codes'};
-					if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
-						my $rc = $1;
-						if(defined($state) && ($state =~ /^[A-Z]{2}$/)) {
-							if($state eq $rc) {
-								$region = $rc;
-								@regions = ();
-								last;
-							}
-						} else {
-							push @regions, $region;
-							push @regions, $rc;
+		# ::diag(__LINE__, ": $county");
+			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
+		}
+		foreach my $admin2(@admin2s) {
+			# ::diag(__LINE__, Data::Dumper->new([$admin2])->Dump());
+			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+				$region = $admin2->{'concatenated_codes'};
+				if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
+					my $rc = $1;
+					if(defined($state) && ($state =~ /^[A-Z]{2}$/)) {
+						if($state eq $rc) {
+							$region = $rc;
+							@regions = ();
+							last;
 						}
 					} else {
 						push @regions, $region;
+						push @regions, $rc;
 					}
+				} else {
+					push @regions, $region;
 				}
 			}
-			if($state && !defined($region)) {
-				if($state =~ /^[A-Z]{2}$/) {
-					$region = $state;
-					@regions = ();
-				} else {
-					@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $state);
-					foreach my $admin2(@admin2s) {
-						if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
-							$region = $admin2->{'concatenated_codes'};
-							last;
-						}
+		}
+		if($state && !defined($region)) {
+			if($state =~ /^[A-Z]{2}$/) {
+				$region = $state;
+				@regions = ();
+			} else {
+				@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $state);
+				foreach my $admin2(@admin2s) {
+					if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
+						$region = $admin2->{'concatenated_codes'};
+						last;
 					}
 				}
 			}
@@ -322,7 +320,7 @@ sub geocode {
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
-	# 	# ::diag(__LINE__, ": $location");
+		::diag(__LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
@@ -385,7 +383,7 @@ sub geocode {
 		$options->{'Country'} = lc($c);
 		$confidence = 0.1;
 	}
-	# ::diag(__LINE__, Data::Dumper->new([$options])->Dump());
+	::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
