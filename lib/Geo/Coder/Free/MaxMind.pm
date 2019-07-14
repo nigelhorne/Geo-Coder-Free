@@ -280,6 +280,7 @@ sub geocode {
 		# ::diag(__LINE__, ": $county");
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
 		}
+		# ::diag(__LINE__, Data::Dumper->new([\@admin2s])->Dump());
 		foreach my $admin2(@admin2s) {
 			# ::diag(__LINE__, Data::Dumper->new([$admin2])->Dump());
 			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
@@ -535,8 +536,9 @@ sub _prepare {
 
 	if(my $region = $loc->{'Region'}) {
 		my $county;
-		foreach $county(keys %admin2cache) {
-			if($admin2cache{$county} eq $region) {
+		foreach my $c(keys %admin2cache) {
+			if($admin2cache{$c} eq $region) {
+				$county = $c;
 				last;
 			}
 		}
