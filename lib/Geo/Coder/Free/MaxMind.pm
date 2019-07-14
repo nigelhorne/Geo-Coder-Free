@@ -441,6 +441,7 @@ sub geocode {
 
 		return @locations;
 	}
+	::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {
 		foreach $region(@regions) {
@@ -456,7 +457,7 @@ sub geocode {
 		}
 	}
 
-	::diag(__LINE__, Data::Dumper->new([$city])->Dump());
+	::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
 		$city->{'confidence'} = $confidence;
 		return Geo::Location::Point->new($city);
