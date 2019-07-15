@@ -366,6 +366,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'LAT' => 39.190009,
 			'LON' => -76.841152,
 			'NUMBER' => 7001,
+			'ROAD' => 'CRADLEROCK FARM COURT',
 			'CITY' => 'COLUMBIA',
 			'COUNTY' => 'HOWARD',
 			'STATE' => 'MD',
@@ -383,6 +384,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ME',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 04614
+                }, {
+                        'LAT' => 44.406700,
+                        'LON' => -68.597114,
+                        'NAME' => 'BANGOR AIRPORT',
+                        'STREET' => 'GODFREY BOULEVARD',
+                        'CITY' => 'BANGOR',
+                        'COUNTY' => 'PENOBSCOT',
+                        'STATE' => 'ME',
+                        'COUNTRY' => 'US',
+                        'POSTCODE' => 04401
 		}, {
 			'LAT' => 44.40670019,
 			'LON' => -68.59711438,
@@ -522,6 +533,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ESSEX',
 			'COUNTRY' => 'GB'
 		}, {
+                        'LAT' => 51.358967,
+                        'LON' => 1.391367,
+                        'NAME' => 'WESTWOOD CROSS',
+                        'NUMBER' => 23,
+                        'STREET' => 'MARGATE ROAD',
+                        'CITY' => 'BROADSTAIRS',
+                        'STATE' => 'KENT',
+                        'COUNTRY' => 'GB',
+		}, {
 			'LAT' => 51.37875,
 			'LON' => 1.1955,
 			'NAME' => 'RECULVER ABBEY',
@@ -529,6 +549,24 @@ my %known_places = (	# Places I've checked with my GPS
 			'CITY' => 'HERNE BAY',
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
+		}, {
+                        'LAT' => 51.357510,
+                        'LON' => 1.388894,
+                        'NAME' => 'TOBY CARVERY',
+                        'STREET' => 'NEW HAINE ROAD',
+                        'CITY' => 'RAMSGATE',
+                        'STATE' => 'KENT',
+                        'COUNTRY' => 'GB',
+                }, {
+                        'LAT' => 51.334522,
+                        'LON' => 1.314417,
+                        'NAME' => 'NEW INN',
+                        'NUMBER' => 2,
+                        'STREET' => 'TOTHILL ST',
+                        # 'CITY' => 'MINSTER, THANET',
+                        'CITY' => 'RAMSGATE',
+                        'STATE' => 'KENT',
+                        'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.34320725,
 			'LON' => 1.31680853,
