@@ -33,11 +33,11 @@ Geo::Coder::Free::Maxmind - Provides a geocoding functionality using the MaxMind
 
 =head1 VERSION
 
-Version 0.07
+Version 0.08
 
 =cut
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 =head1 SYNOPSIS
 

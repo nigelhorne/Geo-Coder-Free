@@ -17,11 +17,11 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.19
+Version 0.20
 
 =cut
 
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 our $alternatives;
 

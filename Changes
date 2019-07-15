@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.20
+0.20	Sun 14 Jul 22:52:42 EDT 2019
 	reverse_geocode starts locally then zooms out a bit
 	Fix copy and paste error into Local.pm from OpenAddresses.pm
 
