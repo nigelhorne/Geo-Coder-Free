@@ -692,7 +692,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	exit(0) if(-r $sqlite_file);
 
 	my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
-	$dbh->do('PRAGMA cache_size = 65536');
+	$dbh->do('PRAGMA cache_size = 65536');	# 64MB
 	$dbh->do('PRAGMA journal_mode = OFF');
 	if(!-d $oa) {
 		mkdir $oa;
@@ -984,7 +984,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	my %address_parsers;
 
 	if($wof_global_dbh) {
-		$wof_global_dbh->do('PRAGMA cache_size = 65536');
+		$wof_global_dbh->do('PRAGMA cache_size = 65536');	# 64MB
 		my $file = basename($wof_global_file);
 		# Import from the global file
 		$| = 1;
@@ -1363,7 +1363,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					sqlite_open_flags => SQLITE_OPEN_READONLY,
 				});
 				$wof_dbh->do('PRAGMA synchronous = OFF');
-				$wof_dbh->do('PRAGMA cache_size = 65536');
+				$wof_dbh->do('PRAGMA cache_size = 65536');	# 64MB
 
 				my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
 				$sth->execute() || die $wof_file;
@@ -1635,7 +1635,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				sqlite_open_flags => SQLITE_OPEN_READONLY,
 			});
 			$wof_dbh->do('PRAGMA synchronous = OFF');
-			$wof_dbh->do('PRAGMA cache_size = 65536');
+			$wof_dbh->do('PRAGMA cache_size = 65536');	# 64MB
 
 			my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
 			$sth->execute() || die $wof_file;
