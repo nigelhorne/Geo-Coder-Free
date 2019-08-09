@@ -664,7 +664,7 @@ my %state_parent_md5s;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 	(system('bash bin/createdatabase') == 0)
-		or warn "Can't create the SQLite database - expect poor performance";
+		or warn "Can't create the SQLite database (perhaps you don't have sqlite3 installed) - expect poor performance";
 
 	if(-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
 		if(-r 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
