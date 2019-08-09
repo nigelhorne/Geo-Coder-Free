@@ -843,11 +843,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 	# Import the Maxmind databases
 	if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
-	   open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
-	   open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
+	   # open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
+	   # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
+	   (my $all_countries = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) &&
+	   (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) &&
 	   (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	   # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
+		my $fin = $all_countries->fd();
 		aio_readahead($fin, 0, 10240);
+		my $fin1 = $admin1->fd();
 		aio_readahead($fin1, 0, 10240);
 		my $fin2 = $admin2->fd();
 		aio_readahead($fin2, 0, 10240);
