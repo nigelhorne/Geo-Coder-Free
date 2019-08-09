@@ -879,11 +879,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# close($fin1);
 
+		my %admin2;
+
 		while(my $row = $csv->getline_hr($fin2)) {
 			$admin2{$row->{'concatenated_codes'}} = $row->{'asciiname'};
 		}
-
-		my %admin2;
 
 		while(my $row = $csv->getline_hr($fin1)) {
 			$admin1{$row->{'concatenated_codes'}} = $row->{'asciiname'};
