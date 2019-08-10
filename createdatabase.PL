@@ -47,6 +47,7 @@ use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
 
 my %zipcodes = (
 	'04350' => { city => 'Litchfield', county => 'Kennebec' },
@@ -1001,12 +1002,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			# if($data->{'body'}) {
 				# $data = $data->{'body'};
 			# }
-		my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
+		my $rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
 		my $region_id;
 		my $region_name;
 		while(my $aref = shift(@{$rowcache})) {
 			if(scalar(@{$rowcache}) == 0) {
-				$rowcache = $sth->fetchall_arrayref(undef, 10_000);
+				$rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
 			}
 			next if(!defined($aref));
 			my $data = @{$aref}[0];
@@ -1374,10 +1375,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						# $data = $data->{'body'};
 					# }
 					# next if(!defined($data));
-				my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
+				my $rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
 				while(my $aref = shift(@{$rowcache})) {
 					if(scalar(@{$rowcache}) == 0) {
-						$rowcache = $sth->fetchall_arrayref(undef, 10_000);
+						$rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
 					}
 					next if(!defined($aref));
 					my $data = @{$aref}[0];
@@ -1647,10 +1648,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					# $data = $data->{'body'};
 				# }
 				# next if(!defined($data));
-			my $rowcache = $sth->fetchall_arrayref(undef, 10_000);
+			my $rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
 			while(my $aref = shift(@{$rowcache})) {
 				if(scalar(@{$rowcache}) == 0) {
-					$rowcache = $sth->fetchall_arrayref(undef, 10_000);
+					$rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
 				}
 				next if(!defined($aref));
 				my $data = @{$aref}[0];
