@@ -819,25 +819,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	my $current_state;
 	my $current_country;
 	my %whosonfirst;
-	my $wof_global_dbh;
-	my $wof_global_file;
-	if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
-		$| = 1;
-		printf "%-70s\r", "Traversing $whosonfirst";
-		print "\n" if(DEBUG);
-		$| = 0;
-		foreach my $file(<"$whosonfirst/*.db">) {
-			$whosonfirst{$file} = 1;
-		}
-		$wof_global_file = "$whosonfirst/whosonfirst-data-latest.db";
-		if(-r $wof_global_file) {
-			$wof_global_dbh = DBI->connect("dbi:SQLite:dbname=$wof_global_file", undef, undef, {
-				sqlite_open_flags => SQLITE_OPEN_READONLY,
-			});
-		}
-
-	}
-
 	my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 	$ua->throttle({ 'api.zippopotam.us' => 1 });
 	$ua->env_proxy(1);
@@ -983,6 +964,24 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# exit(0);
 
 	my %address_parsers;
+	my $wof_global_dbh;
+	my $wof_global_file;
+	if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
+		$| = 1;
+		printf "%-70s\r", "Traversing $whosonfirst";
+		print "\n" if(DEBUG);
+		$| = 0;
+		foreach my $file(<"$whosonfirst/*.db">) {
+			$whosonfirst{$file} = 1;
+		}
+		$wof_global_file = "$whosonfirst/whosonfirst-data-latest.db";
+		if(-r $wof_global_file) {
+			$wof_global_dbh = DBI->connect("dbi:SQLite:dbname=$wof_global_file", undef, undef, {
+				sqlite_open_flags => SQLITE_OPEN_READONLY,
+			});
+		}
+
+	}
 
 	if($wof_global_dbh) {
 		$wof_global_dbh->do('PRAGMA cache_size = -65536');	# 64MB
