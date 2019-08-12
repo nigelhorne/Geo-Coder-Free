@@ -35,18 +35,15 @@ before_install:
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
-  - which perl cpanm
-  - perl -MCPAN -e 'CPAN::Shell->install("App::cpanminus")'
+  # - perl -MCPAN -e 'CPAN::Shell->install("App::cpanminus")'
   - cpanm -n File::Fetch
-  # - build-dist
-  # - cd $BUILD_DIR
 
 install:
-  - sudo apt-get update -q
-  - sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
-  - sudo apt-get install libtest-most-perl libchi-perl
-  - sudo apt-get install -y cpanminus libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libtext-csv-perl
-  - sudo apt-get install sqlite3 libdbi-perl libdbd-csv-perl liblocale-us-perl libdbd-sqlite3-perl
+  # - sudo apt-get update -q
+  # - sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
+  # - sudo apt-get install libtest-most-perl libchi-perl
+  # - sudo apt-get install -y cpanminus libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libtext-csv-perl
+  # - sudo apt-get install sqlite3 libdbi-perl libdbd-csv-perl liblocale-us-perl libdbd-sqlite3-perl
   - cpan-install --deps
   - cpan-install --coverage
   # - cpanm -n Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp DBD::SQLite DBI CHI Test::Carp Test::Without::Module
