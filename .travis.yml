@@ -4,6 +4,7 @@ os:
   # - osx
 
 perl:
+  - "5.30"
   - "5.28"
   - "5.26"
   - "5.24"
@@ -34,7 +35,7 @@ before_install:
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
-  - cpanm File::Fetch~0.56
+  - cpanm -n File::Fetch~0.56
   - build-dist
   - cd $BUILD_DIR
 
