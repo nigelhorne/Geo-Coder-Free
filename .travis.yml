@@ -37,10 +37,9 @@ before_install:
   - perl -V
   - which perl cpanm
   - perl -MCPAN -e 'CPAN::Shell->install("App::cpanminus")'
-  - which perl cpanm cpan
-  - cpan -T File::Fetch
-  - build-dist
-  - cd $BUILD_DIR
+  - cpanm -n File::Fetch
+  # - build-dist
+  # - cd $BUILD_DIR
 
 install:
   - sudo apt-get update -q
