@@ -38,7 +38,7 @@ before_install:
   - which perl cpanm
   - perl -MCPAN -e 'CPAN::Shell->install("App::cpanminus")'
   - which perl cpanm cpan
-  - cpan -T File::Fetch~0.56
+  - cpan -T File::Fetch
   - build-dist
   - cd $BUILD_DIR
 
