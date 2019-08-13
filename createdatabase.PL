@@ -14,7 +14,7 @@ use warnings;
 # use autodie qw(:all);
 use autodie;	# Don't want system() to die, we catch failures
 use File::Copy;
-use File::Open::NoCache::ReadOnly;
+use File::Open::NoCache::ReadOnly 0.02;;
 use DBI;
 use Data::Dumper;
 use JSON;
@@ -723,7 +723,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$| = 0;
 		my %state_fips;
 
-
 		my $csv = Text::CSV->new({
 			sep_char => "\t",
 			allow_loose_quotes => 1,
@@ -765,7 +764,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			}
 		}
 
-		# close($fin);
+		$fh->close();
 
 		# Import the counties
 		$filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/counties.txt';
@@ -813,7 +812,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$inserts = 0;
 			}
 		}
-		# close($fin);
+		$fh->close();
 	}
 
 	my $current_state;
@@ -859,7 +858,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		my %admin1;
 
-		# close($fin1);
+		while(my $row = $csv->getline_hr($fin1)) {
+			$admin1{$row->{'concatenated_codes'}} = $row->{'asciiname'};
+		}
+
+		$admin1->close();
 
 		my %admin2;
 
@@ -867,11 +870,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$admin2{$row->{'concatenated_codes'}} = $row->{'asciiname'};
 		}
 
-		while(my $row = $csv->getline_hr($fin1)) {
-			$admin1{$row->{'concatenated_codes'}} = $row->{'asciiname'};
-		}
-
-		# close($fin2);
+		$admin2->close();
 
 		my $inserts = 0;
 
@@ -953,7 +952,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				$inserts = 0;
 			}
 		}
-		# close($fin);
+		$all_countries->close();
 	}
 	flush_queue($dbh);
 
@@ -980,7 +979,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				sqlite_open_flags => SQLITE_OPEN_READONLY,
 			});
 		}
-
 	}
 
 	if($wof_global_dbh) {
@@ -1590,7 +1588,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 
-			# close($fin);
+			$fh->close();
 
 			flush_queue($dbh);	# Check for hanging dups in current state
 			$inserts = 0;
