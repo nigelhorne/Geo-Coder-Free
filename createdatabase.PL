@@ -123,7 +123,19 @@ my %max_state_lengths = (
 
 # TODO: Use Geo::Coder::Free::Local, until then keep the data in sync
 my %known_places = (	# Places I've checked with my GPS
-	'us/md/statewide.csv' => [
+	'us/ks/statewide.csv' => [
+		{
+			'LAT' => 39.005175,
+			'LON' => -95.706681,
+			'NUMBER' => 3516,
+			'STREET' => 'SW MACVICAR AVE',
+			'CITY' => 'TOPEKA',
+			'COUNTY' => 'SHAWNEE',
+			'STATE' => 'KS',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 66611,
+		},
+	], 'us/md/statewide.csv' => [
 		{
 			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
