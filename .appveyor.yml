@@ -35,7 +35,7 @@ install:
   - cpanm -n File::Fetch
   - cpanm -f DBIx::TableLoader
   - sh: cpanm -q -f Text::xSV::Slurp
-  - cmd: cpanm -q -v -f Log::Log4perl CGI::IDS Data::Throttler
+  - cmd: cpanm -q -v -f Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO CGI::Lingua
   - cpanm -v --installdeps .
   - cmd: cpanm -q CHI
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
