@@ -34,7 +34,7 @@ install:
   - sh: sudo apt-get install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
   - cpanm -n File::Fetch
   - cpanm -f DBIx::TableLoader
-  - sh: cpanm -q -f Text::xSV::Slurp
+  - sh: cpanm -q -f Text::xSV::Slurp CGI::Lingua
   - cmd: cpanm -q -v -f Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO CGI::Lingua
   - cpanm -v --installdeps .
   - cmd: cpanm -q CHI
