@@ -1,5 +1,10 @@
 package Geo::Coder::Free::MaxMind;
 
+# sqlite3 cities.sql
+#	select * from cities where City like '%north shields%';
+# - note 'J5'
+# grep 'GB.ENG.J5' admin2.db
+
 use strict;
 use warnings;
 
