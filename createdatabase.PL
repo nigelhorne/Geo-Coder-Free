@@ -5,6 +5,13 @@
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
 # Download the WHOSONFIRST_HOME data using https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download
 # You can look up a WOF place by https://spelunker.whosonfirst.org/id/$locality_id
+#
+# Try:
+#	sqlite3 whosonfirst-data-latest.db
+#	select body from geojson where body like '%north shields%';
+# It'll be slow, but it shows the sort of thing this is about,
+#	You'll see and id: field (e.g. 1108937103), then look at
+#	https://spelunker.whosonfirst.org/id/1108937103
 
 # TODO: perhaps use a layered approach to the database schema
 
@@ -14,7 +21,7 @@ use warnings;
 # use autodie qw(:all);
 use autodie;	# Don't want system() to die, we catch failures
 use File::Copy;
-use File::Open::NoCache::ReadOnly 0.02;;
+use File::Open::NoCache::ReadOnly 0.02;
 use DBI;
 use Data::Dumper;
 use JSON;
