@@ -129,6 +129,7 @@ my %max_state_lengths = (
 );
 
 # TODO: Use Geo::Coder::Free::Local, until then keep the data in sync
+# Ensure you use abbreviations, e.e. RD not ROAD
 my %known_places = (	# Places I've checked with my GPS
 	'us/ks/statewide.csv' => [
 		{
@@ -261,7 +262,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => -77.009501,
 			'NAME' => 'LA CASITA PUPESERIA AND MARKET',
 			'NUMBER' => 8214,
-			'STREET' => 'PINEY BRANCH ROAD',
+			'STREET' => 'PINEY BRANCH RD',
 			'CITY' => 'SILVER SPRING',
 			'COUNTY' => 'MONTGOMERY',
 			'STATE' => 'MD',
@@ -345,7 +346,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'LAT' => 39.07669788,
 			'LON' => -77.12306436,
 			'NUMBER' => 1605,
-			'STREET' => 'VIERS MILL ROAD',
+			'STREET' => 'VIERS MILL RD',
 			'CITY' => 'ROCKVILLE',
 			'COUNTY' => 'MONTGOMERY',
 			'STATE' => 'MD',
@@ -366,7 +367,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'LON' => -77.05466857,
 			'NAME' => 'BP',
 			'NUMBER' => 2601,
-			'STREET' => 'FOREST GLEN ROAD',
+			'STREET' => 'FOREST GLEN RD',
 			'CITY' => 'SILVER SPRING',
 			'COUNTY' => 'MONTGOMERY',
 			'STATE' => 'MD',
@@ -447,6 +448,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'DC',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20011
+		}
+	], 'us/id/statewide.csv' => [
+		{
+			'LAT' => 47.693615,
+			'LON' => -116.915357,
+			'NUMBER' => 880,
+			'STREET' => 'SOUTH GREENSFERRY RD',
+			'CITY' => "COUER D'ALENE",
+			COUNTY => 'KOOTENAI',
+			'STATE' => 'ID',
+			'POSTCODE' => 83814
 		}
 	], 'us/in/statewide.csv' => [
 		{
@@ -557,7 +569,7 @@ my %known_places = (	# Places I've checked with my GPS
                         'LON' => 1.391367,
                         'NAME' => 'WESTWOOD CROSS',
                         'NUMBER' => 23,
-                        'STREET' => 'MARGATE ROAD',
+                        'STREET' => 'MARGATE RD',
                         'CITY' => 'BROADSTAIRS',
                         'STATE' => 'KENT',
                         'COUNTRY' => 'GB',
@@ -573,7 +585,7 @@ my %known_places = (	# Places I've checked with my GPS
                         'LAT' => 51.357510,
                         'LON' => 1.388894,
                         'NAME' => 'TOBY CARVERY',
-                        'STREET' => 'NEW HAINE ROAD',
+                        'STREET' => 'NEW HAINE RD',
                         'CITY' => 'RAMSGATE',
                         'STATE' => 'KENT',
                         'COUNTRY' => 'GB',
