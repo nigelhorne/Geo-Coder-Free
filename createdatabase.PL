@@ -456,7 +456,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'NUMBER' => 880,
 			'STREET' => 'SOUTH GREENSFERRY RD',
 			'CITY' => "COUER D'ALENE",
-			COUNTY => 'KOOTENAI',
+			'COUNTY' => 'KOOTENAI',
+			'STATE' => 'ID',
+			'POSTCODE' => 83814
+		}, {
+			'LAT' => 47.69556,
+			'LON' => -116.91564,
+			'NUMBER' => 898,
+			'STREET' => 'SOUTH GREENSFERRY RD',
+			'CITY' => "COUER D'ALENE",
+			'COUNTY' => 'KOOTENAI',
 			'STATE' => 'ID',
 			'POSTCODE' => 83814
 		}
