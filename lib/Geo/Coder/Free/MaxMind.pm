@@ -541,9 +541,9 @@ sub _prepare {
 
 	if(my $region = $loc->{'Region'}) {
 		my $county;
-		foreach my $c(keys %admin2cache) {
-			if($admin2cache{$c} eq $region) {
-				$county = $c;
+		while(my ($key, $value) = each %admin2cache) {
+			if($value eq $region) {
+				$county = $key;
 				last;
 			}
 		}
