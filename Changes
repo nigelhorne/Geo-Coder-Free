@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.22
+0.22	Sat 12 Oct 15:14:01 EDT 2019
 	When looking up Tyne and Wear, also lookup Borough of North Tyneside
 	Make createdatabase.PL and openaddress.pm agree on how to handle St. Louis, MO
 
