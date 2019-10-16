@@ -69,7 +69,8 @@ if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 	print $admin2 "GB.ENG.E7\tWoolwich\tWoolwich\t2648110\n",
 		"GB.ENG.O5\tLondon\tLondon\t2648110\n",
 		"GB.ENG.I8\tLondon\tLondon\t2648110\n",
-		"GB.ENG.P5\tLondon\tLondon\t2648110\n";
+		"GB.ENG.P5\tLondon\tLondon\t2648110\n",
+		"GB.ENG.A5\tBedfordshire\tBedfordshire\t2648110\n";
 }
 
 my $test_requires = {
