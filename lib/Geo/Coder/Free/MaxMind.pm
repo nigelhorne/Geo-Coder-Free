@@ -519,7 +519,7 @@ sub reverse_geocode {
 	}
 
 	if(wantarray) {
-		my @locs = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < 0.01) AND (ABS(Longitude - $longitude) < 0.01)");
+		my @locs = $self->{'cities'}->execute("SELECT * FROM cities WHERE ((ABS(Latitude - $latitude)) < 0.01) AND ((ABS(Longitude - $longitude)) < 0.01)");
 		foreach my $loc(@locs) {
 			$self->_prepare($loc);
 		}
@@ -527,7 +527,7 @@ sub reverse_geocode {
 	}
 	# Try close in then zoom out, to a reasonable limit
 	foreach my $radius(0.000001, 0.00001, 0.0001, 0.001, 0.01) {
-		if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE (ABS(Latitude - $latitude) < $radius) AND (ABS(Longitude - $longitude) < $radius) LIMIT 1")) {
+		if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE ((ABS(Latitude - $latitude)) < $radius) AND ((ABS(Longitude - $longitude)) < $radius) LIMIT 1")) {
 			$self->_prepare($rc);
 			return Geo::Location::Point->new($rc)->as_string();
 		}
