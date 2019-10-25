@@ -11,7 +11,7 @@ use File::Spec;
 use Template::Filters;
 use Template::Plugin::EnvHash;
 use HTML::SocialMedia;
-use VWF::Utils;
+use Geo::Coder::Free::Utils;
 
 my %blacklist = (
 	'MD' => 1,
