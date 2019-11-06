@@ -754,6 +754,17 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 	print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
+	my $redis;
+
+	if($ENV{'REDIS_SERVER'}) {
+		require Redis;
+		Redis->import();
+
+		$redis = Redis->new();
+		$redis->select(1);
+		$redis->flushdb();
+	}
+
 	my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 	if(-r $filename) {
 		# Import US states and counties from https://github.com/openaddresses/openaddresses/tree/master/us-data
@@ -797,9 +808,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				'LON' => $row->{'Longitude'},
 			);
 			# print "$zip => $query\n";
-			$inserts += insert($dbh, 1, %columns);
+			$inserts += insert($dbh, $redis, 1, %columns);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh);
+				flush_queue($dbh, $redis);
 				$inserts = 0;
 			}
 		}
@@ -846,9 +857,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				'LON' => $row->{'Longitude'},
 			);
 			# print "$zip => $query\n";
-			$inserts += insert($dbh, 1, %columns);
+			$inserts += insert($dbh, $redis, 1, %columns);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh);
+				flush_queue($dbh, $redis);
 				$inserts = 0;
 			}
 		}
@@ -986,15 +997,15 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 			# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
-			$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, global => 1);
+			$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh);
+				flush_queue($dbh, $redis);
 				$inserts = 0;
 			}
 		}
 		$all_countries->close();
 	}
-	flush_queue($dbh);
+	flush_queue($dbh, $redis);
 
 	# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
 	# $dbh->commit();
@@ -1200,7 +1211,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					'STATE' => $state,
 					'COUNTRY' => $country,
 				};
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 				next;
 			}
 			if($city) {
@@ -1253,7 +1264,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							if(DEBUG&DEBUG_DATA_VALIDATE);
 						next;
 					}
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 				}
 			}
 			my $row = {
@@ -1267,7 +1278,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				'COUNTRY' => $country,
 				'POSTCODE' => $postcode,
 			};
-			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 			if(my $addr_full = $properties->{'addr:full'}) {
 				my $ap;
 				if($country =~ /^ENGLAND/) {
@@ -1296,12 +1307,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							'POSTCODE' => uc($c{'post_code'}),
 						};
 						# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+						$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 					}
 				}
 			}
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh);
+				flush_queue($dbh, $redis);
 				$inserts = 0;
 			}
 		}
@@ -1346,7 +1357,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			if($country eq 'US') {
 				if((!defined($current_state)) || ($state ne $current_state)) {
 					print "New state, clear state_md5s; state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
-					flush_queue($dbh);	# Check for hanging dups in current state
+					flush_queue($dbh, $redis);	# Check for hanging dups in current state
 					%state_md5s = ();
 					%state_parent_md5s = ();
 					$current_country = $country;
@@ -1354,7 +1365,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			} elsif((!defined($current_country)) || ($country ne $current_country)) {
 				# print "New country, clear state_md5s\n";
-				flush_queue($dbh);	# Check for hanging dups in current country
+				flush_queue($dbh, $redis);	# Check for hanging dups in current country
 				%state_md5s = ();
 				%state_parent_md5s = ();
 				$current_country = $country;
@@ -1366,9 +1377,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			if(my $k = $known_places{$f}) {
 				# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 				foreach my $row(@{$k}) {
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($dbh);
+						flush_queue($dbh, $redis);
 						$inserts = 0;
 					}
 				}
@@ -1520,10 +1531,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						'POSTCODE' => $postcode,
 					};
 					die Data::Dumper->new([$properties])->Dump() if(!defined($state));
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
 					if(my $addr_full = $properties->{'addr:full'}) {
 						if($inserts >= MAX_INSERT_COUNT) {
-							flush_queue($dbh);
+							flush_queue($dbh, $redis);
 							$inserts = 0;
 						}
 						my $ap;
@@ -1578,19 +1589,19 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 										'POSTCODE' => $post_code,
 									};
 									print "\tAdding from L:EN:A($addr_full):\n\t", Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_L_EN_A);
-									$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
+									$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
 								}
 							}
 						}
 					}
 					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($dbh);
+						flush_queue($dbh, $redis);
 						$inserts = 0;
 					}
 				}
 				$wof_dbh->disconnect();
 				delete $whosonfirst{$wof_file};
-				flush_queue($dbh);	# Check for hanging dups in current state
+				flush_queue($dbh, $redis);	# Check for hanging dups in current state
 				$inserts = 0;
 			}
 
@@ -1621,16 +1632,16 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			$csv->column_names($csv->getline($fin));
 
 			while(my $row = $csv->getline_hr($fin)) {
-				$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh);
+				$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh, redis => $redis);
 				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($dbh);
+					flush_queue($dbh, $redis);
 					$inserts = 0;
 				}
 			}
 
 			$fh->close();
 
-			flush_queue($dbh);	# Check for hanging dups in current state
+			flush_queue($dbh, $redis);	# Check for hanging dups in current state
 			$inserts = 0;
 		}
 	}
@@ -1641,7 +1652,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# $wof_global_dbh->disconnect();
 	# exit(0);
 
-	flush_queue($dbh);	# Check for hanging dups in last state
+	flush_queue($dbh, $redis);	# Check for hanging dups in last state
 	%state_md5s = ();
 	%state_parent_md5s = ();
 
@@ -1651,12 +1662,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(my $k = $known_places{'other'}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh);
+				$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis);
 			}
 		}
 
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($dbh);
+			flush_queue($dbh, $redis);
 			$inserts = 0;
 		}
 
@@ -1771,7 +1782,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				if(my $number = $properties->{'addr:housenumber'}) {
 					$row->{'NUMBER'} = uc($number);
 				}
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
 				if(my $addr_full = $properties->{'addr:full'}) {
 					my $ap;
 					if($country =~ /^ENGLAND/i) {
@@ -1804,12 +1815,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 								'POSTCODE' => $post_code,
 							};
 							print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-							$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh);
+							$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
 						}
 					}
 				}
 				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($dbh);
+					flush_queue($dbh, $redis);
 					$inserts = 0;
 				}
 			}
@@ -1817,7 +1828,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		}
 	}
 
-	flush_queue($dbh);
+	flush_queue($dbh, $redis);
 	%whosonfirst = ();
 
 	$| = 1;
@@ -1866,6 +1877,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	$| = 0;
 	$dbh->commit();
 	$dbh->disconnect();
+	if($redis) {
+		$redis->bgsave();
+		$redis->shutdown();
+	}
 	print ' ' x 70, "\r" if(!DEBUG);
 }
 
@@ -1915,6 +1930,7 @@ sub import {
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $dbh = $param{'dbh'} || die 'import: no dbh';
+	my $redis = $param{'redis'} || die 'import: no redis';
 	my $global = $param{'global'} || 0;
 	my $inserts = 0;
 
@@ -1987,7 +2003,7 @@ sub import {
 					'LON' => $place->{'longitude'},
 				);
 				# print "$zip => $query\n";
-				$inserts = insert($dbh, $global, %columns);
+				$inserts = insert($dbh, $redis, $global, %columns);
 			}
 		}
 		if((!defined($city)) && !defined($state)) {
@@ -2018,10 +2034,10 @@ sub import {
 		if($borough ne $street) {
 			my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
 			print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-			$inserts += insert($dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $global, %columns);
 			$columns{'CITY'} = $city_name;
 			print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-			$inserts += insert($dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $global, %columns);
 			print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
 		}
 	}
@@ -2153,10 +2169,10 @@ sub import {
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
-		$inserts += insert($dbh, $global, %columns);
+		$inserts += insert($dbh, $redis, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			return $inserts if(!defined($city));
-			$inserts += insert($dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $global, %columns);
 		}
 		my $name = $columns{'NAME'};
 		if($name) {
@@ -2165,49 +2181,49 @@ sub import {
 			#	Check if $name ends with uc($classifier->{category})
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
-				$inserts += insert($dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $global, %columns);
 			}
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
-				$inserts += insert($dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $global, %columns);
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
-					$inserts += insert($dbh, $global, %columns);
+					$inserts += insert($dbh, $redis, $global, %columns);
 					# print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
 			# Match somewhere in the street when number isn't known
-			$inserts += insert($dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $global, %columns);
 			if(delete($columns{'STREET'})) {
 				if($name) {
 					# For when a name is known but not a street
 					$columns{'NAME'} = $name;
-					$inserts += insert($dbh, $global, %columns);
+					$inserts += insert($dbh, $redis, $global, %columns);
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
-						$inserts += insert($dbh, $global, %columns);
+						$inserts += insert($dbh, $redis, $global, %columns);
 						# print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
 				# Match somewhere in the city when street isn't known
-				$inserts += insert($dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $global, %columns);
 			}
 		} elsif($name && delete($columns{'STREET'})) {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
-			$inserts += insert($dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $global, %columns);
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 		}
@@ -2217,7 +2233,7 @@ sub import {
 
 # Insert data into the database, returns the number of new rows
 sub insert {
-	my ($dbh, $global, %columns) = @_;
+	my ($dbh, $redis, $global, %columns) = @_;
 
 	foreach my $column(keys %columns) {
 		if(!defined($columns{$column})) {
@@ -2281,7 +2297,7 @@ sub insert {
 	$columns{'LINE'} = $call_details[2] if(DEBUG);
 	$queued_commits{$digest} = \%columns;
 	if(DEBUG&DEBUG_ALL) {
-		flush_queue($dbh);
+		flush_queue($dbh, $redis);
 	}
 	if(!defined($columns{'COUNTRY'})) {
 		print "insert: no country. Called from line " . $call_details[2], "\n";
@@ -2308,7 +2324,7 @@ sub insert {
 		if($digest = create_md5($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = \%columns2;
 			if(DEBUG&DEBUG_ALL) {
-				flush_queue($dbh);
+				flush_queue($dbh, $redis);
 			}
 			return 2;
 		# } else {
@@ -2322,7 +2338,7 @@ sub insert {
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
-	my $dbh = shift;
+	my ($dbh, $redis) = shift;
 
 	# print "flush\n" if(DEBUG&DEBUG_ALL);
 
@@ -2376,7 +2392,10 @@ sub flush_queue
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
 		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
-		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+		if($redis) {
+			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'});
+		}
+		$query .=  $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 
 		# foreach my $column(@columns) {
 			# if($row->{$column}) {
@@ -2518,6 +2537,7 @@ sub flush_queue
 			my @call_details = caller(1);
 			print "Error in flush_queue ($query) called from line ", $call_details[2], "\n\t",
 				Data::Dumper->new([\%queued_commits])->Dump();
+			# print "$query\n";
 			die $_;
 		};
 	}
