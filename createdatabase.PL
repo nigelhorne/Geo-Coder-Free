@@ -2338,7 +2338,7 @@ sub insert {
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
-	my ($dbh, $redis) = shift;
+	my ($dbh, $redis) = @_;
 
 	# print "flush\n" if(DEBUG&DEBUG_ALL);
 
