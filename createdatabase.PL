@@ -1182,7 +1182,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 				$city = $properties->{'wof:name'};
 				if(($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
-					if(my $parent = get_wof($wof_global_dbh, $parent)) {
+					if($parent = get_wof($wof_global_dbh, $parent)) {
 						$city = "$city, $parent";
 					# } else {
 						# Most likely the parent is in a different database
@@ -1289,7 +1289,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					$ap = $address_parsers{$country};
 				}
 				if($ap) {
-					if(my $error = $ap->parse($addr_full)) {
+					if($ap->parse($addr_full)) {
 						# print STDERR 'Address parse failed: ', $ap->report(), "\n";
 					} else {
 						my %c = $ap->components();
@@ -1338,7 +1338,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		$f =~ s/^$oa\///;
 		my @components = split(/\//, $f);
 		if(my $country = uc($components[0])) {
-			my $query;
 			my $state;
 			my $file;
 			my $region_id;
@@ -1549,7 +1548,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 							if($country eq 'us') {
 								die if($state ne uc($components[1]));
 							}
-							if(my $error = $ap->parse($addr_full)) {
+							if($ap->parse($addr_full)) {
 								# print STDERR 'Address parse failed: ', $ap->report(), "\n";
 							} else {
 								my %c = $ap->components();
@@ -1793,7 +1792,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$ap = $address_parsers{$country};
 					}
 					if($ap) {
-						if(my $error = $ap->parse($addr_full)) {
+						if($ap->parse($addr_full)) {
 							# print STDERR 'Address parse failed: ', $ap->report(), "\n";
 						} else {
 							my %c = $ap->components();
@@ -1835,11 +1834,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	printf "%-70s\r", 'creating cities';
 	print "\n" if(DEBUG);
 	$| = 0;
-	foreach my $key(keys %cities) {
-		my ($city, $county, $state, $country) = split(/,/, $key);
-		my $sequence = $cities{$key};
+	# foreach my $key(keys %cities) {
+		# my ($city, $county, $state, $country) = split(/,/, $key);
+		# my $sequence = $cities{$key};
 
-		$city =~ s/'/''/g;
+		# $city =~ s/'/''/g;
 		# my $query = "INSERT INTO cities('SEQUENCE','CITY','COUNTY','STATE','COUNTRY'" .
 			# ') VALUES (' .
 			# "'$sequence'," .
@@ -1850,7 +1849,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 		# # print "$query\n";
 		# $dbh->do($query);
-	}
+	# }
 
 	$| = 1;
 	printf "%-70s\r", 'creating indicies';
@@ -2343,7 +2342,7 @@ sub flush_queue
 	# print "flush\n" if(DEBUG&DEBUG_ALL);
 
 	# my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
-	my @columns = ('LAT','LON','NAME','NUMBER','STREET');
+	# my @columns = ('LAT','LON','NAME','NUMBER','STREET');
 
 	my $query;
 
@@ -2391,12 +2390,12 @@ sub flush_queue
 		# print join(',', @columns), ": $md5\n";
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
-		my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 		if($redis) {
 			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'});
 		}
 		$query .=  $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 
+		# my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 		# foreach my $column(@columns) {
 			# if($row->{$column}) {
 				# if(($column eq 'LAT') || ($column eq 'LON') || ($column eq 'CITY')) {
