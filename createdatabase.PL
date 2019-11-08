@@ -49,6 +49,7 @@ use	constant	DEBUG_DETERMINE_LOCATION => 8;
 use	constant	DEBUG_GET_WOF => 0x10;
 use	constant	DEBUG_BREAKUP => 0x20;
 use	constant	DEBUG_DATA_VALIDATE => 0x40;
+use	constant	DEBUG_FLUSH => 0x80;
 use	constant	DEBUG_ALL => 0xFF;
 use	constant	DEBUG => DEBUG_OFF;
 
@@ -2339,7 +2340,7 @@ sub flush_queue
 {
 	my ($dbh, $redis) = @_;
 
-	# print "flush\n" if(DEBUG&DEBUG_ALL);
+	print "flush\n" if(DEBUG&DEBUG_FLUSH);
 
 	# my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
 	# my @columns = ('LAT','LON','NAME','NUMBER','STREET');
@@ -2391,7 +2392,8 @@ sub flush_queue
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
 		if($redis) {
-			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'});
+			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
+			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'}, sub {});
 		}
 		$query .=  $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 
@@ -2410,6 +2412,10 @@ sub flush_queue
 		# }
 		# die $key unless $cities{$key};
 		# $query .= $cities{$key} . ",'$md5')";
+	}
+	if($redis) {
+		print "waiting for redis\n" if(DEBUG&DEBUG_FLUSH);
+		$redis->wait_all_responses();
 	}
 
 	my $tree_query;
