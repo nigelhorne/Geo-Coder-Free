@@ -733,9 +733,13 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	my $sqlite_file = "$oa/openaddresses.sql";
 	exit(0) if(-r $sqlite_file);
 
-	my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
-	$dbh->do('PRAGMA cache_size = -65536');	# 64MB
-	$dbh->do('PRAGMA journal_mode = OFF');
+	# TODO Make this configurable
+	# my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
+	my $dbh;
+	if($dbh) {
+		$dbh->do('PRAGMA cache_size = -65536');	# 64MB
+		$dbh->do('PRAGMA journal_mode = OFF');
+	}
 	if(!-d $oa) {
 		mkdir $oa;
 	}
@@ -745,10 +749,12 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		warn "MAX_INSERT_COUNT not set to 1 in DEBUG mode";
 	}
 
-	if(MAX_INSERT_COUNT == 1) {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
-	} else {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+	if($dbh) {
+		if(MAX_INSERT_COUNT == 1) {
+			$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
+		} else {
+			$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+		}
 	}
 	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 	# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
@@ -761,7 +767,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		require Redis;
 		Redis->import();
 
-		$redis = Redis->new();
+		$redis = Redis->new(reconnect => 300, every => 5_000_000);
 		$redis->select(1);
 		$redis->flushdb();
 	}
@@ -1865,7 +1871,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 	if(MAX_INSERT_COUNT > 1) {
 		# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
-		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+		if($dbh) {
+			$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+		}
 		# $dbh->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
 		# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
@@ -1875,8 +1883,10 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	printf "%-70s\r", 'committing';
 	print "\n" if(DEBUG);
 	$| = 0;
-	$dbh->commit();
-	$dbh->disconnect();
+	if($dbh) {
+		$dbh->commit();
+		$dbh->disconnect();
+	}
 	if($redis) {
 		$redis->bgsave();
 		$redis->shutdown();
@@ -2010,7 +2020,7 @@ sub import {
 			# die Data::Dumper->new([\$row])->Dump();
 			return 0 if(!$zip);
 			return 0 if($zip !~ /^\d{5}/);
-			$dbh->disconnect();
+			$dbh->disconnect() if($dbh);
 			die $file;
 		}
 	}
@@ -2531,7 +2541,7 @@ sub flush_queue
 		# TODO: add NAME field
 	}
 
-	if($query) {
+	if($query && $dbh) {
 		# print "$query\n";
 		# $| = 1;
 		# print '.';
