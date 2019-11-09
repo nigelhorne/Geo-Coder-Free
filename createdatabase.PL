@@ -734,8 +734,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	exit(0) if(-r $sqlite_file);
 
 	# TODO Make this configurable
-	# my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
-	my $dbh;
+	my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
 	if($dbh) {
 		$dbh->do('PRAGMA cache_size = -65536');	# 64MB
 		$dbh->do('PRAGMA journal_mode = OFF');
@@ -764,6 +763,9 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	my $redis;
 
 	if($ENV{'REDIS_SERVER'}) {
+		# Warning:  Redis stores the database in RAM which makes it
+		#	slow, but unrealistic for most scenarios as it will
+		#	use all the memory on your machine
 		require Redis;
 		Redis->import();
 
