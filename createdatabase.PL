@@ -767,7 +767,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		require Redis;
 		Redis->import();
 
-		$redis = Redis->new(reconnect => 300, every => 5_000_000);
+		$redis = Redis->new(reconnect => 1200, every => 5_000_000);
 		$redis->select(1);
 		$redis->flushdb();
 	}
@@ -1939,8 +1939,11 @@ sub import {
 	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
-	my $dbh = $param{'dbh'} || die 'import: no dbh';
-	my $redis = $param{'redis'} || die 'import: no redis';
+	my $dbh = $param{'dbh'};
+	my $redis = $param{'redis'};
+	if((!$dbh) && !$redis) {
+		die 'import: neither dbh nor redis';
+	}
 	my $global = $param{'global'} || 0;
 	my $inserts = 0;
 
