@@ -47,6 +47,23 @@ my %urls = (
 
 foreach my $url(keys %urls) {
 	next if(-r $urls{$url});
+	if(eval { require HTTP::Cache::Transparent; }) {
+		HTTP::Cache::Transparent->import();
+		my $cachedir;
+		if(my $e = $ENV{'CACHEDIR'}) {
+			$cachedir = File::Spec->catfile($e, 'http-cache-transparent');
+		} else {
+			$cachedir = File::Spec->catfile(File::Spec->tmpdir(), 'cache', 'http-cache-transparent');
+		}
+
+		HTTP::Cache::Transparent::init({
+			BasePath => $cachedir,
+			# Verbose => $opts{'v'} ? 1 : 0,
+			NoUpdate => 60 * 60 * 24,
+			MaxAge => 30 * 24
+		}) || die "$0: $cachedir: $!";
+	}
+
 	print "Downloading $url\n";
 	my $ff = File::Fetch->new(uri => $url);
 	if(my $path = $ff->fetch($url)) {
