@@ -69,37 +69,30 @@ SCANTEXT: {
 				if(defined($location->{'state'}) && ($location->{'state'} ne 'IN')) {
 					next;
 				}
-				if($location->{'country'} ne 'US') {
-					next;
-				}
+				next if($location->{'country'} ne 'US');
+				next if($found{$city});
 
 				if($city eq 'GREENWOOD') {
 				# if($location->{'location'} =~ /^Greenwood, IN/i) {
-					if(!$found{'GREENWOOD'}) {
-						$found{'GREENWOOD'}++;
-						ok(defined($location->{'confidence'}));
-						ok($location->{'state'} eq 'IN');
-						cmp_deeply($location,
-							methods('lat' => num(39.61, 1e-2), 'long' => num(-86.11, 1e-2)));
-					}
+					$found{'GREENWOOD'}++;
+					ok(defined($location->{'confidence'}));
+					ok($location->{'state'} eq 'IN');
+					cmp_deeply($location,
+						methods('lat' => num(39.61, 1e-2), 'long' => num(-86.11, 1e-2)));
 				} elsif($city eq 'INDIANAPOLIS') {
 				# } elsif($location->{'location'} =~ /^Indianapolis,/i) {
-					if(!$found{'INDIANAPOLIS'}) {
-						$found{'INDIANAPOLIS'}++;
-						ok(defined($location->{'confidence'}));
-						ok($location->{'state'} eq 'IN');
-						cmp_deeply($location,
-							methods('lat' => num(39.8, 1e-2), 'long' => num(-86.2, 1e-2)));
-					}
+					$found{'INDIANAPOLIS'}++;
+					ok(defined($location->{'confidence'}));
+					ok($location->{'state'} eq 'IN');
+					cmp_deeply($location,
+						methods('lat' => num(39.8, 1e-2), 'long' => num(-86.2, 1e-2)));
 				} elsif($city eq 'NOBLESVILLE') {
 				# } elsif($location->{'location'} =~ /^Noblesville,/i) {
-					if(!$found{'NOBLESVILLE'}) {
-						$found{'NOBLESVILLE'}++;
-						ok(defined($location->{'confidence'}));
-						ok($location->{'state'} eq 'IN');
-						cmp_deeply($location,
-							methods('lat' => num(40.04, 1e-2), 'long' => num(-86.01, 1e-2)));
-					}
+					$found{'NOBLESVILLE'}++;
+					ok(defined($location->{'confidence'}));
+					ok($location->{'state'} eq 'IN');
+					cmp_deeply($location,
+						methods('lat' => num(40.04, 1e-2), 'long' => num(-86.01, 1e-2)));
 				}
 			}
 			ok($found{'GREENWOOD'});
