@@ -1,5 +1,8 @@
 #!perl -wT
 
+# TODO:  Try using Test::Without::Module to try without Geo::libpostal is that
+#	is installed
+
 use warnings;
 use strict;
 use Test::Most tests => 17;
