@@ -281,7 +281,7 @@ sub geocode {
 		# ::diag(__LINE__);
 		if(defined($county) && ($county eq 'London')) {
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
-		} else {
+		} elsif(defined($county)) {
 		# ::diag(__LINE__, ": $county");
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
 		}
@@ -340,7 +340,7 @@ sub geocode {
 					last;
 				}
 			}
-		} else {
+		} elsif(defined($county)) {
 			# e.g. states in the US
 			if(!defined($self->{'admin1'})) {
 				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new() or die "Can't open the admin1 database";
@@ -394,7 +394,7 @@ sub geocode {
 	if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
-			@rc = $self->{'cities'}->selectall_hash('Region' => $options->{'Region'});
+			@rc = $self->{'cities'}->selectall_hash('Region' => ($options->{'Region'} // $param{'region'}));
 			if(scalar(@rc) == 0) {
 	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;

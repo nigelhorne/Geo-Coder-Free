@@ -152,7 +152,7 @@ sub geocode {
 	} elsif(@_ % 2 == 0) {
 		%param = @_;
 	} else {
-		$param{location} = shift;
+		$param{'location'} = shift;
 	}
 
 	if($self->{'openaddr'}) {

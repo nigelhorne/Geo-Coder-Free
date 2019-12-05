@@ -31,7 +31,7 @@ SCANTEXT: {
 
 			ok($location->{'location'} eq 'Ramsgate, Kent, England');
 
-			@locations = $geocoder->geocode(scantext => 'Hello World', region => 'gb');
+			@locations = $geocoder->geocode(scantext => 'Hello World', region => 'GB');
 			ok(ref($locations[0]) eq '');
 
 			@locations = $geocoder->geocode(scantext => 'Hello World');

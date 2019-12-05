@@ -192,7 +192,7 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode('716 Yates Street, Victoria, British Columbia, Canada');
 				cmp_deeply($location,
-					methods('lat' => num(48.43, 1e-2), 'long' => num(-123.36, 1e-2)));
+					methods('lat' => num(48.43, 1e-2), 'long' => num(-123.37, 1e-2)));
 
 				$location = $geo_coder->geocode(location => 'Caboolture, Queensland, Australia');
 				ok(defined($location));
