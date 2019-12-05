@@ -545,8 +545,7 @@ sub AUTOLOAD {
 	my @args;
 	while(my ($key, $value) = each %params) {
 		if(defined($value)) {
-			# $query .= " AND $key LIKE ?";
-			if(scalar(@args)) {
+			if(scalar(@args) || ($self->{'type'} eq 'CSV')) {
 				$query .= " AND $key = ?";
 			} else {
 				$query .= " WHERE $key = ?";
