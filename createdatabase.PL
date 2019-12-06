@@ -2315,7 +2315,7 @@ sub insert {
 		flush_queue($dbh, $redis);
 	}
 	if(!defined($columns{'COUNTRY'})) {
-		print "insert: no country. Called from line " . $call_details[2], "\n";
+		print "insert: no country. Called from line ", $call_details[2], "\n";
 		die Data::Dumper->new([\%columns])->Dump();
 	}
 	my $key = city_key($columns{'CITY'}, $columns{'COUNTY'}, $columns{'STATE'}, $columns{'COUNTRY'});
@@ -2633,7 +2633,7 @@ sub get_wof {
 	if(defined($l2_cache)) {
 		if(my $name = $l2_cache->get($id)) {
 			my @call_details = caller(0);
-			print "get_wof: cached $name at line " . $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
+			print "get_wof: cached $name at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
 			$l1_cache{$id} = $name;
 			return $name;
 		}
