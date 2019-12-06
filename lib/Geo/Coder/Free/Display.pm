@@ -87,7 +87,7 @@ sub new {
 		}
 		if(my $lingua = $args{lingua}) {
 			if($blacklist{uc($lingua->country())}) {
-				die "$ENV{REMOTE_ADDR} is from a blacklisted country " . $lingua->country();
+				die "$ENV{REMOTE_ADDR} is from a blacklisted country ", $lingua->country();
 			}
 		}
 	}
@@ -148,7 +148,7 @@ sub new {
 		}
 	};
 	if($@ || !defined($config)) {
-		die "Configuration error: $@" . $path . '/' . $info->domain_name();
+		die "Configuration error: $@: $path/", $info->domain_name();
 	}
 
 	Template::Filters->use_html_entities();
