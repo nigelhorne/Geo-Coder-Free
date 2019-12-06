@@ -214,7 +214,7 @@ sub geocode {
 		} elsif($admin1cache{$country} && !defined($state)) {
 			$concatenated_codes = $admin1cache{$country};
 		} else {
-			$self->{'admin1'} //= Geo::Coder::Free::DB::MaxMind::admin1->new() or die "Can't open the admin1 database";
+			$self->{'admin1'} //= Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or die "Can't open the admin1 database";
 
 			if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
 				$concatenated_codes = $admin1->{'concatenated_codes'};
@@ -263,7 +263,7 @@ sub geocode {
 		}
 	}
 
-	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or die "Can't open the admin2 database";
 
 	if(defined($county) && ($county =~ /^[A-Z]{2}$/) && ($country =~ /^(United States|USA|US)$/)) {
 		# US state. Not Canadian province.
@@ -343,7 +343,7 @@ sub geocode {
 		} elsif(defined($county)) {
 			# e.g. states in the US
 			if(!defined($self->{'admin1'})) {
-				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new() or die "Can't open the admin1 database";
+				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or die "Can't open the admin1 database";
 			}
 			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
@@ -359,7 +359,9 @@ sub geocode {
 
 	if(!defined($self->{'cities'})) {
 		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new(
-			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {}));
+			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {}),
+			no_entry => 1,
+		);
 	}
 
 	my $options;
@@ -514,7 +516,8 @@ sub reverse_geocode {
 
 	if(!defined($self->{'cities'})) {
 		$self->{'cities'} = Geo::Coder::Free::DB::MaxMind::cities->new(
-			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
+			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {}),
+			no_entry => 1,
 		);
 	}
 
@@ -550,7 +553,7 @@ sub _prepare {
 		if($county) {
 			$loc->{'Region'} = $county;
 		} else {
-			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new() or die "Can't open the admin2 database";
+			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or die "Can't open the admin2 database";
 			my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($region) . "' LIMIT 1");
 			if(ref($row) && $row->{'name'}) {
 				$admin2cache{$row->{'name'}} = $region;

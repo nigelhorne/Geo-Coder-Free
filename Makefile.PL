@@ -64,15 +64,26 @@ foreach my $url(keys %urls) {
 		}) || die "$0: $cachedir: $!";
 	}
 
-	print "Downloading $url\n";
-	my $ff = File::Fetch->new(uri => $url);
-	if(my $path = $ff->fetch($url)) {
-		print "Moving $path to $urls{$url}\n";
-		rename $path, $urls{$url} or die "$urls{$url}: $!";
-	} elsif(my $err = $ff->error(1)) {
-		die $err;
+	my $download = 0;
+	my $file = $urls{$url};
+	if(-r $file) {
+		if((-M $file) > 1) {
+			$download = 1;
+		}
 	} else {
-		die "There was a problem downloading $url";
+		$download = 1;
+	}
+	if($download) {
+		print "Downloading $url\n";
+		my $ff = File::Fetch->new(uri => $url);
+		if(my $path = $ff->fetch($url)) {
+			print "Moving $path to $file\n";
+			rename $path, $file or die "$file: $!";
+		} elsif(my $err = $ff->error(1)) {
+			die $err;
+		} else {
+			die "There was a problem downloading $url";
+		}
 	}
 }
 
