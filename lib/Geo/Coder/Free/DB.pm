@@ -543,15 +543,18 @@ sub AUTOLOAD {
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
 	my $query;
+	my $done_where = 0;
 	if(wantarray && !delete($params{'distinct'})) {
 		if(($self->{'type'} eq 'CSV') && !$self->{no_entry}) {
 			$query = "SELECT $column FROM $table WHERE entry IS NOT NULL AND entry NOT LIKE '#%'";
+			$done_where = 1;
 		} else {
 			$query = "SELECT $column FROM $table";
 		}
 	} else {
 		if(($self->{'type'} eq 'CSV') && !$self->{no_entry}) {
 			$query = "SELECT DISTINCT $column FROM $table WHERE entry IS NOT NULL AND entry NOT LIKE '#%'";
+			$done_where = 1;
 		} else {
 			$query = "SELECT DISTINCT $column FROM $table";
 		}
@@ -559,10 +562,11 @@ sub AUTOLOAD {
 	my @args;
 	while(my ($key, $value) = each %params) {
 		if(defined($value)) {
-			if(scalar(@args) || ($self->{'type'} eq 'CSV')) {
+			if($done_where) {
 				$query .= " AND $key = ?";
 			} else {
 				$query .= " WHERE $key = ?";
+				$done_where = 1;
 			}
 			push @args, $value;
 		} else {
