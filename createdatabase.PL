@@ -1929,7 +1929,7 @@ sub import {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
 		die 'import: bad args';
-	} elsif(@_ % 2 == 0) {
+	} elsif(scalar(@_) % 2 == 0) {
 		%param = @_;
 	} else {
 		die 'import: no args';

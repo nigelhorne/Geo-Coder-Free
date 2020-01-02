@@ -23,7 +23,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cpanm -iq File::Spec ExtUtils::MakeMaker
-          cpanm -iqn Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint
+          cpanm -iqn Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused
           cpanm -iq --installdeps --notest .
       - name: Run Tests
         run: |

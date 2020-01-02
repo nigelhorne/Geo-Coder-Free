@@ -39,7 +39,7 @@ before_install:
 install:
   - cpan-install --deps
   - cpan-install --coverage
-  - cpanm -n Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint
+  - cpanm -iqn Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused
 
 script:
   # perl Makefile.PL && make && cover -test -report coveralls
