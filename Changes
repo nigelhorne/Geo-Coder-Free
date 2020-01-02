@@ -2,6 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.23
 	Save database in Redis server as well if REDIS_SERVER is set
+	Fixed reverse_geocode in Local.pm for UK addresses
 
 0.22	Sat 12 Oct 15:14:01 EDT 2019
 	When looking up Tyne and Wear, also lookup Borough of North Tyneside

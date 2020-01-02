@@ -120,6 +120,7 @@ Both are in their early days, but I have examples which do surprisingly well.
 The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
 That script creates a single SQLite file from downloaded copies of the databases listed above, to create the database you will need
 to first install [App::csv2sqlite](https://metacpan.org/pod/App%3A%3Acsv2sqlite).
+If REDIS\_SERVER is set, the data are also stored on a Redis Server.
 Running 'make' will download GeoNames and MaxMind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:F.
 
 There is a sample website at [https://geocode.nigelhorne.com/](https://geocode.nigelhorne.com/).  The source code for that site is included in the G:C:F distribution.
@@ -145,7 +146,7 @@ See [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo%3A%3ACoder%3A
 
 # LICENSE AND COPYRIGHT
 
-Copyright 2017-2019 Nigel Horne.
+Copyright 2017-2020 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

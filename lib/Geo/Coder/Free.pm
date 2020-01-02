@@ -406,7 +406,7 @@ L<http://results.openaddresses.io/>.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2019 Nigel Horne.
+Copyright 2017-2020 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

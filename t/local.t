@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 40;
+use Test::Most tests => 56;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -53,6 +53,12 @@ LOCAL: {
 	}
 
 	check($geo_coder,
+		'Minster Cemetery, 116 Tothill Street, Minster, Thanet, Kent, England',
+		51.34203083,
+		1.31609075
+	);
+
+	check($geo_coder,
 		'106 Tothill St, Ramsgate, Kent, GB',
 		51.33995174,
 		1.31570211
@@ -66,7 +72,10 @@ sub check {
 	my ($geo_coder, $location, $lat, $long) = @_;
 
 	$location = uc($location);
-	# ::diag($location);
+	if($location =~ /(.+)\s+STREET,\s+(.+)/) {
+		$location = "$1 ST, $2";
+	}
+	# diag($location);
 	my @rc = $geo_coder->geocode({ location => $location });
 	# diag(Data::Dumper->new([\@rc])->Dump());
 	ok(scalar(@rc) > 0);
@@ -92,7 +101,12 @@ sub check {
 	}
 
 	foreach my $loc(@rc) {
+		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+			$loc = "$1, England";
+		}
+		# diag(uc($loc), '<->', $location);
 		if(uc($loc) eq $location) {
+			# diag("match: $location");
 			$found = 1;
 			last;
 		}
@@ -109,6 +123,9 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
+		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+			$loc = "$1, England";
+		}
 		if(uc($loc) eq $location) {
 			$found = 1;
 			last;
@@ -126,6 +143,9 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
+		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+			$loc = "$1, England";
+		}
 		if(uc($loc) eq $location) {
 			$found = 1;
 			last;
@@ -143,6 +163,9 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
+		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+			$loc = "$1, England";
+		}
 		if(uc($loc) eq $location) {
 			$found = 1;
 			last;
@@ -160,6 +183,9 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
+		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+			$loc = "$1, England";
+		}
 		if(uc($loc) eq $location) {
 			$found = 1;
 			last;
