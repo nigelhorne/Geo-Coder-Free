@@ -472,17 +472,17 @@ sub reverse_geocode {
 				my $location = uc(Geo::Location::Point->new($row)->as_string());
 				if(wantarray) {
 					push @rc, $location;
-while(my($left, $right) = each %alternatives) {
-	# ::diag("$location/$left");
-	if($location =~ $right) {
-		# ::diag($right, '=>', $left);
-		my $l = $location;
-		$l =~ s/$right/$left/;
-		# ::diag(__LINE__, ": $location");
-		push @rc, $l;
-		# Don't add last here
-	}
-}
+					while(my($left, $right) = each %alternatives) {
+						# ::diag("$location/$left");
+						if($location =~ $right) {
+							# ::diag($right, '=>', $left);
+							my $l = $location;
+							$l =~ s/$right/$left/;
+							# ::diag(__LINE__, ": $location");
+							push @rc, $l;
+							# Don't add last here
+						}
+					}
 				} else {
 					return $location;
 				}
@@ -523,7 +523,7 @@ it under the same terms as Perl itself.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2019 Nigel Horne.
+Copyright 2020 Nigel Horne.
 
 The program code is released under the following licence: GPL2 for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

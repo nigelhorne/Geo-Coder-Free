@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['windows-latest', 'macos-latest', 'ubuntu-latest']
+        perl: [ '5.30', '5.28' ]
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+      - run: perl -V
+      - name: Install Dependencies
+        run: |
+          cpanm -iq File::Spec ExtUtils::MakeMaker
+          cpanm -iqn Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint
+          cpanm -iq --installdeps --notest .
+      - name: Run Tests
+        run: |
+          prove -l t
+          perl -MO=Lint ./createdatabase.PL
+          perl -c -Mwarnings::unused ./createdatabase.PL

@@ -114,12 +114,9 @@ sub check {
 	}
 
 	foreach my $loc(@rc) {
-		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
-			$loc = "$1, England";
-		}
 		# diag(uc($loc), '<->', $expect);
 		if(uc($loc) eq $expect) {
-			# diag("match: $location");
+			# diag("match: $expect");
 			$found = 1;
 			last;
 		}
@@ -136,9 +133,6 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
-			$loc = "$1, England";
-		}
 		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
@@ -156,9 +150,6 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
-			$loc = "$1, England";
-		}
 		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
@@ -176,9 +167,6 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
-			$loc = "$1, England";
-		}
 		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
@@ -196,9 +184,6 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
-			$loc = "$1, England";
-		}
 		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
