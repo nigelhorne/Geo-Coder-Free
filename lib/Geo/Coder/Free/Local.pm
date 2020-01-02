@@ -364,6 +364,28 @@ sub geocode {
 				}
 			}
 		}
+	} elsif($location =~ /^(.+?),\s*([\s\w]+),\s*([\s\w]+),\s*([\w\s]+)$/) {
+		my %addr;
+		$addr{'road'} = $1;
+		$addr{'city'} = $2;
+		$addr{'state'} = $3;
+		$addr{'country'} = $4;
+		$addr{'state'} =~ s/\s$//g;
+		$addr{'country'} =~ s/\s$//g;
+		if($addr{'road'} =~ /([\w\s]+),*\s+(.+)/) {
+			$addr{'name'} = $1;
+			$addr{'road'} = $2;
+		}
+		if($addr{'road'} =~ /^(\d+)\s+(.+)/) {
+			$addr{'number'} = $1;
+			$addr{'road'} = $2;
+			# ::diag(__LINE__, ': ', Data::Dumper->new([\%addr])->Dump());
+			if(my $rc = $self->_search(\%addr, ('name', 'number', 'road', 'city', 'state', 'country'))) {
+				return $rc;
+			}
+		} elsif(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
+			return $rc;
+		}
 	}
 
 	$location = uc($location);
@@ -377,6 +399,13 @@ sub geocode {
 			if(my $rc = $self->geocode(\%param)) {
 				# ::diag(__LINE__, ": $location");
 				return $rc;
+			}
+			if($location =~ /(.+), (England|UK)$/i) {
+				$param{'location'} = "$1, GB";
+				if(my $rc = $self->geocode(\%param)) {
+					# ::diag(__LINE__, ": $location");
+					return $rc;
+				}
 			}
 		}
 	}
