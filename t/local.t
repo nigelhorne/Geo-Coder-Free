@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 56;
+use Test::Most tests => 72;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -55,7 +55,15 @@ LOCAL: {
 	check($geo_coder,
 		'Minster Cemetery, 116 Tothill Street, Minster, Thanet, Kent, England',
 		51.34203083,
-		1.31609075
+		1.31609075,
+		'Minster Cemetery, 116 Tothill St, Minster, Thanet, Kent, GB',
+	);
+
+	check($geo_coder,
+		'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England',
+		51.34203083,
+		1.31609075,
+		'Minster Cemetery, 116 Tothill St, Minster, Thanet, Kent, GB',
 	);
 
 	check($geo_coder,
@@ -69,9 +77,14 @@ LOCAL: {
 }
 
 sub check {
-	my ($geo_coder, $location, $lat, $long) = @_;
+	my ($geo_coder, $location, $lat, $long, $expect) = @_;
 
 	$location = uc($location);
+	if(defined($expect)) {
+		$expect = uc($expect);
+	} else {
+		$expect = $location;
+	}
 	if($location =~ /(.+)\s+STREET,\s+(.+)/) {
 		$location = "$1 ST, $2";
 	}
@@ -96,16 +109,16 @@ sub check {
 	ok(scalar(@rc) > 0);
 	my $found;
 
-	if($location =~ /(.+),\s+USA$/) {
-		$location = "$1, US";
+	if($expect =~ /(.+),\s+USA$/) {
+		$expect = "$1, US";
 	}
 
 	foreach my $loc(@rc) {
-		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
 			$loc = "$1, England";
 		}
-		# diag(uc($loc), '<->', $location);
-		if(uc($loc) eq $location) {
+		# diag(uc($loc), '<->', $expect);
+		if(uc($loc) eq $expect) {
 			# diag("match: $location");
 			$found = 1;
 			last;
@@ -113,7 +126,7 @@ sub check {
 	}
 
 	if(!$found) {
-		diag("Failed reverse lookup $location");
+		diag(__LINE__, ": failed reverse lookup $expect");
 		diag(Data::Dumper->new([\@rc])->Dump());
 	}
 	ok($found);
@@ -123,17 +136,17 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
 			$loc = "$1, England";
 		}
-		if(uc($loc) eq $location) {
+		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
 		}
 	}
 
 	if(!$found) {
-		diag("Failed reverse lookup $location");
+		diag(__LINE__, ": failed reverse lookup $expect");
 		diag(Data::Dumper->new([\@rc])->Dump());
 	}
 	ok($found);
@@ -143,17 +156,17 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
 			$loc = "$1, England";
 		}
-		if(uc($loc) eq $location) {
+		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
 		}
 	}
 
 	if(!$found) {
-		diag("Failed reverse lookup $location");
+		diag(__LINE__, ": failed reverse lookup $expect");
 		diag(Data::Dumper->new([\@rc])->Dump());
 	}
 	ok($found);
@@ -163,17 +176,17 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
 			$loc = "$1, England";
 		}
-		if(uc($loc) eq $location) {
+		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
 		}
 	}
 
 	if(!$found) {
-		diag("Failed reverse lookup $location");
+		diag(__LINE__, ": failed reverse lookup $expect");
 		diag(Data::Dumper->new([\@rc])->Dump());
 	}
 	ok($found);
@@ -183,17 +196,17 @@ sub check {
 	$found = 0;
 
 	foreach my $loc(@rc) {
-		if(($location =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
+		if(($expect =~ /,\s+England$/i) && ($loc =~ /(.+),\s+GB$/)) {
 			$loc = "$1, England";
 		}
-		if(uc($loc) eq $location) {
+		if(uc($loc) eq $expect) {
 			$found = 1;
 			last;
 		}
 	}
 
 	if(!$found) {
-		diag("Failed reverse lookup $location");
+		diag(__LINE__, ": failed reverse lookup $expect");
 		diag(Data::Dumper->new([\@rc])->Dump());
 	}
 	ok($found);
