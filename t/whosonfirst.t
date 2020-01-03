@@ -39,11 +39,11 @@ WHOSONFIRST: {
 					local $TODO = 'UK only supports towns and venues';
 
 					$location = $geocoder->geocode(location => 'Summerfield Road, Margate, Kent, England');
-					ok(ref($location) eq 'HASH');
+					is(ref($location), 'HASH');
 					# delta_within($location->{latitude}, 51.38, 1e-2);
 					# delta_within($location->{longitude}, 1.36, 1e-2);
 					$location = $geocoder->geocode(location => '7 Summerfield Road, Margate, Kent, England');
-					ok(ref($location) eq 'HASH');
+					is(ref($location), 'HASH');
 					# delta_within($location->{latitude}, 51.38, 1e-2);
 					# delta_within($location->{longitude}, 1.36, 1e-2);
 				}
