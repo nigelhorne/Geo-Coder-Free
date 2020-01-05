@@ -439,6 +439,10 @@ sub geocode {
 		my @locations;
 
 		foreach my $l(@rc) {
+			if(!exists($l->{'latitude'})) {
+				Carp::carp(__PACKAGE__, ": $location has latitude of 0");
+				return;
+			}
 			push @locations, Geo::Location::Point->new({
 				'lat' => $l->{'latitude'},
 				'long' => $l->{'longitude'},

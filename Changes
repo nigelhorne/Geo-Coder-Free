@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.24
+	Sanity check to MaxMind records
+
 0.23
 	Save database in Redis server as well if REDIS_SERVER is set
 	Fixed reverse_geocode in Local.pm for UK addresses
