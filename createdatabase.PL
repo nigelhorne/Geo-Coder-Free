@@ -554,6 +554,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 22180
 		}, {
+			'LAT' => 38.873934,
+			'LON' => -77.461939,
+			'NUMBER' => 14900,
+			'STEET' => 'CONFERENCE CENTER DR',
+			'CITY' => 'CHANTILLY',
+			'COUNTY' => 'FAIRFAX',
+			'STATE' => 'VA',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20151
+		}, {
 			'LAT' => 38.915635,
 			'LON' => -77.225730,
 			'NAME' => 'THE CAPITAL GRILLE RESTAURANT',
