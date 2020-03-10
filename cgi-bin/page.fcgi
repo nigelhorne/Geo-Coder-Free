@@ -365,3 +365,12 @@ sub choose
 			"/cgi-bin/page.fcgi?page=query\n";
 	}
 }
+
+# False positives we don't need in the logs
+sub filter {
+	return 0 if($_[0] =~ /Can't locate Net\/OAuth\/V1_0A\/ProtectedResourceRequest.pm in /);
+	return 0 if($_[0] =~ /Can't locate auto\/NetAddr\/IP\/InetBase\/AF_INET6.al in /);
+	return 0 if($_[0] =~ /S_IFFIFO is not a valid Fcntl macro at /);
+
+	return 1;
+}
