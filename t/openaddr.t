@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 54;
+use Test::Most tests => 55;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -55,7 +55,7 @@ OPENADDR: {
 				}
 
 				$location = $geo_coder->geocode('1363 Kelly Road, Coal City, Owen, Indiana, USA');
-				# ok(defined($location));
+				ok(defined($location));
 				# diag(Data::Dumper->new([$location])->Dump());
 				cmp_deeply($location,
 					methods('lat' => num(39.27, 1e-2), 'long' => num(-87.03, 1e-2)));
@@ -216,7 +216,7 @@ OPENADDR: {
 				ok(ref($location) eq 'Geo::Location::Point');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 51);
+				skip('Author tests not required for installation', 52);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -236,7 +236,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 53);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 54);
 		}
 	}
 }
