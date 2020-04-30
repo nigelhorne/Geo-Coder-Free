@@ -1,9 +1,8 @@
 Revision history for Geo-Coder-Free
 
-0.24
-	Sanity check to MaxMind records
-
 0.23
+	Sanity check to MaxMind records
+	Don't look up where we've already failed to find a location
 	Save database in Redis server as well if REDIS_SERVER is set
 	Fixed reverse_geocode in Local.pm for UK addresses
 	Fixed reverse_geocode in Local.pm when you know the name but not the
