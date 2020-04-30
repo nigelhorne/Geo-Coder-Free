@@ -218,7 +218,7 @@ OPENADDR: {
 				ok(ref($location) eq 'Geo::Location::Point');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 52);
+				skip('Author tests not required for installation', 53);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
