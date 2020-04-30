@@ -396,7 +396,12 @@ sub geocode {
 	if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
-			@rc = $self->{'cities'}->selectall_hash('Region' => ($options->{'Region'} // $param{'region'}));
+			if((!defined($region)) && !defined($param{'region'})) {
+				# Add code for this area to Makefile.PL and rebuild
+				Carp::carp(__PACKAGE__, ": didn't determine region from $location");
+				return;
+			}
+			@rc = $self->{'cities'}->selectall_hash('Region' => ($region // $param{'region'}));
 			if(scalar(@rc) == 0) {
 	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;

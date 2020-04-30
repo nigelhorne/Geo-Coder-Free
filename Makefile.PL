@@ -93,11 +93,14 @@ if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
 }
 
 # London's areas are not complete within Maxmind.  Here are a few to get started
+# To add more, look in lib/Geo/Coder/Free/MaxMind/databases/cities.csv and look for
+#	the country/town and use the region code in there
 if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 	print $admin2 "GB.ENG.E7\tWoolwich\tWoolwich\t2648110\n",
 		"GB.ENG.O5\tLondon\tLondon\t2648110\n",
 		"GB.ENG.I8\tLondon\tLondon\t2648110\n",
 		"GB.ENG.P5\tLondon\tLondon\t2648110\n",
+		"GB.ENG.G5\tTooting\tTooting\t2648110\n",	# Not in the database, but Balham is close
 		"GB.ENG.A5\tBedfordshire\tBedfordshire\t2648110\n";
 }
 
