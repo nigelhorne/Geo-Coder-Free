@@ -5,7 +5,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 22;
+use Test::Most tests => 21;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -27,7 +27,9 @@ WHOSONFIRST: {
 					$libpostal_is_installed = 1;
 				}
 
-				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+				if($ENV{'TEST_VERBOSE'}) {
+					Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+				}
 
 				my $geocoder = new_ok('Geo::Coder::Free');
 				my $location = $geocoder->geocode(location => 'Margate, Kent, England');
@@ -105,11 +107,11 @@ WHOSONFIRST: {
 				# diag(Data::Dumper->new([$location])->Dump());
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 21);
+				skip('Author tests not required for installation', 20);
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
-			skip('WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 21);
+			skip('WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 20);
 		}
 	}
 }

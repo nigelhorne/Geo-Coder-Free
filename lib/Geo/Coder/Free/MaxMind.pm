@@ -34,7 +34,7 @@ my %known_locations = (
 
 =head1 NAME
 
-Geo::Coder::Free::Maxmind - Provides a geocoding functionality using the MaxMind and GeoNames databases
+Geo::Coder::Free::MaxMind - Provides a geocoding functionality using the MaxMind and GeoNames databases
 
 =head1 VERSION
 
@@ -81,7 +81,7 @@ sub new {
 	my($proto, %param) = @_;
 	my $class = ref($proto) || $proto;
 
-	# Geo::Coder::Free->new not Geo::Coder::Free::new
+	# Use Geo::Coder::Free->new, not Geo::Coder::Free::new
 	return unless($class);
 
 	# Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
@@ -137,7 +137,7 @@ sub geocode {
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
 			'location' => $location,
-			'database' => 'Maxmind'
+			'database' => 'MaxMind'
 		});
 	}
 
@@ -350,7 +350,9 @@ sub geocode {
 				# ::diag(__LINE__, Data::Dumper->new([$admin1])->Dump());
 				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
 					$region = $admin1->{'concatenated_codes'};
-					$admin1cache{$county} = $region;
+					if(scalar(@admin1s) == 1) {
+						$admin1cache{$county} = $region;
+					}
 					last;
 				}
 			}
@@ -379,10 +381,14 @@ sub geocode {
 		if($country_code) {
 			$options->{'Country'} = lc($country_code);
 		}
-		if($state) {
-			$admin2cache{$state} = $region;
-		} elsif($county) {
-			$admin2cache{$county} = $region;
+		# If there's more than one match, don't cache as we don't
+		# know which one will be matched later
+		if(scalar(@admin2s) == 1) {
+			if($state) {
+				$admin2cache{$state} = $region;
+			} elsif($county) {
+				$admin2cache{$county} = $region;
+			}
 		}
 	}
 
@@ -452,7 +458,7 @@ sub geocode {
 				'lat' => $l->{'latitude'},
 				'long' => $l->{'longitude'},
 				'location' => $location,
-				'database' => 'Maxmind'
+				'database' => 'MaxMind'
 			});
 		}
 
@@ -477,8 +483,10 @@ sub geocode {
 
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
-		$city->{'confidence'} = $confidence;
-		return Geo::Location::Point->new($city);
+		return Geo::Location::Point->new({
+			%{$city},
+			('database' => 'MaxMind', 'confidence' => $confidence)
+		});
 	}
 	# return $city;
 	return;
