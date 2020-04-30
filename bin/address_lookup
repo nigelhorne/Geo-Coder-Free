@@ -8,6 +8,7 @@ use strict;
 use autodie qw(:all);
 
 use FindBin qw($Bin);
+use Getopt::Std;
 use lib "$Bin/../lib";
 use Geo::Coder::Free;
 use Geo::Coder::Free::Local;
@@ -16,7 +17,10 @@ if(scalar(@ARGV) == 0) {
 	die "Usage: $0 location";
 }
 
-Geo::Coder::Free::DB::init(logger => MyLogger->new());
+my %opts;
+getopts('v', \%opts);
+Geo::Coder::Free::DB::init(logger => MyLogger->new()) if($opts{'v'});
+
 # print join(' ', @ARGV), "\n";
 if(my $rc = Geo::Coder::Free::Local->new()->geocode(join(' ', @ARGV))) {
 	print Data::Dumper->new([$rc])->Dump();

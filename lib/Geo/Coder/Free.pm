@@ -64,11 +64,15 @@ You can see a sample website at L<https://geocode.nigelhorne.com/>.
 Takes one optional parameter, openaddr, which is the base directory of
 the OpenAddresses data downloaded from L<http://results.openaddresses.io>.
 
-The database also will include data from Who's On First L<https://whosonfirst.org>.
+The database also will include data from Who's On First
+L<https://whosonfirst.org>.
 
 Takes one optional parameter, directory,
-which tells the library where to find the MaxMind and GeoNames files admin1db, admin2.db and cities.[sql|csv.gz].
-If that parameter isn't given, the module will attempt to find the databases, but that can't be guaranteed.
+which tells the library where to find the MaxMind and GeoNames files admin1db,
+admin2.db and cities.[sql|csv.gz].
+If that parameter isn't given,
+the module will attempt to find the databases,
+but that can't be guaranteed.
 
 =cut
 
@@ -206,9 +210,8 @@ sub geocode {
 		if(wantarray) {
 			my @rc = $self->{'maxmind'}->geocode(\%param);
 			return @rc;
-		} else {
-			return $self->{'maxmind'}->geocode(\%param);
 		}
+		return $self->{'maxmind'}->geocode(\%param);
 	}
 	if(!$param{'scantext'}) {
 		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
