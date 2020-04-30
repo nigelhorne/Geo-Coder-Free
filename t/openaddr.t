@@ -16,7 +16,9 @@ BEGIN {
 OPENADDR: {
 	SKIP: {
 		if($ENV{'OPENADDR_HOME'}) {
-			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+			if($ENV{'TEST_VERBOSE'}) {
+				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 

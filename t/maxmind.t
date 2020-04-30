@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 59;
+use Test::Most tests => 90;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -21,9 +21,13 @@ MAXMIND: {
 			delete $ENV{'WHOSONFIRST_HOME'};
 			diag('This may take some time and consume a lot of memory if the database is not SQLite');
 
-			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+			if($ENV{'TEST_VERBOSE'}) {
+				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free::MaxMind');
+
+			check($geo_coder, 'Westoe, South Tyneside, England', 54.98, -1.42);
 
 			# my $location = $geo_coder->geocode('Woolwich, London, England');
 			# ok(defined($location));
@@ -163,6 +167,9 @@ MAXMIND: {
 			$location = $geo_coder->geocode('Vessels, Misc Ships At sea or abroad, England');
 			ok(!defined($location));
 
+			# Check a second lookup still works
+			check($geo_coder, 'Westoe, South Tyneside, England', 54.98, -1.42);
+
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
 			# like($address->{'city'}, qr/^London$/i, 'test reverse');
 
@@ -178,7 +185,7 @@ MAXMIND: {
 			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin2cache) > 0);
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 58);
+			skip('Author tests not required for installation', 89);
 		}
 	}
 }
@@ -210,6 +217,8 @@ sub check {
 
 	if($location =~ /(.+),\s+USA$/) {
 		$location = "$1, US";
+	} elsif($location =~ /(.+),\s+England$/i) {
+		$location = "$1, GB";
 	}
 
 	foreach my $loc(@rc) {

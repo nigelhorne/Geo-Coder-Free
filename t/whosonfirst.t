@@ -27,7 +27,9 @@ WHOSONFIRST: {
 					$libpostal_is_installed = 1;
 				}
 
-				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+				if($ENV{'TEST_VERBOSE'}) {
+					Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+				}
 
 				my $geocoder = new_ok('Geo::Coder::Free');
 				my $location = $geocoder->geocode(location => 'Margate, Kent, England');
