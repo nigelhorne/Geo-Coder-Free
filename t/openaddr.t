@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 55;
+use Test::Most tests => 54;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -40,7 +40,7 @@ OPENADDR: {
 						methods('lat' => num(39.77, 1e-2), 'long' => num(-86.15, 1e-2)));
 				} else {
 					cmp_deeply($location,
-						methods('lat' => num(39.77, 1e-2), 'long' => num(-86.16, 1e-2)));
+						methods('lat' => num(39.77, 1e-2), 'long' => num(-86.15, 1e-2)));
 				}
 
 				# $location = $geo_coder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
@@ -100,13 +100,8 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode(location => 'Edmonton, Alberta, Canada');
 				ok(defined($location));
-				if($ENV{'WHOSONFIRST_HOME'}) {
-					cmp_deeply($location,
-						methods('lat' => num(53.57, 1e-2), 'long' => num(-113.51, 1e-2)));
-				} else {
-					cmp_deeply($location,
-						methods('lat' => num(53.55, 1e-2), 'long' => num(-113.47, 1e-2)));
-				}
+				cmp_deeply($location,
+					methods('lat' => num(53.57, 1e-2), 'long' => num(-113.51, 1e-2)));
 
 				$location = $geo_coder->geocode('London, England');
 				TODO: {
@@ -218,7 +213,7 @@ OPENADDR: {
 				ok(ref($location) eq 'Geo::Location::Point');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 53);
+				skip('Author tests not required for installation', 52);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -238,7 +233,7 @@ OPENADDR: {
 			});
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 54);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 53);
 		}
 	}
 }
