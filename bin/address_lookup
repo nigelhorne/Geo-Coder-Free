@@ -16,7 +16,7 @@ if(scalar(@ARGV) == 0) {
 	die "Usage: $0 location";
 }
 
-# Geo::Coder::Free::DB::init(logger => MyLogger->new());
+Geo::Coder::Free::DB::init(logger => MyLogger->new());
 # print join(' ', @ARGV), "\n";
 if(my $rc = Geo::Coder::Free::Local->new()->geocode(join(' ', @ARGV))) {
 	print Data::Dumper->new([$rc])->Dump();

@@ -34,7 +34,7 @@ my %known_locations = (
 
 =head1 NAME
 
-Geo::Coder::Free::Maxmind - Provides a geocoding functionality using the MaxMind and GeoNames databases
+Geo::Coder::Free::MaxMind - Provides a geocoding functionality using the MaxMind and GeoNames databases
 
 =head1 VERSION
 
@@ -137,7 +137,7 @@ sub geocode {
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
 			'location' => $location,
-			'database' => 'Maxmind'
+			'database' => 'MaxMind'
 		});
 	}
 
@@ -447,7 +447,7 @@ sub geocode {
 				'lat' => $l->{'latitude'},
 				'long' => $l->{'longitude'},
 				'location' => $location,
-				'database' => 'Maxmind'
+				'database' => 'MaxMind'
 			});
 		}
 
@@ -472,8 +472,10 @@ sub geocode {
 
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
-		$city->{'confidence'} = $confidence;
-		return Geo::Location::Point->new($city);
+		return Geo::Location::Point->new({
+			%{$city},
+			('database' => 'MaxMind', 'confidence' => $confidence)
+		});
 	}
 	# return $city;
 	return;
