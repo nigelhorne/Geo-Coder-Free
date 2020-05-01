@@ -407,7 +407,7 @@ sub geocode {
 				Carp::carp(__PACKAGE__, ": didn't determine region from $location");
 				return;
 			}
-			@rc = $self->{'cities'}->selectall_hash('Region' => ($region // $param{'region'}));
+			@rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}));
 			if(scalar(@rc) == 0) {
 	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 				return;
