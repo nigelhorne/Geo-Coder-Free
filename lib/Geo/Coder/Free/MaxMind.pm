@@ -255,11 +255,11 @@ sub geocode {
 			$county = $twoletterstate;
 		}
 	} elsif(($country eq 'Canada') && $state && (length($state) > 2)) {
-		# ::diag(__LINE__, ": $county");
+		# ::diag(__LINE__, ": $state");
 		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
 			# FIXME:  I can't see that province locations are stored in cities.csv
 			return unless(defined($location));	# OK if searching for a city, that works
-			# $state = $twoletterstate;
+			$state = $twoletterstate;
 		}
 	}
 
@@ -450,16 +450,17 @@ sub geocode {
 		my @locations;
 
 		foreach my $l(@rc) {
-			if(!exists($l->{'latitude'})) {
-				Carp::carp(__PACKAGE__, ": $location has latitude of 0");
-				return;
+			if(exists($l->{'latitude'})) {
+				push @locations, Geo::Location::Point->new({
+					'lat' => $l->{'latitude'},
+					'long' => $l->{'longitude'},
+					'location' => $location,
+					'database' => 'MaxMind'
+				});
+			# } else {
+				# Carp::carp(__PACKAGE__, ": $location has latitude of 0");
+				# return;
 			}
-			push @locations, Geo::Location::Point->new({
-				'lat' => $l->{'latitude'},
-				'long' => $l->{'longitude'},
-				'location' => $location,
-				'database' => 'MaxMind'
-			});
 		}
 
 		return @locations;
