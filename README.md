@@ -112,14 +112,16 @@ Enough of a majority to computerise the verification.
 Unfortunately all of the on-line services have one problem or another - most either charge for large number of access, or throttle the number of look-ups.
 Even my modest tree, just over 2000 people, reaches those limits.
 
-There are, however, a number of free databases that can be used, including MaxMind, GeoNames, OpenAddresses and WhosOnFirst.
+There are, however, a number of free databases that can be used,
+including MaxMind, GeoNames, OpenAddresses and WhosOnFirst.
 The objective of Geo::Coder::Free ([https://github.com/nigelhorne/Geo-Coder-Free](https://github.com/nigelhorne/Geo-Coder-Free))
 is to create a database of those databases and to create a search engine either through a local copy of the database or through an on-line website.
 Both are in their early days, but I have examples which do surprisingly well.
 
 The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
-That script creates a single SQLite file from downloaded copies of the databases listed above, to create the database you will need
-to first install [App::csv2sqlite](https://metacpan.org/pod/App%3A%3Acsv2sqlite).
+That script creates a single SQLite file from downloaded copies of the databases listed above.
+To create the database you will need to first install
+[App::csv2sqlite](https://metacpan.org/pod/App%3A%3Acsv2sqlite).
 If REDIS\_SERVER is set, the data are also stored on a Redis Server.
 Running 'make' will download GeoNames and MaxMind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:F.
 
@@ -127,7 +129,7 @@ There is a sample website at [https://geocode.nigelhorne.com/](https://geocode.n
 
 # BUGS
 
-Some lookups fail at the moments, if you find one please file a bug report.
+Some lookups fail at the moment, if you find one please file a bug report.
 
 Doesn't include results from
 [Geo::Coder::Free::Local](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3ALocal).
