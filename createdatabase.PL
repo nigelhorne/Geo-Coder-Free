@@ -3,7 +3,16 @@
 # Import data from openaddresses.io and whosonfirst.org into an SQLite database.
 # Set OPENADDR_HOME and WHOSONFIRST_HOME to the directories where the data has been downloaded
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
-# Download the WHOSONFIRST_HOME data using https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download
+#	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global.zip
+#	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
+
+#	Remove all the data you're not going to use, I only keep au, ca, us
+# Download the WHOSONFIRST_HOME data from reposotiries such as
+#	https://github.com/whosonfirst-data/whosonfirst-data-venue-us.git
+#	I use whosonfirst-data-[venue|admin]-[au|gb|us|ca].git
+
+# Note that this can take a day to load in just AU, CA, GB, US
+
 # You can look up a WOF place by https://spelunker.whosonfirst.org/id/$locality_id
 #
 # Try:
@@ -22,6 +31,7 @@ use warnings;
 use autodie;	# Don't want system() to die, we catch failures
 use File::Copy;
 use File::Open::NoCache::ReadOnly 0.02;
+use File::Slurp;
 use DBI;
 use Data::Dumper;
 use JSON;
@@ -704,6 +714,15 @@ my %known_places = (	# Places I've checked with my GPS
 	]
 );
 
+BEGIN {
+	$SIG{__WARN__} = sub {
+		my $warning = shift;
+		if($warning =~ /^Use of uninitialized value/) {
+			die $warning;
+		}
+	};
+}
+
 my %postcodes = ();
 my $current_state;
 my %global_md5s;
@@ -774,7 +793,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 
 	if($ENV{'REDIS_SERVER'}) {
 		# Warning:  Redis stores the database in RAM which makes it
-		#	slow, but unrealistic for most scenarios as it will
+		#	slow and unrealistic for most scenarios as it will
 		#	use all the memory on your machine
 		require Redis;
 		Redis->import();
@@ -1032,63 +1051,33 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	# $wof_global_dbh->disconnect();
 	# exit(0);
 
+	my $inserts = 0;
+
 	my %address_parsers;
 	my $wof_global_dbh;
-	my $wof_global_file;
-	if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
-		$| = 1;
-		printf "%-70s\r", "Traversing $whosonfirst";
-		print "\n" if(DEBUG);
-		$| = 0;
-		foreach my $file(<"$whosonfirst/*.db">) {
-			$whosonfirst{$file} = 1;
-		}
-		$wof_global_file = "$whosonfirst/whosonfirst-data-latest.db";
-		if(-r $wof_global_file) {
-			$wof_global_dbh = DBI->connect("dbi:SQLite:dbname=$wof_global_file", undef, undef, {
-				sqlite_open_flags => SQLITE_OPEN_READONLY,
-			});
-		}
-	}
+	if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
+		# Find all of the .geojson files in $WHOSONFIRST_HOME
+		foreach my $geojson_file (create_tree("$whosonfirst/*/data", 0)) {
+			$| = 1;
+			printf "%-70s\r", $geojson_file;
+			print "\n" if(DEBUG);
+			$| = 0;
 
-	if($wof_global_dbh) {
-		$wof_global_dbh->do('PRAGMA cache_size = -65536');	# 64MB
-		my $file = basename($wof_global_file);
-		# Import from the global file
-		$| = 1;
-		printf "%-70s\r", $file;
-		$| = 0;
-		print "\n" if(MAX_INSERT_COUNT == 1);
+			my $file = basename($geojson_file);
 
-		my $inserts = 0;
-		my $sth = $wof_global_dbh->prepare('SELECT body FROM geojson');
-		$sth->execute() || die $wof_global_file;
-
-		my $j = JSON->new()->utf8();
-		# while(my $data = $sth->fetchrow_hashref()) {
-			# if($data->{'body'}) {
-				# $data = $data->{'body'};
-			# }
-		my $rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
-		my $region_id;
-		my $region_name;
-		while(my $aref = shift(@{$rowcache})) {
-			if(scalar(@{$rowcache}) == 0) {
-				$rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
-			}
-			next if(!defined($aref));
-			my $data = @{$aref}[0];
-			next if(!defined($data));
+			my $j = JSON->new()->utf8();
+			my $data = File::Slurp::read_file($geojson_file);
 			$data = $j->decode($data);
 			my $properties = $data->{'properties'};
 			# print "processing ", $properties->{'wof:id'}, "\n";
-			next if(scalar(@{$properties->{'wof:superseded_by'}}));
+			next if(exists($properties->{'wof:superseded_by'}) && scalar(@{$properties->{'wof:superseded_by'}}));
 			next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
 			next if(exists($properties->{'src:geom'}) && ($properties->{'src:geom'} eq 'missing'));	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1346
 			my $placetype = $properties->{'wof:placetype'};
+			next if(!defined($placetype));
 			next if($placetype eq 'country');
 			next if($placetype eq 'marketarea');
-			my $country = uc($properties->{'wof:country'});
+			my $country = $properties->{'wof:country'};
 			next if(!defined($country));
 			if(!$openaddresses_supported_countries{lc($country)}) {
 				my $found = 0;
@@ -1100,6 +1089,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 				next if(!$found);
 			}
+			$country = uc($country);
 			# print $placetype, "\n";
 			my $state;
 			if($placetype eq 'region') {
@@ -1154,6 +1144,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				}
 			}
 
+			my $region_id;
+			my $region_name;
 			if(!defined($state)) {
 				my @hierarchy = @{$properties->{'wof:hierarchy'}};
 				if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
@@ -1337,14 +1329,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		}
 	}
 
-	# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-	# $dbh->commit();
-	# $dbh->disconnect();
-	# $wof_global_dbh->disconnect();
-	# exit(0);
-
 	# Find all of the .csv files in $OPENADDR_HOME
-	foreach my $csv_file (uniq(create_tree($oa))) {
+	foreach my $csv_file (create_tree($oa, 1)) {
 		# next unless($csv_file =~ /us\/md\/statewide/);
 		# next unless($csv_file =~ /us\/ne\/dawes/);
 		# next unless($csv_file =~ /us\/in\//);
@@ -1359,8 +1345,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 		if(my $country = uc($components[0])) {
 			my $state;
 			my $file;
-			my $region_id;
-			my $region_name;
 
 			next unless($openaddresses_supported_countries{lc($country)});
 
@@ -1401,226 +1385,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 						$inserts = 0;
 					}
 				}
-			}
-
-			# Import this state's Who's on First data
-			# This strange loop is there to avoid importing a file more than once
-			foreach my $wof_file (keys %whosonfirst) {
-				if($state && ($country eq 'US')) {
-					next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-([a-z]+)\-latest/);
-					next if((uc($1) ne $country) || (uc($2) ne $state));
-				} else {
-					next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-					next if(uc($1) ne $country);
-				}
-			# if(my $whosonfirst = $ENV{WHOSONFIRST_HOME}) {
-				# my $wof_file;
-				# if($state && ($country eq 'US')) {
-					# $wof_file = "$whosonfirst/whosonfirst-data-venue-us-" . lc($state) . '-latest.db';
-				# } else {
-					# $wof_file = "$whosonfirst/whosonfirst-data-venue-" . lc($country) . '-latest.db';
-				# }
-				my $file = basename($wof_file);
-				$| = 1;
-				printf "%-70s\r", $file;
-				$| = 0;
-				print "\n" if(MAX_INSERT_COUNT == 1);
-				print __LINE__, ": state = $state\n" if(DEBUG&DEBUG_NEW_LOCATION);
-				my $wof_dbh = DBI->connect("dbi:SQLite:dbname=$wof_file", undef, undef, {
-					sqlite_open_flags => SQLITE_OPEN_READONLY,
-				});
-				$wof_dbh->do('PRAGMA synchronous = OFF');
-				$wof_dbh->do('PRAGMA cache_size = -65536');	# 64MB
-
-				my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
-				$sth->execute() || die $wof_file;
-
-				my $j = JSON->new()->utf8();
-				# while(my $data = $sth->fetchrow_hashref()) {
-					# if($data->{'body'}) {
-						# $data = $data->{'body'};
-					# }
-					# next if(!defined($data));
-				my $rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
-				while(my $aref = shift(@{$rowcache})) {
-					if(scalar(@{$rowcache}) == 0) {
-						$rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
-					}
-					next if(!defined($aref));
-					my $data = @{$aref}[0];
-					$data = $j->decode($data);
-					my $properties = $data->{'properties'};
-					next if(scalar(@{$properties->{'wof:superseded_by'}}));
-					next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-					next if($properties->{'wof:country'} ne $country);
-					my $city = $properties->{'sg:city'};
-					# Don't trust sg:city to be correct
-					my @hierarchy = @{$properties->{'wof:hierarchy'}};
-					if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-						if(my $w = get_wof($wof_global_dbh, $locality)) {
-							$city = $w;
-						}
-					}
-					if($country eq 'US') {
-						die "$country, $state" if($state ne uc($components[1]));
-					} else {
-						# For the US, the state name comes from the WOF filename
-						# For the rest of the world there is one WOF file per country
-						$state = $properties->{'sg:region'} || $properties->{'sg:province'};
-					}
-					# TODO: If DEBUG_DATA_VALIDATE is set, always check the
-					#	state in the hierachy is correct
-					if(!defined($state)) {
-						if($country eq 'US') {
-							die 'States in the US should be obtained from the file name';
-						}
-						my @hierarchy = @{$properties->{'wof:hierarchy'}};
-						if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
-							if(defined($region_id) && ($region == $region_id)) {
-								$state = $region_name;
-								# print "Saved state = $state\n" if(DEBUG&DEBUG_ALL);
-							} else {
-								next if($region < 0);
-								print "Getting state from hierachy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
-								my $state = get_wof($wof_global_dbh, $region);
-								# Remember the region's name, since consecutive entries in the file are often the same,
-								# this is save a number of calls to get_wof()
-								$region_id = $region;
-								$region_name = $state;
-							}
-						} else {
-							# print "\tcan't determine the state\n",
-								# Data::Dumper->new([$properties])->Dump();
-							# print "\tcan't determine the state\n";
-							next;
-						}
-						# FIXME: the information will be in there somewhere
-						# if(!defined($state)) {
-							# die Data::Dumper->new([$properties])->Dump();
-						# }
-						next unless($state);
-					}
-					if($country eq 'US') {
-						die $properties->{'wof:id'}, "; $country: $state/", $components[1] if($state ne uc($components[1]));
-					}
-					# if($city) {
-						# print "$country, $state, $city\n";
-					# } else {
-						# print "$country, $state\n";
-					# }
-					if(!defined($city)) {
-						my $address = $properties->{'addr:full'};
-						next if(!defined($address));
-						if($country eq 'US') {
-							if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
-								if($href->{city}) {
-									$city = $href->{city};
-								}
-							}
-						}
-					}
-					next if(!defined($city));
-					my $postcode = $properties->{'addr:postcode'};
-					if($postcode) {
-						$postcode = uc($postcode);
-					}
-					my $street = $properties->{'addr:street'};
-					if($street) {
-						$street = uc($street);
-					}
-					my $number = $properties->{'addr:number'} || $properties->{'addr:housenumber'};
-					if($number) {
-						$number = uc($number);
-					}
-					my $name = $properties->{'wof:name'};
-					if($name) {
-						$name = uc($name);
-					}
-					my $row = {
-						'LINE' => __LINE__,
-						'LAT' => $properties->{'geom:latitude'},
-						'LON' => $properties->{'geom:longitude'},
-						'NAME' => $name,
-						'NUMBER' => $number,
-						'STREET' => $street,
-						'CITY' => uc($city),
-						'STATE' => $state,
-						'COUNTRY' => $country,
-						'POSTCODE' => $postcode,
-					};
-					die Data::Dumper->new([$properties])->Dump() if(!defined($state));
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
-					if(my $addr_full = $properties->{'addr:full'}) {
-						if($inserts >= MAX_INSERT_COUNT) {
-							flush_queue($dbh, $redis);
-							$inserts = 0;
-						}
-						my $ap;
-						if($country =~ /^ENGLAND/) {
-							$address_parsers{'GB'} ||= Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
-							$ap = $address_parsers{'GB'};
-						} else {
-							$address_parsers{$country} ||= Lingua::EN::AddressParse->new(country => $country, auto_clean => 1, force_case => 1, force_post_code => 0);
-							$ap = $address_parsers{$country};
-						}
-						if($ap) {
-							if($country eq 'us') {
-								die if($state ne uc($components[1]));
-							}
-							if($ap->parse($addr_full)) {
-								# print STDERR 'Address parse failed: ', $ap->report(), "\n";
-							} else {
-								my %c = $ap->components();
-								my $post_code = $c{'post_code'};
-								if($post_code) {
-									$post_code = uc($post_code);
-								}
-								if($c{'street_name'} && (my $type = $c{'street_type'})) {
-									$c{'street_name'} .= " $type";
-								}
-								if($number && ($c{'property_identifier'} ne $number)) {
-									print "diff number\n" if(DEBUG&DEBUG_L_EN_A);
-								}
-								if(defined($street) && (uc($c{'street_name'}) ne $street)) {
-									print "diff street ($street/$c{street_name})\n" if(DEBUG&DEBUG_L_EN_A);
-								}
-								if(uc($c{'suburb'}) ne uc($city)) {
-									print "diff city ($city/$c{suburb})\n" if(DEBUG&DEBUG_L_EN_A);
-								}
-								if(defined($postcode) && ($post_code && ($post_code ne $postcode))) {
-									print "diff postcode\n" if(DEBUG&DEBUG_L_EN_A);
-								}
-								if(($number && ($c{'property_identifier'} ne $number)) ||
-								   ($street && (uc($c{'street_name'}) ne $street)) ||
-								   (uc($c{'suburb'}) ne uc($city)) ||
-								   ($postcode && ($post_code && ($post_code ne $postcode)))) {
-									print 'After ', Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_L_EN_A);
-									$row = {
-										'LAT' => $properties->{'geom:latitude'},
-										'LON' => $properties->{'geom:longitude'},
-										'NAME' => $name,
-										'NUMBER' => $c{'property_identifier'},
-										'STREET' => uc($c{'street_name'}),
-										'CITY' => uc($c{'suburb'}),
-										'STATE' => $state,
-										'COUNTRY' => $country,
-										'POSTCODE' => $post_code,
-									};
-									print "\tAdding from L:EN:A($addr_full):\n\t", Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_L_EN_A);
-									$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
-								}
-							}
-						}
-					}
-					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($dbh, $redis);
-						$inserts = 0;
-					}
-				}
-				$wof_dbh->disconnect();
-				delete $whosonfirst{$wof_file};
-				flush_queue($dbh, $redis);	# Check for hanging dups in current state
-				$inserts = 0;
 			}
 
 			my $fh = File::Open::NoCache::ReadOnly->new($csv_file)
@@ -1688,162 +1452,6 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			flush_queue($dbh, $redis);
 			$inserts = 0;
 		}
-
-		# Import this country's Who's on First data
-		foreach my $wof_file (keys %whosonfirst) {
-			next unless($wof_file =~ /\/whosonfirst\-data\-venue\-([a-z]{2})\-latest/);
-			next if(lc($1) ne $country);
-			my $file = basename($wof_file);
-			$| = 1;
-			printf "%-70s\r", $file;
-			$| = 0;
-			print "\n" if(MAX_INSERT_COUNT == 1);
-			my $wof_dbh = DBI->connect("dbi:SQLite:dbname=$wof_file", undef, undef, {
-				sqlite_open_flags => SQLITE_OPEN_READONLY,
-			});
-			$wof_dbh->do('PRAGMA synchronous = OFF');
-			$wof_dbh->do('PRAGMA cache_size = -65536');	# 64MB
-
-			my $sth = $wof_dbh->prepare('SELECT body FROM geojson');
-			$sth->execute() || die $wof_file;
-
-			my $j = JSON->new()->utf8();
-			# while(my $data = $sth->fetchrow_hashref()) {
-				# # print Data::Dumper->new([$data])->Dump();
-				# if($data->{'body'}) {
-					# $data = $data->{'body'};
-				# }
-				# next if(!defined($data));
-			my $rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
-			while(my $aref = shift(@{$rowcache})) {
-				if(scalar(@{$rowcache}) == 0) {
-					$rowcache = $sth->fetchall_arrayref(undef, SQLITE_CHUNK_SIZE);
-				}
-				next if(!defined($aref));
-				my $data = @{$aref}[0];
-				$data = $j->decode($data);
-
-				my $properties = $data->{'properties'};
-				next if(scalar(@{$properties->{'wof:superseded_by'}}));
-				next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
-				next if($properties->{'wof:country'} ne $country);
-				my $street = $properties->{'addr:street'};
-				# next if(!defined($street));
-				# https://github.com/whosonfirst-data/whosonfirst-data/issues/1193
-				if($street) {
-					$street =~ s/;.+$//;
-					$street = uc($street);
-				}
-				my $city = $properties->{'sg:city'};
-				# Don't trust sg:city to be correct
-				my @hierarchy = @{$properties->{'wof:hierarchy'}};
-				if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-					# print 'Check locality_id at ', __LINE__, "\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_ALL);
-					if(my $w = get_wof($wof_global_dbh, $locality)) {
-						$city = $w;
-					}
-				}
-				my $state = $properties->{'sg:region'} || $properties->{'sg:province'};
-				my $postcode = $properties->{'addr:postcode'};
-				if(defined($postcode)) {
-					$postcode = uc($postcode);
-				}
-				if(defined($state)) {
-					$state = uc($state);
-				}
-				if((!defined($state)) && ($country eq 'GB')) {
-					if($postcode =~ /^BA1 /) {
-					# if($properties->{'wof:hierarchy'}[0]->{'region_id'} == 85683823) {
-						$state = 'SOMERSET';
-					}
-				}
-				if(defined($city)) {
-					$city = uc($city);
-				} elsif(defined($postcode) && ($postcode =~ /^W1 /)) {
-					$city = 'LONDON';
-				} else {
-					print STDERR "City not defined:\n\t",
-						Data::Dumper->new([$data])->Dump();
-					next;
-				}
-				if(!defined($state)) {
-					my $placetype = $properties->{'wof:placetype'};
-					if(($placetype eq 'venue') && scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
-						$state = get_wof($wof_global_dbh, $region);
-					}
-				}
-				$city =~ s/^CITY OF //g;
-				# Note that if import says that if city == state, set city to undef
-				if(($country eq 'GB') && ($city eq 'LONDON')) {
-					# if(defined($state) && ($state ne 'GREATER LONDON')) {
-						# warn Data::Dumper->new([$data])->Dump();
-					# }
-					$state = 'LONDON';
-				} elsif(defined($state)) {
-					if($state =~ /$city CITY/) {
-						$state = $city;
-					} elsif($state =~ /CITY OF $city/) {
-						$state = $city;
-					}
-				}
-				# print $properties->{'wof:id'}, ': ', $properties->{'wof:name'}, ", $city, $state, $country\n";
-				my $row = {
-					'LAT' => $properties->{'geom:latitude'},
-					'LON' => $properties->{'geom:longitude'},
-					'NAME' => uc($properties->{'wof:name'}),
-					'STREET' => $street,
-					'CITY' => $city,
-					'STATE' => $state,
-					'COUNTRY' => $country,
-					'POSTCODE' => $postcode,
-				};
-				if(my $number = $properties->{'addr:housenumber'}) {
-					$row->{'NUMBER'} = uc($number);
-				}
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
-				if(my $addr_full = $properties->{'addr:full'}) {
-					my $ap;
-					if($country =~ /^ENGLAND/i) {
-						$address_parsers{'GB'} ||= Lingua::EN::AddressParse->new(country => 'GB', auto_clean => 1, force_case => 1, force_post_code => 0);
-						$ap = $address_parsers{'GB'};
-					} else {
-						$address_parsers{$country} ||= Lingua::EN::AddressParse->new(country => $country, auto_clean => 1, force_case => 1, force_post_code => 0);
-						$ap = $address_parsers{$country};
-					}
-					if($ap) {
-						if($ap->parse($addr_full)) {
-							# print STDERR 'Address parse failed: ', $ap->report(), "\n";
-						} else {
-							my %c = $ap->components();
-							my $post_code = $c{'post_code'};
-							if($post_code) {
-								$post_code = uc($post_code);
-							}
-							if(my $type = $c{'street_type'}) {
-								$c{'street_name'} .= " $type";
-							}
-							$row = {
-								'LAT' => $properties->{'geom:latitude'},
-								'LON' => $properties->{'geom:longitude'},
-								'NUMBER' => $c{'property_identifier'},
-								'STREET' => uc($c{'street_name'}),
-								'CITY' => uc($c{'suburb'}),
-								'STATE' => $state,
-								'COUNTRY' => $country,
-								'POSTCODE' => $post_code,
-							};
-							print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-							$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis);
-						}
-					}
-				}
-				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($dbh, $redis);
-					$inserts = 0;
-				}
-			}
-			$wof_dbh->disconnect();
-		}
 	}
 
 	flush_queue($dbh, $redis);
@@ -1906,30 +1514,27 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	print ' ' x 70, "\r" if(!DEBUG);
 }
 
-# Return a list of all .csv files under the given directory
+# Return a list of all .csv or .geojson files under the given directory
 sub create_tree {
 	my $where = shift;
+	my $csv = shift;
 	my @list = shift || ();
 
-	foreach my $file(<"$where/*">) {
-		next if($file =~ /summary$/);
-		my $supported_country = 0;
-		foreach my $c(keys %openaddresses_supported_countries) {
-			if($file =~ /$c/) {
-				$supported_country = 1;
-				last;
-			}
-		}
-		next unless($supported_country);
-		# if(($file =~ /\.csv$/) || ($file =~ /\.geojson$/)) {
-		if($file =~ /\.csv$/) {
-			push(@list, $file);
-			# print "$file\n";
-		} elsif(-d $file) {
-			push(@list, create_tree($file, @list));
-		}
+	my @files;
+	my $fin;
+	if($csv) {
+		open($fin, '-|', "find $where -name *.csv");
+	} else {
+		open($fin, '-|', "find $where -name *.geojson");
 	}
-	return @list;
+	while(my $line = <$fin>) {
+		# print $line;
+		chomp $line;
+		push @files, $line;
+	}
+	close $fin;
+
+	return @files;
 }
 
 # Import a row into the database
@@ -2603,11 +2208,6 @@ sub create_md5
 	return $digest;
 }
 
-sub uniq {
-	my %seen;
-	grep !$seen{$_}++, @_;
-}
-
 # State must be the abbreviated form
 sub city_key {
 	my ($city, $county, $state, $country) = @_;
@@ -2631,6 +2231,7 @@ sub get_wof {
 	state %l1_cache;
 	state $l2_cache;
 
+	return if($id < 0);
 	if($l1_cache{$id}) {
 		# my @call_details = caller(0);
 		# print "get_wof: stored $l1_cache{$id} at line " . $call_details[2], "\n" if(DEBUG&DEBUG_ALL);
@@ -2651,16 +2252,34 @@ sub get_wof {
 		$l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
 	}
 
-	# print "get_wof: not cached $id\n";
+	print "get_wof: not cached $id\n" if(DEBUG&DEBUG_GET_WOF);
+	my $filename;
+	if($id =~ /(\d{3})(\d{3})(\d*)/) {
+		# TODO: use the wof:repo field to know which repositary to
+		# search to then save the glob expansion
+		$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$id.geojson";
+		my @filelist = <"$filename">;
+		$filename = $filelist[0];
+		if(!$filename) {
+			return;
+		}
+	} else {
+		print "id::::: $id\n";
+		return;
+	}
 
-	my $query = "SELECT body FROM geojson where id = $id LIMIT 1";
-	my $sth = $dbh->prepare($query);
-	$sth->execute() || die($query);
-	my $data = $sth->fetchrow_arrayref();
-	return if(!defined($data));
-	# print Data::Dumper->new([@{$data}])->Dump();
-	# print "\n", 'x' x 70, "\n";
-	$data = JSON->new()->utf8()->decode(@{$data});
+	my $j = JSON->new()->utf8();
+	my $data = File::Slurp::read_file($filename);
+	$data = $j->decode($data);
+	# my $query = "SELECT body FROM geojson where id = $id LIMIT 1";
+# die $query;
+	# my $sth = $dbh->prepare($query);
+	# $sth->execute() || die($query);
+	# my $data = $sth->fetchrow_arrayref();
+	# return if(!defined($data));
+	# # print Data::Dumper->new([@{$data}])->Dump();
+	# # print "\n", 'x' x 70, "\n";
+	# $data = JSON->new()->utf8()->decode(@{$data});
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));

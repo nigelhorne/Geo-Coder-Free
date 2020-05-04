@@ -138,6 +138,7 @@ WriteMakefile(
 		'File::Basename' => 0,
 		'File::Copy' => 0,
 		'File::Open::NoCache::ReadOnly' => 0.02,
+		'File::Slurp' => 0,
 		'File::Spec' => 0,
 		'autodie' => 0,
 		'Geo::Location::Point' => 0.02,
