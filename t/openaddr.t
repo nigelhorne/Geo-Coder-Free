@@ -37,7 +37,7 @@ OPENADDR: {
 				ok(defined($location));
 				if($ENV{'WHOSONFIRST_HOME'}) {
 					cmp_deeply($location,
-						methods('lat' => num(39.77, 1e-2), 'long' => num(-86.15, 1e-2)));
+						methods('lat' => num(39.72, 1e-2), 'long' => num(-86.28, 1e-2)));
 				} else {
 					cmp_deeply($location,
 						methods('lat' => num(39.77, 1e-2), 'long' => num(-86.15, 1e-2)));

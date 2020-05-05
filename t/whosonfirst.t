@@ -35,7 +35,7 @@ WHOSONFIRST: {
 				my $location = $geocoder->geocode(location => 'Margate, Kent, England');
 				ok(defined($location));
 				cmp_deeply($location,
-					methods('lat' => num(51.38, 1e-2), 'long' => num(1.39, 1e-2)));
+					methods('lat' => num(51.38, 1e-2), 'long' => num(1.38, 1e-2)));
 
 				TODO: {
 					local $TODO = 'UK only supports towns and venues';
