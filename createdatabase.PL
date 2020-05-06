@@ -10,6 +10,7 @@
 # Download the WHOSONFIRST_HOME data from reposotiries such as
 #	https://github.com/whosonfirst-data/whosonfirst-data-venue-us.git
 #	I use whosonfirst-data-[venue|admin]-[au|gb|us|ca].git
+#	I use whosonfirst-data-[venue]-us-??.git
 
 # Note that this can take a day to load in just AU, CA, GB, US
 
