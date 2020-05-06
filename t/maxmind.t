@@ -193,7 +193,7 @@ MAXMIND: {
 sub check {
 	my ($geo_coder, $location, $lat, $long) = @_;
 
-	# ::diag($location);
+	diag($location) if($ENV{'TEST_VERBOSE'});
 	my @rc = $geo_coder->geocode({ location => $location });
 	# diag(Data::Dumper->new([\@rc])->Dump());
 	ok(scalar(@rc) > 0);

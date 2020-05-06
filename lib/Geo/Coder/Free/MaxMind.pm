@@ -256,10 +256,9 @@ sub geocode {
 		}
 	} elsif(($country eq 'Canada') && $state && (length($state) > 2)) {
 		# ::diag(__LINE__, ": $state");
-		if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+		if(Locale::CA->new()->{province2code}{uc($state)}) {
 			# FIXME:  I can't see that province locations are stored in cities.csv
 			return unless(defined($location));	# OK if searching for a city, that works
-			$state = $twoletterstate;
 		}
 	}
 
