@@ -30,6 +30,7 @@ use strict;
 use warnings;
 # use autodie qw(:all);
 use autodie;	# Don't want system() to die, we catch failures
+use Cwd;
 use File::Copy;
 use File::Open::NoCache::ReadOnly 0.02;
 use File::Slurp;
@@ -1058,13 +1059,11 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 	my $wof_global_dbh;
 	if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		# Find all of the .geojson files in $WHOSONFIRST_HOME
-		foreach my $geojson_file (create_tree("$whosonfirst/*/data", 0)) {
+		foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
 			$| = 1;
 			printf "%-70s\r", $geojson_file;
 			print "\n" if(DEBUG);
 			$| = 0;
-
-			my $file = basename($geojson_file);
 
 			my $j = JSON->new()->utf8();
 			my $data = File::Slurp::read_file($geojson_file);
@@ -1212,6 +1211,8 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					}
 				}
 			}
+			my $file = basename($geojson_file);
+
 			if($placetype eq 'county') {
 				# TODO
 				# print "\tcounty: ", $properties->{'wof:name'}, ", $state, $country\n";
@@ -1519,10 +1520,14 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 sub create_tree {
 	my $where = shift;
 	my $csv = shift;
-	my @list = shift || ();
-
 	my @files;
 	my $fin;
+
+	$| = 1;
+	printf "%-70s\r", $where;
+	print "\n" if(DEBUG);
+	$| = 0;
+
 	if($csv) {
 		open($fin, '-|', "find $where -name *.csv");
 	} else {
@@ -1534,6 +1539,39 @@ sub create_tree {
 		push @files, $line;
 	}
 	close $fin;
+
+	return @files;
+}
+
+# Return a list of all .csv or .geojson files from all the Git repositories
+# in the current directory
+sub create_tree_from_git {
+	my $where = shift;
+	my $csv = shift;
+	my @files;
+	my $olddir = getcwd();
+
+	$| = 1;
+	printf "%-70s\r", $where;
+	print "\n" if(DEBUG);
+	$| = 0;
+
+	foreach my $dir(<"$where/*/.git">) {
+		my($d1, $d2) = fileparse($dir);	# File::BaseName
+		chdir $d2;
+		open(my $fin, '-|', 'git ls-tree -r master --name-only');
+		while(my $line = <$fin>) {
+			chomp $line;
+			my $file = File::Spec->catfile($d2, $line);
+			if($csv && ($line =~ /\.csv$/)) {
+				push(@files, $file);
+			} elsif($line =~ /\.geojson$/) {
+				push(@files, $file);
+			}
+		}
+		close $fin;
+	}
+	chdir $olddir;
 
 	return @files;
 }

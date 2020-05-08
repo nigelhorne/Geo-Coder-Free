@@ -134,6 +134,7 @@ WriteMakefile(
 		'App::csv2sqlite' => 0,
 		'CHI' => 0,
 		'CHI::Driver::RawMemory' => 0,
+		'Cwd' => 0,
 		'Config::Auto' => 0,
 		'File::Basename' => 0,
 		'File::Copy' => 0,
