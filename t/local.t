@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 72;
+use Test::Most tests => 73;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -74,6 +74,13 @@ LOCAL: {
 
 	cmp_deeply($geo_coder->geocode(location => '106 Tothill St, Minster, Thanet, Kent, England'),
 		methods('lat' => num(51.34, 1e-2), 'long' => num(1.32, 1e-2)));
+
+	eval 'use Test::Memory::Cycle';
+	if($@) {
+		skip('Test::Memory::Cycle required to check for cicular memory references', 1);
+	} else {
+		memory_cycle_ok($geo_coder);
+	}
 }
 
 sub check {

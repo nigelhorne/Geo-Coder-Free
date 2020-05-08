@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 90;
+use Test::Most tests => 91;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -183,9 +183,16 @@ MAXMIND: {
 
 			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin1cache) > 0);
 			ok(scalar(keys %Geo::Coder::Free::MaxMind::admin2cache) > 0);
+
+			eval 'use Test::Memory::Cycle';
+			if($@) {
+				skip('Test::Memory::Cycle required to check for cicular memory references', 1);
+			} else {
+				memory_cycle_ok($geo_coder);
+			}
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 89);
+			skip('Author tests not required for installation', 90);
 		}
 	}
 }
