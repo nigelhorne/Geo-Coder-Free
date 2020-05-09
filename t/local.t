@@ -75,11 +75,13 @@ LOCAL: {
 	cmp_deeply($geo_coder->geocode(location => '106 Tothill St, Minster, Thanet, Kent, England'),
 		methods('lat' => num(51.34, 1e-2), 'long' => num(1.32, 1e-2)));
 
-	eval 'use Test::Memory::Cycle';
-	if($@) {
-		skip('Test::Memory::Cycle required to check for cicular memory references', 1);
-	} else {
-		memory_cycle_ok($geo_coder);
+	SKIP: {
+		eval 'use Test::Memory::Cycle';
+		if($@) {
+			skip('Test::Memory::Cycle required to check for cicular memory references', 1);
+		} else {
+			memory_cycle_ok($geo_coder);
+		}
 	}
 }
 
