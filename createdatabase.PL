@@ -418,16 +418,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ME',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 04614
-                }, {
-                        'LAT' => 44.406700,
-                        'LON' => -68.597114,
-                        'NAME' => 'BANGOR AIRPORT',
-                        'STREET' => 'GODFREY BOULEVARD',
-                        'CITY' => 'BANGOR',
-                        'COUNTY' => 'PENOBSCOT',
-                        'STATE' => 'ME',
-                        'COUNTRY' => 'US',
-                        'POSTCODE' => 04401
+		}, {
+			'LAT' => 44.406700,
+			'LON' => -68.597114,
+			'NAME' => 'BANGOR AIRPORT',
+			'STREET' => 'GODFREY BOULEVARD',
+			'CITY' => 'BANGOR',
+			'COUNTY' => 'PENOBSCOT',
+			'STATE' => 'ME',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 04401
 		}, {
 			'LAT' => 44.40670019,
 			'LON' => -68.59711438,
@@ -597,14 +597,14 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'ESSEX',
 			'COUNTRY' => 'GB'
 		}, {
-                        'LAT' => 51.358967,
-                        'LON' => 1.391367,
-                        'NAME' => 'WESTWOOD CROSS',
-                        'NUMBER' => 23,
-                        'STREET' => 'MARGATE RD',
-                        'CITY' => 'BROADSTAIRS',
-                        'STATE' => 'KENT',
-                        'COUNTRY' => 'GB',
+			'LAT' => 51.358967,
+			'LON' => 1.391367,
+			'NAME' => 'WESTWOOD CROSS',
+			'NUMBER' => 23,
+			'STREET' => 'MARGATE RD',
+			'CITY' => 'BROADSTAIRS',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.37875,
 			'LON' => 1.1955,
@@ -614,23 +614,23 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'KENT',
 			'COUNTRY' => 'GB',
 		}, {
-                        'LAT' => 51.357510,
-                        'LON' => 1.388894,
-                        'NAME' => 'TOBY CARVERY',
-                        'STREET' => 'NEW HAINE RD',
-                        'CITY' => 'RAMSGATE',
-                        'STATE' => 'KENT',
-                        'COUNTRY' => 'GB',
-                }, {
-                        'LAT' => 51.334522,
-                        'LON' => 1.314417,
-                        'NAME' => 'NEW INN',
-                        'NUMBER' => 2,
-                        'STREET' => 'TOTHILL ST',
-                        # 'CITY' => 'MINSTER, THANET',
-                        'CITY' => 'RAMSGATE',
-                        'STATE' => 'KENT',
-                        'COUNTRY' => 'GB',
+			'LAT' => 51.357510,
+			'LON' => 1.388894,
+			'NAME' => 'TOBY CARVERY',
+			'STREET' => 'NEW HAINE RD',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
+		}, {
+			'LAT' => 51.334522,
+			'LON' => 1.314417,
+			'NAME' => 'NEW INN',
+			'NUMBER' => 2,
+			'STREET' => 'TOTHILL ST',
+			# 'CITY' => 'MINSTER, THANET',
+			'CITY' => 'RAMSGATE',
+			'STATE' => 'KENT',
+			'COUNTRY' => 'GB',
 		}, {
 			'LAT' => 51.34320725,
 			'LON' => 1.31680853,
@@ -1112,7 +1112,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# # FIXME:  This is probably a dup of the next if clause
 				# $state = get_wof($wof_global_dbh, $region);
 			# }
-			if((!defined($state)) && (my $a1 = ($properties->{'as:a1'} || $properties->{'qs:a1'} || $properties->{'qs:name_adm1'} || $properties->{'woe:name_adm1'}))) {
+			if((!defined($state)) && (my $a1 = ($properties->{'as:a1'} || $properties->{'qs:a1'} || $properties->{'qs:name_adm1'} || $properties->{'qs_pg:name_adm1'} || $properties->{'woe:name_adm1'}))) {
 				if(($a1 eq 'England') || ($a1 eq 'Scotland') || ($a1 eq 'Wales') || ($a1 eq 'Northern Ireland')) {
 					$a1 = $properties->{'qs:name_adm2'};
 				}
@@ -1155,7 +1155,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 					} else {
 						next if($region < 0);
 						print "Getting state from hierachy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
-						$state = get_wof($wof_global_dbh, $region);
+						$state = get_wof($properties, $region);
 						if($state) {
 							print "\tGot $state\n" if(DEBUG&DEBUG_DETERMINE_LOCATION);
 							# Remember the region's name, since consecutive entries in the file are often the same,
@@ -1193,7 +1193,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 			if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 				$city = $properties->{'wof:name'};
 				if(($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
-					if($parent = get_wof($wof_global_dbh, $parent)) {
+					if($parent = get_wof($properties, $parent)) {
 						$city = "$city, $parent";
 					# } else {
 						# Most likely the parent is in a different database
@@ -1206,7 +1206,7 @@ if(my $oa = $ENV{'OPENADDR_HOME'}) {
 				# Don't trust sg:city to be correct
 				my @hierarchy = @{$properties->{'wof:hierarchy'}};
 				if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-					if(my $w = get_wof($wof_global_dbh, $locality)) {
+					if(my $w = get_wof($properties, $locality)) {
 						$city = $w;
 					}
 				}
@@ -2265,7 +2265,7 @@ sub city_key {
 
 # Given a Whosonfirst ID, return the matching geojson. Cache lookups
 sub get_wof {
-	my ($dbh, $id) = @_;
+	my ($properties, $id) = @_;
 
 	state %l1_cache;
 	state $l2_cache;
@@ -2293,32 +2293,27 @@ sub get_wof {
 
 	print "get_wof: not cached $id\n" if(DEBUG&DEBUG_GET_WOF);
 	my $filename;
-	if($id =~ /(\d{3})(\d{3})(\d*)/) {
-		# TODO: use the wof:repo field to know which repositary to
-		# search to then save the glob expansion
+	# Unfortunately whosonfirst doesn't tell you the repo of the region_id, just
+	# its name, so you need to search all repos to find it
+	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1844
+	if($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) {
+		$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$4/$id.geojson";
+	} elsif($id =~ /(\d{3})(\d{3})(\d+)/) {
 		$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$id.geojson";
-		my @filelist = <"$filename">;
-		$filename = $filelist[0];
-		if(!$filename) {
-			return;
-		}
 	} else {
-		print "id::::: $id\n";
+		die "Can't parse $id";
+	}
+	my @filelist = <"$filename">;
+	$filename = $filelist[0];
+	if(!$filename) {
+		# Don't die here
+		print "Can't find $id file for ", $properties->{'wof:name'} if(DEBUG&DEBUG_GET_WOF);
 		return;
 	}
 
 	my $j = JSON->new()->utf8();
 	my $data = File::Slurp::read_file($filename);
 	$data = $j->decode($data);
-	# my $query = "SELECT body FROM geojson where id = $id LIMIT 1";
-# die $query;
-	# my $sth = $dbh->prepare($query);
-	# $sth->execute() || die($query);
-	# my $data = $sth->fetchrow_arrayref();
-	# return if(!defined($data));
-	# # print Data::Dumper->new([@{$data}])->Dump();
-	# # print "\n", 'x' x 70, "\n";
-	# $data = JSON->new()->utf8()->decode(@{$data});
 	my $properties = $data->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));

@@ -76,7 +76,7 @@ WHOSONFIRST: {
 
 				$location = $geocoder->geocode(location => 'Ramsgate, Kent, England');
 				cmp_deeply($location,
-					methods('lat' => num(51.34, 1e-2), 'long' => num(1.42, 1e-2)));
+					methods('lat' => num(51.34, 1e-2), 'long' => num(1.41, 1e-2)));
 
 				$location = $geocoder->geocode({ location => 'Silver Diner, Rockville Pike, Rockville, MD, USA' });
 				if($libpostal_is_installed) {
