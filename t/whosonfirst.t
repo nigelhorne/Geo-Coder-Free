@@ -5,7 +5,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 21;
+use Test::Most tests => 20;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -95,10 +95,6 @@ WHOSONFIRST: {
 				cmp_deeply($location,
 					methods('lat' => num(51.34, 1e-2), 'long' => num(1.32, 1e-2)));
 
-				$location = $geocoder->geocode(location => '13 Ashburnham Road, St Lawrence, Thanet, Kent, England');
-				cmp_deeply($location,
-					methods('lat' => num(51.34, 1e-2), 'long' => num(1.41, 1e-2)));
-
 				$location = $geocoder->geocode('Wickhambreaux, Kent, England');
 				ok(defined($location));
 				cmp_deeply($location,
@@ -107,11 +103,11 @@ WHOSONFIRST: {
 				# diag(Data::Dumper->new([$location])->Dump());
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 20);
+				skip('Author tests not required for installation', 19);
 			}
 		} else {
 			diag('Set WHOSONFIRST_HOME and OPENADDR_HOME to enable whosonfirst.org testing');
-			skip('WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 20);
+			skip('WHOSONFIRST_HOME and/or OPENADDR_HOME not defined', 19);
 		}
 	}
 }

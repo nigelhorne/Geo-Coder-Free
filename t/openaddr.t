@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 54;
+use Test::Most tests => 52;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -56,12 +56,6 @@ OPENADDR: {
 					};
 				}
 
-				$location = $geo_coder->geocode('1363 Kelly Road, Coal City, Owen, Indiana, USA');
-				ok(defined($location));
-				# diag(Data::Dumper->new([$location])->Dump());
-				cmp_deeply($location,
-					methods('lat' => num(39.27, 1e-2), 'long' => num(-87.03, 1e-2)));
-
 				$location = $geo_coder->geocode(location => '6502 SW. 102nd Avenue, Bushnell, Florida, USA');
 				cmp_deeply($location,
 					methods('lat' => num(28.61, 1e-2), 'long' => num(-82.21, 1e-2)));
@@ -84,9 +78,6 @@ OPENADDR: {
 				$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 				ok(defined($location));
 
-				$location = $ogeocoder->geocode('106 Wells Street, Fort Wayne, Allen, Indiana, USA');
-				cmp_deeply($location,
-					methods('lat' => num(41.09, 1e-2), 'long' => num(-85.14, 1e-2)));
 
 				$location = $geo_coder->geocode({location => 'Harrison Mills, British Columbia, Canada'});
 				ok(defined($location));
@@ -213,7 +204,7 @@ OPENADDR: {
 				ok(ref($location) eq 'Geo::Location::Point');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 52);
+				skip('Author tests not required for installation', 50);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -231,9 +222,16 @@ OPENADDR: {
 			does_carp(sub {
 				$geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => 'not/there' ]);
 			});
+
+			eval 'use Test::Memory::Cycle';
+			if($@) {
+				skip('Test::Memory::Cycle required to check for cicular memory references', 1);
+			} else {
+				memory_cycle_ok($geo_coder);
+			}
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 53);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 51);
 		}
 	}
 }
