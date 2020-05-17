@@ -1,5 +1,9 @@
 Revision history for Geo-Coder-Free
 
+0.24
+	Makefile.PL: used to not download any file if it exists, now it
+		will download the file if it's older than a week
+
 0.23	Sat May 16 22:16:30 EDT 2020
 	WhosOnFirst: Use raw geojson files from GitHub
 	Don't store items in MaxMind cache when there are more than one match,
