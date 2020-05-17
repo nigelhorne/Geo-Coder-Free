@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 73;
+use Test::Most tests => 75;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -74,6 +74,14 @@ LOCAL: {
 
 	cmp_deeply($geo_coder->geocode(location => '106 Tothill St, Minster, Thanet, Kent, England'),
 		methods('lat' => num(51.34, 1e-2), 'long' => num(1.32, 1e-2)));
+
+	does_croak(sub {
+		my $location = $geo_coder->geocode();
+	});
+
+	does_croak(sub {
+		my $location = $geo_coder->reverse_geocode();
+	});
 
 	SKIP: {
 		eval 'use Test::Memory::Cycle';
