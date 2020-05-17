@@ -80,7 +80,7 @@ foreach my $url(keys %urls) {
 			print "Moving $path to $file\n";
 			rename $path, $file or die "$file: $!";
 		} elsif(my $err = $ff->error(1)) {
-			die $err;
+			die "$url: $err";
 		} else {
 			die "There was a problem downloading $url";
 		}
