@@ -46,7 +46,11 @@ my %urls = (
 # unlink('lib/Geo/Coder/Free/MaxMind/databases/cities.sql');
 
 foreach my $url(keys %urls) {
-	next if(-r $urls{$url});
+	my $file = $urls{$url};
+	if(-r $file) {
+		# Don't bother downloading if the file is less than a week old
+		next if(-M $file < 7);
+	}
 	if(eval { require HTTP::Cache::Transparent; }) {
 		HTTP::Cache::Transparent->import();
 		my $cachedir;
@@ -65,7 +69,6 @@ foreach my $url(keys %urls) {
 	}
 
 	my $download = 0;
-	my $file = $urls{$url};
 	if(-r $file) {
 		if((-M $file) > 1) {
 			$download = 1;
@@ -80,7 +83,7 @@ foreach my $url(keys %urls) {
 			print "Moving $path to $file\n";
 			rename $path, $file or die "$file: $!";
 		} elsif(my $err = $ff->error(1)) {
-			die $err;
+			die "$url: $err";
 		} else {
 			die "There was a problem downloading $url";
 		}
