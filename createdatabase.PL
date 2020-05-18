@@ -25,6 +25,8 @@
 
 # TODO: perhaps use a layered approach to the database schema
 
+# TODO: Use https://github.com/mapbox/geocoder-abbreviations/blob/master/tokens/en.json for the abbreviations
+
 use 5.010;
 use strict;
 use warnings;
