@@ -42,3 +42,4 @@ lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt
 lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz
 lib/Geo/Coder/Free/MaxMind/databases/cities.sql
 save_to/
+lib/Geo/Coder/Free/GeoNames/
