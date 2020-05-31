@@ -39,7 +39,7 @@ my %urls = (
 	# 'https://geocode.nigelhorne.com/lib/Geo/Coder/Free/MaxMind/databases/cities.sql' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql',
 	# 'http://download.maxmind.com/download/worldcities/worldcitiespop.txt.gz' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz',
 	# This data are 7 years out of date, and are unconsistent with the Geonames database
-	'https://github.com/apache/commons-csv/blob/master/src/test/resources/perf/worldcitiespop.txt.gz?raw=true' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz',
+	'https://github.com/apache/commons-csv/blob/master/src/test/resources/org/apache/commons/csv/perf/worldcitiespop.txt.gz?raw=true' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz',
 	'http://download.geonames.org/export/dump/allCountries.zip' => 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.zip',
 );
 

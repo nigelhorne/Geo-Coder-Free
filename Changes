@@ -1,6 +1,8 @@
 Revision history for Geo-Coder-Free
 
 0.24
+	Deal wit
+		https://github.com/apache/commons-csv/commit/914f2c41557bdd3dcde8d10d6f128fa3bb307b11
 	Makefile.PL: used to not download any file if it exists, now it
 		will download the file if it's older than a week
 
