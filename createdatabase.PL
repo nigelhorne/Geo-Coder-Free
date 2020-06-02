@@ -160,6 +160,15 @@ my %known_places = (	# Places I've checked with my GPS
 		},
 	], 'us/md/statewide.csv' => [
 		{
+			'NAME' => 'UTICA DISTRICT PARK',
+			'LAT' => 39.5167883333333,
+			'LON' => -77.4015166666667,
+			'CITY' => 'FREDERICK',
+			'COUNTY' => 'FREDERICK',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21701,
+		}, {
 			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
 			'LON' => -77.09943963,
@@ -197,6 +206,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20852,
+		}, {
+			'LAT' => 39.2244603797302,
+			'LON' => -77.449615439877,
+			'STREET' => 'MOUTH OF MONOCACY RD',
+			'CITY' => 'DICKERSON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20842,
 		}, {
 			'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
 			'LAT' => 39.03869019,
