@@ -160,15 +160,6 @@ my %known_places = (	# Places I've checked with my GPS
 		},
 	], 'us/md/statewide.csv' => [
 		{
-			'NAME' => 'UTICA DISTRICT PARK',
-			'LAT' => 39.5167883333333,
-			'LON' => -77.4015166666667,
-			'CITY' => 'FREDERICK',
-			'COUNTY' => 'FREDERICK',
-			'STATE' => 'MD',
-			'COUNTRY' => 'US',
-			'POSTCODE' => 21701,
-		}, {
 			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
 			'LON' => -77.09943963,
@@ -215,6 +206,26 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20842,
+		}, {
+			'NAME' => 'PATAPSCO VALLEY STATE PARK',
+			'LAT' => 39.29491,
+			'LON' => -76.78051,
+			'NUMBER' => 8020,
+			'STREET' => 'BALTIMORE NATIONAL PIKE',
+			'CITY' => 'ELLICOTT CITY',
+			'COUNTY' => 'HOWARD',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21043,
+		}, {
+			'NAME' => 'UTICA DISTRICT PARK',
+			'LAT' => 39.5167883333333,
+			'LON' => -77.4015166666667,
+			'CITY' => 'FREDERICK',
+			'COUNTY' => 'FREDERICK',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21701,
 		}, {
 			'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
 			'LAT' => 39.03869019,
