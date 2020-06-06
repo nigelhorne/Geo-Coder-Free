@@ -312,6 +312,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20902,
 		}, {
+			'LAT' => 39.019385,
+			'LON' => -77.049779,
+			'NUMBER' => 2322,
+			'STREET' => 'HILDAROSE DR',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20902,
+		}, {
 			'LAT' => 38.993369,
 			'LON' => -77.009501,
 			'NAME' => 'LA CASITA PUPESERIA AND MARKET',
