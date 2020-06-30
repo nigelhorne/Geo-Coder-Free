@@ -5,10 +5,9 @@ package Geo::Coder::Free::MaxMind;
 # - note 'J5'
 # grep 'GB.ENG.J5' admin2.db
 
-# FIXME: If you search for something like "New Brunswick, Canada" in list
+# FIXME: If you search for something like "Sheppy, Kent, England" in list
 #	context, it returns them all.  That's a lot! Should limit to, say
-#	10 results (that number should be tunable.  Though would be better
-#	to find in the openaddresses database, not here
+#	10 results (that number should be tunable, and be a LIMIT in DB.pm)
 
 use strict;
 use warnings;
@@ -624,7 +623,7 @@ VWF, MaxMind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2019 Nigel Horne.
+Copyright 2017-2020 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

@@ -35,13 +35,8 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode('Indianapolis, Indiana, USA');
 				ok(defined($location));
-				if($ENV{'WHOSONFIRST_HOME'}) {
-					cmp_deeply($location,
-						methods('lat' => num(39.72, 1e-2), 'long' => num(-86.28, 1e-2)));
-				} else {
-					cmp_deeply($location,
-						methods('lat' => num(39.77, 1e-2), 'long' => num(-86.15, 1e-2)));
-				}
+				cmp_deeply($location,
+					methods('lat' => num(39.72, 1e-2), 'long' => num(-86.28, 1e-2)));
 
 				# $location = $geo_coder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
 				# delta_ok($location->{latt}, 46.67);
@@ -78,11 +73,10 @@ OPENADDR: {
 				$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
 				ok(defined($location));
 
-
-				$location = $geo_coder->geocode({location => 'Harrison Mills, British Columbia, Canada'});
+				$location = $geo_coder->geocode({location => 'Westmorland, New Brunswick, Canada'});
 				ok(defined($location));
 
-				$location = $geo_coder->geocode({location => 'Westmorland, New Brunswick, Canada'});
+				$location = $geo_coder->geocode({location => 'Harrison Mills, British Columbia, Canada'});
 				ok(defined($location));
 
 				# Clay township isn't in Openaddresses
@@ -202,6 +196,7 @@ OPENADDR: {
 				$location = $geo_coder->geocode('Minnis Terrace, Dover, Kent, England');
 				ok(defined($location));
 				ok(ref($location) eq 'Geo::Location::Point');
+
 			} else {
 				diag('Author tests not required for installation');
 				skip('Author tests not required for installation', 50);
