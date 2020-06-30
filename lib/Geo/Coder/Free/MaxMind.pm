@@ -8,6 +8,7 @@ package Geo::Coder::Free::MaxMind;
 # FIXME: If you search for something like "Sheppy, Kent, England" in list
 #	context, it returns them all.  That's a lot! Should limit to, say
 #	10 results (that number should be tunable, and be a LIMIT in DB.pm)
+#	And as the correct spelling in Sheppey, arguably it should return nothing
 
 use strict;
 use warnings;
@@ -616,6 +617,13 @@ The data at
 L<https://github.com/apache/commons-csv/blob/master/src/test/resources/perf/worldcitiespop.txt.gz?raw=true>
 are 7 years out of date,
 and are unconsistent with the Geonames database.
+
+If you search for something like "Sheppy, Kent, England" in list context,
+it returns them all.
+That's a lot!
+It should limit to,
+say 10 results (that number should be tunable, and be a LIMIT in DB.pm),
+and as the correct spelling in Sheppey, arguably it should return nothing.
 
 =head1 SEE ALSO
 

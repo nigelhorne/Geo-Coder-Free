@@ -161,7 +161,7 @@ MAXMIND: {
 			cmp_deeply($l,
 				methods('lat' => num(38.25, 1e-2), 'long' => num(-76.74, 1e-2)));
 
-			@locations = $geo_coder->geocode('Sheppy, Kent, England');
+			@locations = $geo_coder->geocode('Sheppey, Kent, England');
 			ok(scalar(@locations) > 1);
 			diag(scalar(@locations));
 
