@@ -5,6 +5,11 @@ package Geo::Coder::Free::MaxMind;
 # - note 'J5'
 # grep 'GB.ENG.J5' admin2.db
 
+# FIXME: If you search for something like "New Brunswick, Canada" in list
+#	context, it returns them all.  That's a lot! Should limit to, say
+#	10 results (that number should be tunable.  Though would be better
+#	to find in the openaddresses database, not here
+
 use strict;
 use warnings;
 
