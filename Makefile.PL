@@ -119,9 +119,15 @@ my $test_requires = {
 };
 
 if($ENV{'AUTHOR_TESTING'}) {
-	$test_requires->{'IPC::System::Simple'} = 0;
+	$test_requires->{'CGI::ACL'} = 0;
+	$test_requires->{'FCGI'} = 0;
 	$test_requires->{'FCGI::Buffer'} = 0;
+	$test_requires->{'HTML::SocialMedia'} = 0;
+	$test_requires->{'Log::Any::Adapter::Log4perl'} = 0;
 	$test_requires->{'Log::WarnDie'} = 0;
+	$test_requires->{'IPC::System::Simple'} = 0;
+	$test_requires->{'Template::Plugin::EnvHash'} = 0;
+	$test_requires->{'Test::Pod::LinkCheck'} = 0;
 }
 
 WriteMakefile(
