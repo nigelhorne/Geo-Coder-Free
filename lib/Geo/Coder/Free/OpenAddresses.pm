@@ -1,5 +1,7 @@
 package Geo::Coder::Free::OpenAddresses;
 
+# Includes both openaddresses and Whos On First data
+
 use strict;
 use warnings;
 
@@ -999,7 +1001,7 @@ VWF, openaddresses.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2018 Nigel Horne.
+Copyright 2017-2020 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
