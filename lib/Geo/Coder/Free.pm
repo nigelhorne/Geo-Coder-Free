@@ -6,6 +6,7 @@ use warnings;
 use lib '.';
 
 use Config::Auto;
+# use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use List::MoreUtils;
@@ -24,6 +25,8 @@ Version 0.24
 our $VERSION = '0.24';
 
 our $alternatives;
+
+sub _normalize($);
 
 =head1 SYNOPSIS
 
@@ -300,10 +303,10 @@ sub run {
 	print Data::Dumper->new([\@rc])->Dump();
 }
 
-sub _normalize {
+sub _normalize($) {
 	my $type = uc(shift);
 
-	$type = uc($type);
+	# return Geo::Coder::Abbreviations->new()->abbreviate($type);
 
 	if(($type eq 'AVENUE') || ($type eq 'AVE')) {
 		return 'AVE';
