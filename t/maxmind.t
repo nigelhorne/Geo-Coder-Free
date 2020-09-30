@@ -2,13 +2,15 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 92;
+use Test::Most tests => 108;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
 use lib 't/lib';
 use MyLogger;
 # use Test::Without::Module qw(Geo::libpostal);
+
+sub check($$$$);
 
 BEGIN {
 	use_ok('Geo::Coder::Free');
@@ -26,6 +28,10 @@ MAXMIND: {
 			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free::MaxMind');
+
+			# FIXME: Doesn't work if I say 'Michigan'
+			# Or 'Detroit, Wayne, MI, USA' - in that case because the county isn't found
+			check($geo_coder, 'Detroit, MI, USA', 42.33, -83.04);
 
 			check($geo_coder, 'Westoe, South Tyneside, England', 54.98, -1.42);
 
@@ -80,7 +86,7 @@ MAXMIND: {
 			$l = $geo_coder->geocode('Silver Spring, Maryland, USA');
 			cmp_deeply($l,
 				methods('lat' => num(39.00, 1e-2), 'long' => num(-77.03, 1e-2)));
-			check($geo_coder, 'Silver Spring, MD, USA', 38.9905556, -77.0263889);
+			check($geo_coder, 'Silver Spring, MD, USA', 39.00, -77.0263889);
 
 			cmp_deeply($geo_coder->geocode('Silver Spring, MD, USA'),
 				methods('lat' => num(39.00, 1e-2), 'long' => num(-77.03, 1e-2)));
@@ -196,29 +202,29 @@ MAXMIND: {
 			}
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 91);
+			skip('Author tests not required for installation', 107);
 		}
 	}
 }
 
-sub check {
+sub check($$$$) {
 	my ($geo_coder, $location, $lat, $long) = @_;
 
 	diag($location) if($ENV{'TEST_VERBOSE'});
 	my @rc = $geo_coder->geocode({ location => $location });
 	# diag(Data::Dumper->new([\@rc])->Dump());
 	ok(scalar(@rc) > 0);
-	cmp_deeply(@rc,
+	cmp_deeply($rc[0],
 		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
 
 	@rc = $geo_coder->geocode(location => $location);
 	ok(scalar(@rc) > 0);
-	cmp_deeply(@rc,
+	cmp_deeply($rc[0],
 		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
 
 	@rc = $geo_coder->geocode($location);
 	ok(scalar(@rc) > 0);
-	cmp_deeply(@rc,
+	cmp_deeply($rc[0],
 		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
 
 	$location = uc($location);
@@ -232,6 +238,7 @@ sub check {
 		$location = "$1, GB";
 	}
 
+	# diag(Data::Dumper->new([\@rc])->Dump());
 	foreach my $loc(@rc) {
 		if(uc($loc) eq $location) {
 			$found = 1;
