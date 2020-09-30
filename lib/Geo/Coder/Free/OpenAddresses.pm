@@ -69,7 +69,7 @@ Refer to the source URL for licencing information for these files:
 
 To install:
 
-1. download the data from http://results.openaddresses.io/. You will find licencing information on that page.
+1. download the data from L<http://results.openaddresses.io/>. You will find licencing information on that page.
 2. unzip the data into a directory. To be clear, if you run "ls -l $OPENADDR_HOME" you should see a list of two-lettered countries e.g 'us'.
 3. point the environment variable OPENADDR_HOME to that directory and save in the profile of your choice.
 4. run the createdatabases.PL script which imports the data into an SQLite database.  This process will take some time.
