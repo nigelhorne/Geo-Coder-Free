@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 96;
+use Test::Most tests => 97;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -185,8 +185,7 @@ MAXMIND: {
 			# Check a second lookup still works
 			check($geo_coder, 'Westoe, South Tyneside, England', 54.98, -1.42);
 
-			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
-			# like($address->{'city'}, qr/^London$/i, 'test reverse');
+			like($geo_coder->reverse_geocode(latlng => '51.50,-0.13'), qr/London/i, 'test reverse');
 
 			does_croak(sub {
 				$location = $geo_coder->geocode();
@@ -207,7 +206,7 @@ MAXMIND: {
 			}
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 95);
+			skip('Author tests not required for installation', 96);
 		}
 	}
 }

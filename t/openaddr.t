@@ -170,7 +170,7 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode({ location => 'Saint Louis, Missouri, USA' });
 				cmp_deeply($location,
-					methods('lat' => num(38.63, 1e-2), 'long' => num(-90.20, 1e-2)));
+					methods('lat' => num(38.63, 1e-2), 'long' => num(-90.2, 1e-1)));
 
 				$location = $geo_coder->geocode('716 Yates Street, Victoria, British Columbia, Canada');
 				cmp_deeply($location,
