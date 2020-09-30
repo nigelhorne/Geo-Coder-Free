@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 108;
+use Test::Most tests => 96;
 use Test::Carp;
 use Test::Deep;
 use Test::Number::Delta;
@@ -29,9 +29,14 @@ MAXMIND: {
 
 			my $geo_coder = new_ok('Geo::Coder::Free::MaxMind');
 
-			# FIXME: Doesn't work if I say 'Michigan'
-			# Or 'Detroit, Wayne, MI, USA' - in that case because the county isn't found
-			check($geo_coder, 'Detroit, MI, USA', 42.33, -83.04);
+			cmp_deeply($geo_coder->geocode('Detroit, MI, USA'),
+				methods('lat' => num(42.33, 1e-2), 'long' => num(-83.04, 1e-2)));
+			cmp_deeply($geo_coder->geocode('Detroit, Michigan, United States'),
+				methods('lat' => num(42.33, 1e-2), 'long' => num(-83.04, 1e-2)));
+			cmp_deeply($geo_coder->geocode('Detroit, Wayne, MI, USA'),
+				methods('lat' => num(42.33, 1e-2), 'long' => num(-83.04, 1e-2)));
+			cmp_deeply($geo_coder->geocode('Detroit, Wayne, Michigan, US'),
+				methods('lat' => num(42.33, 1e-2), 'long' => num(-83.04, 1e-2)));
 
 			check($geo_coder, 'Westoe, South Tyneside, England', 54.98, -1.42);
 
@@ -202,7 +207,7 @@ MAXMIND: {
 			}
 		} else {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 107);
+			skip('Author tests not required for installation', 95);
 		}
 	}
 }

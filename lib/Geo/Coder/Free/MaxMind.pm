@@ -28,6 +28,8 @@ use Locale::Country;
 our %admin1cache;
 our %admin2cache;	# e.g. maps 'Kent' => 'P5'
 
+sub _prepare($$);
+
 # Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
 my %known_locations = (
@@ -255,9 +257,16 @@ sub geocode {
 	my $region;
 	my @regions;
 	# ::diag(__LINE__, ": $country");
-	if(($country =~ /^(United States|USA|US)$/) && $county && (length($county) > 2)) {
-		if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
-			$county = $twoletterstate;
+	if($country =~ /^(United States|USA|US)$/) {
+		if($county && (length($county) > 2)) {
+			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
+				$county = $twoletterstate;
+			}
+		}
+		if($state && (length($state) > 2)) {
+			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+				$state = $twoletterstate;
+			}
 		}
 	} elsif(($country eq 'Canada') && $state && (length($state) > 2)) {
 		# ::diag(__LINE__, ": $state");
@@ -561,7 +570,7 @@ sub reverse_geocode {
 }
 
 # Change 'Charing Cross, P5, Gb' to 'Charing Cross, London, Gb'
-sub _prepare {
+sub _prepare($$) {
 	my ($self, $loc) = @_;
 
 	if(my $region = $loc->{'Region'}) {
