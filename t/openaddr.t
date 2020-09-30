@@ -56,12 +56,12 @@ OPENADDR: {
 					methods('lat' => num(28.61, 1e-2), 'long' => num(-82.21, 1e-2)));
 
 				# This place does exist, but isn't in Openaddresses
-				my $ogeocoder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
+				my $o_geo_coder = new_ok('Geo::Coder::Free::OpenAddresses' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 				TODO: {
 					local $TODO = "Not in the database";
 
 					eval {
-						$location = $ogeocoder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
+						$location = $o_geo_coder->geocode('105 S. West Street, Spencer, Owen, Indiana, USA');
 						ok(defined($location));
 					};
 				}
@@ -70,7 +70,7 @@ OPENADDR: {
 				cmp_deeply($location,
 					methods('lat' => num(39.05, 1e-2), 'long' => num(-87.04, 1e-2)));
 
-				$location = $ogeocoder->geocode('Boswell, Somerset, Pennsylvania, USA');
+				$location = $o_geo_coder->geocode('Boswell, Somerset, Pennsylvania, USA');
 				ok(defined($location));
 
 				$location = $geo_coder->geocode({location => 'Westmorland, New Brunswick, Canada'});
@@ -80,7 +80,7 @@ OPENADDR: {
 				ok(defined($location));
 
 				# Clay township isn't in Openaddresses
-				$location = $ogeocoder->geocode(location => 'Clay City, Owen, Indiana, USA');
+				$location = $o_geo_coder->geocode(location => 'Clay City, Owen, Indiana, USA');
 				ok(defined($location));
 
 				$location = $geo_coder->geocode(location => 'Edmonton, Alberta, Canada');
@@ -156,7 +156,7 @@ OPENADDR: {
 				$location = $geo_coder->geocode('At sea or abroad');
 				ok(!defined($location));
 
-				$location = $ogeocoder->geocode('Vessels, Misc Ships At sea or abroad, England');
+				$location = $o_geo_coder->geocode('Vessels, Misc Ships At sea or abroad, England');
 				# ok((!defined($location)) || ($location eq ''));
 				ok(!defined($location));
 
