@@ -18,11 +18,11 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.24
+Version 0.25
 
 =cut
 
-our $VERSION = '0.24';
+our $VERSION = '0.25';
 
 our $alternatives;
 
@@ -355,7 +355,7 @@ sub _normalize($) {
 
 =head1 AUTHOR
 
-Nigel Horne <njh@bandsman.co.uk>
+Nigel Horne, C<< <njh@bandsman.co.uk> >>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
