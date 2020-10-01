@@ -31,6 +31,7 @@ if(version->parse($File::Fetch::VERSION) < 0.56) {
 
 (-d 'lib/Geo/Coder/Free/GeoNames') || mkdir 'lib/Geo/Coder/Free/GeoNames';
 (-d 'lib/Geo/Coder/Free/GeoNames/databases') || mkdir 'lib/Geo/Coder/Free/GeoNames/databases';
+(-d 'lib/Geo/Coder/Free/MaxMind/databases') || mkdir 'lib/Geo/Coder/Free/MaxMind/databases';
 
 File::Fetch->import();
 my %urls = (
