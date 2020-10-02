@@ -57,7 +57,7 @@ Geo::Coder::Free::Local provides an interface to your own location data.
 =cut
 
 sub new {
-	my($proto, %param) = @_;
+	my $proto = shift;
 	my $class = ref($proto) || $proto;
 
 	# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
@@ -416,8 +416,6 @@ sub geocode {
 # @columns is the key names to use in $data
 sub _search {
 	my ($self, $data, @columns) = @_;
-
-	my $location;
 
 	# FIXME: linear search is slow
 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@columns, $data])->Dump());
