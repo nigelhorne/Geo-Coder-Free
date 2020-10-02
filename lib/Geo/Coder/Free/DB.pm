@@ -1,7 +1,7 @@
 package Geo::Coder::Free::DB;
 
 # Author Nigel Horne: njh@bandsman.co.uk
-# Copyright (C) 2015-2019, Nigel Horne
+# Copyright (C) 2015-2020, Nigel Horne
 
 # Usage is subject to licence terms.
 # The licence terms of this software are as follows:
@@ -54,6 +54,7 @@ use File::Spec;
 use File::pfopen 0.02;
 use File::Temp;
 use Error::Simple;
+use Error::DB::Open;
 use Carp;
 
 our $directory;
@@ -82,7 +83,7 @@ sub new {
 	}, $class;
 }
 
-# Can also be run as a class level Geo::Coder::Free::DB::init(directory => '../databases')
+# Can also be run as a class level __PACKAGE__::DB::init(directory => '../databases')
 sub init {
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
@@ -277,7 +278,7 @@ sub _open {
 				}
 				$dbh->func($table, 'XML', $slurp_file, 'xmlsimple_import');
 			} else {
-				throw Error::Simple("Can't open $dir/$table");
+				throw Error::DB::Open(-file => $slurp_file);
 			}
 			$self->{'type'} = 'XML';
 		}
@@ -495,6 +496,8 @@ sub execute {
 	} else {
 		$args{'query'} = shift;
 	}
+
+	Carp::croak('Usage: execute(query => $query)') unless(defined($args{'query'}));
 
 	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
