@@ -1,5 +1,8 @@
 package Geo::Coder::Free;
 
+# TODO: Don't have Maxmind as a separate database
+# TODO: Rename openaddresses.sql as geo_code_free.sql
+
 use strict;
 use warnings;
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Reduce Maxmind memory and increase speed
+
 set -x
 set -e
 

@@ -787,7 +787,7 @@ my %unknown_zips;
 my %state_parent_md5s;
 
 if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
-	(system('bash bin/createdatabase') == 0)
+	(system('bash bin/create_sqlite') == 0)
 		or warn "Can't create the SQLite database (perhaps you don't have sqlite3 installed) - expect poor performance";
 
 	if(-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {

@@ -130,7 +130,7 @@ WriteMakefile(
 	 ($ExtUtils::MakeMaker::VERSION >= 6.3002))
 	  ? ('LICENSE'=> 'GPL')
 	  : ()),
-	BUILD_REQUIRES => {	# For bin/createdatabase
+	BUILD_REQUIRES => {	# For bin/create_sqlite
 		'App::csv2sqlite' => 0,
 		'CHI' => 0,
 		'CHI::Driver::RawMemory' => 0,
@@ -208,6 +208,6 @@ WriteMakefile(
 		},
 	},
 	# PPM_INSTALL_EXEC	=> 'bash',
-	# PPM_INSTALL_SCRIPT	=> 'bin/createdatabase',
+	# PPM_INSTALL_SCRIPT	=> 'bin/create_sqlite',
 	MIN_PERL_VERSION	=> '5.6.2'	# Probably would work, but never tested on earlier versions than this
 );
