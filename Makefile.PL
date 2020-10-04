@@ -142,7 +142,7 @@ WriteMakefile(
 		'File::Slurp' => 0,
 		'File::Spec' => 0,
 		'autodie' => 0,
-		'Geo::Coder::Abbreviations' => 0,
+		'Geo::Coder::Abbreviations' => 0.03,
 		'Geo::Location::Point' => 0.02,
 		'IO::AIO' => 0,
 		'IPC::System::Simple' => 0,

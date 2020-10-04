@@ -1781,10 +1781,17 @@ sub import {
 	}
 	if($street) {
 		$street = uc($street);
-		if($street =~ /(.+)\s+AVENUE\s+(.+)/) {
-			$street = "$1 AV $2";
+		if($street =~ /(.+)\s+(.+)\s+(.+)/) {
+			my $a;
+			if($a = $abbr->abbreviate($2)) {
+				$street = "$1 $a $3";
+			} elsif($a = $abbr->abbreviate($3)) {
+				$street = "$1 $2 $a";
+			}
 		} elsif($street =~ /(.+)\s(.+)$/) {
-			$street = "$1 " . $abbr->abbreviate($2);
+			if(my $a = $abbr->abbreviate($2)) {
+				$street = "$1 $a";
+			}
 		}
 		$street =~ s/^0+//;	# Turn 04th St into 4th St
 	}
