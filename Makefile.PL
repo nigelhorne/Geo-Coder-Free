@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
-use LWP::Simple;
-use version;
 
 if(eval { require Geo::libpostal; }) {
 	my $v = Geo::libpostal->VERSION;
@@ -46,6 +44,14 @@ if(eval { require HTTP::Cache::Transparent; }) {
 	}) || die "$0: $cachedir: $!";
 } else {
 	print "Consider installing HTTP::Cache::Transparent to reduce downloads\n";
+}
+
+# Put this after so that H:C:T can try its magic on the internal $ua in
+# LWP::Simple
+if(eval { require LWP::Simple; }) {
+	LWP::Simple->import();
+} else {
+	die "Can't find LWP::Simple";
 }
 
 foreach my $url(keys %urls) {
