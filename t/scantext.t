@@ -18,7 +18,9 @@ SCANTEXT: {
 		if($ENV{'OPENADDR_HOME'} && $ENV{AUTHOR_TESTING}) {
 			diag('This will take some time and memory');
 
-			Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+			if($ENV{'TEST_VERBOSE'}) {
+				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 			my @locations = $geo_coder->geocode(scantext => 'I was born in Ramsgate, Kent, England');
@@ -105,9 +107,12 @@ SCANTEXT: {
 			} else {
 				memory_cycle_ok($geo_coder);
 			}
-		} else {
+		} elsif(!defined($ENV{'AUTHOR_TESTING'})) {
 			diag('Author tests not required for installation');
 			skip('Author tests not required for installation', 20);
+		} else {
+			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 20);
 		}
 	}
 }
