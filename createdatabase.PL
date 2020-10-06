@@ -1749,20 +1749,24 @@ sub import {
 	}
 	return 0 if(($row->{'LAT'} == 0) && ($row->{'LON'} == 0));
 	my $street = $row->{'STREET'};
-	if($street && $city && ($city =~ /(.+),\s*(.+)/)) {
-		# For example the city could be "North Side, Chicago", which comes from the case when a borough record
-		# has been added.  Let's allow searches on the borough or the city alone
-		my $borough = $1;
-		my $city_name = $2;
-		print "Break up $city\n\tstreet = $street\n\tborough = $borough\n\tcity_name = $city_name\n" if(DEBUG&DEBUG_BREAKUP);
-		if($borough ne $street) {
-			my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
-			print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-			$inserts += insert($dbh, $redis, $global, %columns);
-			$columns{'CITY'} = $city_name;
-			print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-			$inserts += insert($dbh, $redis, $global, %columns);
-			print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
+	if($street) {
+		$row->{'STREET'} =~ s/\s\s+/ /g;
+
+		if($city && ($city =~ /(.+),\s*(.+)/)) {
+			# For example the city could be "North Side, Chicago", which comes from the case when a borough record
+			# has been added.  Let's allow searches on the borough or the city alone
+			my $borough = $1;
+			my $city_name = $2;
+			print "Break up $city\n\tstreet = $street\n\tborough = $borough\n\tcity_name = $city_name\n" if(DEBUG&DEBUG_BREAKUP);
+			if($borough ne $street) {
+				my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
+				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
+				$inserts += insert($dbh, $redis, $global, %columns);
+				$columns{'CITY'} = $city_name;
+				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
+				$inserts += insert($dbh, $redis, $global, %columns);
+				print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
+			}
 		}
 	}
 	if($city) {
@@ -1851,9 +1855,6 @@ sub import {
 			'COUNTY' => $county,
 			'STREET' => $street
 		);
-		if($street) {
-			$row->{'STREET'} =~ s/\s\s+/ /g;
-		}
 		foreach my $c('LAT', 'LON', 'NAME', 'NUMBER') {
 			$columns{$c} = $row->{$c};
 		}
