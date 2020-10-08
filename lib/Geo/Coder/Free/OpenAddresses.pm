@@ -341,13 +341,14 @@ sub geocode {
 			}
 			$addr{'house_number'} = $c{'property_identifier'};
 			$addr{'city'} = $c{'suburb'};
-			if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
-				return $rc;
-			}
+			# ::diag(Data::Dumper->new([\%addr])->Dump());
 			if($addr{'house_number'}) {
-				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+				if(my $rc = $self->_search(\%addr, ('house_number', 'road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
+			}
+			if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+				return $rc;
 			}
 		}
 	}
@@ -361,6 +362,7 @@ sub geocode {
 
 		# Work around for RT#122617
 		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
+			# ::diag(Data::Dumper->new([$href])->Dump());
 			if($state = $href->{'state'}) {
 				if(length($state) > 2) {
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
@@ -406,7 +408,25 @@ sub geocode {
 				}
 			}
 			if(length($state) == 2) {
+				$addr[1] = Geo::Coder::Free::_normalize($addr[1]);
+				# ::diag(Data::Dumper->new([\@addr])->Dump());
 				if(my $rc = $self->_get($addr[0], $addr[1], $addr[2], $state, 'US')) {
+					# ::diag(Data::Dumper->new([$rc])->Dump());
+					$rc->{'country'} = 'US';
+					return $rc;
+				}
+			}
+			# Hack to find "street, town, county, state, US"
+			if(length($state) == 2) {
+				$addr[0] = Geo::Coder::Free::_normalize($addr[0]);
+				$addr[2] =~ s/\s+COUNTY$//i;
+				# ::diag(Data::Dumper->new([\@addr])->Dump());
+				if(my $rc = $self->_get($addr[0], $addr[1], $addr[2], $state, 'US')) {
+					# ::diag(Data::Dumper->new([$rc])->Dump());
+					$rc->{'country'} = 'US';
+					return $rc;
+				}
+				if(my $rc = $self->_get($addr[0], $addr[1], $state, 'US')) {
 					# ::diag(Data::Dumper->new([$rc])->Dump());
 					$rc->{'country'} = 'US';
 					return $rc;
@@ -496,10 +516,12 @@ sub geocode {
 								return $rc;
 							}
 						}
+						# ::diag("$street$city$state", 'US');
 						if($rc = $self->_get("$street$city$state", 'US')) {
 							$rc->{'country'} = 'US';
 							return $rc;
 						}
+						# ::diag("$fullstreet$city$state", 'US');
 						if($rc = $self->_get("$fullstreet$city$state", 'US')) {
 							$rc->{'country'} = 'US';
 							return $rc;
@@ -769,6 +791,7 @@ sub geocode {
 
 	# Finally try libpostal,
 	# which is good but uses a lot of memory
+	# ::diag("try libpostal on $location");
 	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
 		if(eval { require Geo::libpostal; } ) {
 			Geo::libpostal->import();
