@@ -332,7 +332,10 @@ sub _normalize($) {
 sub _abbreviate($) {
 	my $type = uc(shift);
 
-	return $abbreviations->abbreviate($type);
+	if(my $rc = $abbreviations->abbreviate($type)) {
+		return $rc;
+	}
+	return $type;
 
 	# if(($type eq 'AVENUE') || ($type eq 'AVE')) {
 		# return 'AVE';
