@@ -296,7 +296,7 @@ sub geocode {
 	}
 	if($ap) {
 		my $l = $location;
-		if($l =~ /(.+), (England|UK)$/) {
+		if($l =~ /(.+), (England|UK)$/i) {
 			$l = "$1, GB";
 		}
 		if(my $error = $ap->parse($l)) {
@@ -305,11 +305,11 @@ sub geocode {
 		} else {
 			my %c = $ap->components();
 			# ::diag(Data::Dumper->new([\%c])->Dump());
-			my %addr;
+			my %addr = ( 'location' => $l );
 			$street = $c{'street_name'};
 			if(my $type = $c{'street_type'}) {
 				if(my $a = Geo::Coder::Free::_abbreviate($type)) {
-					$street = "$street $a";
+					$street .= " $a";
 				} else {
 					$street .= " $type";
 				}

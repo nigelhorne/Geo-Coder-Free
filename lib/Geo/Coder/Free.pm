@@ -102,8 +102,6 @@ sub new {
 			$alternatives->{$key} = join(', ', @{$value});
 		}
 	}
-	$abbreviations ||= Geo::Coder::Abbreviations->new();
-
 	my $rc = {
 		maxmind => Geo::Coder::Free::MaxMind->new(%param),
 		alternatives => $alternatives
@@ -312,6 +310,8 @@ sub run {
 sub _normalize($) {
 	my $street = shift;
 
+	$abbreviations ||= Geo::Coder::Abbreviations->new();
+
 	$street = uc($street);
 	if($street =~ /(.+)\s+(.+)\s+(.+)/) {
 		my $a;
@@ -331,6 +331,8 @@ sub _normalize($) {
 
 sub _abbreviate($) {
 	my $type = uc(shift);
+
+	$abbreviations ||= Geo::Coder::Abbreviations->new();
 
 	if(my $rc = $abbreviations->abbreviate($type)) {
 		return $rc;

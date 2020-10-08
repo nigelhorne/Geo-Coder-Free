@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Geo::Location::Point;
+use Geo::Coder::Free;
 use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
 use Locale::CA;
@@ -153,13 +154,8 @@ sub geocode {
 			my %addr = ( 'location' => $l );
 			my $street = $c{'street_name'};
 			if(my $type = $c{'street_type'}) {
-				$type = uc($type);
-				if($type eq 'STREET') {
-					$street = "$street ST";
-				} elsif($type eq 'ROAD') {
-					$street = "$street RD";
-				} elsif($type eq 'AVENUE') {
-					$street = "$street AVE";
+				if(my $a = Geo::Coder::Free::_abbreviate($type)) {
+					$street .= " $a";
 				} else {
 					$street .= " $type";
 				}
