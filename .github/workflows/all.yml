@@ -24,9 +24,9 @@ jobs:
       - run: perl -V
       - name: Install Dependencies
         run: |
-          cpanm -iqn File::Spec ExtUtils::MakeMaker
+          cpanm -iqn File::Spec ExtUtils::MakeMaker LWP::Simple
           cpanm -iqn Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused
-          cpanm -iq --installdeps --notest .
+          cpanm -i -v --installdeps --notest .
       - name: Run Tests
         run: |
           prove -l t
