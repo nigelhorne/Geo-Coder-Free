@@ -24,7 +24,7 @@ MAXMIND: {
 			diag('This may take some time and consume a lot of memory if the database is not SQLite');
 
 			if($ENV{'TEST_VERBOSE'}) {
-				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+				Geo::Coder::Free::DB::init(logger => MyLogger->new());
 			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free::MaxMind');

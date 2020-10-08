@@ -25,8 +25,6 @@
 
 # TODO: perhaps use a layered approach to the database schema
 
-# TODO: Use https://github.com/mapbox/geocoder-abbreviations/blob/master/tokens/en.json for the abbreviations
-
 use 5.010;
 use strict;
 use warnings;
@@ -1750,7 +1748,7 @@ sub import {
 	return 0 if(($row->{'LAT'} == 0) && ($row->{'LON'} == 0));
 	my $street = $row->{'STREET'};
 	if($street) {
-		$row->{'STREET'} =~ s/\s\s+/ /g;
+		$street =~ s/\s\s+/ /g;
 
 		if($city && ($city =~ /(.+),\s*(.+)/)) {
 			# For example the city could be "North Side, Chicago", which comes from the case when a borough record

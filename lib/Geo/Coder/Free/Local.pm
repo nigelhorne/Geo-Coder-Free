@@ -222,7 +222,7 @@ sub geocode {
 					$city = uc($href->{city});
 				}
 				if(my $street = $href->{street}) {
-					if($href->{'type'} && (my $type = Geo::Coder::Free::_normalize($href->{'type'}))) {
+					if($href->{'type'} && (my $type = Geo::Coder::Free::_abbreviate($href->{'type'}))) {
 						$street .= " $type";
 					}
 					if($href->{suffix}) {

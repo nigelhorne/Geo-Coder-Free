@@ -28,7 +28,9 @@ Version 0.25
 our $VERSION = '0.25';
 
 our $alternatives;
+our $abbreviations;
 
+sub _abbreviate($);
 sub _normalize($);
 
 =head1 SYNOPSIS
@@ -100,6 +102,7 @@ sub new {
 			$alternatives->{$key} = join(', ', @{$value});
 		}
 	}
+	$abbreviations ||= Geo::Coder::Abbreviations->new();
 
 	my $rc = {
 		maxmind => Geo::Coder::Free::MaxMind->new(%param),
@@ -307,9 +310,29 @@ sub run {
 }
 
 sub _normalize($) {
+	my $street = shift;
+
+	$street = uc($street);
+	if($street =~ /(.+)\s+(.+)\s+(.+)/) {
+		my $a;
+		if($a = $abbreviations->abbreviate($2)) {
+			$street = "$1 $a $3";
+		} elsif($a = $abbreviations->abbreviate($3)) {
+			$street = "$1 $2 $a";
+		}
+	} elsif($street =~ /(.+)\s(.+)$/) {
+		if(my $a = $abbreviations->abbreviate($2)) {
+			$street = "$1 $a";
+		}
+	}
+	$street =~ s/^0+//;	# Turn 04th St into 4th St
+	return $street;
+}
+
+sub _abbreviate($) {
 	my $type = uc(shift);
 
-	return Geo::Coder::Abbreviations->new()->abbreviate($type);
+	return $abbreviations->abbreviate($type);
 
 	# if(($type eq 'AVENUE') || ($type eq 'AVE')) {
 		# return 'AVE';

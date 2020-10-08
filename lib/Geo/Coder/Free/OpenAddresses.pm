@@ -308,13 +308,8 @@ sub geocode {
 			my %addr;
 			$street = $c{'street_name'};
 			if(my $type = $c{'street_type'}) {
-				$type = uc($type);
-				if($type eq 'STREET') {
-					$street = "$street ST";
-				} elsif($type eq 'ROAD') {
-					$street = "$street RD";
-				} elsif($type eq 'AVENUE') {
-					$street = "$street AVE";
+				if(my $a = Geo::Coder::Free::_abbreviate($type)) {
+					$street = "$street $a";
 				} else {
 					$street .= " $type";
 				}
@@ -377,7 +372,7 @@ sub geocode {
 					$city = uc($href->{city});
 				}
 				if($street = $href->{street}) {
-					if($href->{'type'} && (my $type = Geo::Coder::Free::_normalize($href->{'type'}))) {
+					if($href->{'type'} && (my $type = Geo::Coder::Free::_abbreviate($href->{'type'}))) {
 						$street .= " $type";
 					}
 					if($href->{suffix}) {
@@ -478,7 +473,7 @@ sub geocode {
 						$args{number} = $href->{number};
 					}
 					if($street = $href->{street}) {
-						if(my $type = Geo::Coder::Free::_normalize($href->{'type'})) {
+						if(my $type = Geo::Coder::Free::_abbreviate($href->{'type'})) {
 							$street .= " $type";
 						}
 						if($href->{suffix}) {
@@ -529,7 +524,7 @@ sub geocode {
 								$args{number} = $href->{number};
 							}
 							if($street = $href->{street}) {
-								if(my $type = Geo::Coder::Free::_normalize($href->{'type'})) {
+								if(my $type = Geo::Coder::Free::_abbreviate($href->{'type'})) {
 									$street .= " $type";
 								}
 								if($href->{suffix}) {
@@ -637,7 +632,7 @@ sub geocode {
 						$args{number} = $href->{number};
 					}
 					if($street = $href->{street}) {
-						if(my $type = Geo::Coder::Free::_normalize($href->{'type'})) {
+						if(my $type = Geo::Coder::Free::_abbreviate($href->{'type'})) {
 							$street .= " $type";
 						}
 						if($href->{suffix}) {
@@ -704,43 +699,22 @@ sub geocode {
 					# City includes a street name
 					my $street = uc($1);
 					$city = uc($2);
+					my $number;
+					if($street =~ /^(\d+)\s+(.+)/) {
+						$number = $1;
+						$street = $2;
+					}
 
 					# TODO: Configurable - or better still remove the need
 					if($city eq 'MINSTER, THANET') {
 						$city = 'RAMSGATE';
 					}
-					if($street =~ /(.+)\s+STREET$/) {
-						$street = "$1 ST";
-					} elsif($street =~ /(.+)\s+ROAD$/) {
-						$street = "$1 RD";
-					} elsif($street =~ /(.+)\s+AVENUE$/) {
-						$street = "$1 AVE";
-					} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
-						$street = "$1 AVE $2";
-					} elsif($street =~ /(.+)\s+CT$/) {
-						$street = "$1 COURT";
-					} elsif($street =~ /(.+)\s+CIRCLE$/) {
-						$street = "$1 CIR";
-					} elsif($street =~ /(.+)\s+DRIVE$/) {
-						$street = "$1 DR";
-					} elsif($street =~ /(.+)\s+PARKWAY$/) {
-						$street = "$1 PKWY";
-					} elsif($street =~ /(.+)\s+CREEK$/) {
-						$street = "$1 CRK";
-					} elsif($street =~ /(.+)\s+LANE$/) {
-						$street = "$1 LN";
-					} elsif($street =~ /(.+)\s+PLACE$/) {
-						$street = "$1 PL";
-					} elsif($street =~ /(.+)\s+GARDENS$/) {
-						$street = "$1 GRDNS";
-					}
-					$street =~ s/^0+//;	# Turn 04th St into 4th St
-					if($street =~ /^(\d+)\s+(.+)/) {
-						my $number = $1;
-						$street = $2;
+					$street = Geo::Coder::Free::_normalize($street);
+					if($number) {
 						if(my $rc = $self->_get("$number$street$city$state$c")) {
 							return $rc;
 						}
+						# If we can't find the number, at least find the road
 					}
 					if(my $rc = $self->_get("$street$city$state$c")) {
 						return $rc;
@@ -799,33 +773,7 @@ sub geocode {
 		# print Data::Dumper->new([\%addr])->Dump();
 		if($addr{'country'} && $addr{'state'} && ($addr{'country'} =~ /^(Canada|United States|USA|US)$/i)) {
 			if($street = $addr{'road'}) {
-				$street = uc($street);
-				if($street =~ /(.+)\s+STREET$/) {
-					$street = "$1 ST";
-				} elsif($street =~ /(.+)\s+ROAD$/) {
-					$street = "$1 RD";
-				} elsif($street =~ /(.+)\s+AVENUE$/) {
-					$street = "$1 AVE";
-				} elsif($street =~ /(.+)\s+AVENUE\s+(.+)/) {
-					$street = "$1 AVE $2";
-				} elsif($street =~ /(.+)\s+COURT$/) {
-					$street = "$1 CT";
-				} elsif($street =~ /(.+)\s+CIRCLE$/) {
-					$street = "$1 CIR";
-				} elsif($street =~ /(.+)\s+DRIVE$/) {
-					$street = "$1 DR";
-				} elsif($street =~ /(.+)\s+PARKWAY$/) {
-					$street = "$1 PKWY";
-				} elsif($street =~ /(.+)\s+GARDENS$/) {
-					$street = "$1 GRDNS";
-				} elsif($street =~ /(.+)\s+LANE$/) {
-					$street = "$1 LN";
-				} elsif($street =~ /(.+)\s+PLACE$/) {
-					$street = "$1 PL";
-				} elsif($street =~ /(.+)\s+CREEK$/) {
-					$street = "$1 CRK";
-				}
-				$street =~ s/^0+//;	# Turn 04th St into 4th St
+				$street = Geo::Coder::Free::_normalize($street);
 				$addr{'road'} = $street;
 			}
 			if($addr{'country'} =~ /Canada/i) {

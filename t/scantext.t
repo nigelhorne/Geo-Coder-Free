@@ -1,8 +1,8 @@
-#!perl -wT
+#!perl -w
 
 use warnings;
 use strict;
-use Test::Most tests => 21;
+use Test::Most tests => 20;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -19,7 +19,7 @@ SCANTEXT: {
 			diag('This will take some time and memory');
 
 			if($ENV{'TEST_VERBOSE'}) {
-				Geo::Coder::Free::DB::init(logger => new_ok('MyLogger'));
+				Geo::Coder::Free::DB::init(logger => MyLogger->new());
 			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
