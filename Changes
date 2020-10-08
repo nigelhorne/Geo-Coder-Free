@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.26
+0.26	Thu Oct  8 19:47:45 EDT 2020
 	Create the MaxMind database directory to download to
 	Use Geo::Coder::Abbreviations
 
