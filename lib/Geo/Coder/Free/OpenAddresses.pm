@@ -465,33 +465,42 @@ sub geocode {
 							$state = $twoletterstate;
 						}
 					}
-					my %args = (state => $state, country => 'US');
 					if($href->{city}) {
-						$city = $args{city} = uc($href->{city});
+						$city = uc($href->{city});
 					}
-					if($href->{number}) {
-						$args{number} = $href->{number};
-					}
-					if($street = $href->{street}) {
+					# Unabbreviated - look up both, helps with fallback to Maxmind
+					my $fullstreet = $href->{'street'};
+					if($street = $fullstreet) {
+						$fullstreet .= ' ' . $href->{'type'};
 						if(my $type = Geo::Coder::Free::_abbreviate($href->{'type'})) {
 							$street .= " $type";
 						}
 						if($href->{suffix}) {
 							$street .= ' ' . $href->{suffix};
+							$fullstreet .= ' ' . $href->{suffix};
 						}
 					}
 					if($street) {
 						if(my $prefix = $href->{prefix}) {
 							$street = "$prefix $street";
+							$fullstreet = "$prefix $fullstreet";
 						}
-						$args{street} = uc($street);
 						if($href->{'number'}) {
+							# ::diag($href->{'number'}, "$street$city$state", 'US');
 							if($rc = $self->_get($href->{'number'}, "$street$city$state", 'US')) {
+								$rc->{'country'} = 'US';
+								return $rc;
+							}
+							if($rc = $self->_get($href->{'number'}, "$fullstreet$city$state", 'US')) {
 								$rc->{'country'} = 'US';
 								return $rc;
 							}
 						}
 						if($rc = $self->_get("$street$city$state", 'US')) {
+							$rc->{'country'} = 'US';
+							return $rc;
+						}
+						if($rc = $self->_get("$fullstreet$city$state", 'US')) {
 							$rc->{'country'} = 'US';
 							return $rc;
 						}
