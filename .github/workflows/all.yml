@@ -10,10 +10,6 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    env:
-      NO_NETWORK_TESTING: 1
-      PERL_MM_USE_DEFAULT: 1
-      AUTOMATED_TESTING: 1
     strategy:
       matrix:
         os: ['windows-latest', 'macos-latest', 'ubuntu-latest']
@@ -28,9 +24,9 @@ jobs:
       - run: perl -V
       - name: Install Dependencies
         run: |
-          cpanm -iqn File::Spec ExtUtils::MakeMaker LWP::Simple
+          cpanm -iqn File::Spec ExtUtils::MakeMaker LWP::Simple LWP::Protocol::https
           cpanm -iqn Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused
-          cpanm -i -v --installdeps --notest .
+          cpanm -iqn --installdeps --notest .
       - name: Run Tests
         run: |
           prove -l t
