@@ -109,10 +109,10 @@ SCANTEXT: {
 			}
 		} elsif(!defined($ENV{'AUTHOR_TESTING'})) {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 20);
+			skip('Author tests not required for installation', 19);
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 20);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 19);
 		}
 	}
 }
