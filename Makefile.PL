@@ -4,6 +4,50 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
 
+my @needfull;
+
+# Install Pre-requisites
+BEGIN {
+	my @modules = (
+		'LWP::Simple'
+	);
+
+	foreach my $module(@modules) {
+		eval "use $module";
+		if($@) {
+			push @needfull, $module;
+		}
+	}
+
+	if(scalar(@needfull)) {
+		my $list = join(' ', @needfull);
+		if($ENV{'AUTOMATED_TESTING'}) {
+			die "You need $list to test this package";
+		}
+		print "Installing $list\n";
+		system("cpan -i $list");
+	}
+}
+
+foreach my $module(@needfull) {
+	my $version;
+	if($module =~ /(.+)\s(.+)$/) {
+		$module = $1;
+		$version = $2;
+	}
+	if($module =~ /.+\/(.+)/) {
+		$module = $1;
+	}
+	eval "require $module";
+	if($@) {
+		die $@;
+	}
+	$module->import();
+	# if($version && ($module::VERSION < $version)) {
+		# die "$module: need $version got ", $module::VERSION;
+	# }
+}
+
 if(eval { require Geo::libpostal; }) {
 	my $v = Geo::libpostal->VERSION;
 	print "You have Geo::libpostal version $v installed, so Geo-Coder-Free can work better\n";
