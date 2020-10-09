@@ -19,6 +19,7 @@ my @dirs = (
 
 foreach my $dir(@dirs) {
 	if(! -d $dir) {
+		print "Creating the download directory $dir\n";
 		mkdir $dir || die "$dir: $@";
 	}
 }
