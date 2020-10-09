@@ -338,50 +338,6 @@ sub _abbreviate($) {
 		return $rc;
 	}
 	return $type;
-
-	# if(($type eq 'AVENUE') || ($type eq 'AVE')) {
-		# return 'AVE';
-	# } elsif(($type eq 'STREET') || ($type eq 'ST')) {
-		# return 'ST';
-	# } elsif(($type eq 'ROAD') || ($type eq 'RD')) {
-		# return 'RD';
-	# } elsif(($type eq 'COURT') || ($type eq 'CT')) {
-		# return 'CT';
-	# } elsif(($type eq 'CIR') || ($type eq 'CIRCLE')) {
-		# return 'CIR';
-	# } elsif(($type eq 'FT') || ($type eq 'FORT')) {
-		# return 'FT';
-	# } elsif(($type eq 'CTR') || ($type eq 'CENTER')) {
-		# return 'CTR';
-	# } elsif(($type eq 'PARKWAY') || ($type eq 'PKWY')) {
-		# return 'PKWY';
-	# } elsif($type eq 'BLVD') {
-		# return 'BLVD';
-	# } elsif($type eq 'PIKE') {
-		# return 'PIKE';
-	# } elsif(($type eq 'DRIVE') || ($type eq 'DR')) {
-		# return 'DR';
-	# } elsif(($type eq 'SPRING') || ($type eq 'SPG')) {
-		# return 'SPRING';
-	# } elsif(($type eq 'RDG') || ($type eq 'RIDGE')) {
-		# return 'RDG';
-	# } elsif(($type eq 'CRK') || ($type eq 'CREEK')) {
-		# return 'CRK';
-	# } elsif(($type eq 'LANE') || ($type eq 'LN')) {
-		# return 'LN';
-	# } elsif(($type eq 'PLACE') || ($type eq 'PL')) {
-		# return 'PL';
-	# } elsif(($type eq 'GRDNS') || ($type eq 'GARDENS')) {
-		# return 'GRDNS';
-	# } elsif(($type eq 'HWY') || ($type eq 'HIGHWAY')) {
-		# return 'HWY';
-	# }
-
-	# # Most likely failure of Geo::StreetAddress::US, but warn anyway, just in case
-	# if($ENV{AUTHOR_TESTING}) {
-		# # warn $self->{'location'}, ": add type $type";
-		# warn "Add type $type";
-	# }
 }
 
 =head1 AUTHOR
