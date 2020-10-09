@@ -11,9 +11,17 @@ if(eval { require Geo::libpostal; }) {
 	print "Consider installing Geo::libpostal for improved parsing\n";
 }
 
-(-d 'lib/Geo/Coder/Free/GeoNames') || mkdir 'lib/Geo/Coder/Free/GeoNames';
-(-d 'lib/Geo/Coder/Free/GeoNames/databases') || mkdir 'lib/Geo/Coder/Free/GeoNames/databases';
-(-d 'lib/Geo/Coder/Free/MaxMind/databases') || mkdir 'lib/Geo/Coder/Free/MaxMind/databases';
+my @dirs = (
+	'lib/Geo/Coder/Free/GeoNames',
+	'lib/Geo/Coder/Free/GeoNames/databases',
+	'lib/Geo/Coder/Free/MaxMind/databases'
+);
+
+foreach my $dir(@dirs) {
+	if(! -d $dir) {
+		mkdir $dir || die "$dir: $@";
+	}
+}
 
 my %urls = (
 	'http://download.geonames.org/export/dump/admin1CodesASCII.txt' => 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db',
