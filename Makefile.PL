@@ -9,7 +9,7 @@ my @needfull;
 # Install Pre-requisites
 BEGIN {
 	my @modules = (
-		'LWP::Simple'
+		'LWP::Protocol::https', 'LWP::Simple'
 	);
 
 	foreach my $module(@modules) {
