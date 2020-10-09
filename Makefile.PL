@@ -61,7 +61,7 @@ foreach my $url(keys %urls) {
 		next if(-M $file < 7);
 	}
 
-	print "Downloading $url\n";
+	print "Downloading $url to $file\n";
 	if(is_error(my $rc = getstore($url, $file))) {
 		die "$url: LWP error $rc";
 	}
