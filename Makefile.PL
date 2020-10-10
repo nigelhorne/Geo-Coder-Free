@@ -58,6 +58,7 @@ if(eval { require Geo::libpostal; }) {
 my @dirs = (
 	'lib/Geo/Coder/Free/GeoNames',
 	'lib/Geo/Coder/Free/GeoNames/databases',
+	'lib/Geo/Coder/Free/MaxMind',
 	'lib/Geo/Coder/Free/MaxMind/databases'
 );
 
@@ -99,14 +100,6 @@ if(eval { require HTTP::Cache::Transparent; }) {
 	print "Consider installing HTTP::Cache::Transparent to reduce downloads\n";
 }
 
-# Put this after so that H:C:T can try its magic on the internal $ua in
-# LWP::Simple
-if(eval { require LWP::Simple; }) {
-	LWP::Simple->import();
-} else {
-	die "Can't find LWP::Simple";
-}
-
 foreach my $url(keys %urls) {
 	my $file = $urls{$url};
 	if(-r $file) {
@@ -115,9 +108,10 @@ foreach my $url(keys %urls) {
 	}
 
 	print "Downloading $url to $file\n";
-	if(is_error(my $rc = getstore($url, $file))) {
+	if(is_error(my $rc = mirror($url, $file))) {
 		die "$url: LWP error $rc";
 	}
+	die $file if(!-r $file);
 }
 
 if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
