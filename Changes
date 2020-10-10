@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.27
+0.27	Fri Oct  9 20:44:09 EDT 2020
 	Local.pm: Call _normalize when libpostal is installed
 	Install LWP::Simple and LWP::Protocol::https if needed
 
