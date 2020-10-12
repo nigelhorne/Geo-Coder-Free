@@ -231,7 +231,7 @@ sub check($$$$) {
 
 	diag($location) if($ENV{'TEST_VERBOSE'});
 	my @rc = $geo_coder->geocode({ location => $location });
-	# diag(Data::Dumper->new([\@rc])->Dump());
+	diag(Data::Dumper->new([\@rc])->Dump()) if($ENV{'TEST_VERBOSE'});
 	ok(scalar(@rc) > 0);
 	cmp_deeply($rc[0],
 		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));

@@ -439,7 +439,8 @@ sub geocode {
 				$city->{'state'} = uc(delete $city->{'Region'});
 			}
 			if($city->{'City'}) {
-				$city->{'city'} = uc(delete $city->{'City'});
+				$city->{'city'} = uc(delete $city->{'AccentCity'});
+				delete $city->{'City'};
 				# Less likely to get false positives with long words
 				if(length($city->{'city'}) > 10) {
 					if($confidence <= 0.8) {
