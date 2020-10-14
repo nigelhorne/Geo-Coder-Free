@@ -469,7 +469,8 @@ sub geocode {
 					'lat' => $l->{'latitude'},
 					'long' => $l->{'longitude'},
 					'location' => $location,
-					'database' => 'MaxMind'
+					'database' => 'MaxMind',
+					'maxmind' => $l,
 				});
 			# } else {
 				# Carp::carp(__PACKAGE__, ": $location has latitude of 0");
