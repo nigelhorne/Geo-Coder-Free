@@ -10,6 +10,8 @@ package Geo::Coder::Free::MaxMind;
 #	10 results (that number should be tunable, and be a LIMIT in DB.pm)
 #	And as the correct spelling in Sheppey, arguably it should return nothing
 
+# FIXME:  Search for "New Brunswick, Canada" returns all places in the province
+
 use strict;
 use warnings;
 
