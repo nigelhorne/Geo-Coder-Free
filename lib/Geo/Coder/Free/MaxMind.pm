@@ -10,8 +10,6 @@ package Geo::Coder::Free::MaxMind;
 #	10 results (that number should be tunable, and be a LIMIT in DB.pm)
 #	And as the correct spelling in Sheppey, arguably it should return nothing
 
-# FIXME:  Search for "New Brunswick, Canada" returns all places in the province
-
 use strict;
 use warnings;
 
@@ -117,6 +115,11 @@ sub new {
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
 
+    # This will return one place in New Brunwsick, not them all
+    # TODO: Arguably it should get them all from the database (or at least say the first 100) and return the central location
+    my @locations = $geocoder->geocode({ location => 'New Brunswick, Canada' });
+    die if(scalar(@locations) != 1);
+
 =cut
 
 sub geocode {
@@ -158,6 +161,7 @@ sub geocode {
 	my $country;
 	my $country_code;
 	my $concatenated_codes;
+	my $region_only;
 	my ($first, $second, $third);
 
 	if($location =~ /^([\w\s\-]+),([\w\s]+),([\w\s]+)?$/) {
@@ -196,13 +200,15 @@ sub geocode {
 		$location =~ s/\s$//g;
 		$country = uc($region);
 	} elsif($location =~ /^([\w\s-]+),\s*(\w+)$/) {
-	# } elsif(0) {
+		# e.g. a county in the UK or a state in the US
 		$county = $1;
 		$country = $2;
 		$county =~ s/^\s//g;
 		$county =~ s/\s$//g;
 		# $country =~ s/^\s//g;
 		$country =~ s/\s$//g;
+		# ::diag(__LINE__, "$county, $country");
+		$region_only = 1;	# Will only return one match, not every match in the region
 	} else {
 		# Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
 		return;
@@ -264,11 +270,13 @@ sub geocode {
 			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
 				$county = $twoletterstate;
 			}
+			# ::diag(__LINE__, ": $location, $county, $country");
 		}
 		if($state && (length($state) > 2)) {
 			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
 				$state = $twoletterstate;
 			}
+			# ::diag(__LINE__, ": $location, $state, $country");
 		}
 	} elsif(($country eq 'Canada') && $state && (length($state) > 2)) {
 		# ::diag(__LINE__, ": $state");
@@ -383,10 +391,14 @@ sub geocode {
 
 	my $options;
 	if(defined($county) && ($county =~ /^[A-Z]{2}$/) && ($country =~ /^(United States|USA|US)$/)) {
-		$options = {};
+		$options = { Country => 'us' };
 	} else {
-		$options = { City => lc($location) };
-		$options->{'City'} =~ s/,\s*\w+$//;
+		if($region_only) {
+			$options = {};
+		} else {
+			$options = { City => lc($location) };
+			$options->{'City'} =~ s/,\s*\w+$//;
+		}
 	}
 	if($region) {
 		if($region =~ /^.+\.(.+)$/) {
@@ -414,7 +426,8 @@ sub geocode {
 	}
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
-	if(wantarray) {
+	if(wantarray && !$region_only) {
+	# if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
 			if((!defined($region)) && !defined($param{'region'})) {
@@ -490,8 +503,8 @@ sub geocode {
 			if($region =~ /^.+\.(.+)$/) {
 				$region = $1;
 			}
-			if($country =~ /^(Canada|United States|USA|US)$/) {
-				next unless($region =~ /^[A-Z]{2}$/);
+			if($country =~ /^(United States|USA|US)$/) {
+				next unless($region =~ /^[A-Z]{2}$/);	# In the US, the regions are the states
 			}
 			$options->{'Region'} = $region;
 			$city = $self->{'cities'}->fetchrow_hashref($options);
