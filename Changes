@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.28
+0.28	Fri Oct 16 21:51:27 EDT 2020
 	Fixed the manifest
 	Don't return all the matches in a state/county/province
 

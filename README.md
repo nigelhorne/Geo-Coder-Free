@@ -1,4 +1,4 @@
-[![Actions States](https://github.com/nigelhorne/Geo-Coder-Free/workflows/.github/workflows/all.yml/badge.svg)] (https://github.com/nigelhorne/Geo-Coder-Free/actions)
+[![Actions States](https://github.com/nigelhorne/Geo-Coder-Free/workflows/.github/workflows/all.yml/badge.svg)](https://github.com/nigelhorne/Geo-Coder-Free/actions)
 [![Appveyor status](https://ci.appveyor.com/api/projects/status/8nk00o0rietskf29/branch/master?svg=true)](https://ci.appveyor.com/project/nigelhorne/geo-coder-free-4onbr/branch/master)
 [![Coveralls Status](https://coveralls.io/repos/github/nigelhorne/Geo-Coder-Free/badge.svg?branch=master)](https://coveralls.io/github/nigelhorne/Geo-Coder-Free?branch=master)
 [![CPAN](https://img.shields.io/cpan/v/Geo-Coder-Free.svg)](http://search.cpan.org/~nhorne/Geo-Coder-Free/)
@@ -12,7 +12,7 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 # VERSION
 
-Version 0.27.1
+Version 0.28
 
 # SYNOPSIS
 
