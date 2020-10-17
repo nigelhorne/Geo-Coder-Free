@@ -36,7 +36,7 @@ OPENADDR: {
 				$location = $geo_coder->geocode('Indianapolis, Indiana, USA');
 				ok(defined($location));
 				cmp_deeply($location,
-					methods('lat' => num(39.72, 1e-2), 'long' => num(-86.28, 1e-2)));
+					methods('lat' => num(39.71, 1e-1), 'long' => num(-86.2, 1e-1)));
 
 				# $location = $geo_coder->geocode(location => '9235 Main St, Richibucto, New Brunswick, Canada');
 				# delta_ok($location->{latt}, 46.67);

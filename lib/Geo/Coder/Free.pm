@@ -141,15 +141,19 @@ my %common_words = (
 	'the' => 1,
 	'and' => 1,
 	'at' => 1,
+	'be' => 1,
+	'by' => 1,
 	'she' => 1,
 	'of' => 1,
 	'for' => 1,
 	'on' => 1,
+	'pm' => 1,
 	'in' => 1,
 	'an' => 1,
 	'to' => 1,
 	'road' => 1,
-	'is' => 1
+	'is' => 1,
+	'was' => 1
 );
 
 sub geocode {
@@ -175,7 +179,17 @@ sub geocode {
 					# FIXME:  There are a *lot* of false positives
 					next if(exists($common_words{lc$word}));
 					if($word =~ /^[a-z]{2,}$/i) {
-						@rc = (@rc, $self->{'maxmind'}->geocode({ location => $word, region => $region }));
+						my $key = "$word/$region";
+						my @matches;
+						if($self->{'scantext'}->{$key}) {
+							# ::diag("$key: HIT");
+							@matches = @{$self->{'scantext'}->{$key}};
+						} else {
+							# ::diag("$key: MISS");
+							@matches = $self->{'maxmind'}->geocode({ location => $word, region => $region });
+						}
+						$self->{'scantext'}->{$key} = \@matches;
+						@rc = (@rc, @matches);
 					}
 
 				}
