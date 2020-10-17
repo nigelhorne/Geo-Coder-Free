@@ -639,7 +639,7 @@ The database contains Canadian cities, but not provinces, so a search for "New B
 The GeoNames admin databases are in this class, they should be in Geo::Coder::GeoNames.
 
 The data at
-L<https://github.com/apache/commons-csv/blob/master/src/test/resources/perf/worldcitiespop.txt.gz?raw=true>
+L<https://github.com/apache/commons-csv/blob/master/src/test/resources/org/apache/commons/csv/perf/worldcitiespop.txt.gz?raw=true>
 are 7 years out of date,
 and are unconsistent with the Geonames database.
 
@@ -664,6 +664,7 @@ must apply in writing for a licence for use from Nigel Horne at `<njh at nigelho
 
 This product includes GeoLite2 data created by MaxMind, available from
 L<https://www.maxmind.com/en/home>.
+(Note that this currently gives a 403 error - I need to find the latest URL).
 
 =cut
 
