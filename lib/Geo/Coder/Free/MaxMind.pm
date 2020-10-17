@@ -427,7 +427,6 @@ sub geocode {
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray && !$region_only) {
-	# if(wantarray) {
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
 			if((!defined($region)) && !defined($param{'region'})) {
