@@ -43,7 +43,7 @@ sub _normalize($);
     print 'Latitude: ', $location->lat(), "\n";
     print 'Longitude: ', $location->long(), "\n";
 
-    # Use a local download of http://results.openaddresses.io/
+    # Use a local download of http://results.openaddresses.io/ and https://www.whosonfirst.org/
     my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
     $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
@@ -406,7 +406,11 @@ Can't parse and handle "London, England".
 
 =head1 SEE ALSO
 
-VWF, OpenAddresses, MaxMind and geonames.
+L<https://openaddresses.io/>,
+L<https://www.maxmind.com/en/home>,
+L<https://www.geonames.org/>,
+L<https://www.whosonfirst.org/> and
+L<https://github.com/nigelhorne/vwf>.
 
 See L<Geo::Coder::Free::OpenAddresses> for instructions creating the SQLite database from
 L<http://results.openaddresses.io/>.

@@ -41,7 +41,8 @@ our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 
 =head1 NAME
 
-Geo::Coder::Free::OpenAddresses - Provides a geocoding functionality to the data from openaddresses.io
+Geo::Coder::Free::OpenAddresses -
+Provides a geocoding functionality to the data from openaddresses.io and www.whosonfirst.org.
 
 =head1 VERSION
 
@@ -974,6 +975,9 @@ included.  So these will print the same.
     $location = $geo_coder->geocode(location => '7 Hillbrow Road, St Lawrence, Thanet, Kent, England');
     print $location->{latitude}, "\n";
     print $location->{longitude}, "\n";
+
+When I added the WhosOnFirst data I should have renamed this as it contains
+data from both sources.
 
 =head1 SEE ALSO
 
