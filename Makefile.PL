@@ -187,6 +187,7 @@ WriteMakefile(
 		'JSON' => 0,
 		'LWP::UserAgent::Throttled' => 0,
 		'Try::Tiny' => 0,
+		'XML::LibXML::Reader' => 0,
 	},
 	TEST_REQUIRES => $test_requires,
 	PREREQ_PM => {

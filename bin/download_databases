@@ -4,8 +4,10 @@ set -ex
 
 export WHOSONFIRST_HOME=~/src/whosonfirst-sqlite
 export OPENADDR_HOME=~/misc/openaddr
-export http_proxy=http://zack:3128
-export https_proxy=http://zack:3128
+# export http_proxy=http://zack:3128
+# export https_proxy=http://zack:3128
+export http_proxy=
+export https_proxy=
 export no_proxy=localhost,127.0.0.0/8,192.168.1.0/8,utilite
 export REDIS_SERVER=
 
@@ -28,4 +30,6 @@ cd ~/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test
 
 rm -f ~/Downloads/openaddr-collected-global*.zip&
 
-cd ~/Downloads && /usr/bin/wget https://ftpmirror.your.org/pub/openstreetmap/planet/planet-latest.osm.bz2
+# cd ~/Downloads && /usr/bin/wget https://ftpmirror.your.org/pub/openstreetmap/planet/planet-latest.osm.bz2
+cd ~/Downloads && /usr/bin/wget https://download.geofabrik.de/europe-latest.osm.bz2
+/usr/bin/wget https://download.geofabrik.de/north-america-latest.osm.bz2
