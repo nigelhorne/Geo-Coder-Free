@@ -322,11 +322,11 @@ sub geocode {
 		# ::diag(__LINE__);
 		$region = $admin2cache{$state};
 	} else {
-		# ::diag(__LINE__);
+		# ::diag(__PACKAGE__, ': ', __LINE__);
 		if(defined($county) && ($county eq 'London')) {
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		} elsif(defined($county)) {
-		# ::diag(__LINE__, ": $county");
+			# ::diag(__PACKAGE__, ': ', __LINE__, ": $county");
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
 		}
 		# ::diag(__LINE__, Data::Dumper->new([\@admin2s])->Dump());
@@ -370,8 +370,13 @@ sub geocode {
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
-		# ::diag(__LINE__, ": $location");
+		# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
+		if((scalar(@admin2s) == 0) && ($country =~ /^(Canada|United States|USA|US)$/) && ($location !~ /\sCounty/i)) {
+			$location .= ' County';
+			# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
+			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
+		}
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
 			foreach my $admin2(@admin2s) {
 				my $concat = $admin2->{'concatenated_codes'};
@@ -385,6 +390,7 @@ sub geocode {
 				}
 			}
 		} elsif(defined($county)) {
+			# ::diag(__PACKAGE__, ': ', __LINE__, ": county $county");
 			# e.g. states in the US
 			if(!defined($self->{'admin1'})) {
 				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or die "Can't open the admin1 database";
@@ -451,6 +457,7 @@ sub geocode {
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
 	if(wantarray && !$region_only) {
+		# ::diag(__PACKAGE__, ': ', __LINE__);
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
 			if((!defined($region)) && !defined($param{'region'})) {
@@ -462,7 +469,7 @@ sub geocode {
 			if($countrycode) {
 				@rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}), 'Country' => $countrycode);
 				if(scalar(@rc) == 0) {
-					# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+					# ::diag(__PACKAGE__, ': ', __LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 					return;
 				}
 			}

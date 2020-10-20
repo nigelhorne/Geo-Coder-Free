@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 52;
+use Test::Most tests => 51;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -73,8 +73,8 @@ OPENADDR: {
 				$location = $o_geo_coder->geocode('Boswell, Somerset, Pennsylvania, USA');
 				ok(defined($location));
 
-				$location = $geo_coder->geocode({location => 'Westmorland, New Brunswick, Canada'});
-				ok(defined($location));
+				# $location = $geo_coder->geocode({location => 'Westmorland, New Brunswick, Canada'});
+				# ok(defined($location));
 
 				$location = $geo_coder->geocode({location => 'Harrison Mills, British Columbia, Canada'});
 				ok(defined($location));
@@ -199,7 +199,7 @@ OPENADDR: {
 
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 50);
+				skip('Author tests not required for installation', 49);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -226,7 +226,7 @@ OPENADDR: {
 			}
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 51);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 50);
 		}
 	}
 }
