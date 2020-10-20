@@ -1719,6 +1719,7 @@ flush_queue($dbh, $redis);
 %whosonfirst = ();
 
 # if(my $osm = $ENV{'OSM_HOME'}) {
+my $osm;
 if(0) {
 	# Openstreetmap
 
