@@ -82,6 +82,26 @@ Takes one optional parameter, directory,
 which tells the library where to find the files admin1db, admin2.db and cities.[sql|csv.gz].
 If that parameter isn't given, the module will attempt to find the databases, but that can't be guaranteed
 
+There are 3 levels to the Maxmind database.
+Here's the method to find the location of Sittingbourne, Kent, England:
+1) admin1.db contains admin areas such as counties, states and provinces
+   A typical line is:
+     US.MD	Maryland	Maryland	4361885
+   So a look up of 'Maryland' will get the concatenated code 'US.MD'
+   Note that GB has England, Scotland and Wales at this level, not the counties
+     GB.ENG	England	England	6269131
+   So a look up of England will give the concatenated code of GB.ENG for use in admin2.db
+2) admin2.db contains admin areas drilled down from the admin1 database such as US counties
+   Note that GB has counties
+   A typical line is:
+    GB.ENG.G5	Kent	Kent	3333158
+   So a look up of 'Kent' with a contacatenated code to start with 'GB.ENG' will code the region G5 for use in cities.sql
+3) cities.sql contains the latitude and longitude of the place we want, so a search for 'sittingbourne' in
+   region 'g5' will give
+     gb,sittingbourne,Sittingbourne,G5,41148,51.333333,.75
+
+The admin2.db is far from comprehensive, see Makefile.PL for some entries that are added manually.
+
 =cut
 
 sub new {
