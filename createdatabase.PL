@@ -1243,7 +1243,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 							$country = 'Canada';
 						}
 						if($state && (length($state) > 2)) {
-							if($state eq 'Québec') {
+							if($state =~ /Qu.bec/) {
 								$state = 'Quebec';
 							}
 							if(my $code = $ca->{province2code}{uc($state)}) {
@@ -1839,7 +1839,7 @@ if(0) {
 							$country = 'Canada';
 						}
 						if($state && (length($state) > 2)) {
-							if($state eq 'Québec') {
+							if($state =~ /Qu.bec/) {
 								$state = 'Quebec';
 							}
 							if(my $code = $ca->{province2code}{uc($state)}) {
