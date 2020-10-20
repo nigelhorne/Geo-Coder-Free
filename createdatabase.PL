@@ -42,6 +42,8 @@ use File::Slurp;
 use Geo::Coder::Abbreviations;
 use JSON;
 use LWP::UserAgent::Throttled;
+use Locale::CA;
+use Locale::Country;
 use Locale::US;
 use Digest::MD5;
 use Encode;
@@ -863,8 +865,8 @@ if($ENV{'REDIS_SERVER'}) {
 	$redis->flushdb();
 }
 
-my $us = Locale::US->new();
 my $ca = Locale::CA->new();
+my $us = Locale::US->new();
 
 my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 if(-r $filename) {
@@ -898,7 +900,7 @@ if(-r $filename) {
 	while(my $row = $csv->getline_hr($fin)) {
 		# print Data::Dumper->new([\$row])->Dump();
 		my $state;
-		unless($state = $us->new()->{state2code}{uc($row->{'Name'})}) {
+		unless($state = $us->{state2code}{uc($row->{'Name'})}) {
 			die $row->{'Name'};
 		}
 		$state_fips{$row->{'State FIPS'}} = $state;
@@ -1527,12 +1529,13 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2');
 
 	foreach my $file(@files) {
+		my $filename = File::Spec->catfile($osm, $file);
+
 		$| = 1;
 		printf "%-70s\r", $filename;
 		$| = 0;
 		print "\n" if(MAX_INSERT_COUNT == 1);
 
-		my $filename = File::Spec->cat($osm, $file);
 		# TODO: check for the presence of bzcat
 		open(my $pin, '-|', "bzcat $filename");
 		my $reader = XML::LibXML::Reader->new(FD => $pin)
@@ -1548,8 +1551,6 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		my $place;
 
 		while($reader->read()) {
-			processNode($reader);
-
 			# These constants are not exported by default :-(
 			if($reader->nodeType() == 1) {
 				$node = $reader->name();
@@ -1600,7 +1601,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 					$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
 					$is_in =~ s/, Europe$//;
 					$is_in =~ s/;\s?/, /g;
-					$is_in =~ s/United States of America$/US/;
+					$is_in =~ s/United States of America.*/US/;
 					$is_in =~ s/United States$/US/;
 					$is_in =~ s/USA$/US/;
 					$is_in =~ s/(\w)? USA$/$1, US/;
@@ -1624,7 +1625,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 							}
 							$country = 'US';
 						} else {
-							die "Unknown US state $state";
+							die "$is_in: unknown US state $state";
 						}
 					} elsif(my $code = $us->{state2code}{uc($is_in)}) {
 						$is_in = "$code, US";
@@ -1641,7 +1642,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 							$country = 'Canada';
 						}
 						if($state && (length($state) > 2)) {
-							if(my $code = $ca->new()->{province2code}{uc($state)}) {
+							if(my $code = $ca->{province2code}{uc($state)}) {
 
 								if($preamble) {
 									$is_in = "$preamble, $code, Canada";
@@ -1673,15 +1674,17 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 							}
 						}
 						$add_record = 0 if($is_in =~ /,.+,/);	# Just towns for now
+						# means it's another country
+						$add_record = 0 if(!defined($country));
 						if($add_record) {
 							print "$name, $is_in: $lat, $lon\n" if(DEBUG&DEBUG_ALL);
-							my $row = (
+							my $row = {
 								'CITY' => $name,
 								'STATE' => $state,
 								'COUNTRY' => $country,
 								'LAT' => $lat,
 								'LON' => $lon,
-							);
+							};
 							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis);
 							if($inserts >= MAX_INSERT_COUNT) {
 								flush_queue($dbh, $redis);

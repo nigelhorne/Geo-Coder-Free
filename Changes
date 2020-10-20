@@ -2,6 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.29
 	Started work on importing data from OpenStreetMaps
+		using planet.osm.bz2 files in $OSM_HOME
 
 0.28	Fri Oct 16 21:51:27 EDT 2020
 	Fixed the manifest
