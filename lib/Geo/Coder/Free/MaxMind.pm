@@ -233,12 +233,13 @@ sub geocode {
 		# Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
 		return;
 	}
+	my $countrycode;
 	if($country) {
 		if(defined($country) && (($country eq 'UK') || ($country eq 'United Kingdom') || ($country eq 'England'))) {
 			$country = 'Great Britain';
 			$concatenated_codes = 'GB';
 		}
-		my $countrycode = country2code($country);
+		$countrycode = country2code($country);
 		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
 		# if($county && $countrycode) {
 			# ::diag(__LINE__, ": country $countrycode, county $county, location $location");
@@ -443,6 +444,9 @@ sub geocode {
 	if(my $c = $param{'region'}) {
 		$options->{'Country'} = lc($c);
 		$confidence = 0.1;
+	} elsif($countrycode) {
+		$options->{'Country'} = $countrycode;
+		$confidence = 0.1;
 	}
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
@@ -454,11 +458,15 @@ sub geocode {
 				Carp::carp(__PACKAGE__, ": didn't determine region from $location");
 				return;
 			}
-			@rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}));
-			if(scalar(@rc) == 0) {
-	 			# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
-				return;
+			# This would return all of the cities in the wrong region
+			if($countrycode) {
+				@rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}), 'Country' => $countrycode);
+				if(scalar(@rc) == 0) {
+					# ::diag(__LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+					return;
+				}
 			}
+			# ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
 		}
 	 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
 		foreach my $city(@rc) {

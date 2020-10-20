@@ -191,9 +191,9 @@ MAXMIND: {
 			ok(scalar(@locations) == 1);
 			cmp_deeply($locations[0],
 				methods('lat' => num(38.25, 1e-2), 'long' => num(-76.74, 1e-2)));
+
 			@locations = $geo_coder->geocode('Kent, England');
 			ok(scalar(@locations) == 1);
-
 			# like($geo_coder->reverse_geocode(latlng => '51.50,-0.13'), qr/London/i, 'test reverse');
 			@locations = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
 			ok(scalar(@locations) > 1);
