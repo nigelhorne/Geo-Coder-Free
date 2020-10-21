@@ -60,6 +60,8 @@ use Text::CSV;
 use Try::Tiny;
 use XML::LibXML::Reader;
 
+use	constant	AIO_READAHEAD_SIZE => 1048576;	# 1MB
+
 use	constant	DEBUG_OFF => 0;
 use	constant	DEBUG_INVALID_LENGTH => 1;
 use	constant	DEBUG_L_EN_A => 2;
@@ -987,11 +989,11 @@ if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 	my $fin = $all_countries->fd();
-	aio_readahead($fin, 0, 10240);
+	aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 	my $fin1 = $admin1->fd();
-	aio_readahead($fin1, 0, 10240);
+	aio_readahead($fin1, 0, AIO_READAHEAD_SIZE);
 	my $fin2 = $admin2->fd();
-	aio_readahead($fin2, 0, 10240);
+	aio_readahead($fin2, 0, AIO_READAHEAD_SIZE);
 
 	$| = 1;
 	printf "%-70s\r", 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
@@ -1105,6 +1107,7 @@ if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($dbh, $redis);
+			aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 			$inserts = 0;
 		}
 	}
@@ -1653,7 +1656,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		my $fin = $fh->fd();
 
 		# open(my $fin, '<', $csv_file);
-		aio_readahead($fin, 0, 10240);
+		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 
 		$| = 1;
 		printf "%-70s\r", $f;
@@ -1677,6 +1680,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh, redis => $redis);
 			if($inserts >= MAX_INSERT_COUNT) {
 				flush_queue($dbh, $redis);
+				aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 				$inserts = 0;
 			}
 
