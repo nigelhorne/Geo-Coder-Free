@@ -1031,6 +1031,7 @@ if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 	$admin2->close();
 
 	my $inserts = 0;
+	my $offset = AIO_READAHEAD_SIZE;
 
 	while(my $line = <$fin>) {
 		my @fields = split(/\t/, $line);
@@ -1107,7 +1108,8 @@ if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($dbh, $redis);
-			aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
+			$offset += AIO_READAHEAD_SIZE;
 			$inserts = 0;
 		}
 	}
@@ -1657,6 +1659,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		# open(my $fin, '<', $csv_file);
 		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+		my $offset = AIO_READAHEAD_SIZE;
 
 		$| = 1;
 		printf "%-70s\r", $f;
@@ -1680,8 +1683,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh, redis => $redis);
 			if($inserts >= MAX_INSERT_COUNT) {
 				flush_queue($dbh, $redis);
-				aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 				$inserts = 0;
+				$offset += AIO_READAHEAD_SIZE;
 			}
 
 		}
