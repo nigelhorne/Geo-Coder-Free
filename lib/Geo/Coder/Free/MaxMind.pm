@@ -454,9 +454,10 @@ sub geocode {
 		$options->{'Country'} = $countrycode;
 		$confidence = 0.1;
 	}
-	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
+	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
-	if(wantarray && !$region_only) {
+	# if(wantarray && (!$options->{'City'}) && !$region_only) {
+	if(0) {	# We don't need to find all the cities in a state, which is what this would do
 		# ::diag(__PACKAGE__, ': ', __LINE__);
 		my @rc = $self->{'cities'}->selectall_hash($options);
 		if(scalar(@rc) == 0) {
@@ -529,7 +530,7 @@ sub geocode {
 
 		return @locations;
 	}
-	# ::diag(__LINE__, ': ', Data::Dumper->new([$options])->Dump());
+	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {
 		# ::diag(__LINE__, ': ', scalar(@regions));
