@@ -9,7 +9,7 @@ my @needfull;
 # Install Pre-requisites
 BEGIN {
 	my @modules = (
-		'LWP::Protocol::https', 'LWP::Simple'
+		'File::HomeDir', 'LWP::Protocol::https', 'LWP::Simple::WithCache'
 	);
 
 	foreach my $module(@modules) {
@@ -86,9 +86,14 @@ if(eval { require HTTP::Cache::Transparent; }) {
 	if(my $e = $ENV{'CACHEDIR'}) {
 		$cachedir = File::Spec->catfile($e, 'http-cache-transparent');
 	} else {
-		$cachedir = File::Spec->catfile(File::Spec->tmpdir(), 'cache', 'http-cache-transparent');
+		# $cachedir = File::Spec->catfile(File::Spec->tmpdir(), 'cache', 'http-cache-transparent');
+		$cachedir = File::Spec->catfile(File::HomeDir->my_home(), '.cache', 'http-cache-transparent');
 	}
 
+	if(!-d $cachedir) {
+		print "Creating the download directory $cachedir\n";
+		mkdir $cachedir || die "$cachedir: $@";
+	}
 	HTTP::Cache::Transparent::init({
 		BasePath => $cachedir,
 		# Verbose => $opts{'v'} ? 1 : 0,
@@ -108,7 +113,7 @@ foreach my $url(keys %urls) {
 	}
 
 	print "Downloading $url to $file\n";
-	if(is_error(my $rc = mirror($url, $file))) {
+	if(LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::mirror($url, $file))) {
 		die "$url: LWP error $rc";
 	}
 	die $file if(!-r $file);
