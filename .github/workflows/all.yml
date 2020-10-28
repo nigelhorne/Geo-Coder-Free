@@ -24,7 +24,7 @@ jobs:
       - run: perl -V
       - name: Install Dependencies
         run: |
-          cpanm -iqn File::Spec ExtUtils::MakeMaker LWP::Simple LWP::Protocol::https
+          cpanm -iqn File::Spec ExtUtils::MakeMaker LWP::Simple::WithCache LWP::Protocol::https
           cpanm -iqn Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused
           cpanm -iqn --installdeps --notest .
       - name: Run Tests

@@ -34,7 +34,7 @@ before_install:
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
-  - cpanm -iqn LWP::Simple
+  - cpanm -iqn LWP::Simple::WithCache
 
 install:
   - cpan-install --deps
