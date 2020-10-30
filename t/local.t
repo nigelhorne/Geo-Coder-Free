@@ -107,8 +107,9 @@ sub check {
 	}
 	# diag($location);
 	my @rc = $geo_coder->geocode({ location => $location });
-	# diag(Data::Dumper->new([\@rc])->Dump());
+	diag(Data::Dumper->new([$location, \@rc])->Dump()) if($ENV{'TEST_VERBOSE'});
 	ok(scalar(@rc) > 0);
+
 	cmp_deeply(@rc,
 		methods('lat' => num($lat, 1e-2), 'long' => num($long, 1e-2)));
 

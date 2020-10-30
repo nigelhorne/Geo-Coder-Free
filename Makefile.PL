@@ -192,7 +192,7 @@ WriteMakefile(
 		'JSON' => 0,
 		'LWP::UserAgent::Throttled' => 0,
 		'Try::Tiny' => 0,
-		'XML::LibXML::Reader' => 0,
+		'XML::LibXML::Reader' => 0,	# FIXME: only if $OSM_HOME is set
 	},
 	TEST_REQUIRES => $test_requires,
 	PREREQ_PM => {

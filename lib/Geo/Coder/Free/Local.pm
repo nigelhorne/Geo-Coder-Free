@@ -355,6 +355,14 @@ sub geocode {
 		} elsif(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
 			return $rc;
 		}
+		if($addr{'name'} && !defined($addr{'number'})) {
+			# We know the name of the building but not the street number
+			# ::diag(__LINE__, ': ', $addr{'name'});
+			if(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
+				# ::diag(__PACKAGE__, ': ', __LINE__);
+				return $rc;
+			}
+		}
 	}
 
 	$location = uc($location);
@@ -364,7 +372,7 @@ sub geocode {
 			# ::diag($left, '=>', $alternatives{$left});
 			$location =~ s/$left/$alternatives{$left}/;
 			$param{'location'} = $location;
-			# ::diag(__LINE__, ": $location");
+			# ::diag(__LINE__, ": found alternative '$location'");
 			if(my $rc = $self->geocode(\%param)) {
 				# ::diag(__LINE__, ": $location");
 				return $rc;
@@ -389,6 +397,8 @@ sub _search {
 	# FIXME: linear search is slow
 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@columns, $data])->Dump());
 	# print Data::Dumper->new([\@columns, $data])->Dump();
+	# my @call_details = caller(0);
+	# ::diag(__LINE__, ': called from ', $call_details[2]);
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
 
@@ -396,8 +406,8 @@ sub _search {
 		# print Data::Dumper->new([$self->{data}])->Dump();
 
 		foreach my $column(@columns) {
-			# ::diag("$column: ", $row->{$column}, '/', $data->{$column});
 			if($data->{$column}) {
+				# ::diag("$column: ", $row->{$column}, '/', $data->{$column});
 				# print "$column: ", $row->{$column}, '/', $data->{$column}, "\n";
 				if(!defined($row->{$column})) {
 					$match = 0;
