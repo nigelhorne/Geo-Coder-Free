@@ -358,9 +358,6 @@ sub geocode {
 		if($addr{'name'} && !defined($addr{'number'})) {
 			# We know the name of the building but not the street number
 			# ::diag(__LINE__, ': ', $addr{'name'});
-			# FIXME: Some machines will say that _search has returned undef, even when
-			#	match = 1 and I can see a Geo::Location::Point object being returned
-			#	This causes t/local.t line 111 failures
 			if(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
 				# ::diag(__PACKAGE__, ': ', __LINE__);
 				return $rc;

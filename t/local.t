@@ -59,9 +59,6 @@ LOCAL: {
 		'Minster Cemetery, 116 Tothill St, Minster, Thanet, Kent, GB',
 	);
 
-	# FIXME: Some machines will say that _search has returned undef, even when
-	#	match = 1 and I can see a Geo::Location::Point object being returned
-	#	This causes t/local.t line 111 failures with this test
 	check($geo_coder,
 		'Minster Cemetery, Tothill Street, Minster, Thanet, Kent, England',
 		51.34203083,
