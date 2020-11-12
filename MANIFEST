@@ -47,6 +47,7 @@ t/cities.t
 t/coverage.t
 t/critic.t
 t/eol.t
+t/fixme.t
 t/gv.t
 t/kwalitee.t
 t/lib/MyLogger.pm
