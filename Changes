@@ -4,6 +4,7 @@ Revision history for Geo-Coder-Free
 	Started work on importing data from OpenStreetMaps
 		using planet.osm.bz2 files in $OSM_HOME
 	More work to reduce the number of Maxmind results
+	Removed some false positives in Local.pm
 
 0.28	Fri Oct 16 21:51:27 EDT 2020
 	Fixed the manifest

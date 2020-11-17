@@ -16,7 +16,8 @@ use Text::xSV::Slurp;
 Geo::Coder::Free::Local -
 Provides an interface to locations that you know yourself.
 I have found locations by using GPS apps on a smartphone and by
-inspecting GeoTagged photographs.
+inspecting GeoTagged photographs using
+L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/geotag>.
 
 =head1 VERSION
 
@@ -64,7 +65,7 @@ sub new {
 	# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
 	return unless($class);
 
-	my $rc = {
+	bless {
 		data => xsv_slurp(
 			shape => 'aoh',
 			text_csv => {
@@ -76,9 +77,7 @@ sub new {
 			},
 			string => \join('', grep(!/^\s*(#|$)/, <DATA>))
 		)
-	};
-
-	return bless $rc, $class;
+	}, $class;
 }
 
 =head2 geocode
@@ -116,6 +115,7 @@ sub geocode {
 		my $rc = Geo::Location::Point->new($row);
 		my $str = lc($rc->as_string());
 
+		# ::diag("Compare $str->$lc");
 		if($str eq $lc) {
 			return $rc;
 		}
@@ -125,6 +125,8 @@ sub geocode {
 			}
 		}
 	}
+
+	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 
 	my $ap;
 	if(($location =~ /USA$/) || ($location =~ /United States$/)) {
@@ -187,6 +189,7 @@ sub geocode {
 			}
 			$addr{'number'} = $c{'property_identifier'};
 			$addr{'city'} = $c{'suburb'};
+			# ::diag(Data::Dumper->new([\%addr])->Dump());
 			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 				return $rc;
 			}
@@ -276,7 +279,7 @@ sub geocode {
 	}
 
 	# Finally try libpostal,
-	# which is good but uses a lot of memory
+	# which is good but uses a lot of memory and can take a very long time to load
 	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
 		if(eval { require Geo::libpostal; } ) {
 			Geo::libpostal->import();
@@ -301,7 +304,7 @@ sub geocode {
 			delete $addr{'state'};
 			$addr{'country'} = 'GB';
 		}
-		# ::diag(__LINE__, ': ', Data::Dumper->new([\%addr])->Dump());
+		# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([\%addr])->Dump());
 		if($addr{'country'} && ($addr{'state'} || $addr{'state_district'})) {
 			if($addr{'country'} =~ /Canada/i) {
 				$addr{'country'} = 'Canada';
@@ -325,6 +328,7 @@ sub geocode {
 				}
 			}
 			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
+				# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$rc])->Dump());
 				return $rc;
 			}
 			if($addr{'number'}) {
@@ -396,11 +400,12 @@ sub _search {
 
 	# FIXME: linear search is slow
 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@columns, $data])->Dump());
-	# print Data::Dumper->new([\@columns, $data])->Dump();
-	# my @call_details = caller(0);
+	print Data::Dumper->new([\@columns, $data])->Dump();
+	my @call_details = caller(0);
 	# ::diag(__LINE__, ': called from ', $call_details[2]);
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
+		my $number_of_columns_matched;
 
 		# ::diag(Data::Dumper->new([$self->{data}])->Dump());
 		# print Data::Dumper->new([$self->{data}])->Dump();
@@ -417,17 +422,29 @@ sub _search {
 					$match = 0;
 					last;
 				}
+				$number_of_columns_matched++;
 			}
 		}
 		# ::diag("match: $match");
-		if($match) {
+		if($match && ($number_of_columns_matched >= 3)) {
+			my $confidence;
+			if($number_of_columns_matched == scalar(@columns)) {
+				$confidence = 1.0;
+			} elsif($number_of_columns_matched >= 4) {
+				$confidence = 0.7;
+			} else {
+				$confidence = 0.5;
+			}
+			# ::diag("$number_of_columns_matched -> $confidence");
 			return Geo::Location::Point->new(
 				'lat' => $row->{'latitude'},
 				'long' => $row->{'longitude'},
-				'location' => $data->{'location'}
+				'location' => $data->{'location'},
+				'confidence' => $confidence,
 			);
 		}
 	}
+	return;
 }
 
 =head2	reverse_geocode
