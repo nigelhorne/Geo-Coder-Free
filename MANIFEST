@@ -27,6 +27,7 @@ lib/Geo/Coder/Free/Display/index.pm
 lib/Geo/Coder/Free/Display/query.pm
 lib/Geo/Coder/Free/Local.pm
 lib/Geo/Coder/Free/MaxMind.pm
+lib/Geo/Coder/Free/MaxMind/databases/MAXMIND.LICENCE
 lib/Geo/Coder/Free/OpenAddresses.pm
 lib/Geo/Coder/Free/Utils.pm
 LICENSE
