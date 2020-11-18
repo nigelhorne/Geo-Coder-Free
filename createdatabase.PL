@@ -27,6 +27,7 @@
 #	https://spelunker.whosonfirst.org/id/1108937103
 
 # TODO: perhaps use a layered approach to the database schema
+# TODO: import https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/countries%2Bstates%2Bcities.json
 
 use 5.010;
 use strict;
