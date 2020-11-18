@@ -1,4 +1,6 @@
+---
 language: perl
+
 os:
   - linux
   # - osx
