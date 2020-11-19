@@ -47,6 +47,7 @@ use File::Slurp;
 use Geo::Coder::Abbreviations;
 use JSON;
 use LWP::UserAgent::Throttled;
+use Locale::AU;	# TODO: use Locale::Geocode
 use Locale::CA;
 use Locale::Country;
 use Locale::US;
@@ -874,6 +875,7 @@ if($ENV{'REDIS_SERVER'}) {
 	$redis->flushdb();
 }
 
+my $au = Locale::AU->new();
 my $ca = Locale::CA->new();
 my $us = Locale::US->new();
 
@@ -1550,7 +1552,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 	$data = $j->decode($data);
 
 	foreach my $country(@{$data}) {
-		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN')) {
+		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN') || ($country->{'iso3'} eq 'AUS')) {
 			if($country->{'name'} eq 'United Statees') {
 				$country->{'name'} = 'US';
 			}
@@ -1558,7 +1560,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 				foreach my $city(@{$state->{'cities'}}) {
 					my $row = {
 						'COUNTRY' => $country->{'name'},
-						'STATE' => $state->{'name'},
+						'STATE' => $state->{'state_code'},
 						'CITY' => $city->{'name'},
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
@@ -1571,7 +1573,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 					}
 				}
 			}
-		} elsif($country->{'iso3'} eq 'GBR') {
+		# } elsif($country->{'iso3'} eq 'GBR') {
 			# TODO
 		};
 	}
@@ -1583,7 +1585,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 if(my $osm = $ENV{'OSM_HOME'}) {
 	# Openstreetmap
 
-	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2');
+	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
 	foreach my $file(@files) {
 		my $filename = File::Spec->catfile($osm, $file);
@@ -1690,6 +1692,9 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 					} elsif($code = $ca->{province2code}{uc($is_in)}) {
 						$is_in = "$code, Canada";
 						$country = 'Canada';
+					} elsif($code = $au->{state2code}{uc($is_in)}) {
+						$is_in = "$code, Australia";
+						$country = 'Australia';
 					} else {
 						if($is_in =~ /(.+), (.+), Canada/) {
 							$preamble = $1;
