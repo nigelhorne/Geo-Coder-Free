@@ -231,6 +231,10 @@ WriteMakefile(
 				# version => '0.01',
 				# file => 'MaxMind.pm',
 			# },
+			# 'Geo::Coder::Free::Local' => {
+				# version => '0.01',
+				# file => 'Local.pm',
+			# }
 			# 'Geo::Coder::Free::OpenAddresses' => {
 				# version => '0.01',
 				# file => 'OpenAddresses.pm',

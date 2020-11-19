@@ -409,6 +409,7 @@ Can't parse and handle "London, England".
 L<https://openaddresses.io/>,
 L<https://www.maxmind.com/en/home>,
 L<https://www.geonames.org/>,
+L<https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/countries%2Bstates%2Bcities.json>,
 L<https://www.whosonfirst.org/> and
 L<https://github.com/nigelhorne/vwf>.
 

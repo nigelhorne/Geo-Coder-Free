@@ -7,10 +7,14 @@
 #	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
 
 #	Remove all the data you're not going to use, I only keep au, ca, us
+
 # Download the WHOSONFIRST_HOME data from reposotiries such as
 #	https://github.com/whosonfirst-data/whosonfirst-data-venue-us.git
 #	I use whosonfirst-data-[venue|admin]-[au|gb|us|ca].git
 #	I use whosonfirst-data-[venue]-us-??.git
+
+# Download the DR5HN database:
+#	cd $DR5HN_HOME && git clone https://github.com/dr5hn/countries-states-cities-database.git
 
 # Openstreetmap.org data
 # cd $OSM_HOME && /usr/bin/wget https://download.geofabrik.de/europe-latest.osm.bz2
@@ -1125,6 +1129,7 @@ flush_queue($dbh, $redis);
 # exit(0);
 
 my $inserts = 0;
+
 my %address_parsers;
 
 # my $wof_global_dbh;
@@ -1446,8 +1451,6 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			$current_country = $country;
 		}
 
-		my $inserts = 0;
-
 		# Import this state's hand curated data
 		if(my $k = $known_places{$f}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
@@ -1517,7 +1520,6 @@ flush_queue($dbh, $redis);	# Check for hanging dups in last state
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
-	my $inserts = 0;
 	if(my $k = $known_places{'other'}) {
 		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 		foreach my $row(@{$k}) {
@@ -1533,6 +1535,50 @@ foreach my $country(@whosonfirst_only_countries) {
 
 flush_queue($dbh, $redis);
 %whosonfirst = ();
+
+if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
+	my $filename = File::Spec->catfile($dr5hn, 'countries+states+cities.json');
+
+	$| = 1;
+	printf "%-70s\r", $filename;
+	print "\n" if(DEBUG);
+	$| = 0;
+
+	my $j = JSON->new()->utf8();
+
+	my $data = File::Slurp::read_file($filename);
+	$data = $j->decode($data);
+
+	foreach my $country(@{$data}) {
+		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN')) {
+			if($country->{'name'} eq 'United Statees') {
+				$country->{'name'} = 'US';
+			}
+			foreach my $state(@{$country->{'states'}}) {
+				foreach my $city(@{$state->{'cities'}}) {
+					my $row = {
+						'COUNTRY' => $country->{'name'},
+						'STATE' => $state->{'name'},
+						'CITY' => $city->{'name'},
+						'LAT' => $city->{'latitude'},
+						'LON' => $city->{'longitude'},
+					};
+					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis);
+					# print Data::Dumper->new([$row])->Dump();
+					if($inserts >= MAX_INSERT_COUNT) {
+						flush_queue($dbh, $redis);
+						$inserts = 0;
+					}
+				}
+			}
+		} elsif($country->{'iso3'} eq 'GBR') {
+			# TODO
+		};
+	}
+
+	flush_queue($dbh, $redis);
+	$inserts = 0;
+}
 
 if(my $osm = $ENV{'OSM_HOME'}) {
 	# Openstreetmap
