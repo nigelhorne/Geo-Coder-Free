@@ -42,7 +42,7 @@ our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 =head1 NAME
 
 Geo::Coder::Free::OpenAddresses -
-Provides a geocoding functionality to the data from openaddresses.io and www.whosonfirst.org.
+Provides a geocoding functionality to a local SQLite database containing geo-coding data.
 
 =head1 VERSION
 
@@ -64,16 +64,18 @@ our $VERSION = '0.28';
 
 =head1 DESCRIPTION
 
-Geo::Coder::Free::OpenAddresses provides an interface to the free geolocation database at L<https://openaddresses.io>
+Geo::Coder::Free::OpenAddresses provides an interface to the free geolocation databases at
+L<http://results.openaddresses.io>,
+L<https://github.com/whosonfirst-data>,
+L<https://github.com/dr5hn/countries-states-cities-database.git> and
+L<https://download.geofabrik.de/europe-latest.osm.bz2>.
+The SQLite database is in a file held in $OPENADDR_HOME/openaddresses.sql.
 
-Refer to the source URL for licencing information for these files:
+Refer to the source URL for licencing information for these files.
 
-To install:
-
-1. download the data from L<http://results.openaddresses.io/>. You will find licencing information on that page.
-2. unzip the data into a directory. To be clear, if you run "ls -l $OPENADDR_HOME" you should see a list of two-lettered countries e.g 'us'.
-3. point the environment variable OPENADDR_HOME to that directory and save in the profile of your choice.
-4. run the createdatabases.PL script which imports the data into an SQLite database.  This process will take some time.
+To install,
+run the createdatabases.PL script which imports the data into an SQLite database.
+This process will take some time.
 
 =head1 METHODS
 
@@ -81,8 +83,8 @@ To install:
 
     $geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
 
-Takes an optional parameter openaddr, which is the base directory of
-the OpenAddresses data downloaded from http://results.openaddresses.io.
+Takes an optional parameter directory, which is the directory of the file
+openaddresses.sql.
 
 Takes an optional parameter cache, which points to an object that understands get() and set() messages to store data in
 
@@ -950,13 +952,12 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 The contents of lib/Geo/Coder/Free/OpenAddresses/databases comes from
-https://github.com/openaddresses/openaddresses/tree/master/us-data.
+the places listed in the synopsis.
 
 =head1 BUGS
 
 Lots of lookups fail at the moment.
 
-The openaddresses.io code has yet to be completed.
 There are die()s where the code path has yet to be written.
 
 The openaddresses data doesn't cover the globe.

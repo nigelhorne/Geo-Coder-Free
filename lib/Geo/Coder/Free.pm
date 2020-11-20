@@ -311,7 +311,7 @@ sub run {
 
 	my @rc;
 	if($ENV{'OPENADDR_HOME'}) {
-		@rc = $class->new(openaddr => $ENV{'OPENADDR_HOME'})->geocode($location);
+		@rc = $class->new(directory => $ENV{'OPENADDR_HOME'})->geocode($location);
 	} else {
 		@rc = $class->new()->geocode($location);
 	}

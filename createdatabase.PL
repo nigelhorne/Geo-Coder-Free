@@ -1,14 +1,18 @@
 #!/usr/bin/env perl
 
-# Import data from openaddresses.io and whosonfirst.org into an SQLite database.
-# Set OSM_HOME, OPENADDR_HOME and WHOSONFIRST_HOME to the directories where the data has been downloaded
+# Import geo-coding data into an SQLite database.
+
+# Set OSM_HOME, OPENADDR_HOME, DR5HN_HOME and WHOSONFIRST_HOME to the directories where the data will be downloaded
+
+# see bin/download_databases which will download the databases and call this script
+
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
 #	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global.zip
 #	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
 
 #	Remove all the data you're not going to use, I only keep au, ca, us
 
-# Download the WHOSONFIRST_HOME data from reposotiries such as
+# Download the WHOSONFIRST_HOME data from repositories such as
 #	https://github.com/whosonfirst-data/whosonfirst-data-venue-us.git
 #	I use whosonfirst-data-[venue|admin]-[au|gb|us|ca].git
 #	I use whosonfirst-data-[venue]-us-??.git
@@ -17,8 +21,7 @@
 #	cd $DR5HN_HOME && git clone https://github.com/dr5hn/countries-states-cities-database.git
 
 # Openstreetmap.org data
-# cd $OSM_HOME && /usr/bin/wget https://download.geofabrik.de/europe-latest.osm.bz2
-
+#	cd $OSM_HOME && /usr/bin/wget https://download.geofabrik.de/europe-latest.osm.bz2
 # Note that this can take a day to load in just AU, CA, GB, US
 
 # You can look up a WOF place by https://spelunker.whosonfirst.org/id/$locality_id
