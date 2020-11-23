@@ -249,12 +249,11 @@ WriteMakefile(
 				type => 'git',
 				url => 'git://github.com/nigelhorne/Geo-Coder-Free.git',
 				web => 'https://github.com/nigelhorne/Geo-Coder-Free',
-			},
-			bugtracker => {
+			}, bugtracker => {
 				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
 				web => 'https://github.com/nigelhorne/Geo-Coder-Free/issues',
 				mailto => 'bug-Geo-Coder-Free@rt.cpan.org'
-			}
+			}, homepage => 'https://geocode.nigelhorne.com'
 		},
 	},
 	# PPM_INSTALL_EXEC	=> 'bash',

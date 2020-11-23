@@ -2361,7 +2361,7 @@ sub flush_queue
 			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
 			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'}, sub {});
 		}
-		$query .=  $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 
 		# my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 		# foreach my $column(@columns) {
