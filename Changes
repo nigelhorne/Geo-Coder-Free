@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.29
+0.29	Thu Nov 26 14:19:56 EST 2020
 	Started work on importing data from OpenStreetMaps
 		using planet.osm.bz2 files in $OSM_HOME
 	More work to reduce the number of Maxmind results
