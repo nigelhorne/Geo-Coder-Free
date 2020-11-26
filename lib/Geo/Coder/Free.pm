@@ -415,7 +415,7 @@ L<https://github.com/nigelhorne/vwf>.
 
 L<Geo::Coder::Free::Local>,
 L<Geo::Coder::Free::Maxmind>,
-L<Geo::Coder::Free::OpenAdresses>.
+L<Geo::Coder::Free::OpenAddresses>.
 
 See L<Geo::Coder::Free::OpenAddresses> for instructions creating the SQLite database from
 L<http://results.openaddresses.io/>.

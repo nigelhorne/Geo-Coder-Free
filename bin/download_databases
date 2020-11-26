@@ -34,4 +34,3 @@ cd ~/Downloads && /usr/bin/wget -N -c https://download.geofabrik.de/europe-lates
 /usr/bin/wget -N -c https://download.geofabrik.de/australia-oceania-latest.osm.bz2
 
 cd ~/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test AUTHOR_TESTING=1 TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
-
