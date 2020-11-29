@@ -1970,7 +1970,7 @@ sub import {
 				# print "\n", Data::Dumper->new([\$row])->Dump();
 				return 0;
 			}
-			my $place = @{$rc->{'places'}}[0];
+			my $place = $rc->{'places'}->[0];
 			if(!$place) {
 				# print "\n", Data::Dumper->new([\$row])->Dump();
 				return 0;
