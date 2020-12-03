@@ -8,26 +8,24 @@ use Test::Most;
 
 my @messages;
 
-if(not $ENV{AUTHOR_TESTING}) {
-	plan(skip_all => 'Author tests not required for installation');
-} else {
+if($ENV{AUTHOR_TESTING}) {
 	is($INC{'Devel/FIXME.pm'}, undef, "Devel::FIXME isn't loaded yet");
 	
-	use_ok('Devel::FIXME');
-
-	$Devel::FIXME::REPAIR_INC = 1;
-
-	use_ok('Geo::Coder::Free');
-	# use_ok('Geo::Coder::Free::Local');
-
+	eval 'use Devel::FIXME';
 	if($@) {
-		plan skip_all => 'Test::Warnings required for finding FIXMEs';
+		plan(skip_all => 'Devel::FIXME not installed');
 	} else {
-		# ok($messages[0] !~ /lib\/Geo\/Coder\/Free/);
+		# $Devel::FIXME::REPAIR_INC = 1;
+
+		use_ok('Geo::Coder::Free');
+
+		# ok($messages[0] !~ /lib\/Geo\/Coder\/Free.pm/);
 		ok(scalar(@messages) == 0);
 
-		done_testing(4);
+		done_testing(3);
 	}
+} else {
+	plan(skip_all => 'Author tests not required for installation');
 }
 
 sub Devel::FIXME::rules {
@@ -42,3 +40,4 @@ sub shout {
 	my $self = shift;
 	push @messages, "# FIXME: $self->{text} at $self->{file} line $self->{line}.\n";
 }
+
