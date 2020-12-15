@@ -10,7 +10,7 @@ my @messages;
 
 if($ENV{AUTHOR_TESTING}) {
 	is($INC{'Devel/FIXME.pm'}, undef, "Devel::FIXME isn't loaded yet");
-	
+
 	eval 'use Devel::FIXME';
 	if($@) {
 		plan(skip_all => 'Devel::FIXME not installed');

@@ -15,9 +15,10 @@ env: AUTOMATED_TESTING=1 PERL_CPANM_OPT="--notest --force --skip-satisfied"
 
 perl:
   - "5.30"
-  # - "5.28" # Travis gets 404 errors trying to find some older perls
+  - "5.28"
   - "5.26"
   - "5.24"
+  # Travis gets 404 errors trying to find some older perls
   # - "5.22"
   # - "5.20"
   # - "5.18"
@@ -28,28 +29,20 @@ perl:
   # - "5.8"
   # - "5.8.7"
 
-matrix:
-  allow_features:
-    - perl: blead
-  include:
-    - perl: 5.28
-      env: COVERAGE=1
-
 sudo: false
 
-before_script:
-  - coverage-setup
+# before_install:
+#   # - sudo apt-get update -q
+#   # - sudo apt-get install sqlite3 libdbi-perl libdbd-sqlite3-perl
+#   - cpanm -qin --skip-satisfied Devel::Cover::Report::Coveralls Test::Script Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Taint Test::Carp Test::Pod::Coverage
 
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
-  - source ~/travis-perl-helpers/init
+  - source ~/travis-perl-helpers/init --auto
   - build-perl
   - perl -V
-  - cpanm -iqn --skip-satisfied LWP::Simple::WithCache
-
-install:
-  - cpan-install --skip-satisfied --deps
-  - cpan-install --skip-satisfied --coverage
+  - build-dist
+  - cd $BUILD_DIR
   - cpanm -iqn --skip-satisfied Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused Devel::FIXME LWP::Protocol::https
 
 script:
@@ -60,3 +53,21 @@ after_success:
   - coverage-report
   - perl -MO=Lint ./createdatabase.PL
   - perl -c -Mwarnings::unused ./createdatabase.PL
+
+jobs:
+  include:
+    - stage: Windows
+      os: windows
+      language: shell
+      before_install:
+        - cinst -y strawberryperl
+        - export "PATH=/c/Strawberry/perl/site/bin:/c/Strawberry/perl/bin:/c/Strawberry/c/bin:$PATH"
+      install:
+        - cpanm --notest --installdeps .
+      script:
+        - perl Makefile.PL
+        - gmake
+        - gmake test
+
+after_failure:
+  - cat /home/travis/.cpanm/work/*/build.log
