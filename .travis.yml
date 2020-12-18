@@ -43,7 +43,7 @@ before_install:
   - perl -V
   - build-dist
   - cd $BUILD_DIR
-  - cpanm -iqn --skip-satisfied Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused Devel::FIXME LWP::Protocol::https
+  - cpanm -iqn --skip-satisfied Devel::Cover::Report::Coveralls Locale::Country Test::Pod::Spelling::CommonMistakes FCGI::Buffer Log::WarnDie B::Lint warnings::unused Devel::FIXME LWP::Protocol::https LWP::Simple::WithCache
 
 script:
   # perl Makefile.PL && make && cover -test -report coveralls

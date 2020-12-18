@@ -76,7 +76,7 @@ The database also will include data from Who's On First
 L<https://whosonfirst.org>.
 
 Takes one optional parameter, directory,
-which tells the library where to find the MaxMind and GeoNames files admin1db,
+which tells the object where to find the MaxMind and GeoNames files admin1db,
 admin2.db and cities.[sql|csv.gz].
 If that parameter isn't given,
 the module will attempt to find the databases,

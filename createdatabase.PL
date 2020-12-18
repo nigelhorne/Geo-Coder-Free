@@ -803,15 +803,18 @@ my $city_sequence;
 my %cities;
 my %unknown_zips;
 my %state_parent_md5s;
-if(!-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
+
+my $cities_sql = 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql';
+
+if(!-r $cities_sql) {
 	(system('bash bin/create_sqlite') == 0)
 		or warn "Can't create the SQLite database (perhaps you don't have sqlite3 installed) - expect poor performance";
 
-	if(-r 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
-		if(-r 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
-			unlink('blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql');
+	if(-r $cities_sql) {
+		if(-r "blib/$cities_sql") {
+			unlink("blib/$cities_sql");
 		}
-		copy('lib/Geo/Coder/Free/MaxMind/databases/cities.sql', 'blib/lib/Geo/Coder/Free/MaxMind/databases/cities.sql')
+		copy($cities_sql, "blib/$cities_sql")
 			or die "Can't copy SQLite file to blib: $!";
 	}
 }
