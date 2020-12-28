@@ -80,7 +80,7 @@ SCANTEXT: {
 					ok(defined($location->{'confidence'}));
 					ok($location->{'state'} eq 'IN');
 					cmp_deeply($location,
-						methods('lat' => num(39, 1), 'long' => num(-85, 1)));
+						methods('lat' => num(39, 1), 'long' => num(-86, 1)));
 				} elsif($city eq 'INDIANAPOLIS') {
 				# } elsif($location->{'location'} =~ /^Indianapolis,/i) {
 					$found{'INDIANAPOLIS'}++;

@@ -1780,10 +1780,10 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	$inserts = 0;
 }
 
-$| = 1;
-printf "%-70s\r", 'creating cities';
-print "\n" if(DEBUG);
-$| = 0;
+# $| = 1;
+# printf "%-70s\r", 'creating cities';
+# print "\n" if(DEBUG);
+# $| = 0;
 # foreach my $key(keys %cities) {
 	# my ($city, $county, $state, $country) = split(/,/, $key);
 	# my $sequence = $cities{$key};
