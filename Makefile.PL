@@ -94,7 +94,7 @@ if(eval { require HTTP::Cache::Transparent; }) {
 	}
 
 	if(!-d $cachedir) {
-		print "Creating the download directory $cachedir\n";
+		print "Creating the cache directory $cachedir\n";
 		mkdir $cachedir || die "$cachedir: $@";
 	}
 	HTTP::Cache::Transparent::init({
@@ -121,18 +121,29 @@ if(eval { require LWP::Simple::WithCache; }) {
 
 foreach my $url(keys %urls) {
 	my $file = $urls{$url};
+	my $use_mirror = 0;
+
 	if(-r $file) {
-		# Don't bother downloading if the file is less than a week old
+		# Don't bother checking for a download if the file is less than a week old
 		next if(-M $file < 7);
+		# Only download if a newer version is available
+		$use_mirror = 1;
 	}
 
-	print "Downloading $url to $file\n";
-	if($use_withcache) {
-		if(LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::mirror($url, $file))) {
+	if($use_mirror) {
+		print "Downloading $url to $file if a newer version is available\n";
+		if($use_withcache &&
+		   LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::mirror($url, $file))) {
+			die "$url: LWP error $rc";
+		} elsif(LWP::Simple::is_error($rc = LWP::Simple::mirror($url, $file))) {
 			die "$url: LWP error $rc";
 		}
 	} else {
-		if(LWP::Simple::is_error(my $rc = LWP::Simple::mirror($url, $file))) {
+		print "Downloading $url to $file\n";
+		if($use_withcache &&
+		   LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::getstore($url, $file))) {
+			die "$url: LWP error $rc";
+		} elsif(LWP::Simple::is_error($rc = LWP::Simple::getstore($url, $file))) {
 			die "$url: LWP error $rc";
 		}
 	}
