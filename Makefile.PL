@@ -126,8 +126,12 @@ foreach my $url(keys %urls) {
 	if(-r $file) {
 		# Don't bother checking for a download if the file is less than a week old
 		next if(-M $file < 7);
-		# Only download if a newer version is available
-		$use_mirror = 1;
+		# I get errors with mirror with L:S:WithCache
+		#	that the temporary file is unavailable
+		if(!$use_withcache) {
+			# Only download if a newer version is available
+			$use_mirror = 1;
+		}
 	}
 
 	if($use_mirror) {
