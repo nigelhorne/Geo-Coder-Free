@@ -309,6 +309,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 		}, {
+			'LAT' => 39.102637,
+			'LON' => -76.456384,
+			'NUMBER' => 1559,
+			'STREET' => 'GUERDON CT',
+			'CITY' => 'PASADENA',
+			'COUNTY' => 'ANNE ARUNDEL',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21122
+		}, {
 			'NAME' => 'ADVENTIST HOSPITAL',
 			'LAT' => 39.049570,
 			'LON' => -76.956882,
