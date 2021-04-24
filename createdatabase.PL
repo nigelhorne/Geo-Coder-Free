@@ -178,6 +178,16 @@ my %known_places = (	# Places I've checked with my GPS
 		},
 	], 'us/md/statewide.csv' => [
 		{
+			'LAT' => 39.6852333333333,
+			'LON' => -76.6071166666667,
+			'NUMBER' => 7,
+			'STREET' => 'JORDAN MILL COURT',
+			'CITY' => 'WHITE HALL',
+			'COUNTY' => 'BALTIMORE',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21161
+		}, {
 			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
 			'LON' => -77.09943963,
