@@ -665,16 +665,15 @@ my %known_places = (	# Places I've checked with my GPS
 		}
 	], 'us/va/statewide.csv' => [
 		{
-			'LAT' => 44.40662476,
-			'LON' => -68.59610059,
-			'NAME' => 'THE PURE PASTY COMPANY',
-			'NUMBER' => '128C',
-			'STREET' => 'MAPLE AVE W',
-			'CITY' => 'VIENNA',
-			'COUNTY' => 'FAIRFAX',
+			'LAT' => 38.75422,
+			'LON' =>  -77.1058666666667,
+			'NAME' => 'HUNTLEY MEADOWS PARK',
+			'NUMBER' => 3701,
+			'STREET' => 'LOCKHEED BLVD',
+			'CITY' => 'ALEXANDRIA',
 			'STATE' => 'VA',
 			'COUNTRY' => 'US',
-			'POSTCODE' => 22180
+			'POSTCODE' => 22306
 		}, {
 			'LAT' => 38.873934,
 			'LON' => -77.461939,
@@ -696,6 +695,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'VA',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 22102
+		}, {
+			'LAT' => 44.40662476,
+			'LON' => -68.59610059,
+			'NAME' => 'THE PURE PASTY COMPANY',
+			'NUMBER' => '128C',
+			'STREET' => 'MAPLE AVE W',
+			'CITY' => 'VIENNA',
+			'COUNTY' => 'FAIRFAX',
+			'STATE' => 'VA',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 22180
 		}
 	], 'other' => [
 		{

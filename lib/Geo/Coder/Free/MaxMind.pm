@@ -455,7 +455,7 @@ sub geocode {
 		$confidence = 0.1;
 	}
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
-	# This case nonsense is because DBD::CSV changes the columns to lowercase, wherease DBD::SQLite does not
+	# This case nonsense is because DBD::CSV changes the columns to lowercase, whereas DBD::SQLite does not
 	# if(wantarray && (!$options->{'City'}) && !$region_only) {
 	if(0) {	# We don't need to find all the cities in a state, which is what this would do
 		# ::diag(__PACKAGE__, ': ', __LINE__);
