@@ -30,7 +30,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cpanm -iqn File::Spec ExtUtils::MakeMaker
-          cpanm -ivf --skip-satisfied LWP::Simple::WithCache
+          cpanm -iqf --skip-satisfied LWP::Simple::WithCache
           cpanm -iqn --skip-satisfied Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Carp Test::Pod::Coverage
           cpanm -iqn --skip-satisfied --installdeps --notest .
       - name: Run Tests
