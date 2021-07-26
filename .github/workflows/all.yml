@@ -29,7 +29,7 @@ jobs:
       - run: perl -V
       - name: Install Dependencies
         run: |
-          cpanm -i File::Spec ExtUtils::MakeMaker LWP::Simple::WithCache
+          cpanm -iv File::Spec ExtUtils::MakeMaker LWP::Simple::WithCache
           cpanm -iqn --skip-satisfied Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Carp Test::Pod::Coverage
           cpanm -iqn --skip-satisfied --installdeps --notest .
       - name: Run Tests
