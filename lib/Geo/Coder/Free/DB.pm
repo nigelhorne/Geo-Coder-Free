@@ -107,6 +107,8 @@ sub set_logger {
 	}
 
 	$self->{'logger'} = $args{'logger'};
+
+	return $self;
 }
 
 # Open the database.
