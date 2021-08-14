@@ -46,6 +46,7 @@ t/cities.t
 t/comment-spelling.t
 t/coverage.t
 t/critic.t
+t/eof.t
 t/eol.t
 t/fixme.t
 t/gv.t

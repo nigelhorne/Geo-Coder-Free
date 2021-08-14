@@ -329,7 +329,7 @@ sub _normalize($) {
 	$street = uc($street);
 	if($street =~ /(.+)\s+(.+)\s+(.+)/) {
 		my $a;
-		if((lc($2) ne 'cross') && ($a = $abbr->abbreviate($2))) {
+		if((lc($2) ne 'cross') && ($a = $abbreviations->abbreviate($2))) {
 			$street = "$1 $a $3";
 		} elsif($a = $abbreviations->abbreviate($3)) {
 			$street = "$1 $2 $a";
