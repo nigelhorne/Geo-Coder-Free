@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.30
+	Fix treating "30 Cross Street" as "30 X St"
+
 0.29	Thu Nov 26 14:19:56 EST 2020
 	Started work on importing data from OpenStreetMaps
 		using planet.osm.bz2 files in $OSM_HOME

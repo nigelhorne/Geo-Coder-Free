@@ -2103,7 +2103,7 @@ sub import {
 		$street = uc($street);
 		if($street =~ /(.+)\s+(.+)\s+(.+)/) {
 			my $a;
-			if($a = $abbr->abbreviate($2)) {
+			if((lc($2) ne 'cross') && ($a = $abbr->abbreviate($2))) {
 				$street = "$1 $a $3";
 			} elsif($a = $abbr->abbreviate($3)) {
 				$street = "$1 $2 $a";
