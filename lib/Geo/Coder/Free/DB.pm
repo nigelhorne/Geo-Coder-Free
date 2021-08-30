@@ -75,7 +75,7 @@ sub new {
 
 	return bless {
 		logger => $args{'logger'} || $logger,
-		directory => $args{'directory'} || $directory,	# The directory conainting the tables in XML, SQLite or CSV format
+		directory => $args{'directory'} || $directory,	# The directory containing the tables in XML, SQLite or CSV format
 		cache => $args{'cache'} || $cache,
 		table => $args{'table'},	# The name of the file containing the table, defaults to the class name
 		no_entry => $args{'no_entry'} || 0,
@@ -529,7 +529,7 @@ sub updated {
 	return $self->{'_updated'};
 }
 
-# Return the contents of an arbiratary column in the database which match the
+# Return the contents of an arbitrary column in the database which match the
 #	given criteria
 # Returns an array of the matches, or just the first entry when called in
 #	scalar context

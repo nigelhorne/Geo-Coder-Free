@@ -1299,7 +1299,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 					# print "Saved state = $state\n" if(DEBUG&DEBUG_ALL);
 				} else {
 					next if($region < 0);
-					print "Getting state from hierachy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
+					print "Getting state from hierarchy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
 					$state = get_wof($properties, $region);
 					if($state) {
 						print "\tGot $state\n" if(DEBUG&DEBUG_DETERMINE_LOCATION);
