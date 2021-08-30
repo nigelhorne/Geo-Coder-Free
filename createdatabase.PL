@@ -571,6 +571,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'DC',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20011
+		}, {
+			'LAT' => 38.904022,
+			'LON' => -77.023113,
+			'NAME' => 'WALTER E. WASHINGTON CONVENTION CENTER',
+			'NUMBER' => 801,
+			'STREET' => 'MT VERNON PL NW',
+			'CITY' => 'WASHINGTON',
+			'STATE' => 'DC',
+			'COUNTRY' => 'USA',
+			'POSTCODE' => 20001
 		}
 	], 'us/id/statewide.csv' => [
 		{
