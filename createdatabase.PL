@@ -246,6 +246,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 21043,
 		}, {
+			'LAT' => 39.683529,
+			'LON' => -77.349405,
+			'STREET' => 'ANNANDALE ROAD',
+			'CITY' => 'EMMITSBURG',
+			'COUNTY' => 'FREDERICK',
+			'STATE' => 'MD',
+			'COUNTRY' => 'USA',
+			'POSTCODE' => 21727
+		}, {
 			'NAME' => 'UTICA DISTRICT PARK',
 			'LAT' => 39.5167883333333,
 			'LON' => -77.4015166666667,
