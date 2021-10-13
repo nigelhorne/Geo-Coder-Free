@@ -7,6 +7,7 @@ use strict;
 use warnings;
 
 use CHI;
+use DBI;
 use Error;
 use Log::Any::Adapter;
 
