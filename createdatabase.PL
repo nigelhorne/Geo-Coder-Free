@@ -725,6 +725,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'VA',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 22180
+		}, {
+			'LAT' => 38.25075,
+			'LON' => -76.9602533333333,
+			'STREET' => '',
+			'CITY' => 'COLONIAL BEACH',
+			'COUNTY' => 'WESTMORELAND',
+			'STATE' => 'VA',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 22443
 		}
 	], 'other' => [
 		{
