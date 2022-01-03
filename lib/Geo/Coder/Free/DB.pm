@@ -1,7 +1,7 @@
 package Geo::Coder::Free::DB;
 
 # Author Nigel Horne: njh@bandsman.co.uk
-# Copyright (C) 2015-2021, Nigel Horne
+# Copyright (C) 2015-2022, Nigel Horne
 
 # Usage is subject to licence terms.
 # The licence terms of this software are as follows:
@@ -67,10 +67,10 @@ sub new {
 	my $class = ref($proto) || $proto;
 
 	if($class eq __PACKAGE__) {
-		die "$class: abstract class";
+		croak("$class: abstract class");
 	}
 
-	die "$class: where are the files?" unless($directory || $args{'directory'});
+	croak("$class: where are the files?") unless($directory || $args{'directory'});
 	# init(\%args);
 
 	return bless {
