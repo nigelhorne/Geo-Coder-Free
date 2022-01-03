@@ -1,15 +1,20 @@
+---
 version: 1.0.{build}
 
 image:
   - Visual Studio 2015
-  - Ubuntu
+  - Visual Studio 2017
+  - Visual Studio 2019
+  - ubuntu1604
   - ubuntu1804
+  - Ubuntu
 
 environment:
   PERL5LIB: /home/appveyor/perl5/lib/perl5
   AUTOMATED_TESTING: 1
   # TEST_VERBOSE: 1
   DEBIAN_FRONTEND: noninteractive
+  PERL_MM_USE_DEFAULT: 1
 
 platform: x64
 
@@ -23,7 +28,7 @@ install:
   - cmd: if not exist "C:\strawberry" cinst StrawberryPerl --allow-empty-checksums
   - cmd: path C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;C:\strawberry\c\bin;%PATH%
   # - cmd: cd C:\projects\%APPVEYOR_PROJECT_NAME%
-  - sh: sudo apt-get update -q
+  - sh: sudo apt-get update -q -y
   - sh: sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y --force-yes build-essential git libssl-dev perl
   - sh: sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
   - sh: export PATH=/home/appveyor/perl5/bin:$PATH
@@ -34,11 +39,12 @@ install:
   - sh: sudo apt-get install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
   - cpanm -iqn LWP::Simple::WithCache
   - cpanm -iqnf DBIx::TableLoader
-  - sh: cpanm -iqn Text::xSV::Slurp CGI::Lingua
-  - cmd: cpanm -iqn Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO CGI::Lingua
-  - cpanm -qn --installdeps .
+  - sh: cpanm -iqn Text::xSV::Slurp
+  - cmd: cpanm -iqn Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO
+  - cpanm -iqn CGI::Lingua
+  - cpanm -qin --skip-satisfied --installdeps .
   - cmd: cpanm -iqn CHI
-  - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -n
+  - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -qin --skip-satisfied
   - cmd: 'echo End install at: & time /t'
 
 build_script:
