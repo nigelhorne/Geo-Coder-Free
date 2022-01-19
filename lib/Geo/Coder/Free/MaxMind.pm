@@ -95,7 +95,7 @@ Here's the method to find the location of Sittingbourne, Kent, England:
    Note that GB has counties
    A typical line is:
     GB.ENG.G5	Kent	Kent	3333158
-   So a look up of 'Kent' with a contacatenated code to start with 'GB.ENG' will code the region G5 for use in cities.sql
+   So a look up of 'Kent' with a concatenated code to start with 'GB.ENG' will code the region G5 for use in cities.sql
 3) cities.sql contains the latitude and longitude of the place we want, so a search for 'sittingbourne' in
    region 'g5' will give
      gb,sittingbourne,Sittingbourne,G5,41148,51.333333,.75

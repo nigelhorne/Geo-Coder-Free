@@ -37,3 +37,4 @@ jobs:
         run: prove -l -b t
         env:
           AUTHOR_TESTING: 1
+          TEST_VERBOSE: 1
