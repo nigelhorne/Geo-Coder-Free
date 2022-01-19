@@ -253,8 +253,10 @@ sub geocode {
 
 		# Hack to find "name, street, town, state, US"
 		my @addr = split(/,\s*/, $location);
+		# ::diag(__PACKAGE__, ': ', __LINE__, ' ', scalar(@addr));
 		if(scalar(@addr) == 5) {
 			# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
+			# ::diag(Data::Dumper->new([\@addr])->Dump());
 			my $state = $addr[3];
 			if(length($state) > 2) {
 				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
@@ -263,16 +265,39 @@ sub geocode {
 			}
 			if(length($state) == 2) {
 				my %addr = (
-					number => $addr[0],
-					road => $addr[1],
 					city => $addr[2],
 					state => $state,
 					country => 'US'
 				);
-				if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
-					# ::diag(Data::Dumper->new([$rc])->Dump());
-					$rc->{'country'} = 'US';
-					return $rc;
+				# ::diag(__PACKAGE__, ': ', __LINE__);
+				if($addr[0] !~ /^\d/) {
+					# ::diag(__PACKAGE__, ': ', __LINE__);
+					$addr{'name'} = $addr[0];
+					if($addr[1] =~ /^(\d+)\s+(.+)/) {
+						# ::diag(__PACKAGE__, ': ', __LINE__);
+						$addr{'number'} = $1;
+						$addr{'road'} = Geo::Coder::Free::_normalize($2);
+						if(my $rc = $self->_search(\%addr, ('name', 'number', 'road', 'city', 'state', 'country'))) {
+							# ::diag(Data::Dumper->new([$rc])->Dump());
+							$rc->{'country'} = 'US';
+							return $rc;
+						}
+					} else {
+						$addr{'road'} = Geo::Coder::Free::_normalize($addr[1]);
+						if(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
+							# ::diag(Data::Dumper->new([$rc])->Dump());
+							$rc->{'country'} = 'US';
+							return $rc;
+						}
+					}
+				} else {
+					$addr{'number'} = $addr[0];
+					$addr{'road'} = Geo::Coder::Free::_normalize($addr[1]);
+					if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
+						# ::diag(Data::Dumper->new([$rc])->Dump());
+						$rc->{'country'} = 'US';
+						return $rc;
+					}
 				}
 			}
 		}
@@ -401,7 +426,7 @@ sub _search {
 	# FIXME: linear search is slow
 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@columns, $data])->Dump());
 	# print Data::Dumper->new([\@columns, $data])->Dump();
-	# my @call_details = caller(0);
+	my @call_details = caller(0);
 	# ::diag(__LINE__, ': called from ', $call_details[2]);
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
@@ -546,7 +571,7 @@ it under the same terms as Perl itself.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2020 Nigel Horne.
+Copyright 2020-2022 Nigel Horne.
 
 The program code is released under the following licence: GPL2 for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
@@ -573,8 +598,9 @@ __DATA__
 "",,"WESTCLIFF PROMENADE","RAMSGATE",,"KENT","GB",51.32711,1.406806
 "TOWER OF LONDON",35,"TOWER HILL","LONDON",,"LONDON","GB",51.5082675,-0.0754225
 "",5350,"CHILLUM PLACE NE","WASHINGTON",,"DC","US",38.955403,-76.996241
-"WALTER E. WASHINGTON CONVENTION CENTER",801,"MT VERNON PL NW","WASHINGTON","","DC","USA",38.904022,-77.023113
+"WALTER E. WASHINGTON CONVENTION CENTER",801,"MT VERNON PL NW","WASHINGTON","","DC","US",38.904022,-77.023113
 "",7,"JORDAN MILL COURT","WHITE HALL","BALTIMORE","MD","US",39.6852333333333,-76.6071166666667
+"ALL SAINTS EPISCOPAL CHURCH",203,"E CHATSWORTH RD","REISTERSTOWN","BALTIMORE","MD","US",39.467270,-76.823947
 "NCBI",,"MEDLARS DR","BETHESDA","MONTGOMERY","MD","US",38.99516556,-77.09943963
 "",,"CENTER DR","BETHESDA","MONTGOMERY","MD","US",38.99698114,-77.10031119
 "",,"NORFOLK AVE","BETHESDA","MONTGOMERY","MD","US",38.98939358,-77.09819543
@@ -582,7 +608,7 @@ __DATA__
 "THE ATRIUM AT ROCK SPRING PARK",6555,"ROCKLEDGE DR","BETHESDA","MONTGOMERY","MD","US",39.028326,-77.136774
 "","","MOUTH OF MONOCACY RD","DICKERSON","MONTGOMERY","MD","US",39.2244603797302,-77.449615439877
 "PATAPSCO VALLEY STATE PARK'",8020,"BALTIMORE NATIONAL PK","ELLICOTT CITY","HOWARD","MD","US",39.29491,-76.78051
-"",,"ANNANDALE ROAD","EMMITSBURG","FREDERICK","MD","USA",39.683529,-77.349405
+"",,"ANNANDALE RD","EMMITSBURG","FREDERICK","MD","US",39.683529,-77.349405
 "UTICA DISTRICT PARK",,,"FREDERICK","FREDERICK","MD","US",39.5167883333333,-77.4015166666667
 "ALBERT EINSTEIN HIGH SCHOOL",11135,"NEWPORT MILL RD","KENSINGTON","MONTGOMERY","MD","US",39.03869019,-77.0682871
 "POST OFFICE",10325,"KENSINGTON PKWY","KENSINGTON","MONTGOMERY","MD","US",39.02554455,-77.07178215

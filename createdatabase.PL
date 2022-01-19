@@ -2,6 +2,12 @@
 
 # Import geo-coding data into an SQLite database.
 
+# Copyright 2020-2022 Nigel Horne.
+
+# The program code is released under the following licence: GPL2 for personal use on a single computer.
+# All other users (including Commercial, Charity, Educational, Government)
+# must apply in writing for a licence for use from Nigel Horne at <njh at nigelhorne.com>.
+
 # Set OSM_HOME, OPENADDR_HOME, DR5HN_HOME and WHOSONFIRST_HOME to the directories where the data will be downloaded
 
 # see bin/download_databases which will download the databases and call this script
@@ -178,6 +184,17 @@ my %known_places = (	# Places I've checked with my GPS
 		},
 	], 'us/md/statewide.csv' => [
 		{
+			'LAT' => 39.467270,
+			'LON' => -76.823947,
+			'NAME' => 'ALL SAINTS EPISCOPAL CHURCH',
+			'NUMBER' => 203,
+			'STREET' => 'E CHATSWORTH RD',
+			'CITY' => 'REISTERSTOWN',
+			'COUNTY' => 'BALTIMORE',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21136
+		}, {
 			'LAT' => 39.6852333333333,
 			'LON' => -76.6071166666667,
 			'NUMBER' => 7,
@@ -248,11 +265,11 @@ my %known_places = (	# Places I've checked with my GPS
 		}, {
 			'LAT' => 39.683529,
 			'LON' => -77.349405,
-			'STREET' => 'ANNANDALE ROAD',
+			'STREET' => 'ANNANDALE RD',
 			'CITY' => 'EMMITSBURG',
 			'COUNTY' => 'FREDERICK',
 			'STATE' => 'MD',
-			'COUNTRY' => 'USA',
+			'COUNTRY' => 'US',
 			'POSTCODE' => 21727
 		}, {
 			'NAME' => 'UTICA DISTRICT PARK',
@@ -588,7 +605,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'STREET' => 'MT VERNON PL NW',
 			'CITY' => 'WASHINGTON',
 			'STATE' => 'DC',
-			'COUNTRY' => 'USA',
+			'COUNTRY' => 'US',
 			'POSTCODE' => 20001
 		}
 	], 'us/id/statewide.csv' => [

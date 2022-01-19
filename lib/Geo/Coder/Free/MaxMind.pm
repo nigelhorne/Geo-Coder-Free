@@ -7,7 +7,7 @@ package Geo::Coder::Free::MaxMind;
 
 # FIXME: If you search for something like "Sheppy, Kent, England" in list
 #	context, it returns them all.  That's a lot! Should limit to, say
-#	10 results (that number should be tunable, and be a LIMIT in DB.pm)
+#	10 results (that number should be tuneable, and be a LIMIT in DB.pm)
 #	And as the correct spelling in Sheppey, arguably it should return nothing
 
 use strict;
@@ -677,13 +677,13 @@ The GeoNames admin databases are in this class, they should be in Geo::Coder::Ge
 The data at
 L<https://github.com/apache/commons-csv/blob/master/src/test/resources/org/apache/commons/csv/perf/worldcitiespop.txt.gz?raw=true>
 are 7 years out of date,
-and are unconsistent with the Geonames database.
+and are inconsistent with the Geonames database.
 
 If you search for something like "Sheppy, Kent, England" in list context,
 it returns them all.
 That's a lot!
 It should limit to,
-say 10 results (that number should be tunable, and be a LIMIT in DB.pm),
+say 10 results (that number should be tuneable, and be a LIMIT in DB.pm),
 and as the correct spelling in Sheppey, arguably it should return nothing.
 
 =head1 SEE ALSO
@@ -692,7 +692,7 @@ VWF, MaxMind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2020 Nigel Horne.
+Copyright 2017-2022 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
