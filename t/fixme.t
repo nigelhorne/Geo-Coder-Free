@@ -13,7 +13,8 @@ if($ENV{AUTHOR_TESTING}) {
 
 	eval 'use Devel::FIXME';
 	if($@) {
-		plan(skip_all => 'Devel::FIXME not installed');
+		diag('Devel::FIXME needed to test for FIXMEs');
+		done_testing(1);
 	} else {
 		# $Devel::FIXME::REPAIR_INC = 1;
 

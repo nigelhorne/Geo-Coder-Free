@@ -236,7 +236,7 @@ MAXMIND: {
 					memory_cycle_ok($geo_coder);
 				}
 			} else {
-				diag(DATABASE, ' is missing', 102);
+				diag(DATABASE, ' is missing');
 				skip(DATABASE . ' is missing', 102);
 			}
 		} else {
