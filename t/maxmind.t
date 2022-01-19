@@ -12,6 +12,8 @@ use MyLogger;
 
 sub check($$$$);
 
+use constant	DATABASE => 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql';
+
 BEGIN {
 	use_ok('Geo::Coder::Free');
 }
@@ -19,7 +21,7 @@ BEGIN {
 MAXMIND: {
 	SKIP: {
 		if($ENV{AUTHOR_TESTING}) {
-			if(-f 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz') {
+			if(-f DATABASE) {
 				delete $ENV{'OPENADDR_HOME'};
 				delete $ENV{'WHOSONFIRST_HOME'};
 				diag('This may take some time and consume a lot of memory if the database is not SQLite');
@@ -234,7 +236,8 @@ MAXMIND: {
 					memory_cycle_ok($geo_coder);
 				}
 			} else {
-				diag('lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz is missing', 102);
+				diag(DATABASE, ' is missing', 102);
+				skip(DATABASE . ' is missing', 102);
 			}
 		} else {
 			diag('Author tests not required for installation');
