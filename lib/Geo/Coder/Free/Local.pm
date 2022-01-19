@@ -426,7 +426,7 @@ sub _search {
 	# FIXME: linear search is slow
 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@columns, $data])->Dump());
 	# print Data::Dumper->new([\@columns, $data])->Dump();
-	my @call_details = caller(0);
+	# my @call_details = caller(0);
 	# ::diag(__LINE__, ': called from ', $call_details[2]);
 	foreach my $row(@{$self->{'data'}}) {
 		my $match = 1;
