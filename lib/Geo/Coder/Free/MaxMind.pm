@@ -457,79 +457,79 @@ sub geocode {
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, whereas DBD::SQLite does not
 	# if(wantarray && (!$options->{'City'}) && !$region_only) {
-	if(0) {	# We don't need to find all the cities in a state, which is what this would do
-		# ::diag(__PACKAGE__, ': ', __LINE__);
-		my @rc = $self->{'cities'}->selectall_hash($options);
-		if(scalar(@rc) == 0) {
-			if((!defined($region)) && !defined($param{'region'})) {
-				# Add code for this area to Makefile.PL and rebuild
-				Carp::carp(__PACKAGE__, ": didn't determine region from $location");
-				return;
-			}
-			# This would return all of the cities in the wrong region
-			if($countrycode) {
-				@rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}), 'Country' => $countrycode);
-				if(scalar(@rc) == 0) {
-					# ::diag(__PACKAGE__, ': ', __LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
-					return;
-				}
-			}
-			# ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
-		}
-	 	# ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
-		foreach my $city(@rc) {
-			if($city->{'Latitude'}) {
-				$city->{'latitude'} = delete $city->{'Latitude'};
-				$city->{'longitude'} = delete $city->{'Longitude'};
-			}
-			if($city->{'Country'}) {
-				$city->{'country'} = uc(delete $city->{'Country'});
-			}
-			if($city->{'Region'}) {
-				$city->{'state'} = uc(delete $city->{'Region'});
-			}
-			if($city->{'City'}) {
-				$city->{'city'} = uc(delete $city->{'AccentCity'});
-				delete $city->{'City'};
-				# Less likely to get false positives with long words
-				if(length($city->{'city'}) > 10) {
-					if($confidence <= 0.8) {
-						$confidence += 0.2;
-					} else {
-						$confidence = 1.0;
-					}
-				}
-			}
-			$city->{'confidence'} = $confidence;
-			my $l = $options->{'City'};
-			if($options->{'Region'}) {
-				$l .= ', ' . $options->{'Region'};
-			}
-			if($options->{'Country'}) {
-				$l .= ', ' . ucfirst($options->{'Country'});
-			}
-			$city->{'location'} = $l;
-		}
-		# return @rc;
-		my @locations;
-
-		foreach my $l(@rc) {
-			if(exists($l->{'latitude'})) {
-				push @locations, Geo::Location::Point->new({
-					'lat' => $l->{'latitude'},
-					'long' => $l->{'longitude'},
-					'location' => $location,
-					'database' => 'MaxMind',
-					'maxmind' => $l,
-				});
-			# } else {
-				# Carp::carp(__PACKAGE__, ": $location has latitude of 0");
+	# if(0) {	# We don't need to find all the cities in a state, which is what this would do
+		# # ::diag(__PACKAGE__, ': ', __LINE__);
+		# my @rc = $self->{'cities'}->selectall_hash($options);
+		# if(scalar(@rc) == 0) {
+			# if((!defined($region)) && !defined($param{'region'})) {
+				# # Add code for this area to Makefile.PL and rebuild
+				# Carp::carp(__PACKAGE__, ": didn't determine region from $location");
 				# return;
-			}
-		}
-
-		return @locations;
-	}
+			# }
+			# # This would return all of the cities in the wrong region
+			# if($countrycode) {
+				# @rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}), 'Country' => $countrycode);
+				# if(scalar(@rc) == 0) {
+					# # ::diag(__PACKAGE__, ': ', __LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
+					# return;
+				# }
+			# }
+			# # ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
+		# }
+	 	# # ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
+		# foreach my $city(@rc) {
+			# if($city->{'Latitude'}) {
+				# $city->{'latitude'} = delete $city->{'Latitude'};
+				# $city->{'longitude'} = delete $city->{'Longitude'};
+			# }
+			# if($city->{'Country'}) {
+				# $city->{'country'} = uc(delete $city->{'Country'});
+			# }
+			# if($city->{'Region'}) {
+				# $city->{'state'} = uc(delete $city->{'Region'});
+			# }
+			# if($city->{'City'}) {
+				# $city->{'city'} = uc(delete $city->{'AccentCity'});
+				# delete $city->{'City'};
+				# # Less likely to get false positives with long words
+				# if(length($city->{'city'}) > 10) {
+					# if($confidence <= 0.8) {
+						# $confidence += 0.2;
+					# } else {
+						# $confidence = 1.0;
+					# }
+				# }
+			# }
+			# $city->{'confidence'} = $confidence;
+			# my $l = $options->{'City'};
+			# if($options->{'Region'}) {
+				# $l .= ', ' . $options->{'Region'};
+			# }
+			# if($options->{'Country'}) {
+				# $l .= ', ' . ucfirst($options->{'Country'});
+			# }
+			# $city->{'location'} = $l;
+		# }
+		# # return @rc;
+		# my @locations;
+		# 
+		# foreach my $l(@rc) {
+			# if(exists($l->{'latitude'})) {
+				# push @locations, Geo::Location::Point->new({
+					# 'lat' => $l->{'latitude'},
+					# 'long' => $l->{'longitude'},
+					# 'location' => $location,
+					# 'database' => 'MaxMind',
+					# 'maxmind' => $l,
+				# });
+			# # } else {
+				# # Carp::carp(__PACKAGE__, ": $location has latitude of 0");
+				# # return;
+			# }
+		# }
+		# 
+		# return @locations;
+	# }
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {

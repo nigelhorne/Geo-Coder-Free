@@ -17,11 +17,8 @@ if($ENV{AUTHOR_TESTING} ) {
 }
 
 __DATA__
-cgi
-dir
-ENV
-getpairs
-NetBSD
-paramref
-Solaris
+GPL
+memcache
+Rockville
 TODO
+VWF
