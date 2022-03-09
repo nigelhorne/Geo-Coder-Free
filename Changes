@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.30
+0.30	Wed Mar  9 09:47:33 EST 2022
 	Fix treating "30 Cross Street" as "30 X St"
 	Latest DB.pm from VWF
 	Improved handling of house numbers in Local.pm

@@ -229,8 +229,7 @@ WriteMakefile(
 		'LWP::UserAgent::Throttled' => 0,
 		'Try::Tiny' => 0,
 		'XML::LibXML::Reader' => 0,	# FIXME: only if $OSM_HOME is set
-	},
-	TEST_REQUIRES => $test_requires,
+	}, TEST_REQUIRES => $test_requires,
 	PREREQ_PM => {
 		'Carp' => 0,
 		'DBI' => 0,
