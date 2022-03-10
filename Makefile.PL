@@ -146,8 +146,16 @@ foreach my $url(keys %urls) {
 		print "Downloading $url to $file\n";
 		if($use_withcache &&
 		   LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::getstore($url, $file))) {
+			if($ENV{'AUTOMATED_TESTING'}) {
+				print STDERR "Can't download $url";
+				exit(0);
+			}
 			die "$url: LWP error $rc";
 		} elsif(LWP::Simple::is_error($rc = LWP::Simple::getstore($url, $file))) {
+			if($ENV{'AUTOMATED_TESTING'}) {
+				print STDERR "Can't download $url";
+				exit(0);
+			}
 			die "$url: LWP error $rc";
 		}
 	}
@@ -227,6 +235,7 @@ WriteMakefile(
 		'IPC::System::Simple' => 0,
 		'JSON' => 0,
 		'LWP::UserAgent::Throttled' => 0,
+		'LWP::Protocol::https' => 0,
 		'Try::Tiny' => 0,
 		'XML::LibXML::Reader' => 0,	# FIXME: only if $OSM_HOME is set
 	}, TEST_REQUIRES => $test_requires,
