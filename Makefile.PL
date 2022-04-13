@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+# yum install libaio-devel
+
 use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
