@@ -1925,6 +1925,7 @@ print "\n" if(DEBUG);
 $| = 0;
 if($dbh) {
 	$dbh->commit();
+	$dbh->do('pragma optimize');
 	$dbh->disconnect();
 }
 if($redis) {
