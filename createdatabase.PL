@@ -13,8 +13,11 @@
 # see bin/download_databases which will download the databases and call this script
 
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
-#	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global.zip
-#	/usr/bin/wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
+#	wget --quiet https://data.openaddresses.io/openaddr-collected-global.zip
+#	wget --quiet https://data.openaddresses.io/openaddr-collected-global-sa.zip
+# or
+#	wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global.zip
+#	wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
 
 #	Remove all the data you're not going to use, I only keep au, ca, us
 
