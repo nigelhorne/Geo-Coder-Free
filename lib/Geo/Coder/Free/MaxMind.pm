@@ -512,7 +512,7 @@ sub geocode {
 		# }
 		# # return @rc;
 		# my @locations;
-		# 
+		#
 		# foreach my $l(@rc) {
 			# if(exists($l->{'latitude'})) {
 				# push @locations, Geo::Location::Point->new({
@@ -527,7 +527,7 @@ sub geocode {
 				# # return;
 			# }
 		# }
-		# 
+		#
 		# return @locations;
 	# }
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
