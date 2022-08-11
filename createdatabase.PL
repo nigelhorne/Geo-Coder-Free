@@ -941,7 +941,7 @@ if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
 
 my $oa = $ENV{'OPENADDR_HOME'};
 
-exit(0) if(!defined($oa));
+exit(0) if((!defined($oa)) || (length($oa) == 0));
 
 $Data::Dumper::Sortkeys = 1;
 
