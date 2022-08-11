@@ -13,13 +13,17 @@
 # see bin/download_databases which will download the databases and call this script
 
 # Download the OPENADDR_HOME data from http://results.openaddresses.io.
+#	cd $OPENADDR_HOME
 #	wget --quiet https://data.openaddresses.io/openaddr-collected-global.zip
 #	wget --quiet https://data.openaddresses.io/openaddr-collected-global-sa.zip
 # or
 #	wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global.zip
 #	wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
-
-#	Remove all the data you're not going to use, I only keep au, ca, us
+# Remove all the data you're not going to use, I only keep au, ca, us
+#	unzip openaddr-collected-global.zip
+#	unzip openaddr-collected-global-sa.zip
+#	echo ?? | sed 's/ /\n/g' | egrep -v '(au|ca|us)' | xargs rm -rf
+#	rm -rf summary
 
 # Download the WHOSONFIRST_HOME data from repositories such as
 #	https://github.com/whosonfirst-data/whosonfirst-data-venue-us.git
