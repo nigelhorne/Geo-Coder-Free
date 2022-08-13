@@ -86,7 +86,7 @@ OPENADDR: {
 				$location = $geo_coder->geocode(location => 'Edmonton, Alberta, Canada');
 				ok(defined($location));
 				cmp_deeply($location,
-					methods('lat' => num(53.5, 1e-1), 'long' => num(-113.4, 1e-1)));
+					methods('lat' => num(53.5, 1e-1), 'long' => num(-113.4, 1)));
 
 				$location = $geo_coder->geocode('London, England');
 				TODO: {
