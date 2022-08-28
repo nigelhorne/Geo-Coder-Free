@@ -415,9 +415,9 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20902,
 		}, {
+			'NAME' => 'LA CASITA PUPESERIA AND MARKET',
 			'LAT' => 38.993369,
 			'LON' => -77.009501,
-			'NAME' => 'LA CASITA PUPESERIA AND MARKET',
 			'NUMBER' => 8214,
 			'STREET' => 'PINEY BRANCH RD',
 			'CITY' => 'SILVER SPRING',
@@ -425,6 +425,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20910,
+		}, {
+			'LAT' => 38.991667,
+			'LON' => -77.030473,
+			'NAME' => 'NOAA LIBRARY',
+			'NUMBER' => 1315,
+			'STREET' => 'EAST-WEST HIGHWAY',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'USA',
+			'POSTCODE' => 20910
 		}, {
 			'NAME' => 'SNIDERS',
 			'LAT' => 39.0088797,
