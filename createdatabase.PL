@@ -434,7 +434,7 @@ my %known_places = (	# Places I've checked with my GPS
 			'CITY' => 'SILVER SPRING',
 			'COUNTY' => 'MONTGOMERY',
 			'STATE' => 'MD',
-			'COUNTRY' => 'USA',
+			'COUNTRY' => 'US',
 			'POSTCODE' => 20910
 		}, {
 			'NAME' => 'SNIDERS',
@@ -551,6 +551,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20852
+		}, {
+			'LAT' => 38.996764,
+			'LON' => -76.849323,
+			'NAME' => 'NASA',
+			'STREET' => '',
+			'CITY' => 'GREENBELT',
+			'COUNTY' => 'PRINCE GEORGES',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20771
 		}, {
 			'LAT' => 39.190009,
 			'LON' => -76.841152,
