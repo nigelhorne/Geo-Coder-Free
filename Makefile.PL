@@ -243,7 +243,7 @@ WriteMakefile(
 		'Geo::Location::Point' => 0.02,
 		'IO::AIO' => 0,
 		'IPC::System::Simple' => 0,
-		'JSON' => 0,
+		'JSON::MaybeXS' => 0,
 		'LWP::UserAgent::Throttled' => 0,
 		'LWP::Protocol::https' => 0,
 		'Try::Tiny' => 0,
