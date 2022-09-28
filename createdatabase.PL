@@ -213,6 +213,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 21161
 		}, {
+			'LAT' => 39.633018,
+			'LON' => -76.272558,
+			'NAME' => 'BALLPARK RESTAURANT',
+			'NUMBER' => 3418,
+			'STREET' => 'CONOWINGO RD',
+			'CITY' => 'DUBLIN',
+			'COUNTY' => 'HARFORD',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21154
+		}, {
 			'NAME' => 'NCBI',
 			'LAT' => 38.99516556,
 			'LON' => -77.09943963,
