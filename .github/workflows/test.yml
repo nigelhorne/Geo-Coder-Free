@@ -1,4 +1,7 @@
 ---
+# See https://github.com/actions/virtual-environments
+
+name: Test Code
 on:
   push:
     branches:
@@ -14,11 +17,12 @@ jobs:
       matrix:
         os:
           - macos-latest
-          - ubuntu-18.04
+          - macos-11
+          - ubuntu-latest
           - ubuntu-20.04
+          - windows-latest
           - windows-2019
-          - windows-2016
-        perl: ['5.34', '5.32', '5.30', '5.28', '5.22']
+        perl: ['5.36', '5.34', '5.32', '5.30', '5.28', '5.22']
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
