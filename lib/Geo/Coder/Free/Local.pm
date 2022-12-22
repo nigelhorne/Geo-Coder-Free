@@ -65,7 +65,7 @@ sub new {
 	# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
 	return unless($class);
 
-	bless {
+	return bless {
 		data => xsv_slurp(
 			shape => 'aoh',
 			text_csv => {
@@ -313,6 +313,8 @@ sub geocode {
 			$libpostal_is_installed = LIBPOSTAL_NOT_INSTALLED;
 		}
 	}
+
+	# ::diag(__PACKAGE__, ': ', __LINE__, ": libpostal_is_installed = $libpostal_is_installed");
 
 	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
 		if($addr{'house_number'} && !$addr{'number'}) {
@@ -581,7 +583,7 @@ must apply in writing for a licence for use from Nigel Horne at `<njh at nigelho
 
 1;
 
-# Ensure you use abbreviations, e.e. RD not ROAD
+# Ensure you use abbreviations, e.g. RD not ROAD
 __DATA__
 "name","number","road","city","state_district","state","country","latitude","longitude"
 "ST ANDREWS CHURCH",,"CHURCH HILL","EARLS COLNE",,"ESSEX","GB",51.926793,0.70408
@@ -646,7 +648,7 @@ __DATA__
 "",898,"SOUTH GREENSFERRY RD","COUER D'ALENE","KOOTENAI","ID","US",47.69556,-116.91564
 "",,"DOUGLAS AVE","FORT WAYNE","ALLEN","IN","US",41.074247,-85.138531
 "JOHN GLENN AIRPORT",4600,,"COLUMBUS","FRANKLIN","OH","US",39.997959,-82.88132
-"MIDDLE RIDGE PLAZA",,,"AMHERST","LOHRAIN","OH","US,41.379695,-82.222877
+"MIDDLE RIDGE PLAZA",,,"AMHERST","LOHRAIN","OH","US",41.379695,-82.222877
 "RESIDENCE INN BY MARRIOTT",6364,"FRANTZ RD","DUBLIN",,"OH","US",40.097097,-83.123745
 "TOWPATH TRAVEL PLAZA",,,"BROADVIEW HEIGHTS","CUYAHOGA","OH","US",41.291654,-81.675815
 "NEW STANTON SERVICE PLAZA",,,"HEMPFIELD",,"PA","US",40.206267,-79.565682
