@@ -1,5 +1,11 @@
 package Geo::Coder::Free::DB;
 
+=head1
+
+Geo::Coder::Free::DB
+
+=cut
+
 # Author Nigel Horne: njh@bandsman.co.uk
 # Copyright (C) 2015-2022, Nigel Horne
 
@@ -365,6 +371,9 @@ sub selectall_hash {
 	}
 	if(!$self->{no_entry}) {
 		$query .= ' ORDER BY entry';
+	}
+	if(!wantarray) {
+		$query .= ' LIMIT 1';
 	}
 	if($self->{'logger'}) {
 		if(defined($query_args[0])) {
