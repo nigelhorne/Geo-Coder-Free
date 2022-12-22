@@ -73,6 +73,9 @@ t/unused.t
 t/used.t
 t/vars.t
 t/whosonfirst.t
+templates/default/Geo/Coder/Free/Display/index.tmpl
+templates/default/Geo/Coder/Free/Display/query.txt
+templates/fr/Geo/Coder/Free/Display/index.tmpl
 templates/Geo/Coder/Free/Display/index.tmpl
 templates/Geo/Coder/Free/Display/query.txt
 typhoon/openaddresses.ddl
