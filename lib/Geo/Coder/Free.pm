@@ -484,6 +484,6 @@ See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.m
 # See also lib/Geo/Coder/Free/Local.pm
 __DATA__
 St Lawrence, Thanet, Kent = Ramsgate, Kent
-St Peters, Thanet, Kent = St Peters, Kent
+St Peters, Thanet, Kent = Broadstairs, Kent
 Minster, Thanet, Kent = Ramsgate, Kent
 Tyne and Wear = Borough of North Tyneside
