@@ -177,9 +177,10 @@ if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
 	system("unzip $zip");
 	rename 'allCountries.txt', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
 	# Save disc space, but prevent more than one download
-	if(open(my $fout, '>', $zip)) {
-		close($fout);
-	}
+	# if(open(my $fout, '>', $zip)) {
+		# close($fout);
+	# }
+	truncate $zip, 0;
 }
 
 # London's areas are not complete within Maxmind.  Here are a few to get started

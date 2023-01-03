@@ -2,6 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.31
 	Use JSON::MaybeXS instead of JSON
+	Fix truncate
 
 0.30	Wed Mar  9 09:47:33 EST 2022
 	Fix treating "30 Cross Street" as "30 X St"
