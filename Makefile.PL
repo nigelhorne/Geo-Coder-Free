@@ -27,7 +27,8 @@ BEGIN {
 			die "You need $list to test this package";
 		}
 		print "Installing $list\n";
-		system("cpan -i $list");
+		# system("cpan -i $list");
+		system('perl -MCPAN -e \'CPAN::Shell->install("' . join('", "', @needfull) . '")\'');
 	}
 }
 
