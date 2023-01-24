@@ -1,7 +1,7 @@
 ---
 # See https://github.com/actions/virtual-environments
 
-name: Test Code
+name: Test Code on OS/X
 on:
   push:
     branches:
@@ -16,15 +16,13 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-latest
-          - ubuntu-latest
-          - ubuntu-20.04
-          - windows-latest
-          - windows-2019
+          - macos-12
+          - macos-11
         perl: ['5.36', '5.34', '5.32', '5.30', '5.28', '5.22']
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v1
+      - uses: codecov/codecov-action@v2
       - name: Setup perl
         uses: shogo82148/actions-setup-perl@v1
         with:
@@ -37,6 +35,13 @@ jobs:
           cpanm -iqn --skip-satisfied Test::Pod::Spelling::CommonMistakes Test::Portability::Files Test::Carp Test::Pod::Coverage
           cpanm -iqn --skip-satisfied --installdeps --notest .
       - name: Run Tests
-        run: prove -l -b t
+        run: |
+          cover -test
+          cover -report codecov
+          curl -Os https://uploader.codecov.io/latest/macos/codecov
+          chmod +x codecov
+          ./codecov -t ${{ secrets.CODECOV_TOKEN }}
+        shell: bash
         env:
           AUTHOR_TESTING: 1
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
