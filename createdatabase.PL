@@ -984,8 +984,8 @@ if(!-r $cities_sql) {
 
 exit(0) if($ENV{'AUTOMATED_TESTING'});
 
-if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
-	print "Consider downloading http://download.geonames.org/export/dump/allCountries.zip to lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt\n";
+if(!(-r 'downloads/allCountries.txt')) {
+	print "Consider downloading http://download.geonames.org/export/dump/allCountries.zip to downloads/allCountries.txt\n";
 }
 
 my $oa = $ENV{'OPENADDR_HOME'};
@@ -1157,10 +1157,10 @@ $ua->throttle({ 'api.zippopotam.us' => 1 });
 $ua->env_proxy(1);
 
 # Import the Maxmind databases
-if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
+if((-r 'downloads/allCountries.txt') &&
    # open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
-   (my $all_countries = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) &&
+   (my $all_countries = File::Open::NoCache::ReadOnly->new('downloads/allCountries.txt')) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
@@ -1172,7 +1172,7 @@ if((-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
 	aio_readahead($fin2, 0, AIO_READAHEAD_SIZE);
 
 	$| = 1;
-	printf "%-70s\r", 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
+	printf "%-70s\r", 'downloads/allCountries.txt';
 	$| = 0;
 	print "\n" if(MAX_INSERT_COUNT == 1);
 

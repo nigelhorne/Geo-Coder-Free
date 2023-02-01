@@ -59,16 +59,17 @@ if(eval { require Geo::libpostal; }) {
 }
 
 my @dirs = (
-	'lib/Geo/Coder/Free/GeoNames',
-	'lib/Geo/Coder/Free/GeoNames/databases',
+	'downloads',
+	# 'lib/Geo/Coder/Free/GeoNames',
+	# 'lib/Geo/Coder/Free/GeoNames/databases',
 	'lib/Geo/Coder/Free/MaxMind',
-	'lib/Geo/Coder/Free/MaxMind/databases'
+	'lib/Geo/Coder/Free/MaxMind/databases',
 );
 
 foreach my $dir(@dirs) {
 	if(! -d $dir) {
 		print "Creating the download directory $dir\n";
-		mkdir $dir || die "$dir: $@";
+		mkdir $dir, 0755 || die "$dir: $@";
 	}
 }
 
@@ -79,7 +80,8 @@ my %urls = (
 	# 'http://download.maxmind.com/download/worldcities/worldcitiespop.txt.gz' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz',
 	# This data are 7 years out of date, and are unconsistent with the Geonames database
 	'https://github.com/apache/commons-csv/blob/master/src/test/resources/org/apache/commons/csv/perf/worldcitiespop.txt.gz?raw=true' => 'lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz',
-	'http://download.geonames.org/export/dump/allCountries.zip' => 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.zip',
+	# 'http://download.geonames.org/export/dump/allCountries.zip' => 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.zip',
+	'http://download.geonames.org/export/dump/allCountries.zip' => 'downloads/allCountries.zip',
 );
 
 # unlink('lib/Geo/Coder/Free/MaxMind/databases/cities.sql');
@@ -173,10 +175,10 @@ foreach my $url(keys %urls) {
 	die $file if(!-r $file);
 }
 
-if(!(-r 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt')) {
-	my $zip = 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.zip';
+if(!(-r 'downloads/allCountries.txt')) {
+	my $zip = 'downloads/allCountries.zip';
 	system("unzip $zip");
-	rename 'allCountries.txt', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt';
+	rename 'allCountries.txt', 'downloads/allCountries.txt';
 	# Save disc space, but prevent more than one download
 	# if(open(my $fout, '>', $zip)) {
 		# close($fout);

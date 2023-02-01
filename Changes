@@ -4,6 +4,7 @@ Revision history for Geo-Coder-Free
 	Use JSON::MaybeXS instead of JSON
 	Fix truncate
 	Use perl shell rather than CPAN to install missing modules
+	Move temporary downloads to their own directory to stop them being installed
 
 0.30	Wed Mar  9 09:47:33 EST 2022
 	Fix treating "30 Cross Street" as "30 X St"
