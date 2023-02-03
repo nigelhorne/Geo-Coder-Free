@@ -62,7 +62,7 @@ use File::Copy;
 use File::Open::NoCache::ReadOnly 0.02;
 use File::Slurp;
 use Geo::Coder::Abbreviations;
-use JSON;
+use JSON::MaybeXS;
 use LWP::UserAgent::Throttled;
 use Locale::AU;	# TODO: use Locale::Geocode
 use Locale::CA;
@@ -1312,7 +1312,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		print "\n" if(DEBUG);
 		$| = 0;
 
-		my $j = JSON->new()->utf8();
+		my $j = JSON::MaybeXS->new()->utf8();
 		my $data = File::Slurp::read_file($geojson_file);
 		$data = $j->decode($data);
 		my $properties = $data->{'properties'};
@@ -1715,7 +1715,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 	print "\n" if(DEBUG);
 	$| = 0;
 
-	my $j = JSON->new()->utf8();
+	my $j = JSON::MaybeXS->new()->utf8();
 
 	my $data = File::Slurp::read_file($filename);
 	$data = $j->decode($data);
@@ -2132,7 +2132,7 @@ sub import {
 				$unknown_zips{"$country/$zip"} = 1;
 				return 0;
 			}
-			my $rc = JSON->new()->utf8()->decode($res->content());
+			my $rc = JSON::MaybeXS->new()->utf8()->decode($res->content());
 			if(!defined($rc)) {
 				# print "\n", Data::Dumper->new([\$row])->Dump();
 				return 0;
@@ -2775,7 +2775,7 @@ sub get_wof {
 		return;
 	}
 
-	my $j = JSON->new()->utf8();
+	my $j = JSON::MaybeXS->new()->utf8();
 	my $data = File::Slurp::read_file($filename);
 	$data = $j->decode($data);
 	my $properties = $data->{'properties'};
