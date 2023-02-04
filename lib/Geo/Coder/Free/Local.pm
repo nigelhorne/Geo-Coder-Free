@@ -110,6 +110,9 @@ sub geocode {
 	my $location = $param{location}
 		or Carp::croak('Usage: geocode(location => $location)');
 
+	# Only used to geoloate full addresses, not states/provinces
+	return if($location !~ /,.+,/);
+
 	my $lc = lc($location);
 	foreach my $row(@{$self->{'data'}}) {
 		my $rc = Geo::Location::Point->new($row);
@@ -314,7 +317,8 @@ sub geocode {
 		}
 	}
 
-	# ::diag(__PACKAGE__, ': ', __LINE__, ": libpostal_is_installed = $libpostal_is_installed");
+	# ::diag(__PACKAGE__, ': ', __LINE__, ": libpostal_is_installed = $libpostal_is_installed ($location)");
+	# print(__PACKAGE__, ': ', __LINE__, ": libpostal_is_installed = $libpostal_is_installed ($location)\n");
 
 	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
 		if($addr{'house_number'} && !$addr{'number'}) {

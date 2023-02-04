@@ -1,6 +1,7 @@
 Revision history for Geo-Coder-Free
 
 0.31
+	Local.pm doesn't contain states/provinces' locations, so quick return on search for those
 	Use JSON::MaybeXS instead of JSON
 	Fix truncate
 	Use perl shell rather than CPAN to install missing modules
