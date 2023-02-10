@@ -198,6 +198,35 @@ if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 		"GB.ENG.A5\tBedfordshire\tBedfordshire\t2648110\n";
 }
 
+# For bin/create_sqlite
+my $build_requires = {
+	'App::csv2sqlite' => 0,
+	'CHI' => 0,
+	'CHI::Driver::RawMemory' => 0,
+	'Cwd' => 0,
+	'Config::Auto' => 0,
+	'File::Basename' => 0,
+	'File::Copy' => 0,
+	'File::Slurp' => 0,
+	'File::Spec' => 0,
+	'autodie' => 0,
+	'Geo::Coder::Abbreviations' => 0.03,
+	'Geo::Location::Point' => 0.02,
+	'IPC::System::Simple' => 0,
+	'JSON::MaybeXS' => 0,
+	'LWP::UserAgent::Throttled' => 0,
+	'LWP::Protocol::https' => 0,
+	'Try::Tiny' => 0
+};
+
+if($^O ne 'solaris') {
+	$build_requires->{'File::Open::NoCache::ReadOnly'} = 0.02;
+	$build_requires->{'IO::AIO'} = 0;
+}
+if($ENV{'OSM_HOME'}) {
+	$build_requires->{'XML::LibXML::Reader'} = 0;
+}
+
 my $test_requires = {
 	'CGI::IDS' => 0,
 	'CGI::Lingua' => 0,
@@ -231,28 +260,8 @@ WriteMakefile(
 	 ($ExtUtils::MakeMaker::VERSION >= 6.3002))
 	  ? ('LICENSE'=> 'GPL')
 	  : ()),
-	BUILD_REQUIRES => {	# For bin/create_sqlite
-		'App::csv2sqlite' => 0,
-		'CHI' => 0,
-		'CHI::Driver::RawMemory' => 0,
-		'Cwd' => 0,
-		'Config::Auto' => 0,
-		'File::Basename' => 0,
-		'File::Copy' => 0,
-		'File::Open::NoCache::ReadOnly' => 0.02,
-		'File::Slurp' => 0,
-		'File::Spec' => 0,
-		'autodie' => 0,
-		'Geo::Coder::Abbreviations' => 0.03,
-		'Geo::Location::Point' => 0.02,
-		'IO::AIO' => 0,
-		'IPC::System::Simple' => 0,
-		'JSON::MaybeXS' => 0,
-		'LWP::UserAgent::Throttled' => 0,
-		'LWP::Protocol::https' => 0,
-		'Try::Tiny' => 0,
-		'XML::LibXML::Reader' => 0,	# FIXME: only if $OSM_HOME is set
-	}, TEST_REQUIRES => $test_requires,
+	BUILD_REQUIRES => $build_requires,
+	TEST_REQUIRES => $test_requires,
 	PREREQ_PM => {
 		'Carp' => 0,
 		'DBI' => 0,
