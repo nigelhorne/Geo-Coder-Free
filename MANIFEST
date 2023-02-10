@@ -28,7 +28,6 @@ lib/Geo/Coder/Free/Display/index.pm
 lib/Geo/Coder/Free/Display/query.pm
 lib/Geo/Coder/Free/Local.pm
 lib/Geo/Coder/Free/MaxMind.pm
-lib/Geo/Coder/Free/MaxMind/databases/MAXMIND.LICENCE
 lib/Geo/Coder/Free/OpenAddresses.pm
 lib/Geo/Coder/Free/Utils.pm
 LICENSE
@@ -76,6 +75,4 @@ t/whosonfirst.t
 templates/default/Geo/Coder/Free/Display/index.tmpl
 templates/default/Geo/Coder/Free/Display/query.txt
 templates/fr/Geo/Coder/Free/Display/index.tmpl
-templates/Geo/Coder/Free/Display/index.tmpl
-templates/Geo/Coder/Free/Display/query.txt
 typhoon/openaddresses.ddl
