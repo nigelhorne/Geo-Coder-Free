@@ -121,7 +121,9 @@ sub check {
 	if($location =~ /(.+)\s+STREET,\s+(.+)/) {
 		$location = "$1 ST, $2";
 	}
-	# diag($location);
+
+	diag($location) if($ENV{'TEST_VERBOSE'});
+
 	my @rc = $geo_coder->geocode({ location => $location });
 	diag(Data::Dumper->new([$location, \@rc])->Dump()) if($ENV{'TEST_VERBOSE'});
 	cmp_ok(scalar(@rc), '>', 0);
