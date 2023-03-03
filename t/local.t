@@ -27,6 +27,9 @@ LOCAL: {
 		$libpostal_is_installed = 1;
 	}
 
+	diag("libpostal_is_installed = $libpostal_is_installed")
+		if($ENV{'TEST_VERBOSE'});
+
 	if($libpostal_is_installed) {
 		cmp_deeply($geo_coder->geocode(location => 'NCBI, Bethesda, Maryland, USA'),
 			methods('lat' => num(39.00, 1e-2), 'long' => num(-77.10, 1e-2)));

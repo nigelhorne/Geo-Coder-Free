@@ -113,6 +113,8 @@ sub geocode {
 	# Only used to geoloate full addresses, not states/provinces
 	return if($location !~ /,.+,/);
 
+	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
+
 	my $lc = lc($location);
 	foreach my $row(@{$self->{'data'}}) {
 		my $rc = Geo::Location::Point->new($row);
@@ -150,6 +152,8 @@ sub geocode {
 		$self->{'ap'}->{'au'} = $ap;
 	}
 	if($ap) {
+		# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
+
 		my $l = $location;
 		if($l =~ /(.+), (England|UK)$/i) {
 			$l = "$1, GB";
@@ -158,6 +162,7 @@ sub geocode {
 			# Carp::croak($ap->report());
 			# ::diag('Address parse failed: ', $ap->report());
 		} else {
+			# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 			my %c = $ap->components();
 			# ::diag(Data::Dumper->new([\%c])->Dump());
 			my %addr = ( 'location' => $l );
@@ -212,11 +217,14 @@ sub geocode {
 		# Try Geo::StreetAddress::US, which is rather buggy
 
 		my $l = $1;
-		$l =~ s/,/ /g;
+		$l =~ tr/,/ /;
 		$l =~ s/\s\s+/ /g;
+
+		# ::diag(__PACKAGE__, ': ', __LINE__, ": $location ($l)");
 
 		# Work around for RT#122617
 		if(($location !~ /\sCounty,/i) && (my $href = (Geo::StreetAddress::US->parse_location($l) || Geo::StreetAddress::US->parse_address($l)))) {
+			# ::diag(Data::Dumper->new([$href])->Dump());
 			if(my $state = $href->{'state'}) {
 				if(length($state) > 2) {
 					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
@@ -253,6 +261,20 @@ sub geocode {
 					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 						$rc->{'country'} = 'US';
 						return $rc;
+					}
+					# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
+					if($street && !$href->{'number'}) {
+						# If you give a building with
+						# no street to G:S:US it puts
+						# the building name into the
+						# street field
+						$addr{'name'} = $street;
+						delete $addr{'road'};
+
+						if(my $rc = $self->_search(\%addr, ('name', 'city', 'state', 'country'))) {
+							$rc->{'country'} = 'US';
+							return $rc;
+						}
 					}
 				}
 			}
@@ -519,7 +541,7 @@ sub reverse_geocode {
 		Carp::croak('Usage: reverse_geocode(latlng => $location)');
 	}
 
-	# ::diag('x' x 40);
+	# ::diag(__LINE__, ": $latitude,$longitude");
 	my @rc;
 	foreach my $row(@{$self->{'data'}}) {
 		if(defined($row->{'latitude'}) && defined($row->{'longitude'})) {
