@@ -115,12 +115,17 @@ sub geocode {
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 
+	# Look for a quick match, we may get lucky
 	my $lc = lc($location);
+	if($lc =~ /(.+), usa$/) {
+		$lc = "$1, us";
+	}
 	foreach my $row(@{$self->{'data'}}) {
 		my $rc = Geo::Location::Point->new($row);
 		my $str = lc($rc->as_string());
 
 		# ::diag("Compare $str->$lc");
+		# print "Compare $str->$lc\n";
 		if($str eq $lc) {
 			return $rc;
 		}
