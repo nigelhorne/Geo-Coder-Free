@@ -2,7 +2,7 @@
 
 # Import geo-coding data into an SQLite database.
 
-# Copyright 2020-2022 Nigel Horne.
+# Copyright 2020-2023 Nigel Horne.
 
 # The program code is released under the following licence: GPL2 for personal use on a single computer.
 # All other users (including Commercial, Charity, Educational, Government)
@@ -299,6 +299,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 21701,
+		}, {
+			'LAT' => 39.342986,
+			'LON' => -77.239770,
+			'NUMBER' => 3923,
+			'STREET' => 'SUGARLOAF CT',
+			'CITY' => 'MONROVIA',
+			'COUNTY' => 'FREDERICK',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 21770
 		}, {
 			'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
 			'LAT' => 39.03869019,
