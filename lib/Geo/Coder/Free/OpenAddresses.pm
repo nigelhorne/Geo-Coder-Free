@@ -104,7 +104,7 @@ sub new {
 	return unless($class);
 
 	if(my $openaddr = $param{'openaddr'}) {
-		Carp::carp "Can't find the directory $openaddr"
+		Carp::croak "Can't find the directory $openaddr"
 			if((!-d $openaddr) || (!-r $openaddr));
 		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
 	}
