@@ -62,6 +62,7 @@ t/noplan.t
 t/openaddr.t
 t/pod-cm.t
 t/pod-spelling.t
+t/pod-synopsis.t
 t/pod.t
 t/port.t
 t/prereq.t

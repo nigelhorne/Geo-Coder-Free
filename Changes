@@ -1,6 +1,7 @@
 Revision history for Geo-Coder-Free
 
 0.31
+	Calling new on an object now returns a clone rather than setting the defaults in the new object
 	Port to Solaris
 	Local.pm doesn't contain states/provinces' locations, so quick return on search for those
 	Use JSON::MaybeXS instead of JSON

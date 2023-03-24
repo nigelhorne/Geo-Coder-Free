@@ -86,11 +86,20 @@ but that can't be guaranteed.
 =cut
 
 sub new {
-	my($proto, %param) = @_;
+	my($proto, %args) = @_;
 	my $class = ref($proto) || $proto;
 
-	# Geo::Coder::Free->new not Geo::Coder::Free::new
-	return unless($class);
+	if(!defined($class)) {
+		# Using Geo::Coder::Free->new not Geo::Coder::Free::new
+		# carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		# return;
+
+		# FIXME: this only works when no arguments are given
+		$class = __PACKAGE__;
+	} elsif(ref($class)) {
+		# clone the given object
+		return bless { %{$class}, %args }, ref($class);
+	}
 
 	if(!$alternatives) {
 		my $keep = $/;
@@ -104,18 +113,18 @@ sub new {
 		}
 	}
 	my $rc = {
-		maxmind => Geo::Coder::Free::MaxMind->new(%param),
+		maxmind => Geo::Coder::Free::MaxMind->new(%args),
 		alternatives => $alternatives
 	};
 
-	if((!$param{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
-		$param{'openaddr'} = $ENV{'OPENADDR_HOME'};
+	if((!$args{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
+		$args{'openaddr'} = $ENV{'OPENADDR_HOME'};
 	}
 
-	if($param{'openaddr'}) {
-		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(%param);
+	if($args{'openaddr'}) {
+		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(%args);
 	}
-	if(my $cache = $param{'cache'}) {
+	if(my $cache = $args{'cache'}) {
 		$rc->{'cache'} = $cache;
 	}
 

@@ -64,7 +64,7 @@ our $VERSION = '0.30';
     } else {
     	$geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => '/usr/share/geo-coder-free/data');
     }
-    $location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+    my $location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
     my @matches = $geocoder->geocode({ scantext => 'arbitrary text', region => 'GB' });
 
