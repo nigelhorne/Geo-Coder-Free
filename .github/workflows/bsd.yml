@@ -1,0 +1,43 @@
+---
+# see https://github.com/FGasper/perl-github-action-tips
+
+name: Test Code on BSD
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+jobs:
+  build:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - name: freebsd
+            version: '13.0'
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS
+          - name: openbsd
+            version: '7.1'
+            pkginstall: pkg_add p5-JSON-MaybeXS
+
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: recursive
+      - name: Test on ${{ matrix.os.name }}
+        uses: cross-platform-actions/action@master
+        with:
+          operating_system: ${{ matrix.os.name }}
+          version: ${{ matrix.os.version }}
+          shell: bash
+          run: |
+            sudo hostname example.com
+            sudo ${{ matrix.os.pkginstall }}
+            curl -L https://cpanmin.us | sudo perl - --notest --installdeps --with-configure --with-develop .
+            sudo chown -R runner:runner .
+            perl Makefile.PL
+            make
+            prove -wlmb t
