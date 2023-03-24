@@ -40,8 +40,4 @@ jobs:
             sudo chown -R runner:runner .
             perl Makefile.PL
             make
-            prove -wlmb t
-          env:
-            AUTHOR_TESTING: 1
-            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-            AUTOMATED_TESTING: 1
+            AUTOMATED_TESTING=1 AUTHOR_TESTING=1 prove -wlmb t
