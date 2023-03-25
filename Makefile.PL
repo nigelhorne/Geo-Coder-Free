@@ -23,7 +23,9 @@ BEGIN {
 
 	if(scalar(@needfull)) {
 		my $list = join(' ', @needfull);
-		if($ENV{'AUTOMATED_TESTING'} && !defined($ENV{'TRAVIS_PERL_VERSION'})) {
+		if($ENV{'AUTOMATED_TESTING'} &&
+		  !defined($ENV{'TRAVIS_PERL_VERSION'}) &&
+		  !defined($ENV{'GITHUB_ACTION'})) {
 			print STDERR "NA: You need $list to test this package\n";
 			exit(0);
 		}
