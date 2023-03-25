@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.32
+	Set NA rather than fail on smokers without L:P:https
+
 0.31	Fri Mar 24 17:30:06 EDT 2023
 	Calling new on an object now returns a clone rather than setting the defaults in the new object
 	Port to Solaris

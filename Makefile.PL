@@ -24,7 +24,8 @@ BEGIN {
 	if(scalar(@needfull)) {
 		my $list = join(' ', @needfull);
 		if($ENV{'AUTOMATED_TESTING'} && !defined($ENV{'TRAVIS_PERL_VERSION'})) {
-			die "You need $list to test this package";
+			print STDERR "NA: You need $list to test this package\n";
+			exit(0);
 		}
 		print "Installing $list\n";
 		# system("cpan -i $list");
