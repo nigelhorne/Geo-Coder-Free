@@ -312,12 +312,6 @@ sub html {
 		require Template;
 		Template->import();
 
-		my $template = Template->new({
-			INTERPOLATE => 1,
-			POST_CHOMP => 1,
-			ABSOLUTE => 1,
-		});
-
 		my $info = $self->{_info};
 
 		# The values in config are defaults which can be overridden by
@@ -344,6 +338,12 @@ sub html {
 		$vals->{social_media} = $self->{_social_media};
 		$vals->{info} = $info;
 		$vals->{as_string} = $info->as_string();
+
+		my $template = Template->new({
+			INTERPOLATE => 1,
+			POST_CHOMP => 1,
+			ABSOLUTE => 1,
+		});
 
 		if(!$template->process($filename, $vals, \$rc)) {
 			if(my $err = $template->error()) {
