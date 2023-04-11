@@ -337,6 +337,14 @@ sub geocode {
 		}
 	}
 
+	if(($location =~ /.+,.+,.*England$/) &&
+	   ($location !~ /.+,.+,.+,.*England$/)) {
+	   	# Simple "Town, County, England"
+		# If we're here, it's not going to be found because the
+		# above parsers will have worked
+		return;
+	}
+
 	# Finally try libpostal,
 	# which is good but uses a lot of memory and can take a very long time to load
 	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
