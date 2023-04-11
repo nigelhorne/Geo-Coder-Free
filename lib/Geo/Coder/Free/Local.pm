@@ -207,6 +207,7 @@ sub geocode {
 			$addr{'number'} = $c{'property_identifier'};
 			$addr{'city'} = $c{'suburb'};
 			# ::diag(Data::Dumper->new([\%addr])->Dump());
+			# print Data::Dumper->new([\%addr])->Dump(), "\n";
 			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 				return $rc;
 			}
@@ -214,6 +215,21 @@ sub geocode {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
+			}
+
+			# Decide if it's worth continuing to search
+			my $found = 0;
+			foreach my $row(@{$self->{'data'}}) {
+				if((uc($row->{'state'}) eq uc($addr{'state'})) &&
+				   (uc($row->{'country'}) eq uc($addr{'country'}))) {
+				   	$found = 1;
+					last;
+				}
+			}
+			if(!$found) {
+				# Nothing at all in this state/country,
+				#	so let's give up looking
+				return;
 			}
 		}
 	}
