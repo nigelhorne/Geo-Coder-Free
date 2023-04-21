@@ -573,12 +573,22 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20852
 		}, {
+			'LAT' => 39.033075,
+			'LON' => -76.923859,
+			'NUMBER' => 10424,
+			'STREET' => '43RD AVE',
+			'CITY' => 'BELTSVILLE',
+			'COUNTY' => 'PRINCE GEORGE',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20705
+		}, {
 			'LAT' => 38.996764,
 			'LON' => -76.849323,
 			'NAME' => 'NASA',
-			'STREET' => '',
+			'STREET' => 'TIROS RD',
 			'CITY' => 'GREENBELT',
-			'COUNTY' => 'PRINCE GEORGES',
+			'COUNTY' => 'PRINCE GEORGE',
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20771
