@@ -34,7 +34,12 @@ jobs:
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache
-          cpanm -iqn --skip-satisfied --installdeps --notest .
+          cpanm -in --installdeps .
+      - name: Make Module
+        run: |
+          find . -name build.log | xargs cat
+          perl Makefile.PL
+          make
       - name: Run Tests
         run: prove -l -b t
         env:
