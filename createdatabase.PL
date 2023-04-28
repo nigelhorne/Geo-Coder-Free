@@ -81,7 +81,6 @@ use Lingua::EN::AddressParse;
 use Locale::SubCountry;
 use Text::CSV;
 use Try::Tiny;
-use XML::LibXML::Reader;
 
 use	constant	AIO_READAHEAD_SIZE => 1048576;	# 1MB
 
@@ -1777,6 +1776,9 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
 	foreach my $file(@files) {
+		require XML::LibXML::Reader;
+		XML::LibXML::Reader->import();
+
 		my $filename = File::Spec->catfile($osm, $file);
 
 		$| = 1;

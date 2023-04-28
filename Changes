@@ -4,6 +4,7 @@ Revision history for Geo-Coder-Free
 	Set NA rather than fail on smokers without L:P:https
 	It's OK to install modules on Github Actions
 	Reduce the number of calls to libpostal in Local.pm
+	Only use XML::LibXML::Reader when needed
 
 0.31	Fri Mar 24 17:30:06 EDT 2023
 	Calling new on an object now returns a clone rather than setting the defaults in the new object
