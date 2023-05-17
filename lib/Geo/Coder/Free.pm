@@ -7,7 +7,7 @@ package Geo::Coder::Free;
 use strict;
 use warnings;
 
-use lib '.';
+# use lib '.';
 
 use Config::Auto;
 use Geo::Coder::Abbreviations;
