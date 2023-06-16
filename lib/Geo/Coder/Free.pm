@@ -265,10 +265,12 @@ sub reverse_geocode {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
 		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
-	} elsif(@_ % 2 == 0) {
+	} elsif(scalar(@_) % 2 == 0) {
 		%param = @_;
-	} else {
+	} elsif(scalar(@_) == 1) {
 		$param{location} = shift;
+	} else {
+		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 	}
 
 	# The drivers don't yet support it

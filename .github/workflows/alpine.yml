@@ -29,7 +29,7 @@ jobs:
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
           # cpanm -iqn Sub::Private LWP::UserAgent Test::CleanNamespaces
-          cpanm -iqn File::Open::NoCache::ReadOnly
+          cpanm -iqn IO::AIO File::Open::NoCache::ReadOnly
           cd $RUNNER_WORKSPACE
           git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
           cd $GITHUB_WORKSPACE
