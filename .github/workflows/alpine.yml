@@ -34,13 +34,14 @@ jobs:
           git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
           cd $GITHUB_WORKSPACE
           cpanm -iqn File::Spec ExtUtils::MakeMaker
-          cpanm -iqn IO::AIO File::Open::NoCache::ReadOnly
+          cpanm -iqn IO::AIO
+          cpanm -ivn File::Open::NoCache::ReadOnly
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
       - name: Make module
         run: |
-          find ~ -name config.log | xargs cat
+          # find ~ -name config.log | xargs cat
           # find ~ -name build.log | xargs cat
           cd $GITHUB_WORKSPACE
           perl Makefile.PL
