@@ -25,7 +25,7 @@ jobs:
           apk upgrade
           apk add perl perl-dev perl-app-cpanminus make gzip git perl-dbi gcc libaio-dev
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
-          apk add musl-dev perl-canary-stability perl-file-slurp
+          apk add musl-dev perl-canary-stability perl-file-slurp zlib-dev
           perl -V
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
