@@ -35,6 +35,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           cpanm -iqn File::Spec ExtUtils::MakeMaker IO::AIO
           cpanm -ivn File::Open::NoCache::ReadOnly Gzip::Faster Geo::Coder::Abbreviations
+          cpanm -iqn LWP::UserAgent::Throttled
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
