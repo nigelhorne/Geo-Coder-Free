@@ -1,7 +1,7 @@
 package Geo::Coder::Free;
 
 # TODO: Don't have Maxmind as a separate database
-# TODO: Rename openaddresses.sql as geo_code_free.sql
+# TODO: Rename openaddresses.sql as geo_coder_free.sql
 # TODO: Consider Data::Dumper::Names instead of Data::Dumper
 
 use strict;
@@ -285,9 +285,8 @@ sub reverse_geocode {
 		if(wantarray) {
 			my @rc = $self->{'maxmind'}->geocode(\%param);
 			return @rc;
-		} else {
-			return $self->{'maxmind'}->geocode(\%param);
 		}
+		return $self->{'maxmind'}->geocode(\%param);
 	}
 
 	Carp::croak('Reverse lookup is not yet supported');
@@ -455,10 +454,6 @@ L<http://cpants.cpanauthors.org/dist/Geo-Coder-Free>
 =item * CPAN Testers' Matrix
 
 L<http://matrix.cpantesters.org/?dist=Geo-Coder-Free>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Geo-Coder-Free>
 
 =item * CPAN Testers Dependencies
 

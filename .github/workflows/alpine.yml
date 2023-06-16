@@ -1,0 +1,49 @@
+---
+# see https://github.com/FGasper/perl-github-action-tips
+
+name: Test Code on Alpine Linux
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: alpine
+
+    steps:
+      # - uses: actions/checkout@main
+      - name: Install Dependencies
+        continue-on-error: true
+        run: |
+          apk update
+          apk upgrade
+          apk add perl perl-app-cpanminus make gzip git
+          apk add perl-test-most perl-test-nowarnings
+          perl -V
+          # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
+          # cpanm -iqn Sub::Identify Log::Any
+          # cpanm -iqn Sub::Private LWP::UserAgent Test::CleanNamespaces
+          cd $RUNNER_WORKSPACE
+          git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
+          cd $GITHUB_WORKSPACE
+          cpanm -iqn File::Spec ExtUtils::MakeMaker
+          cpanm -iqn --installdeps .
+      - name: Make module
+        run: |
+          # find ~ -name build.log | xargs cat
+          cd $GITHUB_WORKSPACE
+          perl Makefile.PL
+          make
+      - name: Run Tests
+        run: |
+          cd $GITHUB_WORKSPACE
+          make test AUTHOR_TESTING=1
+        env:
+          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
