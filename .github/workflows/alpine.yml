@@ -34,7 +34,8 @@ jobs:
           git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
           cd $GITHUB_WORKSPACE
           cpanm -iqn File::Spec ExtUtils::MakeMaker
-          cpanm -iqn IO::AIO
+          cpanm -ivn IO::AIO
+          find ~ -name config.log | xargs cat
           cpanm -ivn File::Open::NoCache::ReadOnly
           cpanm -iqn --installdeps .
         env:
