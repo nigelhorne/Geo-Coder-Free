@@ -30,11 +30,12 @@ jobs:
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
           # cpanm -iqn Sub::Private LWP::UserAgent Test::CleanNamespaces
-          cpanm -inv IO::AIO File::Open::NoCache::ReadOnly
           cd $RUNNER_WORKSPACE
           git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
           cd $GITHUB_WORKSPACE
           cpanm -iqn File::Spec ExtUtils::MakeMaker
+          cpanm -inv IO::AIO File::Open::NoCache::ReadOnly
+          find ~ -name build.log | xargs cat
           cpanm -iqn --installdeps .
       - name: Make module
         run: |
