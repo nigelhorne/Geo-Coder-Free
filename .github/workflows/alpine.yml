@@ -38,6 +38,8 @@ jobs:
           find ~ -name config.log | xargs cat
           cpanm -iqn File::Open::NoCache::ReadOnly
           cpanm -iqn --installdeps .
+        env:
+          AUTOMATED_TESTING: 1
       - name: Make module
         run: |
           # find ~ -name build.log | xargs cat
