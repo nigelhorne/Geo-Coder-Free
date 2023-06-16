@@ -23,7 +23,7 @@ jobs:
         run: |
           apk update
           apk upgrade
-          apk add perl perl-app-cpanminus make gzip git perl-dbi gcc libaio-dev
+          apk add perl perl-dev perl-app-cpanminus make gzip git perl-dbi gcc libaio-dev
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
           apk add musl-dev perl-canary-stability
           perl -V
