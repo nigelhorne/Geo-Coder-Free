@@ -42,6 +42,7 @@ jobs:
           AUTOMATED_TESTING: 1
       - name: Make module
         run: |
+          find ~ -name config.log | xargs cat
           # find ~ -name build.log | xargs cat
           cd $GITHUB_WORKSPACE
           perl Makefile.PL
