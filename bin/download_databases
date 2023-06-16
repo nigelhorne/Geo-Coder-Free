@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Download the databases and create the local SQLite database
+# Be aware that this takes significant disc space
 
 set -ex
 

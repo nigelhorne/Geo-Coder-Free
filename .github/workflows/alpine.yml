@@ -23,7 +23,7 @@ jobs:
         run: |
           apk update
           apk upgrade
-          apk add perl perl-app-cpanminus make gzip git
+          apk add perl perl-app-cpanminus make gzip git perl-dbi
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
           perl -V
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
