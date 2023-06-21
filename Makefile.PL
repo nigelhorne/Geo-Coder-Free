@@ -146,13 +146,13 @@ foreach my $url(keys %urls) {
 		print "Downloading $url to $file if a newer version is available\n";
 		if($use_withcache &&
 		   LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::mirror($url, $file))) {
-			if($ENV{'AUTOMATED_TESTING'}) {
+			if($ENV{'AUTOMATED_TESTING'} || defined($ENV{'GITHUB_ACTION'})) {
 				print STDERR "Can't download $url";
 				exit(0);
 			}
 			die "$url: LWP error $rc";
 		} elsif(LWP::Simple::is_error($rc = LWP::Simple::mirror($url, $file))) {
-			if($ENV{'AUTOMATED_TESTING'}) {
+			if($ENV{'AUTOMATED_TESTING'} || defined($ENV{'GITHUB_ACTION'})) {
 				print STDERR "Can't download $url";
 				exit(0);
 			}
@@ -162,13 +162,13 @@ foreach my $url(keys %urls) {
 		print "Downloading $url to $file\n";
 		if($use_withcache &&
 		   LWP::Simple::WithCache::is_error(my $rc = LWP::Simple::WithCache::getstore($url, $file))) {
-			if($ENV{'AUTOMATED_TESTING'}) {
+			if($ENV{'AUTOMATED_TESTING'} || defined($ENV{'GITHUB_ACTION'})) {
 				print STDERR "Can't download $url";
 				exit(0);
 			}
 			die "$url: LWP error $rc";
 		} elsif(LWP::Simple::is_error($rc = LWP::Simple::getstore($url, $file))) {
-			if($ENV{'AUTOMATED_TESTING'}) {
+			if($ENV{'AUTOMATED_TESTING'} || defined($ENV{'GITHUB_ACTION'})) {
 				print STDERR "Can't download $url";
 				exit(0);
 			}
