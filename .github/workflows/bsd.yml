@@ -21,7 +21,7 @@ jobs:
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS p5-LWP-Protocol-https
           - name: openbsd
             version: '7.1'
-            pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https
+            pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https unzip
     steps:
       - uses: actions/checkout@main
         with:
