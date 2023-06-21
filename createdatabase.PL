@@ -970,7 +970,8 @@ my %known_places = (	# Places I've checked with my GPS
 BEGIN {
 	$SIG{__WARN__} = sub {
 		my $warning = shift;
-		if($warning =~ /^Use of uninitialized value/) {
+		if(($warning =~ /^Use of uninitialized value/) ||
+		   ($warning =~ /isn't numeric in numeric eq /i)) {
 			die $warning;
 		}
 	};
