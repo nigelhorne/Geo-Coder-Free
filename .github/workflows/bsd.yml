@@ -21,7 +21,7 @@ jobs:
             pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS p5-LWP-Protocol-https p5-App-cpanminus
           - name: openbsd
             version: '7.1'
-            pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https unzip
+            pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https
     steps:
       - uses: actions/checkout@main
         with:
@@ -35,6 +35,7 @@ jobs:
           run: |
             sudo hostname example.com
             sudo ${{ matrix.os.pkginstall }}
+            curl -L https://cpanmin.us | sudo perl - App::cpanminus
             cpanm -ifn CGI::IDS
             curl -L https://cpanmin.us | sudo perl - --notest --installdeps --with-configure --with-develop --verbose .
             sudo chown -R runner:runner .
