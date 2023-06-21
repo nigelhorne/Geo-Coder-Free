@@ -35,6 +35,7 @@ jobs:
           run: |
             sudo hostname example.com
             sudo ${{ matrix.os.pkginstall }}
+            cpanm -ifn CGI::IDS
             curl -L https://cpanmin.us | sudo perl - --notest --installdeps --with-configure --with-develop --verbose .
             sudo chown -R runner:runner .
             AUTOMATED_TESTING=1 AUTHOR_TESTING=1 perl Makefile.PL
