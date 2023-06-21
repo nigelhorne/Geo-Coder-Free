@@ -18,10 +18,10 @@ jobs:
         os:
           - name: freebsd
             version: '13.0'
-            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS p5-LWP-Protocol-https p5-App-cpanminus
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS p5-LWP-Protocol-https p5-App-cpanminus p5-XML-Parser p5-XML-Simple
           - name: openbsd
             version: '7.1'
-            pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https
+            pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https p5-XML-Parser p5-XML-Simple
     steps:
       - uses: actions/checkout@main
         with:
@@ -36,7 +36,6 @@ jobs:
             sudo hostname example.com
             sudo ${{ matrix.os.pkginstall }}
             curl -L https://cpanmin.us | sudo perl - App::cpanminus
-            sudo cpanm -iqn XML::Parser XML::Simple
             sudo cpanm -ifn CGI::IDS
             curl -L https://cpanmin.us | sudo perl - --notest --installdeps --with-configure --with-develop --verbose .
             sudo chown -R runner:runner .
