@@ -393,17 +393,6 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 21122
 		}, {
-			'NAME' => 'ADVENTIST HOSPITAL',
-			'LAT' => 39.049570,
-			'LON' => -76.956882,
-			'NUMBER' => 11886,
-			'STREET' => 'HEALING WAY',
-			'CITY' => 'SILVER SPRING',
-			'COUNTY' => 'MONTGOMERY',
-			'STATE' => 'MD',
-			'COUNTRY' => 'US',
-			'POSTCODE' => 20904,
-		}, {
 			'LAT' => 39.017633,
 			'LON' => -77.049551,
 			'NUMBER' => 9904,
@@ -424,6 +413,27 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20902,
+		}, {
+			'LAT' => 39.019575,
+			'LON' => -77.047453,
+			'NUMBER' => 10009,
+			'STREET' => 'GREELEY AVE',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20902
+		}, {
+			'NAME' => 'ADVENTIST HOSPITAL',
+			'LAT' => 39.049570,
+			'LON' => -76.956882,
+			'NUMBER' => 11886,
+			'STREET' => 'HEALING WAY',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20904,
 		}, {
 			'LAT' => 39.019385,
 			'LON' => -77.049779,

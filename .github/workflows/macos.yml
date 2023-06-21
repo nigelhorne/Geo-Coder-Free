@@ -36,7 +36,7 @@ jobs:
           cpanm -iqn --skip-satisfied Test::Portability::Files Test::Carp
           cpanm -iqn --skip-satisfied Test::Pod::Coverage XML::LibXML::Reader
           cpanm -ifn CGI::IDS
-          cpanm -iqn --skip-satisfied --installdeps --notest .
+          cpanm -ivn --skip-satisfied --installdeps --notest .
       - name: Run Tests
         run: |
           cover -test

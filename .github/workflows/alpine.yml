@@ -35,7 +35,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           cpanm -iqn File::Spec ExtUtils::MakeMaker IO::AIO
           cpanm -iqn File::Open::NoCache::ReadOnly Gzip::Faster Geo::Coder::Abbreviations
-          cpanm -iqn LWP::UserAgent::Throttled Locale::AU
+          cpanm -iqn LWP::UserAgent::Throttled Locale::AU Locale::CA
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
