@@ -37,9 +37,6 @@ jobs:
             sudo ${{ matrix.os.pkginstall }}
             curl -L https://cpanmin.us | sudo perl - --notest --installdeps --with-configure --with-develop .
             sudo chown -R runner:runner .
-            perl Makefile.PL
+            AUTOMATED_TESTING=1 AUTHOR_TESTING=1 perl Makefile.PL
             make
             AUTOMATED_TESTING=1 AUTHOR_TESTING=1 prove -wlmb t
-          env:
-            AUTHOR_TESTING: 1
-            AUTOMATED_TESTING: 1
