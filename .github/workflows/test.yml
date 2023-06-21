@@ -33,8 +33,8 @@ jobs:
       - name: Install Dependencies
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most
-          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache
-          cpanm -in --installdeps .
+          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
+          cpanm -ivn --installdeps .
       - name: Make Module
         run: |
           find . -name build.log | xargs cat
