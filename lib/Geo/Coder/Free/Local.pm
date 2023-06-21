@@ -222,7 +222,7 @@ sub geocode {
 			foreach my $row(@{$self->{'data'}}) {
 				if((uc($row->{'state'}) eq uc($addr{'state'})) &&
 				   (uc($row->{'country'}) eq uc($addr{'country'}))) {
-				   	$found = 1;
+					$found = 1;
 					last;
 				}
 			}
@@ -355,7 +355,7 @@ sub geocode {
 
 	if(($location =~ /.+,.+,.*England$/) &&
 	   ($location !~ /.+,.+,.+,.*England$/)) {
-	   	# Simple "Town, County, England"
+		# Simple "Town, County, England"
 		# If we're here, it's not going to be found because the
 		# above parsers will have worked
 		return;

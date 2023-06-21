@@ -2402,7 +2402,7 @@ sub insert {
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'NAME'} && (uc($columns{'NAME'}) eq 'EL PAPI STREET TACOS'));
 	# {
 		# my @call_details = caller(0);
-		# print "line " . $call_details[2], "\n";
+		# print "line ", $call_details[2], "\n";
 		# print Data::Dumper->new([\%columns])->Dump();
 	# }
 
@@ -2443,7 +2443,7 @@ sub insert {
 	# $sth->execute();
 	# while(my $href = $sth->fetchrow_hashref()) {
 		# my @call_details = caller(0);
-		# print "line " . $call_details[2], "\n";
+		# print "line ", $call_details[2], "\n";
 		# print Data::Dumper->new([\%columns])->Dump();
 		# print Data::Dumper->new([$href])->Dump();
 	# }
@@ -2759,7 +2759,7 @@ sub get_wof {
 	return if($id < 0);
 	if($l1_cache{$id}) {
 		# my @call_details = caller(0);
-		# print "get_wof: stored $l1_cache{$id} at line " . $call_details[2], "\n" if(DEBUG&DEBUG_ALL);
+		# print "get_wof: stored $l1_cache{$id} at line ", $call_details[2], "\n" if(DEBUG&DEBUG_ALL);
 		return $l1_cache{$id};
 	}
 	if(scalar(keys %l1_cache) >= 50) {

@@ -60,9 +60,9 @@ our $VERSION = '0.31';
     # Use a local download of http://results.openaddresses.io/
     my $geocoder;
     if(my $openaddr = $ENV{'OPENADDR_HOME'}) {
-    	$geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $openaddr);
+	$geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $openaddr);
     } else {
-    	$geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => '/usr/share/geo-coder-free/data');
+	$geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => '/usr/share/geo-coder-free/data');
     }
     my $location = $geocoder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
