@@ -12,7 +12,7 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 # VERSION
 
-Version 0.31
+Version 0.32
 
 # SYNOPSIS
 
@@ -182,10 +182,6 @@ You can also look for information at:
 - CPAN Testers' Matrix
 
     [http://matrix.cpantesters.org/?dist=Geo-Coder-Free](http://matrix.cpantesters.org/?dist=Geo-Coder-Free)
-
-- CPAN Ratings
-
-    [http://cpanratings.perl.org/d/Geo-Coder-Free](http://cpanratings.perl.org/d/Geo-Coder-Free)
 
 - CPAN Testers Dependencies
 
