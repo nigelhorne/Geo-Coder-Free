@@ -264,31 +264,31 @@ sub reverse_geocode {
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
+		Carp::croak('Usage: reverse_geocode(location => $location|scantext => $text)');
 	} elsif(scalar(@_) % 2 == 0) {
 		%param = @_;
 	} elsif(scalar(@_) == 1) {
 		$param{location} = shift;
 	} else {
-		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
+		Carp::croak('Usage: reverse_geocode(location => $location|scantext => $text)');
 	}
 
 	# The drivers don't yet support it
 	if($self->{'openaddr'}) {
 		if(wantarray) {
-			my @rc = $self->{'openaddr'}->geocode(\%param);
+			my @rc = $self->{'openaddr'}->reverse_geocode(\%param);
 			return @rc;
-		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
+		} elsif(my $rc = $self->{'openaddr'}->reverse_geocode(\%param)) {
 			return $rc;
 		}
 	}
 
 	if($param{'location'}) {
 		if(wantarray) {
-			my @rc = $self->{'maxmind'}->geocode(\%param);
+			my @rc = $self->{'maxmind'}->reverse_geocode(\%param);
 			return @rc;
 		}
-		return $self->{'maxmind'}->geocode(\%param);
+		return $self->{'maxmind'}->reverse_geocode(\%param);
 	}
 
 	Carp::croak('Reverse lookup is not yet supported');

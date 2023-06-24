@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.33
+	Some support for reverse_geocode
+
 0.32	Wed Jun 21 20:31:01 EDT 2023
 	Set NA rather than fail on smokers without L:P:https
 	It's OK to install modules on Github Actions
