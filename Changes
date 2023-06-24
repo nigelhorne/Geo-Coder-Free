@@ -1,6 +1,7 @@
 Revision history for Geo-Coder-Free
 
 0.33
+	Calling new on a local object now returns a clone rather than setting the defaults in the new object
 	Some support for reverse_geocode
 
 0.32	Wed Jun 21 20:31:01 EDT 2023

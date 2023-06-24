@@ -59,11 +59,20 @@ Geo::Coder::Free::Local provides an interface to your own location data.
 =cut
 
 sub new {
-	my $proto = shift;
+	my($proto, %args) = @_;
 	my $class = ref($proto) || $proto;
 
-	# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
-	return unless($class);
+	if(!defined($class)) {
+		# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
+		# carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		# return;
+
+		# FIXME: this only works when no arguments are given
+		$class = __PACKAGE__;
+	} elsif(ref($class)) {
+		# clone the given object
+		return bless { %{$class}, %args }, ref($class);
+	}
 
 	return bless {
 		data => xsv_slurp(
