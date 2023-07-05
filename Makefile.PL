@@ -185,6 +185,8 @@ foreach my $url(keys %urls) {
 
 if(!(-r 'downloads/allCountries.txt')) {
 	my $zip = 'downloads/allCountries.zip';
+	print "Inflating $zip\n";
+
 	eval 'require IO::Uncompress::Unzip';
 	if($@) {
 		system("unzip $zip") or die "unzip $zip failed";
