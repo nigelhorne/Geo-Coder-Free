@@ -1045,7 +1045,7 @@ if(!-d $oa) {
 # $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 # $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
-	warn "MAX_INSERT_COUNT not set to 1 in DEBUG mode";
+	warn 'MAX_INSERT_COUNT not set to 1 in DEBUG mode';
 }
 
 if($dbh) {
