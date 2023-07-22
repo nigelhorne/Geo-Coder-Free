@@ -250,6 +250,9 @@ if($^O ne 'solaris') {
 if($ENV{'OSM_HOME'}) {
 	$build_requires->{'XML::LibXML::Reader'} = 0;
 }
+if($ENV{'REDIS_SERVER'}) {
+	$build_requires->{'Redis'} = 0;
+}
 
 my $test_requires = {
 	'CGI::IDS' => 0,
