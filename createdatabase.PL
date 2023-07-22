@@ -19,9 +19,9 @@
 # or
 #	wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global.zip
 #	wget -nc --quiet https://s3.amazonaws.com/data.openaddresses.io/openaddr-collected-global-sa.zip
-# Remove all the data you're not going to use, I only keep au, ca, us
 #	unzip openaddr-collected-global.zip
 #	unzip openaddr-collected-global-sa.zip
+# Remove all the data you're not going to use, I only keep au, ca, us
 #	echo ?? | sed 's/ /\n/g' | egrep -v '(au|ca|us)' | xargs rm -rf
 #	rm -rf summary
 
