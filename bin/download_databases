@@ -28,6 +28,7 @@ cd $WHOSONFIRST_HOME && ./wof-update
 
 if [ -r $OPENADDR_HOME/openaddresses.sql ]; then
 	mv $OPENADDR_HOME/openaddresses.sql $OPENADDR_HOME/openaddresses.sql.keep
+	chmod 444 $OPENADDR_HOME/openaddresses.sql.keep
 fi
 
 cd $DR5HN_HOME && git pull
