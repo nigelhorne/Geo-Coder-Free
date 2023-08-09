@@ -403,6 +403,17 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20902,
 		}, {
+			'LAT' => 39.010801,
+			'LON' => -77.041771,
+			'NAME' => 'CVS',
+			'NUMBER' => 9520,
+			'STREET' => 'GEORGIA AVE',
+			'CITY' => 'SILVER SPRING',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20910
+		}, {
 			'NAME' => 'FOREST GLEN MEDICAL CENTER',
 			'LAT' => 39.016042,
 			'LON' => -77.042148,
