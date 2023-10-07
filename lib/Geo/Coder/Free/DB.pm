@@ -1,6 +1,6 @@
 package Geo::Coder::Free::DB;
 
-=head1
+=head1 NAME
 
 Geo::Coder::Free::DB
 
@@ -330,8 +330,6 @@ sub selectall_hash {
 	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
 
-	$self->_open() if(!$self->{$table});
-
 	if((scalar(keys %params) == 0) && $self->{'data'}) {
 		if($self->{'logger'}) {
 			$self->{'logger'}->trace("$table: selectall_hash fast track return");
@@ -345,6 +343,8 @@ sub selectall_hash {
 	# if((scalar(keys %params) == 1) && $self->{'data'} && defined($params{'entry'})) {
 	# }
 
+	$self->_open() if(!$self->{$table});
+
 	my $query;
 	my $done_where = 0;
 	if(($self->{'type'} eq 'CSV') && !$self->{no_entry}) {
@@ -353,6 +353,7 @@ sub selectall_hash {
 	} else {
 		$query = "SELECT * FROM $table";
 	}
+
 	my @query_args;
 	foreach my $c1(sort keys(%params)) {	# sort so that the key is always the same
 		my $arg = $params{$c1};
@@ -404,11 +405,17 @@ sub selectall_hash {
 			$key .= ' ' . join(', ', @query_args);
 		}
 		if(my $rc = $c->get($key)) {
+			if($self->{'logger'}) {
+				$self->{'logger'}->debug('cache HIT');
+			}
 			# This use of a temporary variable is to avoid
 			#	"Implicit scalar context for array in return"
 			# return @{$rc};
 			my @rc = @{$rc};
 			return @rc;
+		}
+		if($self->{'logger'}) {
+			$self->{'logger'}->debug('cache MISS');
 		}
 	}
 

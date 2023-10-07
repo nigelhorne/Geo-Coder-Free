@@ -17,7 +17,8 @@ Geo::Coder::Free::Local -
 Provides an interface to locations that you know yourself.
 I have found locations by using GPS apps on a smartphone and by
 inspecting GeoTagged photographs using
-L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/geotag>.
+L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/geotag>
+or by using the app GPSCF.
 
 =head1 VERSION
 
@@ -708,6 +709,7 @@ __DATA__
 "SILVER DINER",12276,"ROCKVILLE PK","ROCKVILLE","MONTGOMERY","MD","US",39.05798753,-77.12165374
 "",1605,"VIERS MILL RD","ROCKVILLE","MONTGOMERY","MD","US",39.07669788,-77.12306436
 "",1406,"LANGBROOK PLACE","ROCKVILLE","MONTGOMERY","MD","US",39.075583,-77.123833
+"",2225,"FOREST GLEN RD","SILVER SPRING","MONTGOMERY","MD","US",39.015394,-77.048357
 "BP",2601,"FOREST GLEN RD","SILVER SPRING","MONTGOMERY","MD","US",39.0147541,-77.05466857
 "OMEGA STUDIOS",12412,,"ROCKVILLE","MONTGOMERY","MD","US",39.06412645,-77.11252263
 "",10424,"43RD AVE","BELTSVILLE","PRINCE GEORGE","MD","US",39.033075,-76.923859
