@@ -105,20 +105,33 @@ The admin2.db is far from comprehensive, see Makefile.PL for some entries that a
 =cut
 
 sub new {
-	my($proto, %param) = @_;
-	my $class = ref($proto) || $proto;
+	my $class = $_[0];
 
-	# Use Geo::Coder::Free->new, not Geo::Coder::Free::new
-	return unless($class);
+	shift;
+	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+
+	if(!defined($class)) {
+		# Use Geo::Coder::Free->new, not Geo::Coder::Free::new
+		# carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		# return;
+
+		# FIXME: this only works when no arguments are given
+		$class = __PACKAGE__;
+	} elsif(ref($class)) {
+		# clone the given object
+		return bless { %{$class}, %args }, ref($class);
+	}
 
 	# Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
 
-	my $directory = $param{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
+	my $directory = $args{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
 	$directory =~ s/\.pm$//;
 
 	Geo::Coder::Free::DB::init({
+		cache_duration => '1 day',
+		%args,
 		directory => File::Spec->catfile($directory, 'databases'),
-		cache => $param{cache} || CHI->new(driver => 'Memory', datastore => {})
+		cache => $args{cache} || CHI->new(driver => 'Memory', datastore => {}),
 	});
 
 	return bless { }, $class;

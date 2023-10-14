@@ -65,8 +65,28 @@ use Carp;
 our $directory;
 our $logger;
 our $cache;
+our $cache_duration;
 
 =head1 SUBROUTINES/METHODS
+
+=head2 init
+
+Set some class level defaults.
+
+    __PACKAGE__::DB::init(directory => '../databases')
+
+See the documentation for new() to see what variables can be set
+
+=cut
+
+sub init {
+	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+
+	$directory ||= $args{'directory'};
+	$logger ||= $args{'logger'};
+	$cache ||= $args{'cache'};
+	$cache_duration ||= $args{'cache_duration'};
+}
 
 =head2 new
 
@@ -76,6 +96,9 @@ Arguments:
 
 cache => place to store results
 cache_duration => how long to store results in the cache (default is 1 hour)
+directory => where the database file is held
+
+If the arguments are not set, tries to take from class level defaults
 
 =cut
 
@@ -96,19 +119,10 @@ sub new {
 		logger => $args{'logger'} || $logger,
 		directory => $args{'directory'} || $directory,	# The directory containing the tables in XML, SQLite or CSV format
 		cache => $args{'cache'} || $cache,
-		cache_duration => $args{'cache_duration'} || '1 hour',
+		cache_duration => $args{'cache_duration'} || $cache_duration || '1 hour',
 		table => $args{'table'},	# The name of the file containing the table, defaults to the class name
 		no_entry => $args{'no_entry'} || 0,
 	}, $class;
-}
-
-# Can also be run as a class level __PACKAGE__::DB::init(directory => '../databases')
-sub init {
-	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
-
-	$directory ||= $args{'directory'};
-	$logger ||= $args{'logger'};
-	$cache ||= $args{'cache'};
 }
 
 sub set_logger {

@@ -31,8 +31,8 @@ BEGIN {
 	}
 }
 
-diag("Testing Geo::Coder::Free $Geo::Coder::Free::VERSION, Perl $], $^X");
-
 foreach my $module(@modules) {
 	require_ok($module) || print 'Bail out!';
 }
+
+diag("Testing Geo::Coder::Free $Geo::Coder::Free::VERSION, Perl $], $^X");
