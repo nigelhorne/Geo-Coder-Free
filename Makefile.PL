@@ -108,7 +108,7 @@ if(eval { require HTTP::Cache::Transparent; }) {
 
 	if(!-d $cachedir) {
 		print "Creating the cache directory $cachedir\n";
-		mkdir $cachedir || die "$cachedir: $@";
+		mkdir $cachedir, 02755 || die "$cachedir: $@";
 	}
 	HTTP::Cache::Transparent::init({
 		BasePath => $cachedir,
