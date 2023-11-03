@@ -168,22 +168,36 @@ my %common_words = (
 
 sub geocode {
 	my $self = shift;
-	my %param;
+	my %params;
 
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
+	# Try hard to support whatever API that the user wants to use
+	if(!ref($self)) {
+		if(scalar(@_)) {
+			return(__PACKAGE__->new()->geocode(@_));
+		} elsif(!defined($self)) {
+			# Geo::Coder::Free->geocode()
+			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+		} elsif($self eq __PACKAGE__) {
+			Carp::croak("Usage: $self", '::geocode(location => $location|scantext => $text)');
+		}
+		return(__PACKAGE__->new()->geocode($self));
+	} elsif(ref($self) eq 'HASH') {
+		return(__PACKAGE__->new()->geocode($self));
+	} elsif(ref($_[0]) eq 'HASH') {
+		%params = %{$_[0]};
+	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
-	} elsif(@_ % 2 == 0) {
-		%param = @_;
+		Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
+		%params = @_;
 	} else {
-		$param{'location'} = shift;
+		$params{'location'} = shift;
 	}
 
 	if($self->{'openaddr'}) {
 		if(wantarray) {
-			my @rc = $self->{'openaddr'}->geocode(\%param);
-			if((my $scantext = $param{'scantext'}) && (my $region = $param{'region'})) {
+			my @rc = $self->{'openaddr'}->geocode(\%params);
+			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
 				$scantext =~ s/\W+/ /g;
 				foreach my $word(List::MoreUtils::uniq(split(/\s/, $scantext))) {
 					# FIXME:  There are a *lot* of false positives
@@ -205,19 +219,19 @@ sub geocode {
 				}
 			}
 			return @rc if(scalar(@rc) && $rc[0]);
-		} elsif(my $rc = $self->{'openaddr'}->geocode(\%param)) {
+		} elsif(my $rc = $self->{'openaddr'}->geocode(\%params)) {
 			return $rc;
 		}
-		if((!$param{'scantext'}) && (my $alternatives = $self->{'alternatives'})) {
+		if((!$params{'scantext'}) && (my $alternatives = $self->{'alternatives'})) {
 			# Try some alternatives, would be nice to read this from somewhere on line
-			my $location = $param{'location'};
+			my $location = $params{'location'};
 			while (my($key, $value) = each %{$alternatives}) {
 				if($location =~ $key) {
 					# ::diag("$key=>$value");
 					my $keep = $location;
 					$location =~ s/$key/$value/;
-					$param{'location'} = $location;
-					if(my $rc = $self->geocode(\%param)) {
+					$params{'location'} = $location;
+					if(my $rc = $self->geocode(\%params)) {
 						return $rc;
 					}
 					# Try without the commas, for "Tyne and Wear"
@@ -226,8 +240,8 @@ sub geocode {
 						$string =~ s/,//g;
 						$location = $keep;
 						$location =~ s/$key/$string/;
-						$param{'location'} = $location;
-						if(my $rc = $self->geocode(\%param)) {
+						$params{'location'} = $location;
+						if(my $rc = $self->geocode(\%params)) {
 							return $rc;
 						}
 					}
@@ -237,14 +251,14 @@ sub geocode {
 	}
 
 	# FIXME:  scantext only works if OPENADDR_HOME is set
-	if($param{'location'}) {
+	if($params{'location'}) {
 		if(wantarray) {
-			my @rc = $self->{'maxmind'}->geocode(\%param);
+			my @rc = $self->{'maxmind'}->geocode(\%params);
 			return @rc;
 		}
-		return $self->{'maxmind'}->geocode(\%param);
+		return $self->{'maxmind'}->geocode(\%params);
 	}
-	if(!$param{'scantext'}) {
+	if(!$params{'scantext'}) {
 		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 	}
 }
@@ -259,36 +273,48 @@ To be done.
 
 sub reverse_geocode {
 	my $self = shift;
-	my %param;
+	my %params;
 
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
+	# Try hard to support whatever API that the user wants to use
+	if(!ref($self)) {
+		if(scalar(@_)) {
+			return(__PACKAGE__->new()->reverse_geocode(@_));
+		} elsif(!defined($self)) {
+			# Geo::Coder::Free->reverse_geocode()
+			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(location => $location|scantext => $text)');
+		} elsif($self eq __PACKAGE__) {
+			Carp::croak("Usage: $self", '::reverse_geocode(location => $location|scantext => $text)');
+		}
+		return(__PACKAGE__->new()->reverse_geocode($self));
+	} elsif(ref($self) eq 'HASH') {
+		return(__PACKAGE__->new()->reverse_geocode($self));
+	} elsif(ref($_[0]) eq 'HASH') {
+		%params = %{$_[0]};
+	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: reverse_geocode(location => $location|scantext => $text)');
-	} elsif(scalar(@_) % 2 == 0) {
-		%param = @_;
-	} elsif(scalar(@_) == 1) {
-		$param{location} = shift;
+		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(location => $location|scantext => $text)');
+	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
+		%params = @_;
 	} else {
-		Carp::croak('Usage: reverse_geocode(location => $location|scantext => $text)');
+		$params{'location'} = shift;
 	}
 
 	# The drivers don't yet support it
 	if($self->{'openaddr'}) {
 		if(wantarray) {
-			my @rc = $self->{'openaddr'}->reverse_geocode(\%param);
+			my @rc = $self->{'openaddr'}->reverse_geocode(\%params);
 			return @rc;
-		} elsif(my $rc = $self->{'openaddr'}->reverse_geocode(\%param)) {
+		} elsif(my $rc = $self->{'openaddr'}->reverse_geocode(\%params)) {
 			return $rc;
 		}
 	}
 
-	if($param{'location'}) {
+	if($params{'location'}) {
 		if(wantarray) {
-			my @rc = $self->{'maxmind'}->reverse_geocode(\%param);
+			my @rc = $self->{'maxmind'}->reverse_geocode(\%params);
 			return @rc;
 		}
-		return $self->{'maxmind'}->reverse_geocode(\%param);
+		return $self->{'maxmind'}->reverse_geocode(\%params);
 	}
 
 	Carp::croak('Reverse lookup is not yet supported');
