@@ -433,7 +433,8 @@ sub geocode {
 				}
 			}
 		}
-	} elsif($location =~ /^(.+?),\s*([\s\w]+),\s*([\s\w]+),\s*([\w\s]+)$/) {
+	}
+	if($location =~ /^(.+?),\s*([\s\w]+),\s*([\s\w]+),\s*([\w\s]+)$/) {
 		my %addr;
 		$addr{'road'} = $1;
 		$addr{'city'} = $2;
