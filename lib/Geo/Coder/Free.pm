@@ -22,11 +22,11 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.32
+Version 0.33
 
 =cut
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 
 our $alternatives;
 our $abbreviations;
@@ -405,6 +405,23 @@ install L<App::csv2sqlite>;
 optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory;
 optionally set the environment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download>.
 You do not need to download the MaxMind data, that will be downloaded automatically.
+
+You will need to create the database used by Geo::Coder::Free.
+In the bin directory there are some helper scripts to do this.
+You will need to tailor them to your set up, but that's not that hard as the
+scripts are trivial
+
+1. Download_databases - this will download the WhosOnFirst and Openaddr
+databases.
+The Makefile.PL file will download the MaxMind database.
+2. create_db - this creates the database used by G:C:F.
+It's called openaddr.sql,
+but that's historical before I added the WhosOnFirst database.
+The names are a bit of a mess because of that.
+I should rename it, though it doensn't contain the Maxmind data.
+3. create_sqlite - converts the Maxmind database from CSV to SQLite.
+
+See the comment at the start of createdatabase.PL for further reading.
 
 =head1 MORE INFORMATION
 

@@ -22,11 +22,11 @@ or by using the app GPSCF.
 
 =head1 VERSION
 
-Version 0.32
+Version 0.33
 
 =cut
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 use constant	LIBPOSTAL_UNKNOWN => 0;
 use constant	LIBPOSTAL_INSTALLED => 1;
 use constant	LIBPOSTAL_NOT_INSTALLED => -1;
@@ -187,10 +187,11 @@ sub geocode {
 		if($l =~ /(.+), (England|UK)$/i) {
 			$l = "$1, GB";
 		}
-		if(my $error = $ap->parse($l)) {
+		# if(my $error = $ap->parse($l)) {
 			# Carp::croak($ap->report());
 			# ::diag('Address parse failed: ', $ap->report());
-		} else {
+		# } else {
+		if(!$ap->parse($l)) {
 			# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 			my %c = $ap->components();
 			# ::diag(Data::Dumper->new([\%c])->Dump());

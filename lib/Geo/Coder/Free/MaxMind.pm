@@ -45,11 +45,11 @@ Geo::Coder::Free::MaxMind - Provides a geocoding functionality using the MaxMind
 
 =head1 VERSION
 
-Version 0.32
+Version 0.33
 
 =cut
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 
 =head1 SYNOPSIS
 
@@ -195,13 +195,12 @@ sub geocode {
 	my $country_code;
 	my $concatenated_codes;
 	my $region_only;
-	my ($first, $second, $third);
 
 	if($location =~ /^([\w\s\-]+),([\w\s]+),([\w\s]+)?$/) {
 		# Turn 'Ramsgate, Kent, UK' into 'Ramsgate'
-		$first = $location = $1;
-		$second = $county = $2;
-		$third = $country = $3;
+		$location = $1;
+		$county = $2;
+		$country = $3;
 		$location =~ s/\-/ /g;
 		$county =~ s/^\s//g;
 		$county =~ s/\s$//g;
