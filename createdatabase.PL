@@ -2096,8 +2096,12 @@ sub create_tree_from_git {
 
 	foreach my $dir(<"$where/*/.git">) {
 		my($d1, $d2) = fileparse($dir);	# File::BaseName
+		print "Changing directory to $d2\n" if(DEBUG&DEBUG_ALL);
 		chdir $d2;
-		open(my $fin, '-|', 'git ls-tree -r master --name-only');
+		# Some call the main branch master, some call it main
+		# So use HEAD
+		# open(my $fin, '-|', 'git ls-tree -r master --name-only');
+		open(my $fin, '-|', 'git ls-tree -r HEAD --name-only');
 		while(my $line = <$fin>) {
 			chomp $line;
 			my $file = File::Spec->catfile($d2, $line);
