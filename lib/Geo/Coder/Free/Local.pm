@@ -548,10 +548,11 @@ sub _search {
 			}
 			# ::diag("$number_of_columns_matched -> $confidence");
 			return Geo::Location::Point->new(
-				'lat' => $row->{'latitude'},
-				'long' => $row->{'longitude'},
+				# 'latitude' => $row->{'latitude'},
+				# 'longitude' => $row->{'longitude'},
 				'location' => $data->{'location'},
 				'confidence' => $confidence,
+				%{$row}
 			);
 		}
 	}
