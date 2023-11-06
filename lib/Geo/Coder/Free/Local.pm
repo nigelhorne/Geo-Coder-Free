@@ -134,7 +134,7 @@ sub geocode {
 	my $location = $params{location}
 		or Carp::croak('Usage: geocode(location => $location)');
 
-	# Only used to geoloate full addresses, not states/provinces
+	# Only used to geolocate full addresses, not states/provinces
 	return if($location !~ /,.+,/);
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
