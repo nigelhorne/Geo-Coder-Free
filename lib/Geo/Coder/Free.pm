@@ -281,9 +281,9 @@ sub reverse_geocode {
 			return(__PACKAGE__->new()->reverse_geocode(@_));
 		} elsif(!defined($self)) {
 			# Geo::Coder::Free->reverse_geocode()
-			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(location => $location|scantext => $text)');
+			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
 		} elsif($self eq __PACKAGE__) {
-			Carp::croak("Usage: $self", '::reverse_geocode(location => $location|scantext => $text)');
+			Carp::croak("Usage: $self", '::reverse_geocode(latlng => "$lat,$long")');
 		}
 		return(__PACKAGE__->new()->reverse_geocode($self));
 	} elsif(ref($self) eq 'HASH') {
@@ -292,11 +292,11 @@ sub reverse_geocode {
 		%params = %{$_[0]};
 	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(location => $location|scantext => $text)');
+		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
 	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
 		%params = @_;
 	} else {
-		$params{'location'} = shift;
+		$params{'latlng'} = shift;
 	}
 
 	# The drivers don't yet support it
@@ -309,7 +309,7 @@ sub reverse_geocode {
 		}
 	}
 
-	if($params{'location'}) {
+	if($params{'latlng'}) {
 		if(wantarray) {
 			my @rc = $self->{'maxmind'}->reverse_geocode(\%params);
 			return @rc;

@@ -105,19 +105,33 @@ sub new {
 
 sub geocode {
 	my $self = shift;
+	my %params;
 
-	my %param;
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
+	# Try hard to support whatever API that the user wants to use
+	if(!ref($self)) {
+		if(scalar(@_)) {
+			return(__PACKAGE__->new()->geocode(@_));
+		} elsif(!defined($self)) {
+			# Geo::Coder::Free->geocode()
+			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+		} elsif($self eq __PACKAGE__) {
+			Carp::croak("Usage: $self", '::geocode(location => $location|scantext => $text)');
+		}
+		return(__PACKAGE__->new()->geocode($self));
+	} elsif(ref($self) eq 'HASH') {
+		return(__PACKAGE__->new()->geocode($self));
+	} elsif(ref($_[0]) eq 'HASH') {
+		%params = %{$_[0]};
+	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location)');
-	} elsif(@_ % 2 == 0) {
-		%param = @_;
+		Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
+		%params = @_;
 	} else {
-		$param{location} = shift;
+		$params{'location'} = shift;
 	}
 
-	my $location = $param{location}
+	my $location = $params{location}
 		or Carp::croak('Usage: geocode(location => $location)');
 
 	# Only used to geoloate full addresses, not states/provinces
@@ -472,15 +486,15 @@ sub geocode {
 		if($location =~ $left) {
 			# ::diag($left, '=>', $alternatives{$left});
 			$location =~ s/$left/$alternatives{$left}/;
-			$param{'location'} = $location;
+			$params{'location'} = $location;
 			# ::diag(__LINE__, ": found alternative '$location'");
-			if(my $rc = $self->geocode(\%param)) {
+			if(my $rc = $self->geocode(\%params)) {
 				# ::diag(__LINE__, ": $location");
 				return $rc;
 			}
 			if($location =~ /(.+), (England|UK)$/i) {
-				$param{'location'} = "$1, GB";
-				if(my $rc = $self->geocode(\%param)) {
+				$params{'location'} = "$1, GB";
+				if(my $rc = $self->geocode(\%params)) {
 					# ::diag(__LINE__, ": $location");
 					return $rc;
 				}
@@ -552,19 +566,33 @@ sub _search {
 
 sub reverse_geocode {
 	my $self = shift;
+	my %params;
 
-	my %param;
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
+	# Try hard to support whatever API that the user wants to use
+	if(!ref($self)) {
+		if(scalar(@_)) {
+			return(__PACKAGE__->new()->reverse_geocode(@_));
+		} elsif(!defined($self)) {
+			# Geo::Coder::Free->reverse_geocode()
+			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
+		} elsif($self eq __PACKAGE__) {
+			Carp::croak("Usage: $self", '::reverse_geocode(latlng => "$lat,$long")');
+		}
+		return(__PACKAGE__->new()->reverse_geocode($self));
+	} elsif(ref($self) eq 'HASH') {
+		return(__PACKAGE__->new()->reverse_geocode($self));
+	} elsif(ref($_[0]) eq 'HASH') {
+		%params = %{$_[0]};
+	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: reverse_geocode(latlng => $location)');
-	} elsif(@_ % 2 == 0) {
-		%param = @_;
+		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
+	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
+		%params = @_;
 	} else {
-		$param{'latlng'} = shift;
+		$params{'latlng'} = shift;
 	}
 
-	my $latlng = $param{'latlng'};
+	my $latlng = $params{'latlng'};
 
 	my $latitude;
 	my $longitude;
@@ -572,13 +600,13 @@ sub reverse_geocode {
 	if($latlng) {
 		($latitude, $longitude) = split(/,/, $latlng);
 	} else {
-		$latitude //= $param{'lat'};
-		$longitude //= $param{'lon'};
-		$longitude //= $param{'long'};
+		$latitude //= $params{'lat'};
+		$longitude //= $params{'lon'};
+		$longitude //= $params{'long'};
 	}
 
 	if((!defined($latitude)) || !defined($longitude)) {
-		Carp::croak('Usage: reverse_geocode(latlng => $location)');
+		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
 	}
 
 	# ::diag(__LINE__, ": $latitude,$longitude");

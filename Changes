@@ -6,7 +6,7 @@ Revision history for Geo-Coder-Free
 	Added Redis as a prerequisite if REDIS_SERVER is set
 	Latest DB.pm from NJH-Snippets
 	Change the mode of the cachedir to 2755
-	Try hard to support whatever API that the user wants to use
+	Free.pm/Local.pm: Try hard to support whatever API that the user wants to use
 	Local.pm: if libpostal fails, try code without
 
 0.32	Wed Jun 21 20:31:01 EDT 2023
