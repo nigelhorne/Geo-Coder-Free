@@ -1,5 +1,6 @@
 ---
 # See https://github.com/actions/virtual-environments
+# https://github.com/marketplace/actions/setup-perl-environment
 
 name: Test Code
 on:
@@ -9,6 +10,8 @@ on:
     tags-ignore:
       - '*'
   pull_request:
+  schedule:
+    - cron: '22 23 3 * *'
 jobs:
   build:
     runs-on: ${{ matrix.os }}
