@@ -105,13 +105,11 @@ The admin2.db is far from comprehensive, see Makefile.PL for some entries that a
 =cut
 
 sub new {
-	my $class = $_[0];
-
-	shift;
-	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+	my($proto, %args) = @_;
+	my $class = ref($proto) || $proto;
 
 	if(!defined($class)) {
-		# Use Geo::Coder::Free->new, not Geo::Coder::Free::new
+		# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
 		# carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
 		# return;
 
@@ -157,19 +155,33 @@ sub new {
 
 sub geocode {
 	my $self = shift;
+	my %params;
 
-	my %param;
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
+	# Try hard to support whatever API that the user wants to use
+	if(!ref($self)) {
+		if(scalar(@_)) {
+			return(__PACKAGE__->new()->geocode(@_));
+		} elsif(!defined($self)) {
+			# Geo::Coder::Free->geocode()
+			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+		} elsif($self eq __PACKAGE__) {
+			Carp::croak("Usage: $self", '::geocode(location => $location|scantext => $text)');
+		}
+		return(__PACKAGE__->new()->geocode($self));
+	} elsif(ref($self) eq 'HASH') {
+		return(__PACKAGE__->new()->geocode($self));
+	} elsif(ref($_[0]) eq 'HASH') {
+		%params = %{$_[0]};
+	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location)');
-	} elsif(@_ % 2 == 0) {
-		%param = @_;
+		Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
+		%params = @_;
 	} else {
-		$param{location} = shift;
+		$params{'location'} = shift;
 	}
 
-	my $location = $param{location}
+	my $location = $params{location}
 		or Carp::croak('Usage: geocode(location => $location)');
 
 	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
@@ -187,7 +199,7 @@ sub geocode {
 	}
 
 	# ::diag(__LINE__, ": $location");
-	return unless(($location =~ /,/) || $param{'region'});	# Not well formed, or an attempt to find the location of an entire country
+	return unless(($location =~ /,/) || $params{'region'});	# Not well formed, or an attempt to find the location of an entire country
 
 	my $county;
 	my $state;
@@ -227,7 +239,7 @@ sub geocode {
 	} elsif($location =~ /^[\w\s-],[\w\s-]/) {
 		Carp::carp(__PACKAGE__, ": can't parse and handle $location");
 		return;
-	} elsif(($location =~ /^[\w\s-]+$/) && (my $region = $param{'region'})) {
+	} elsif(($location =~ /^[\w\s-]+$/) && (my $region = $params{'region'})) {
 		$location =~ s/^\s//g;
 		$location =~ s/\s$//g;
 		$country = uc($region);
@@ -459,7 +471,7 @@ sub geocode {
 	}
 
 	my $confidence = 0.5;
-	if(my $c = $param{'region'}) {
+	if(my $c = $params{'region'}) {
 		$options->{'Country'} = lc($c);
 		$confidence = 0.1;
 	} elsif($countrycode) {
@@ -473,14 +485,14 @@ sub geocode {
 		# # ::diag(__PACKAGE__, ': ', __LINE__);
 		# my @rc = $self->{'cities'}->selectall_hash($options);
 		# if(scalar(@rc) == 0) {
-			# if((!defined($region)) && !defined($param{'region'})) {
+			# if((!defined($region)) && !defined($params{'region'})) {
 				# # Add code for this area to Makefile.PL and rebuild
 				# Carp::carp(__PACKAGE__, ": didn't determine region from $location");
 				# return;
 			# }
 			# # This would return all of the cities in the wrong region
 			# if($countrycode) {
-				# @rc = $self->{'cities'}->selectall_hash('Region' => ($region || $param{'region'}), 'Country' => $countrycode);
+				# @rc = $self->{'cities'}->selectall_hash('Region' => ($region || $params{'region'}), 'Country' => $countrycode);
 				# if(scalar(@rc) == 0) {
 					# # ::diag(__PACKAGE__, ': ', __LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 					# return;
@@ -578,21 +590,36 @@ Returns a string, or undef if it can't be found.
 
 =cut
 
-sub reverse_geocode {
+sub reverse_geocode
+{
 	my $self = shift;
+	my %params;
 
-	my %param;
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
+	# Try hard to support whatever API that the user wants to use
+	if(!ref($self)) {
+		if(scalar(@_)) {
+			return(__PACKAGE__->new()->reverse_geocode(@_));
+		} elsif(!defined($self)) {
+			# Geo::Coder::Free->reverse_geocode()
+			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
+		} elsif($self eq __PACKAGE__) {
+			Carp::croak("Usage: $self", '::reverse_geocode(latlng => "$lat,$long")');
+		}
+		return(__PACKAGE__->new()->reverse_geocode($self));
+	} elsif(ref($self) eq 'HASH') {
+		return(__PACKAGE__->new()->reverse_geocode($self));
+	} elsif(ref($_[0]) eq 'HASH') {
+		%params = %{$_[0]};
+	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: reverse_geocode(latlng => $location)');
-	} elsif(@_ % 2 == 0) {
-		%param = @_;
+		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
+	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
+		%params = @_;
 	} else {
-		$param{'latlng'} = shift;
+		$params{'latlng'} = shift;
 	}
 
-	my $latlng = $param{'latlng'};
+	my $latlng = $params{'latlng'};
 
 	my $latitude;
 	my $longitude;
@@ -600,13 +627,13 @@ sub reverse_geocode {
 	if($latlng) {
 		($latitude, $longitude) = split(/,/, $latlng);
 	} else {
-		$latitude //= $param{'lat'};
-		$longitude //= $param{'lon'};
-		$longitude //= $param{'long'};
+		$latitude //= $params{'lat'};
+		$longitude //= $params{'lon'};
+		$longitude //= $params{'long'};
 	}
 
 	if((!defined($latitude)) || !defined($longitude)) {
-		Carp::croak('Usage: reverse_geocode(latlng => $location)');
+		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
 	}
 
 	if(!defined($self->{'cities'})) {

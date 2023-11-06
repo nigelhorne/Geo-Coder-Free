@@ -418,7 +418,7 @@ The Makefile.PL file will download the MaxMind database.
 It's called openaddr.sql,
 but that's historical before I added the WhosOnFirst database.
 The names are a bit of a mess because of that.
-I should rename it, though it doensn't contain the Maxmind data.
+I should rename it, though it doesn't contain the Maxmind data.
 3. create_sqlite - converts the Maxmind database from CSV to SQLite.
 
 See the comment at the start of createdatabase.PL for further reading.
