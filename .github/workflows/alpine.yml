@@ -53,7 +53,7 @@ jobs:
       - name: Run Tests
         run: |
           cd $GITHUB_WORKSPACE
-          make test AUTHOR_TESTING=1
+          make test AUTOMATED_TESTING=1
         env:
           AUTHOR_TESTING: 1
           AUTOMATED_TESTING: 1

@@ -36,7 +36,8 @@ jobs:
       - name: Install Dependencies
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most
-          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
+          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS Clone
+          cpanm -iqn --skip-satisfied HTML::Entities
           cpanm -ivn --installdeps .
       - name: Make Module
         run: |
