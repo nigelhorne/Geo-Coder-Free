@@ -55,5 +55,4 @@ jobs:
           cd $GITHUB_WORKSPACE
           make test AUTOMATED_TESTING=1
         env:
-          AUTHOR_TESTING: 1
           AUTOMATED_TESTING: 1
