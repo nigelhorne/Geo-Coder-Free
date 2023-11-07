@@ -35,8 +35,8 @@ jobs:
       - run: perl -V
       - name: Install Dependencies
         run: |
-          cpanm -iqn ExtUtils::MakeMaker Test::Most
-          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS Clone
+          cpanm -iqn ExtUtils::MakeMaker Test::Most Clone
+          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
           cpanm -iqn --skip-satisfied HTML::Entities
           cpanm -ivn --installdeps .
       - name: Make Module
