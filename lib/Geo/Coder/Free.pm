@@ -60,7 +60,8 @@ The cgi-bin directory contains a simple DIY Geo-Coding website.
 
     cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
 
-You can see a sample website at L<https://geocode.nigelhorne.com/>.
+The sample website is down at the moment while I look for a new host.
+When it's back up you will be able to use this to test it.
 
     curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
 
@@ -444,7 +445,8 @@ to first install L<App::csv2sqlite>.
 If REDIS_SERVER is set, the data are also stored on a Redis Server.
 Running 'make' will download GeoNames and MaxMind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:F.
 
-There is a sample website at L<https://geocode.nigelhorne.com/>.  The source code for that site is included in the G:C:F distribution.
+The sample website at L<https://geocode.nigelhorne.com/> is down at the moment while I look for a new host.
+The source code for that site is included in the G:C:F distribution.
 
 =head1 BUGS
 
