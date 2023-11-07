@@ -36,7 +36,7 @@ jobs:
           cd $GITHUB_WORKSPACE
           cpanm -iqn File::Spec ExtUtils::MakeMaker IO::AIO Locale::AU Locale::US
           cpanm -iqn File::Open::NoCache::ReadOnly Gzip::Faster Geo::Coder::Abbreviations
-          cpanm -iqn Geo::StreetAddress::US Lingua::EN::AddressParse
+          cpanm -iqn Geo::StreetAddress::US Lingua::EN::AddressParse Config::Auto
           cpanm -iqn LWP::UserAgent::Throttled Locale::CA Locale::Country
           cpanm -iqn --installdeps .
         env:
