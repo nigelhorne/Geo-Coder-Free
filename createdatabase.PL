@@ -1012,6 +1012,7 @@ BEGIN {
 	$SIG{__WARN__} = sub {
 		my $warning = shift;
 		if(($warning =~ /^Use of uninitialized value/) ||
+		   ($warning =~ /Wide/) ||
 		   ($warning =~ /isn't numeric in numeric eq /i)) {
 			die $warning;
 		}
@@ -1452,9 +1453,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			}
 		}
 
-		my $region_id;
-		my $region_name;
 		if(!defined($state)) {
+			my $region_id;
+			my $region_name;
 			my @hierarchy = @{$properties->{'wof:hierarchy'}};
 			if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
 				if(defined($region_id) && ($region == $region_id)) {
