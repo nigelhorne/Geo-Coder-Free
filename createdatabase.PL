@@ -309,6 +309,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 21770
 		}, {
+			'LAT' => 39.028404,
+			'LON' => -77.073227,
+			'NUMBER' => 10540,
+			'STREET' => 'METROPOLITAN AVE',
+			'CITY' => 'KENSINGTON',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20895
+		}, {
 			'NAME' => 'ALBERT EINSTEIN HIGH SCHOOL',
 			'LAT' => 39.03869019,
 			'LON' => -77.0682871,
