@@ -2,7 +2,7 @@
 
 use warnings;
 use strict;
-use Test::Most tests => 46;
+use Test::Most tests => 45;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -187,7 +187,7 @@ OPENADDR: {
 				# ok(ref($location) eq 'HASH');
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 44);
+				skip('Author tests not required for installation', 43);
 			}
 
 			# my $address = $geo_coder->reverse_geocode(latlng => '51.50,-0.13');
@@ -202,8 +202,10 @@ OPENADDR: {
 				$location = $geo_coder->reverse_geocode();
 			});
 
-			does_carp(sub {
-				$geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => 'not/there' ]);
+			does_croak(sub {
+				# This breaks does_croak
+				# $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => 'not/there' ]);
+				$geo_coder = Geo::Coder::Free->new(openaddr => 'not/there');
 			});
 
 			eval 'use Test::Memory::Cycle';
@@ -214,7 +216,7 @@ OPENADDR: {
 			}
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 45);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 44);
 		}
 	}
 }
