@@ -2,6 +2,7 @@
 
 use warnings;
 use strict;
+use Data::Dumper;
 use Test::Most tests => 20;
 use Test::Number::Delta;
 use Test::Carp;
@@ -30,8 +31,7 @@ SCANTEXT: {
 				methods('lat' => num(51.34, 1e-2), 'long' => num(1.41, 1e-2)));
 
 			ok(defined($location->{'confidence'}));
-
-			ok($location->{'location'} eq 'Ramsgate, Kent, England');
+			cmp_ok($location->{'location'}, 'eq', 'Ramsgate, Kent, England', 'Location is found in text');
 
 			@locations = $geo_coder->geocode(scantext => 'Hello World', region => 'GB');
 			ok(ref($locations[0]) eq '');
@@ -51,7 +51,9 @@ SCANTEXT: {
 				# if($location->{'country'} ne 'US') {
 					# next;
 				# }
-				next unless($location->{'location'} eq 'Newark, DE, USA');
+
+				diag(Data::Dumper->new([$location])->Dump()) if($ENV{'TEST_VERBOSE'});
+				next unless($location->{'location'} eq 'NEWARK, DE, USA');
 				$found++;
 				cmp_deeply($location,
 					methods('lat' => num(39.68, 1e-2), 'long' => num(-75.75, 1e-2)));
@@ -80,7 +82,7 @@ SCANTEXT: {
 					ok(defined($location->{'confidence'}));
 					ok($location->{'state'} eq 'IN');
 					cmp_deeply($location,
-						methods('lat' => num(39, 1), 'long' => num(-85, 1)));
+						methods('lat' => num(39, 1), 'long' => num(-86, 1)));
 				} elsif($city eq 'INDIANAPOLIS') {
 				# } elsif($location->{'location'} =~ /^Indianapolis,/i) {
 					$found{'INDIANAPOLIS'}++;

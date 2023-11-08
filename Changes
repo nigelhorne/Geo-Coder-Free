@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.35
+	Fix scantext.t when OSM is installed
+
 0.34	Mon Nov  6 16:53:43 EST 2023
 	Latest DB.pm from NJH-Snippets
 	Latest Display.pm from VWF

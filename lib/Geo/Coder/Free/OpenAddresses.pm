@@ -171,39 +171,40 @@ sub geocode {
 				if($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
 						$l->confidence(0.8);
-						$l->location("$addr, USA");
 						$l->country('US');
+						$l->location("$addr, USA");
 						push @rc, $l;
 					}
 				} elsif($addr =~ /\s+(\d{2,5}\s+)(?![a|p]m\b)(([a-zA-Z|\s+]{1,5}){1,2})?([\s|\,|.]+)?(([a-zA-Z|\s+]{1,30}){1,4})(court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)([\s|\,|.|\;]+)?(([a-zA-Z|\s+]{1,30}){1,2})([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)([\s|\,|.]+)?(\s+\d{5})?([\s|\,|.]+)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
 						$l->confidence(0.8);
-						$l->location("$addr, Canada");
 						$l->country('CA');
+						$l->location("$addr, Canada");
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)/i) {
 					if(($l = $self->geocode(location => "$addr, US")) && ref($l)) {
 						$l->confidence(0.6);
-						$l->location("$addr, USA");
 						$l->city(uc($1));
 						$l->state(uc($3));
 						$l->country('US');
+						$l->location(uc("$addr, USA"));
 						push @rc, $l;
 					}
 				} elsif($addr =~ /([a-zA-Z|\s+]{1,30}){1,2}([\s|\,|.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) {
 					if(($l = $self->geocode(location => "$addr, Canada")) && ref($l)) {
 						$l->confidence(0.6);
-						$l->location("$addr, Canada");
 						$l->city(uc($1));
 						$l->state(uc($3));
-						$l->country('US');
+						$l->country('Canada');
+						$l->location(uc("$addr, Canada"));
 						push @rc, $l;
 					}
 				}
 				if(($l = $self->geocode(location => $addr)) && ref($l)) {
 					$l->confidence(0.1);
 					$l->location($addr);
+					::diag(__LINE__, ": $addr");
 					push @rc, $l;
 				}
 				if($offset < $count - 2) {
