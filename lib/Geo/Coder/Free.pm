@@ -405,8 +405,11 @@ In the bin directory there are some helper scripts to do this.
 You will need to tailor them to your set up, but that's not that hard as the
 scripts are trivial
 
-1. Download_databases - this will download the WhosOnFirst and Openaddr
-databases.
+1. Download_databases - this will download the WhosOnFirst, Openaddr,
+Open Street Map and dr5hn databases.
+Check the values of OSM_HOME, OPENADDR_HOME,
+DRD5HN_HOME and WHOSONFIRST_HOME within that script,
+you may wish to change them.
 The Makefile.PL file will download the MaxMind database.
 2. create_db - this creates the database used by G:C:F.
 It's called openaddr.sql,
