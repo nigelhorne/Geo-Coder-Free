@@ -8,13 +8,14 @@ set -ex
 export WHOSONFIRST_HOME="${WHOSONFIRST_HOME:-~/src/whosonfirst-sqlite}"
 export OPENADDR_HOME="${OPENADDR_HOME:-~/misc/openaddr}"
 export DR5HN_HOME="${DR5HN_HOME:-~/src/countries-states-cites-database}"
-export OSM_HOME="${OSM_HOME:-~/downloads/osm}"
+export OSM_HOME="${OSM_HOME:-~/misc/osm}"
 # export http_proxy=http://zack:3128
 # export https_proxy=http://zack:3128
 export http_proxy=
 export https_proxy=
 export no_proxy=localhost,127.0.0.0/8,192.168.1.0/16,utilite
 export REDIS_SERVER=
+export NO_PROXY=
 
 cd ~/src/njh/Geo-Coder-Free && git pull
 mkdir -p ~/Downloads
