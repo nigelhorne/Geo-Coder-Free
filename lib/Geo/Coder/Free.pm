@@ -392,13 +392,6 @@ sub _abbreviate($) {
 	return $type;
 }
 
-=head1 AUTHOR
-
-Nigel Horne, C<< <njh@bandsman.co.uk> >>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
 =head1 GETTING STARTED
 
 Before you start,
@@ -475,6 +468,13 @@ L<Geo::Coder::Free::OpenAddresses>.
 
 See L<Geo::Coder::Free::OpenAddresses> for instructions creating the SQLite database from
 L<http://results.openaddresses.io/>.
+
+=head1 AUTHOR
+
+Nigel Horne, C<< <njh@bandsman.co.uk> >>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =head1 SUPPORT
 
