@@ -94,13 +94,6 @@ You can also run this module from the command line:
 
     perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
 
-# AUTHOR
-
-Nigel Horne, `<njh@bandsman.co.uk>`
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
 # GETTING STARTED
 
 Before you start,
@@ -114,8 +107,11 @@ In the bin directory there are some helper scripts to do this.
 You will need to tailor them to your set up, but that's not that hard as the
 scripts are trivial
 
-1\. Download\_databases - this will download the WhosOnFirst and Openaddr
-databases.
+1\. Download\_databases - this will download the WhosOnFirst, Openaddr,
+Open Street Map and dr5hn databases.
+Check the values of OSM\_HOME, OPENADDR\_HOME,
+DRD5HN\_HOME and WHOSONFIRST\_HOME within that script,
+you may wish to change them.
 The Makefile.PL file will download the MaxMind database.
 2\. create\_db - this creates the database used by G:C:F.
 It's called openaddr.sql,
@@ -177,6 +173,13 @@ Can't parse and handle "London, England".
 
 See [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AOpenAddresses) for instructions creating the SQLite database from
 [http://results.openaddresses.io/](http://results.openaddresses.io/).
+
+# AUTHOR
+
+Nigel Horne, `<njh@bandsman.co.uk>`
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 # SUPPORT
 
