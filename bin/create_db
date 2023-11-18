@@ -3,7 +3,7 @@ set -e
 # First use download_databases to download the databases, then use this
 # script to build the G:C:F database in the directory $OPENADDR_HOME
 
-export OPENADDR_HOME="${OPENADDR_HOME:-~/misc/openaddr}"
+export OPENADDR_HOME="${OPENADDR_HOME:-~/etc/openaddr}"
 
 cd ~/src/njh/Geo-Coder-Free
 git pull

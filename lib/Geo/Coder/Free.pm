@@ -394,29 +394,39 @@ sub _abbreviate($) {
 
 =head1 GETTING STARTED
 
-Before you start,
-install L<App::csv2sqlite>;
-optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory;
-optionally set the environment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-download>.
+Before running "make", but after running "perl Makefile.PL", run these instructions.
+
+Optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory; and
+optionally set the environment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-clone>.
+The script bin/download_databases (see below) will do that for you.
 You do not need to download the MaxMind data, that will be downloaded automatically.
 
 You will need to create the database used by Geo::Coder::Free.
+
+Install L<App::csv2sqlite> and L<https://github.com/nigelhorne/NJH-Snippets>.
+Run bin/create_sqlite - converts the Maxmind "cities" database from CSV to SQLite.
+
+Optional steps to download and install large databases.
+This will take a long time and use a lot of disc space, be clear that this is what you want.
 In the bin directory there are some helper scripts to do this.
 You will need to tailor them to your set up, but that's not that hard as the
-scripts are trivial
-
-1. Download_databases - this will download the WhosOnFirst, Openaddr,
+scripts are trivial.
+1. mkdir $WHOSONFIRST_HOME, cd $WHOSONFIRST_HOME, run wof-clone from NJH-Snippets.
+2. Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
 Open Street Map and dr5hn databases.
 Check the values of OSM_HOME, OPENADDR_HOME,
 DRD5HN_HOME and WHOSONFIRST_HOME within that script,
 you may wish to change them.
-The Makefile.PL file will download the MaxMind database.
-2. create_db - this creates the database used by G:C:F.
-It's called openaddr.sql,
+The Makefile.PL file will download the MaxMind database for you, as that is not optional.
+3. If you have done step 2,
+run bin/create_db - this creates the database used by G:C:F.
+If not, ignore this step and go to step 4.
+The database is called openaddr.sql,
 but that's historical before I added the WhosOnFirst database.
 The names are a bit of a mess because of that.
 I should rename it, though it doesn't contain the Maxmind data.
-3. create_sqlite - converts the Maxmind database from CSV to SQLite.
+
+Now you're ready to run "make".
 
 See the comment at the start of createdatabase.PL for further reading.
 
@@ -455,6 +465,8 @@ The MaxMind data only contains cities.
 The OpenAddresses data doesn't cover the globe.
 
 Can't parse and handle "London, England".
+
+The various scripts in NJH-Snippets ought to be in this module.
 
 =head1 SEE ALSO
 
