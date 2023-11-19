@@ -40,6 +40,7 @@ if [ -r $OPENADDR_HOME/openaddresses.sql ]; then
 	chmod 444 $OPENADDR_HOME/openaddresses.sql.keep
 fi
 
+mkdir -p $DR5HN_HOME
 cd $DR5HN_HOME && git pull
 
 mkdir -p $OSM_HOME
