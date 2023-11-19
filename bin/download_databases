@@ -38,9 +38,6 @@ mkdir -p $OPENADDR_HOME
 if [ -r $OPENADDR_HOME/openaddresses.sql ]; then
 	mv $OPENADDR_HOME/openaddresses.sql $OPENADDR_HOME/openaddresses.sql.keep
 	chmod 444 $OPENADDR_HOME/openaddresses.sql.keep
-else
-	echo TODO: update the script to download the data from http://results.openaddresses.io
-	exit
 fi
 
 cd $DR5HN_HOME && git pull
