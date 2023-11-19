@@ -398,7 +398,7 @@ Before running "make", but after running "perl Makefile.PL", run these instructi
 
 Optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory; and
 optionally set the environment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-sqlite-clone>.
-The script bin/download_databases (see below) will do that for you.
+The script bin/download_databases (see below) will do those for you.
 You do not need to download the MaxMind data, that will be downloaded automatically.
 
 You will need to create the database used by Geo::Coder::Free.
