@@ -20,8 +20,8 @@ export NO_PROXY=
 
 cd ~/src/njh/Geo-Coder-Free && git pull
 mkdir -p ~/Downloads
-cd ~/Downloads && /usr/bin/wget -N -c --no-check-certificate --quiet https://data.openaddresses.io/openaddr-collected-global.zip
-cd ~/Downloads && /usr/bin/wget -N -c --no-check-certificate --quiet https://data.openaddresses.io/openaddr-collected-global-sa.zip
+cd ~/Downloads && wget -N -c --no-check-certificate --quiet https://data.openaddresses.io/openaddr-collected-global.zip
+cd ~/Downloads && wget -N -c --no-check-certificate --quiet https://data.openaddresses.io/openaddr-collected-global-sa.zip
 cd $OPENADDR_HOME && rm -rf ?? *.txt summary br mx fr it za es pl be jp kr pt fi de by ch dk ru cz nz tw cl at kz co no uy si xk */*.vrt */*/*.vrt && unzip -o ~/Downloads/openaddr-collected-global-sa.zip && unzip -o ~/Downloads/openaddr-collected-global.zip
 
 # wof-update etc. are in the NJH-Snippets package on GitHub
@@ -43,10 +43,11 @@ fi
 cd $DR5HN_HOME && git pull
 
 mkdir -p $OSM_HOME
-# cd ~/Downloads && /usr/bin/wget -N -c https://ftpmirror.your.org/pub/openstreetmap/planet/planet-latest.osm.bz2
-cd $OSM_HOME && /usr/bin/wget -N -c https://download.geofabrik.de/europe-latest.osm.bz2
-/usr/bin/wget -N -c https://download.geofabrik.de/north-america-latest.osm.bz2
-/usr/bin/wget -N -c https://download.geofabrik.de/australia-oceania-latest.osm.bz2
+# cd ~/Downloads && wget -N -c https://ftpmirror.your.org/pub/openstreetmap/planet/planet-latest.osm.bz2
+cd $OSM_HOME && wget -N -c https://download.geofabrik.de/europe-latest.osm.bz2
+wget -N -c https://download.geofabrik.de/north-america-latest.osm.bz2
+wget -N -c https://download.geofabrik.de/australia-oceania-latest.osm.bz2
 bunzip2 -t *.osm.bz2
 
-cd ~/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test AUTHOR_TESTING=1 TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
+# cd ~/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test AUTHOR_TESTING=1 TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
+git pull && perl Makefile.PL && make && make test TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"

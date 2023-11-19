@@ -412,21 +412,25 @@ In the bin directory there are some helper scripts to do this.
 You will need to tailor them to your set up, but that's not that hard as the
 scripts are trivial.
 1. mkdir $WHOSONFIRST_HOME, cd $WHOSONFIRST_HOME, run wof-clone from NJH-Snippets.
-2. Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
+This can take a long time because it contains lots of directories which filesystem drivers
+seem to take a long time to navigate (at least my EXT4 and ZFS systems do).
+2. Install L<https://github.com/dr5hn/countries-states-cities-database.git> into $DR5HN_HOME.
+3. Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
 Open Street Map and dr5hn databases.
 Check the values of OSM_HOME, OPENADDR_HOME,
-DRD5HN_HOME and WHOSONFIRST_HOME within that script,
+DR5HN_HOME and WHOSONFIRST_HOME within that script,
 you may wish to change them.
 The Makefile.PL file will download the MaxMind database for you, as that is not optional.
-3. If you have done step 2,
-run bin/create_db - this creates the database used by G:C:F.
-If not, ignore this step and go to step 4.
+4. Run bin/create_db - this creates the database used by G:C:F using the data you've just downloaded
 The database is called openaddr.sql,
-but that's historical before I added the WhosOnFirst database.
+even though it does include all of the above data.
+That's historical before I added the WhosOnFirst database.
 The names are a bit of a mess because of that.
-I should rename it, though it doesn't contain the Maxmind data.
+I should rename it to geo-coder-free.sql, even though it doesn't contain the Maxmind data.
 
-Now you're ready to run "make".
+Now you're ready to run "make"
+(note that the download_databases script may have done that for you,
+but you'll want to check).
 
 See the comment at the start of createdatabase.PL for further reading.
 
