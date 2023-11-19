@@ -48,7 +48,7 @@ mkdir -p $OSM_HOME
 cd $OSM_HOME && wget -N -c https://download.geofabrik.de/europe-latest.osm.bz2
 wget -N -c https://download.geofabrik.de/north-america-latest.osm.bz2
 wget -N -c https://download.geofabrik.de/australia-oceania-latest.osm.bz2
-bunzip2 -t *.osm.bz2
+# bunzip2 -t *.osm.bz2
 
 # cd $HOME/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test AUTHOR_TESTING=1 TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
 git pull && perl Makefile.PL && make && make test TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
