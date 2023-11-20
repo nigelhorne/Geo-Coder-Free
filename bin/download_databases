@@ -41,7 +41,7 @@ if [ -r $OPENADDR_HOME/openaddresses.sql ]; then
 fi
 
 mkdir -p $DR5HN_HOME
-cd $DR5HN_HOME && pwd && ls -la && git pull
+cd $DR5HN_HOME
 
 mkdir -p $OSM_HOME
 # cd $HOME/Downloads && wget -N -c https://ftpmirror.your.org/pub/openstreetmap/planet/planet-latest.osm.bz2
@@ -53,4 +53,4 @@ wget -N -c https://download.geofabrik.de/australia-oceania-latest.osm.bz2
 # bunzip2 -t *.osm.bz2
 
 # cd $HOME/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test AUTHOR_TESTING=1 TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
-git pull && perl Makefile.PL && make && make test TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
+cd $HOME/src/njh/Geo-Coder-Free && git pull && perl Makefile.PL && make && make test TEST_FILES="t/scantext.t t/whosonfirst.t t/openaddr.t t/maxmind.t t/local.t"
