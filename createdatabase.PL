@@ -1368,15 +1368,14 @@ my %address_parsers;
 # my $wof_global_dbh;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
+	my $j = JSON::MaybeXS->new()->utf8();
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
 		$| = 1;
 		printf "%-70s\r", $geojson_file;
 		print "\n" if(DEBUG);
 		$| = 0;
 
-		my $j = JSON::MaybeXS->new()->utf8();
-		my $data = File::Slurp::read_file($geojson_file);
-		$data = $j->decode($data);
+		my $data = $j->decode(File::Slurp::read_file($geojson_file));
 		my $properties = $data->{'properties'};
 		# print "processing ", $properties->{'wof:id'}, "\n";
 		next if(exists($properties->{'wof:superseded_by'}) && scalar(@{$properties->{'wof:superseded_by'}}));
