@@ -96,7 +96,7 @@ use	constant	DEBUG_FLUSH => 0x80;
 use	constant	DEBUG_ALL => 0xFF;
 use	constant	DEBUG => DEBUG_OFF;
 
-use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
 
