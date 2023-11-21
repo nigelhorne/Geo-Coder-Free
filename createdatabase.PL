@@ -1535,6 +1535,10 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'COUNTRY' => $country,
 			};
 			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+			if($inserts >= MAX_INSERT_COUNT) {
+				flush_queue($dbh, $redis);
+				$inserts = 0;
+			}
 			next;
 		}
 		if($city) {
@@ -2550,7 +2554,6 @@ sub flush_queue
 
 	my $query;
 
-	keys %queued_commits;
 	# print scalar(keys %queued_commits), "\n";
 	# while(my($md5, $row) = each %queued_commits) {
 	foreach my $md5(keys %queued_commits) {
@@ -2564,7 +2567,7 @@ sub flush_queue
 		my $country = $row->{'COUNTRY'};
 		if(!defined($country)) {
 			my @call_details = caller(0);
-			print "flush_queue: called from line ", $call_details[2], "\n";
+			print STDERR 'flush_queue: called from line ', $call_details[2], "\n";
 			die Data::Dumper->new([$row])->Dump();
 		}
 		my $state = $row->{'STATE'};
@@ -2580,7 +2583,7 @@ sub flush_queue
 		# die Data::Dumper->new([$row])->Dump() unless ($row->{'LAT'} && $row->{'LON'});
 		unless ($row->{'LAT'} && $row->{'LON'}) {
 			my @call_details = caller(0);
-			print "flush_queue: ignoring blank entry called from line ", $call_details[2], "\n\t",
+			print 'flush_queue: ignoring blank entry called from line ', $call_details[2], "\n\t",
 				Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_DATA_VALIDATE);
 			next;
 		}
