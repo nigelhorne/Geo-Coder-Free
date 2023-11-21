@@ -96,7 +96,7 @@ use	constant	DEBUG_FLUSH => 0x80;
 use	constant	DEBUG_ALL => 0xFF;
 use	constant	DEBUG => DEBUG_OFF;
 
-use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 100;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
 
@@ -1368,16 +1368,18 @@ my %address_parsers;
 # my $wof_global_dbh;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
-	my $j = JSON::MaybeXS->new()->utf8();
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
 		$| = 1;
 		printf "%-70s\r", $geojson_file;
 		print "\n" if(DEBUG);
 		$| = 0;
 
-		my $data = $j->decode(File::Slurp::read_file($geojson_file));
-		my $properties = $data->{'properties'};
-		# print "processing ", $properties->{'wof:id'}, "\n";
+		# Don't put instatiation outside of the loop - it creates CPANEL errors
+		# which I need to investigate`
+		my $j = JSON::MaybeXS->new()->utf8();
+		my $data = File::Slurp::read_file($geojson_file);
+		my $properties = $j->decode($data)->{'properties'};
+		# print 'processing ', $properties->{'wof:id'}, "\n";
 		next if(exists($properties->{'wof:superseded_by'}) && scalar(@{$properties->{'wof:superseded_by'}}));
 		next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
 		next if(exists($properties->{'src:geom'}) && ($properties->{'src:geom'} eq 'missing'));	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1346
