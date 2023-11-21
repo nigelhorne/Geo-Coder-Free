@@ -1363,10 +1363,10 @@ flush_queue($dbh, $redis);
 
 my $inserts = 0;
 
-my %address_parsers;
-
 # my $wof_global_dbh;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
+	my %address_parsers;
+
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
 		$| = 1;
