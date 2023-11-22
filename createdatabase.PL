@@ -56,8 +56,10 @@ use warnings;
 # use autodie qw(:all);
 use autodie;	# Don't want system() to die, we catch failures
 use Cwd;
-use DBI;
 use Data::Dumper;
+use DB_File;
+use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
+use DBI;
 use File::Copy;
 use File::Open::NoCache::ReadOnly 0.02;
 use File::Slurp;
@@ -75,7 +77,6 @@ use CHI;
 use CHI::Driver::RawMemory;
 use File::Basename;
 use File::Spec;
-use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use IO::AIO;
 use Lingua::EN::AddressParse;
 use Locale::SubCountry;
@@ -1061,34 +1062,40 @@ $Data::Dumper::Sortkeys = 1;
 # TODO: only Australian, US and Canadian data is supported at the moment
 
 my $sqlite_file = "$oa/openaddresses.sql";
-exit(0) if(-r $sqlite_file);
-
-my $abbr = Geo::Coder::Abbreviations->new();
+my $db_file = "$oa/openaddresses.db";
+exit(0) if((-r $sqlite_file) || (-r $db_file));
 
 # TODO Make this configurable
-my $dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' });
-if($dbh) {
-	$dbh->do('PRAGMA cache_size = -65536');	# 64MB
-	$dbh->do('PRAGMA journal_mode = OFF');
-}
+my $sqlite;
+# if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+	# $sqlite->do('PRAGMA cache_size = -65536');	# 64MB
+	# $sqlite->do('PRAGMA journal_mode = OFF');
+# }
 if(!-d $oa) {
 	mkdir $oa;
 }
-# $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
-# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+my $dbh;
+my %dbtie;
+if($dbh = DB_File->new()) {
+	$dbh->{'cachesize'} = 65536;
+	tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
+}
+
+# $sqlite->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
+# $sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 	warn 'MAX_INSERT_COUNT not set to 1 in DEBUG mode';
 }
 
-if($dbh) {
+if($sqlite) {
 	if(MAX_INSERT_COUNT == 1) {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
+		$sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
 	} else {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+		$sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
 	}
 }
-# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
-# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
+# $sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+# $sqlite->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
 
 print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -1109,6 +1116,7 @@ if($ENV{'REDIS_SERVER'}) {
 my $au = Locale::AU->new();
 my $ca = Locale::CA->new();
 my $us = Locale::US->new();
+my $abbr = Geo::Coder::Abbreviations->new();
 
 my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 if(-r $filename) {
@@ -1153,9 +1161,9 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($dbh, $redis, 1, %columns);
+		$inserts += insert($sqlite, $redis, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($dbh, $redis);
+			flush_queue($sqlite, $redis, $dbh);
 			$inserts = 0;
 		}
 	}
@@ -1202,9 +1210,9 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($dbh, $redis, 1, %columns);
+		$inserts += insert($sqlite, $redis, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($dbh, $redis);
+			flush_queue($sqlite, $redis, $dbh);
 			$inserts = 0;
 		}
 	}
@@ -1343,9 +1351,9 @@ if((-r 'downloads/allCountries.txt') &&
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
-		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($dbh, $redis);
+			flush_queue($sqlite, $redis, $dbh);
 			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 			$offset += AIO_READAHEAD_SIZE;
 			$inserts = 0;
@@ -1353,11 +1361,11 @@ if((-r 'downloads/allCountries.txt') &&
 	}
 	$all_countries->close();
 }
-flush_queue($dbh, $redis);
+flush_queue($sqlite, $redis, $dbh);
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $dbh->commit();
-# $dbh->disconnect();
+# $sqlite->commit();
+# $sqlite->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
 
@@ -1534,9 +1542,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'STATE' => $state,
 				'COUNTRY' => $country,
 			};
-			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh, $redis);
+				flush_queue($sqlite, $redis, $dbh);
 				$inserts = 0;
 			}
 			next;
@@ -1591,7 +1599,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						if(DEBUG&DEBUG_DATA_VALIDATE);
 					next;
 				}
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
 			}
 		}
 		my $row = {
@@ -1605,7 +1613,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			'COUNTRY' => $country,
 			'POSTCODE' => $postcode,
 		};
-		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
 		if(my $addr_full = $properties->{'addr:full'}) {
 			my $ap;
 			if($country =~ /^ENGLAND/) {
@@ -1634,12 +1642,12 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						'POSTCODE' => uc($c{'post_code'}),
 					};
 					# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
 				}
 			}
 		}
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($dbh, $redis);
+			flush_queue($sqlite, $redis, $dbh);
 			$inserts = 0;
 		}
 	}
@@ -1675,7 +1683,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if($country eq 'US') {
 			if((!defined($current_state)) || ($state ne $current_state)) {
 				print "New state, clear state_md5s; state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
-				flush_queue($dbh, $redis);	# Check for hanging dups in current state
+				flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current state
 				%state_md5s = ();
 				%state_parent_md5s = ();
 				$current_country = $country;
@@ -1683,7 +1691,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			}
 		} elsif((!defined($current_country)) || ($country ne $current_country)) {
 			# print "New country, clear state_md5s\n";
-			flush_queue($dbh, $redis);	# Check for hanging dups in current country
+			flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current country
 			%state_md5s = ();
 			%state_parent_md5s = ();
 			$current_country = $country;
@@ -1693,9 +1701,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if(my $k = $known_places{$f}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, redis => $redis, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($dbh, $redis);
+					flush_queue($sqlite, $redis, $dbh);
 					$inserts = 0;
 				}
 			}
@@ -1729,9 +1737,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$csv->column_names($csv->getline($fin));
 
 		while(my $row = $csv->getline_hr($fin)) {
-			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh, redis => $redis);
+			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $sqlite, redis => $redis);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh, $redis);
+				flush_queue($sqlite, $redis, $dbh);
 				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 				$inserts = 0;
 				$offset += AIO_READAHEAD_SIZE;
@@ -1741,18 +1749,18 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		$fh->close();
 
-		flush_queue($dbh, $redis);	# Check for hanging dups in current state
+		flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current state
 		$inserts = 0;
 	}
 }
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $dbh->commit();
-# $dbh->disconnect();
+# $sqlite->commit();
+# $sqlite->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
 
-flush_queue($dbh, $redis);	# Check for hanging dups in last state
+flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in last state
 %state_md5s = ();
 %state_parent_md5s = ();
 
@@ -1761,17 +1769,17 @@ foreach my $country(@whosonfirst_only_countries) {
 	if(my $k = $known_places{'other'}) {
 		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 		foreach my $row(@{$k}) {
-			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis);
+			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $sqlite, redis => $redis);
 		}
 	}
 
 	if($inserts >= MAX_INSERT_COUNT) {
-		flush_queue($dbh, $redis);
+		flush_queue($sqlite, $redis, $dbh);
 		$inserts = 0;
 	}
 }
 
-flush_queue($dbh, $redis);
+flush_queue($sqlite, $redis, $dbh);
 %whosonfirst = ();
 
 if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
@@ -1801,10 +1809,10 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
 					};
-					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis);
+					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $sqlite, redis => $redis);
 					# print Data::Dumper->new([$row])->Dump();
 					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($dbh, $redis);
+						flush_queue($sqlite, $redis, $dbh);
 						$inserts = 0;
 					}
 				}
@@ -1814,7 +1822,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 		};
 	}
 
-	flush_queue($dbh, $redis);
+	flush_queue($sqlite, $redis, $dbh);
 	$inserts = 0;
 }
 
@@ -1990,9 +1998,9 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 								'LAT' => $lat,
 								'LON' => $lon,
 							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis);
+							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $sqlite, redis => $redis);
 							if($inserts >= MAX_INSERT_COUNT) {
-								flush_queue($dbh, $redis);
+								flush_queue($sqlite, $redis, $dbh);
 								$inserts = 0;
 							}
 						}
@@ -2009,7 +2017,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		}
 	}
 
-	flush_queue($dbh, $redis);	# Check for hanging dups in current state
+	flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current state
 	$inserts = 0;
 }
 
@@ -2031,7 +2039,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		# "'$country')";
 
 	# # print "$query\n";
-	# $dbh->do($query);
+	# $sqlite->do($query);
 # }
 
 $| = 1;
@@ -2046,23 +2054,23 @@ $| = 0;
 %cities = ();
 
 if(MAX_INSERT_COUNT > 1) {
-	# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
-	if($dbh) {
-		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+	# $sqlite->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
+	if($sqlite) {
+		$sqlite->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
 	}
-	# $dbh->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
-	# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
-	# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
+	# $sqlite->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
+	# $sqlite->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
+	# $sqlite->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
 }
 
 $| = 1;
 printf "%-70s\r", 'committing';
 print "\n" if(DEBUG);
 $| = 0;
-if($dbh) {
-	$dbh->commit();
-	$dbh->do('pragma optimize');
-	$dbh->disconnect();
+if($sqlite) {
+	$sqlite->commit();
+	$sqlite->do('pragma optimize');
+	$sqlite->disconnect();
 }
 if($redis) {
 	$redis->bgsave();
@@ -2154,9 +2162,9 @@ sub import {
 	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
-	my $dbh = $param{'dbh'};
+	my $sqlite = $param{'dbh'};
 	my $redis = $param{'redis'};
-	if((!$dbh) && !$redis) {
+	if((!$sqlite) && !$redis) {
 		die 'import: neither dbh nor redis';
 	}
 	my $global = $param{'global'} || 0;
@@ -2231,14 +2239,14 @@ sub import {
 					'LON' => $place->{'longitude'},
 				);
 				# print "$zip => $query\n";
-				$inserts = insert($dbh, $redis, $global, %columns);
+				$inserts = insert($sqlite, $redis, $global, %columns);
 			}
 		}
 		if((!defined($city)) && !defined($state)) {
 			# die Data::Dumper->new([\$row])->Dump();
 			return $inserts if(!$zip);
 			return $inserts if($zip !~ /^\d{5}/);
-			$dbh->disconnect() if($dbh);
+			$sqlite->disconnect() if($sqlite);
 			die $file;
 		}
 	}
@@ -2265,10 +2273,10 @@ sub import {
 			if($borough ne $street) {
 				my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 				$columns{'CITY'} = $city_name;
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 				print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
 			}
 		}
@@ -2377,10 +2385,10 @@ sub import {
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
-		$inserts += insert($dbh, $redis, $global, %columns);
+		$inserts += insert($sqlite, $redis, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			return $inserts if(!defined($city));
-			$inserts += insert($dbh, $redis, $global, %columns);
+			$inserts += insert($sqlite, $redis, $global, %columns);
 		}
 		my $name = $columns{'NAME'};
 		if($name) {
@@ -2389,49 +2397,49 @@ sub import {
 			#	Check if $name ends with uc($classifier->{category})
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 			}
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
-					$inserts += insert($dbh, $redis, $global, %columns);
+					$inserts += insert($sqlite, $redis, $global, %columns);
 					# print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
 			# Match somewhere in the street when number isn't known
-			$inserts += insert($dbh, $redis, $global, %columns);
+			$inserts += insert($sqlite, $redis, $global, %columns);
 			if(delete($columns{'STREET'})) {
 				if($name) {
 					# For when a name is known but not a street
 					$columns{'NAME'} = $name;
-					$inserts += insert($dbh, $redis, $global, %columns);
+					$inserts += insert($sqlite, $redis, $global, %columns);
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
-						$inserts += insert($dbh, $redis, $global, %columns);
+						$inserts += insert($sqlite, $redis, $global, %columns);
 						# print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
 				# Match somewhere in the city when street isn't known
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 			}
 		} elsif($name && delete($columns{'STREET'})) {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
-			$inserts += insert($dbh, $redis, $global, %columns);
+			$inserts += insert($sqlite, $redis, $global, %columns);
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($dbh, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 		}
@@ -2442,7 +2450,7 @@ sub import {
 # Queue data to be added to the database
 # Returns the number of items added to the queued_commits array
 sub insert {
-	my ($dbh, $redis, $global, %columns) = @_;
+	my ($sqlite, $redis, $global, %columns) = @_;
 
 	foreach my $column(keys %columns) {
 		if(!defined($columns{$column})) {
@@ -2494,7 +2502,7 @@ sub insert {
 	# }
 	# print "$digest\n";
 
-	# $dbh->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
+	# $sqlite->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
 	# $sth->execute();
 	# while(my $href = $sth->fetchrow_hashref()) {
 		# my @call_details = caller(0);
@@ -2507,7 +2515,7 @@ sub insert {
 	$columns{'LINE'} = $call_details[2] if(DEBUG);
 	$queued_commits{$digest} = \%columns;
 	if(DEBUG&DEBUG_ALL) {
-		flush_queue($dbh, $redis);
+		flush_queue($sqlite, $redis, $dbh);
 	}
 	if(!defined($columns{'COUNTRY'})) {
 		print "insert: no country. Called from line ", $call_details[2], "\n";
@@ -2534,7 +2542,7 @@ sub insert {
 		if($digest = create_md5($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = \%columns2;
 			if(DEBUG&DEBUG_ALL) {
-				flush_queue($dbh, $redis);
+				flush_queue($sqlite, $redis, $dbh);
 			}
 			return 2;
 		# } else {
@@ -2548,7 +2556,7 @@ sub insert {
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
-	my ($dbh, $redis) = @_;
+	my ($sqlite, $redis) = @_;
 
 	print "flush\n" if(DEBUG&DEBUG_FLUSH);
 
@@ -2740,20 +2748,27 @@ sub flush_queue
 		# TODO: add NAME field
 	}
 
-	if($query && $dbh) {
+	if($query) {
 		# print "$query\n";
 		# $| = 1;
 		# print '.';
 		# $| = 0;
-		try {
-			$dbh->do($query);
-		} catch {
-			my @call_details = caller(1);
-			print "Error in flush_queue ($query) called from line ", $call_details[2], "\n\t",
-				Data::Dumper->new([\%queued_commits])->Dump();
-			# print "$query\n";
-			die $_;
-		};
+		if($sqlite) {
+			try {
+				$sqlite->do($query);
+			} catch {
+				my @call_details = caller(1);
+				print "Error in flush_queue ($query) called from line ", $call_details[2], "\n\t",
+					Data::Dumper->new([\%queued_commits])->Dump();
+				# print "$query\n";
+				die $_;
+			};
+		}
+		if($dbh) {
+			while(my($k, $v) = each(%queued_commits)) {
+				$dbtie{$k} = $v;
+			}
+		}
 	}
 	# if($tree_query) {
 	if(0) {
@@ -2762,7 +2777,7 @@ sub flush_queue
 		# print '.';
 		# $| = 0;
 		try {
-			$dbh->do($tree_query);
+			$sqlite->do($tree_query);
 		} catch {
 			print Data::Dumper->new([\%queued_commits])->Dump();
 			die $_;
