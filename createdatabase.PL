@@ -1375,7 +1375,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		$| = 0;
 
 		# Don't put instatiation outside of the loop - it creates CPANEL errors
-		# which I need to investigate`
+		# which I need to investigate
 		my $j = JSON::MaybeXS->new()->utf8();
 		my $data = File::Slurp::read_file($geojson_file);
 		my $properties = $j->decode($data)->{'properties'};
@@ -1425,8 +1425,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		if((!defined($state)) && (my $a1 = ($properties->{'as:a1'} || $properties->{'qs:a1'} || $properties->{'qs:name_adm1'} || $properties->{'qs_pg:name_adm1'} || $properties->{'woe:name_adm1'}))) {
 			if(($a1 eq 'England') || ($a1 eq 'Scotland') || ($a1 eq 'Wales') || ($a1 eq 'Northern Ireland')) {
 				$a1 = $properties->{'qs:name_adm2'};
-			}
-			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
+			} elsif(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
 				if(my $sc = Locale::SubCountry->new($country)) {
 					if($a1 =~ /^(.+)[\s_]COUNTY/i) {
 						$a1 = $1;
@@ -2134,7 +2133,8 @@ sub create_tree_from_git {
 	return @files;
 }
 
-# Import a row into the database
+# Import a location into the database
+# Parses the data and prepares a set of columns to be queued for insertion
 sub import {
 	my %param;
 	if(ref($_[0]) eq 'HASH') {
@@ -2235,8 +2235,8 @@ sub import {
 		}
 		if((!defined($city)) && !defined($state)) {
 			# die Data::Dumper->new([\$row])->Dump();
-			return 0 if(!$zip);
-			return 0 if($zip !~ /^\d{5}/);
+			return $inserts if(!$zip);
+			return $inserts if($zip !~ /^\d{5}/);
 			$dbh->disconnect() if($dbh);
 			die $file;
 		}
@@ -2248,9 +2248,9 @@ sub import {
 			"$file from line $call_details[2]: ",
 			Data::Dumper->new([$row])->Dump()
 			if(DEBUG&DEBUG_DATA_VALIDATE);
-		return 0;
+		return $inserts;	# Could have added one above
 	}
-	return 0 if(($row->{'LAT'} == 0) && ($row->{'LON'} == 0));
+	return $inserts if(($row->{'LAT'} == 0) && ($row->{'LON'} == 0));
 	my $street = $row->{'STREET'};
 	if($street) {
 		$street =~ s/\s\s+/ /g;
@@ -2438,7 +2438,8 @@ sub import {
 	return $inserts;
 }
 
-# Insert data into the database, returns the number of new rows
+# Queue data to be added to the database
+# Returns the number of items added to the queued_commits array
 sub insert {
 	my ($dbh, $redis, $global, %columns) = @_;
 
@@ -2481,6 +2482,7 @@ sub insert {
 	$digest = create_md5($global, Encode::encode_utf8($digest));
 
 	if(!defined($digest)) {
+		# Already known
 		# print "Ignore ", join(',', values(%columns)), "\n";
 		return 0;
 	}
@@ -2768,6 +2770,8 @@ sub flush_queue
 	%queued_commits = ();
 }
 
+# Create an MD5 of the information to be added.
+# Returns undef if we already know it
 sub create_md5
 {
 	my $global = shift;
