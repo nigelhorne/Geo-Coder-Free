@@ -38,7 +38,7 @@ jobs:
           cpanm -iqn File::Open::NoCache::ReadOnly Gzip::Faster Geo::Coder::Abbreviations
           cpanm -iqn Geo::StreetAddress::US Lingua::EN::AddressParse Config::Auto
           cpanm -iqn LWP::UserAgent::Throttled Locale::CA Locale::Country
-          cpanm -iqn File::pfopen CGI::Info Geo::Location::Point
+          cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
