@@ -1077,7 +1077,7 @@ if(!-d $oa) {
 }
 my $dbh;
 my %dbtie;
-if($dbh = DB_File->new()) {
+if($dbh = DB_File::HASHINFO->new()) {
 	$dbh->{'cachesize'} = 65536;
 	tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
 }
@@ -2165,8 +2165,8 @@ sub import {
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $sqlite = $param{'dbh'};
 	my $redis = $param{'redis'};
-	if((!$sqlite) && !$redis) {
-		die 'import: neither dbh nor redis';
+	if((!$sqlite) && (!$dbh) && !$redis) {
+		die 'import: neither sqlite, dbh nor redis';
 	}
 	my $global = $param{'global'} || 0;
 	my $inserts = 0;
