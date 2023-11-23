@@ -58,7 +58,7 @@ use autodie;	# Don't want system() to die, we catch failures
 use Cwd;
 use Data::Dumper;
 # use BerkeleyDB;
-use DB_File;
+# use DB_File;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use DBI;
 use File::Copy;
@@ -1068,19 +1068,19 @@ exit(0) if((-r $sqlite_file) || (-r $db_file));
 
 # TODO Make this configurable
 my $sqlite;
-# if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
-	# $sqlite->do('PRAGMA cache_size = -65536');	# 64MB
-	# $sqlite->do('PRAGMA journal_mode = OFF');
-# }
+if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+	$sqlite->do('PRAGMA cache_size = -65536');	# 64MB
+	$sqlite->do('PRAGMA journal_mode = OFF');
+}
 if(!-d $oa) {
 	mkdir $oa;
 }
 my $dbh;
 my %dbtie;
-if($dbh = DB_File::HASHINFO->new()) {
-	$dbh->{'cachesize'} = 65536;
-	tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
-}
+# if($dbh = DB_File::HASHINFO->new()) {
+	# $dbh->{'cachesize'} = 65536;
+	# tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
+# }
 
 # $sqlite->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 # $sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
