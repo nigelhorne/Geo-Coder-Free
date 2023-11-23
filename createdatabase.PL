@@ -1079,7 +1079,7 @@ my $dbh;
 my %dbtie;
 if($dbh = DB_File::HASHINFO->new()) {
 	$dbh->{'cachesize'} = 65536;
-	tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
+	$dbh = tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
 }
 
 # $sqlite->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
@@ -2073,6 +2073,9 @@ if($sqlite) {
 	$sqlite->do('pragma optimize');
 	$sqlite->disconnect();
 }
+if($dbh) {
+	untie %dbtie;
+}
 if($redis) {
 	$redis->bgsave();
 	$redis->shutdown();
@@ -2767,7 +2770,7 @@ sub flush_queue
 		}
 		if($dbh) {
 			while(my($k, $v) = each(%queued_commits)) {
-				$dbtie{$k} = $v;
+				$dbh->put($k, $v);
 			}
 		}
 	}
