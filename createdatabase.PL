@@ -1164,7 +1164,7 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($sqlite, $redis, 1, %columns);
+		$inserts += insert($sqlite, $redis, $dbh, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($sqlite, $redis, $dbh);
 			$inserts = 0;
@@ -1213,7 +1213,7 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($sqlite, $redis, 1, %columns);
+		$inserts += insert($sqlite, $redis, $dbh, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($sqlite, $redis, $dbh);
 			$inserts = 0;
@@ -1354,7 +1354,7 @@ if((-r 'downloads/allCountries.txt') &&
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
-		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
+		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($sqlite, $redis, $dbh);
 			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
@@ -1545,7 +1545,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'STATE' => $state,
 				'COUNTRY' => $country,
 			};
-			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
+			$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, global => 1);
 			if($inserts >= MAX_INSERT_COUNT) {
 				flush_queue($sqlite, $redis, $dbh);
 				$inserts = 0;
@@ -1600,7 +1600,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						if(DEBUG&DEBUG_DATA_VALIDATE);
 					next;
 				}
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, sqlite => $sqlite, redis => $redis, global => 1);
 			}
 		}
 		my $row = {
@@ -1614,7 +1614,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			'COUNTRY' => $country,
 			'POSTCODE' => $postcode,
 		};
-		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
+		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, sqlite => $sqlite, redis => $redis, global => 1);
 		if(my $addr_full = $properties->{'addr:full'}) {
 			my $ap;
 			if($country =~ /^ENGLAND/) {
@@ -1643,7 +1643,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						'POSTCODE' => uc($c{'post_code'}),
 					};
 					# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh, global => 1);
 				}
 			}
 		}
@@ -1702,7 +1702,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if(my $k = $known_places{$f}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $sqlite, redis => $redis, global => 1);
+				$inserts += import(row => $row, file => $file, dbh => $dbh, ua => $ua, sqlite => $sqlite, redis => $redis, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
 					flush_queue($sqlite, $redis, $dbh);
 					$inserts = 0;
@@ -1738,7 +1738,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$csv->column_names($csv->getline($fin));
 
 		while(my $row = $csv->getline_hr($fin)) {
-			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $sqlite, redis => $redis);
+			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh, sqlite => $sqlite, redis => $redis);
 			if($inserts >= MAX_INSERT_COUNT) {
 				flush_queue($sqlite, $redis, $dbh);
 				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
@@ -1770,7 +1770,7 @@ foreach my $country(@whosonfirst_only_countries) {
 	if(my $k = $known_places{'other'}) {
 		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 		foreach my $row(@{$k}) {
-			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $sqlite, redis => $redis);
+			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh);
 		}
 	}
 
@@ -1810,7 +1810,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
 					};
-					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $sqlite, redis => $redis);
+					$inserts += import(row => $row, file => $filename, ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh);
 					# print Data::Dumper->new([$row])->Dump();
 					if($inserts >= MAX_INSERT_COUNT) {
 						flush_queue($sqlite, $redis, $dbh);
@@ -1999,7 +1999,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 								'LAT' => $lat,
 								'LON' => $lon,
 							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $sqlite, redis => $redis);
+							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, sqlite => $sqlite, dbh => $dbh, redis => $redis);
 							if($inserts >= MAX_INSERT_COUNT) {
 								flush_queue($sqlite, $redis, $dbh);
 								$inserts = 0;
@@ -2166,8 +2166,9 @@ sub import {
 	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
-	my $sqlite = $param{'dbh'};
+	my $sqlite = $param{'sqlite'};
 	my $redis = $param{'redis'};
+	my $dbh = $param{'dbh'};
 	if((!$sqlite) && (!$dbh) && !$redis) {
 		die 'import: neither sqlite, dbh nor redis';
 	}
@@ -2243,7 +2244,7 @@ sub import {
 					'LON' => $place->{'longitude'},
 				);
 				# print "$zip => $query\n";
-				$inserts = insert($sqlite, $redis, $global, %columns);
+				$inserts = insert($sqlite, $redis, $dbh, $global, %columns);
 			}
 		}
 		if((!defined($city)) && !defined($state)) {
@@ -2277,10 +2278,10 @@ sub import {
 			if($borough ne $street) {
 				my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 				$columns{'CITY'} = $city_name;
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 				print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
 			}
 		}
@@ -2389,10 +2390,10 @@ sub import {
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
-		$inserts += insert($sqlite, $redis, $global, %columns);
+		$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			return $inserts if(!defined($city));
-			$inserts += insert($sqlite, $redis, $global, %columns);
+			$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 		}
 		my $name = $columns{'NAME'};
 		if($name) {
@@ -2401,49 +2402,49 @@ sub import {
 			#	Check if $name ends with uc($classifier->{category})
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 			}
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
-					$inserts += insert($sqlite, $redis, $global, %columns);
+					$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 					# print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
 			# Match somewhere in the street when number isn't known
-			$inserts += insert($sqlite, $redis, $global, %columns);
+			$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 			if(delete($columns{'STREET'})) {
 				if($name) {
 					# For when a name is known but not a street
 					$columns{'NAME'} = $name;
-					$inserts += insert($sqlite, $redis, $global, %columns);
+					$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
-						$inserts += insert($sqlite, $redis, $global, %columns);
+						$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 						# print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
 				# Match somewhere in the city when street isn't known
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 			}
 		} elsif($name && delete($columns{'STREET'})) {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
-			$inserts += insert($sqlite, $redis, $global, %columns);
+			$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($sqlite, $redis, $global, %columns);
+				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 		}
@@ -2454,7 +2455,12 @@ sub import {
 # Queue data to be added to the database
 # Returns the number of items added to the queued_commits array
 sub insert {
-	my ($sqlite, $redis, $global, %columns) = @_;
+	my ($sqlite, $redis, $dbh, $global, %columns) = @_;
+
+	if((!$sqlite) && (!$dbh) && !$redis) {
+		die 'insert neither sqlite, dbh nor redis';
+	}
+	die 'nothing to insert' if(scalar(keys %columns) == 0);
 
 	foreach my $column(keys %columns) {
 		if(!defined($columns{$column})) {
