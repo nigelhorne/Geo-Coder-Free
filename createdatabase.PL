@@ -57,7 +57,7 @@ use warnings;
 use autodie;	# Don't want system() to die, we catch failures
 use Cwd;
 use Data::Dumper;
-use DB_File;
+use BerkeleyDB;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use DBI;
 use File::Copy;
