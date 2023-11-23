@@ -1556,8 +1556,6 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			# print "\t$country, $state, $city\n";
 		} else {
 			# print "\t$country, $state\n";
-		}
-		if(!defined($city)) {
 			my $address = $properties->{'addr:full'};
 			next if(!defined($address));
 			if(my $href = (Geo::StreetAddress::US->parse_location($address) || Geo::StreetAddress::US->parse_address($address))) {
@@ -1565,8 +1563,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 					$city = $href->{city};
 				}
 			}
+			next if(!defined($city));
 		}
-		next if(!defined($city));
 		my $postcode = $properties->{'addr:postcode'};
 		if($postcode) {
 			$postcode = uc($postcode);
