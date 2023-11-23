@@ -1379,10 +1379,10 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
-		$| = 1;
-		printf "%-70s\r", $geojson_file;
-		print "\n" if(DEBUG);
-		$| = 0;
+		# $| = 1;
+		# printf "%-70s\r", $geojson_file;
+		# print "\n" if(DEBUG);
+		# $| = 0;
 
 		# Don't combine these statements - it creates CPANEL usage errors
 		# which I need to investigate
@@ -2560,16 +2560,16 @@ sub insert {
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
-	my ($sqlite, $redis) = @_;
+	my ($sqlite, $redis, $dbh) = @_;
 
-	print "flush\n" if(DEBUG&DEBUG_FLUSH);
+	print 'flush ', scalar(keys %queued_commits), " records\n" if(DEBUG&DEBUG_FLUSH);
+	print 'flush ', scalar(keys %queued_commits), " records\n";
 
 	# my @columns = ('LAT','LON','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY');
 	# my @columns = ('LAT','LON','NAME','NUMBER','STREET');
 
 	my $query;
 
-	# print scalar(keys %queued_commits), "\n";
 	# while(my($md5, $row) = each %queued_commits) {
 	foreach my $md5(keys %queued_commits) {
 		my $row = $queued_commits{$md5};
