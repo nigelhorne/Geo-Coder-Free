@@ -1071,6 +1071,8 @@ my $sqlite;
 if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
 	$sqlite->do('PRAGMA cache_size = -65536');	# 64MB
 	$sqlite->do('PRAGMA journal_mode = OFF');
+	$sqlite->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
+	$sqlite->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
 }
 if(!-d $oa) {
 	mkdir $oa;
