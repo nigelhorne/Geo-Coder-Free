@@ -2835,7 +2835,7 @@ sub get_wof {
 	my ($properties, $id) = @_;
 
 	state %l1_cache;
-	state $l2_cache;
+	# state $l2_cache;
 
 	return if($id < 0);
 	if($l1_cache{$id}) {
@@ -2843,20 +2843,20 @@ sub get_wof {
 		# print "get_wof: stored $l1_cache{$id} at line ", $call_details[2], "\n" if(DEBUG&DEBUG_ALL);
 		return $l1_cache{$id};
 	}
-	if(scalar(keys %l1_cache) >= 50) {
+	if(scalar(keys %l1_cache) >= 100) {
 		%l1_cache = ();
 	}
 
-	if(defined($l2_cache)) {
-		if(my $name = $l2_cache->get($id)) {
-			my @call_details = caller(0);
-			print "get_wof: cached $name at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
-			$l1_cache{$id} = $name;
-			return $name;
-		}
-	} else {
-		$l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
-	}
+	# if(defined($l2_cache)) {
+		# if(my $name = $l2_cache->get($id)) {
+			# my @call_details = caller(0);
+			# print "get_wof: cached $name at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
+			# $l1_cache{$id} = $name;
+			# return $name;
+		# }
+	# } else {
+		# $l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
+	# }
 
 	print "get_wof: not cached $id\n" if(DEBUG&DEBUG_GET_WOF);
 	my $filename;
@@ -2888,9 +2888,11 @@ sub get_wof {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = uc($properties->{'wof:country'});
 			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
-				return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:abbreviation'} || $properties->{'wof:shortcode'} || $properties->{'wof:name'}, '1 minute');
+				# return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, '1 minute');
+				return $l1_cache{$id} = $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'};
 			}
 		}
-		return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
+		# return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
+		return $l1_cache{$id} = $properties->{'wof:name'};
 	# }
 }
