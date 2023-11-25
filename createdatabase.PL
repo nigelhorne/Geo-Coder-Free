@@ -1084,7 +1084,7 @@ if(my $e = $ENV{'MARIADB_SERVER'}) {
 	$dbh = DBI->connect("dbi:MariaDB:host=$e;database=geo_coder_free",
 		$user,
 		$password,
-		{ RaiseError => 1 }
+		{ RaiseError => 1, AutoCommit => 0 }
 	);
 	$dbh->do('DROP DATABASE IF EXISTS geo_coder_free');
 	$dbh->do('CREATE DATABASE geo_coder_free');
