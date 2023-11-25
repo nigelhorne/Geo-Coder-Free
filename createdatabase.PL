@@ -1116,6 +1116,19 @@ if($ENV{'REDIS_SERVER'}) {
 	$redis->flushdb();
 }
 
+my $mongodb;
+
+if(my $e = $ENV{'MONGODB_SERVER'}) {
+	# TODO
+	# I'm hoping this will require less RAM than SQLite which just chews
+	#	it up
+	require MongoDB;
+	MongoDB->import();
+
+	my ($server, $port) = split (/:/, $e);
+	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port);
+}
+
 my $au = Locale::AU->new();
 my $ca = Locale::CA->new();
 my $us = Locale::US->new();
