@@ -1067,21 +1067,39 @@ my $db_file = "$oa/openaddresses.db";
 exit(0) if((-r $sqlite_file) || (-r $db_file));
 
 # TODO Make this configurable
-my $sqlite;
-# if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+my $dbh;
+# if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
 	# $sqlite->do('PRAGMA cache_size = -65536');	# 64MB
 	# $sqlite->do('PRAGMA journal_mode = OFF');
 	# $sqlite->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
 	# $sqlite->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
 # }
+
+if(my $e = $ENV{'MARIADB_SERVER'}) {
+	require DBD::MariaDB;
+	DBD::MariaDB->import();
+
+	# FIXME: ask for user name and password
+	my ($user, $password) = split(/:/, $ENV{'MARIADB_USER'});
+	$dbh = DBI->connect("dbi:MariaDB:host=$e;database=geo_coder_free",
+		$user,
+		$password,
+		{ RaiseError => 1 }
+	);
+	$dbh->do('DROP DATABASE IF EXISTS geo_coder_free');
+	$dbh->do('CREATE DATABASE geo_coder_free');
+	$dbh->do('USE geo_coder_free');
+}
+
 if(!-d $oa) {
 	mkdir $oa;
 }
-my $dbh;
+
+my $berkeley_db;
 my %dbtie;
-# if($dbh = DB_File::HASHINFO->new()) {
-	# $dbh->{'cachesize'} = 65536;
-	# tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $dbh;
+# if($berkeley_db = DB_File::HASHINFO->new()) {
+	# $berkeley_db->{'cachesize'} = 65536;
+	# tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $berkeley_db;
 # }
 
 # $sqlite->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
@@ -1090,15 +1108,15 @@ if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 	warn 'MAX_INSERT_COUNT not set to 1 in DEBUG mode';
 }
 
-if($sqlite) {
+if($dbh) {
 	if(MAX_INSERT_COUNT == 1) {
-		$sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
 	} else {
-		$sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
 	}
 }
-# $sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
-# $sqlite->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
+# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
 
 print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -1117,7 +1135,6 @@ if($ENV{'REDIS_SERVER'}) {
 }
 
 my $mongodb;
-
 if(my $e = $ENV{'MONGODB_SERVER'}) {
 	# TODO
 	# I'm hoping this will require less RAM than SQLite which just chews
@@ -1179,9 +1196,9 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($sqlite, $redis, $mongodb, $dbh, 1, %columns);
+		$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $mongodb, $dbh);
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 			$inserts = 0;
 		}
 	}
@@ -1228,9 +1245,9 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($sqlite, $redis, $mongodb, $dbh, 1, %columns);
+		$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $mongodb, $dbh);
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 			$inserts = 0;
 		}
 	}
@@ -1369,9 +1386,9 @@ if((-r 'downloads/allCountries.txt') &&
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
-		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, dbh => $dbh, global => 1);
+		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $mongodb, $dbh);
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 			$offset += AIO_READAHEAD_SIZE;
 			$inserts = 0;
@@ -1379,11 +1396,11 @@ if((-r 'downloads/allCountries.txt') &&
 	}
 	$all_countries->close();
 }
-flush_queue($sqlite, $redis, $mongodb, $dbh);
+flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $sqlite->commit();
-# $sqlite->disconnect();
+# $dbh->commit();
+# $dbh->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
 
@@ -1560,9 +1577,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'STATE' => $state,
 				'COUNTRY' => $country,
 			};
-			$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
+			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($sqlite, $redis, $mongodb, $dbh);
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				$inserts = 0;
 			}
 			next;
@@ -1615,7 +1632,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						if(DEBUG&DEBUG_DATA_VALIDATE);
 					next;
 				}
-				$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 			}
 		}
 		my $row = {
@@ -1629,7 +1646,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			'COUNTRY' => $country,
 			'POSTCODE' => $postcode,
 		};
-		$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
+		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 		if(my $addr_full = $properties->{'addr:full'}) {
 			my $ap;
 			if($country =~ /^ENGLAND/) {
@@ -1658,12 +1675,12 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						'POSTCODE' => uc($c{'post_code'}),
 					};
 					# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-					$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 				}
 			}
 		}
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $mongodb, $dbh);
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 			$inserts = 0;
 		}
 	}
@@ -1699,7 +1716,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if($country eq 'US') {
 			if((!defined($current_state)) || ($state ne $current_state)) {
 				print "New state, clear state_md5s; state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
-				flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current state
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 				%state_md5s = ();
 				%state_parent_md5s = ();
 				$current_country = $country;
@@ -1707,7 +1724,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			}
 		} elsif((!defined($current_country)) || ($country ne $current_country)) {
 			# print "New country, clear state_md5s\n";
-			flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current country
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current country
 			%state_md5s = ();
 			%state_parent_md5s = ();
 			$current_country = $country;
@@ -1717,9 +1734,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if(my $k = $known_places{$f}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($sqlite, $redis, $mongodb, $dbh);
+					flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 					$inserts = 0;
 				}
 			}
@@ -1753,9 +1770,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$csv->column_names($csv->getline($fin));
 
 		while(my $row = $csv->getline_hr($fin)) {
-			$inserts += import(row => $row, file => $csv_file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb);
+			$inserts += import(row => $row, file => $csv_file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($sqlite, $redis, $mongodb, $dbh);
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 				$inserts = 0;
 				$offset += AIO_READAHEAD_SIZE;
@@ -1765,18 +1782,18 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		$fh->close();
 
-		flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current state
+		flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 		$inserts = 0;
 	}
 }
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $sqlite->commit();
-# $sqlite->disconnect();
+# $dbh->commit();
+# $dbh->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
 
-flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in last state
+flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
 %state_md5s = ();
 %state_parent_md5s = ();
 
@@ -1785,17 +1802,17 @@ foreach my $country(@whosonfirst_only_countries) {
 	if(my $k = $known_places{'other'}) {
 		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 		foreach my $row(@{$k}) {
-			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, dbh => $dbh);
+			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
 		}
 	}
 
 	if($inserts >= MAX_INSERT_COUNT) {
-		flush_queue($sqlite, $redis, $mongodb, $dbh);
+		flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 		$inserts = 0;
 	}
 }
 
-flush_queue($sqlite, $redis, $mongodb, $dbh);
+flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 %whosonfirst = ();
 
 if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
@@ -1825,10 +1842,10 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
 					};
-					$inserts += import(row => $row, file => $filename, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, dbh => $dbh);
+					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
 					# print Data::Dumper->new([$row])->Dump();
 					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($sqlite, $redis, $mongodb, $dbh);
+						flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 						$inserts = 0;
 					}
 				}
@@ -1838,7 +1855,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 		};
 	}
 
-	flush_queue($sqlite, $redis, $mongodb, $dbh);
+	flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 	$inserts = 0;
 }
 
@@ -2014,9 +2031,9 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 								'LAT' => $lat,
 								'LON' => $lon,
 							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, sqlite => $sqlite, dbh => $dbh, redis => $redis, mongodb => $mongodb);
+							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 							if($inserts >= MAX_INSERT_COUNT) {
-								flush_queue($sqlite, $redis, $mongodb, $dbh);
+								flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 								$inserts = 0;
 							}
 						}
@@ -2033,7 +2050,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		}
 	}
 
-	flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current state
+	flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 	$inserts = 0;
 }
 
@@ -2055,7 +2072,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		# "'$country')";
 
 	# # print "$query\n";
-	# $sqlite->do($query);
+	# $dbh->do($query);
 # }
 
 $| = 1;
@@ -2070,25 +2087,25 @@ $| = 0;
 %cities = ();
 
 if(MAX_INSERT_COUNT > 1) {
-	# $sqlite->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
-	if($sqlite) {
-		$sqlite->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
+	# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
+	if($dbh) {
+		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
 	}
-	# $sqlite->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
-	# $sqlite->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
-	# $sqlite->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
+	# $dbh->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
+	# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
+	# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
 }
 
 $| = 1;
 printf "%-70s\r", 'committing';
 print "\n" if(DEBUG);
 $| = 0;
-if($sqlite) {
-	$sqlite->commit();
-	$sqlite->do('pragma optimize');
-	$sqlite->disconnect();
-}
 if($dbh) {
+	$dbh->commit();
+	$dbh->do('pragma optimize');
+	$dbh->disconnect();
+}
+if($berkeley_db) {
 	untie %dbtie;
 }
 if($redis) {
@@ -2181,11 +2198,11 @@ sub import {
 	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
-	my $sqlite = $param{'sqlite'};
-	my $redis = $param{'redis'};
 	my $dbh = $param{'dbh'};
-	if((!$sqlite) && (!$dbh) && (!$mongodb) && (!$redis)) {
-		die 'import neither sqlite, dbh, redis nor mongodb defined';
+	my $redis = $param{'redis'};
+	my $berkeley_db = $param{'berkeley_db'};
+	if((!$dbh) && (!$berkeley_db) && (!$mongodb) && (!$redis)) {
+		die 'import neither dbh, berkeley_db, redis nor mongodb defined';
 	}
 	my $global = $param{'global'} || 0;
 	my $inserts = 0;
@@ -2259,14 +2276,14 @@ sub import {
 					'LON' => $place->{'longitude'},
 				);
 				# print "$zip => $query\n";
-				$inserts = insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts = insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 			}
 		}
 		if((!defined($city)) && !defined($state)) {
 			# die Data::Dumper->new([\$row])->Dump();
 			return $inserts if(!$zip);
 			return $inserts if($zip !~ /^\d{5}/);
-			$sqlite->disconnect() if($sqlite);
+			$dbh->disconnect() if($dbh);
 			die $file;
 		}
 	}
@@ -2293,10 +2310,10 @@ sub import {
 			if($borough ne $street) {
 				my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 				$columns{'CITY'} = $city_name;
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 				print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
 			}
 		}
@@ -2405,10 +2422,10 @@ sub import {
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
-		$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+		$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			return $inserts if(!defined($city));
-			$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 		}
 		my $name = $columns{'NAME'};
 		if($name) {
@@ -2417,49 +2434,49 @@ sub import {
 			#	Check if $name ends with uc($classifier->{category})
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 			}
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
-					$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+					$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 					# print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
 			# Match somewhere in the street when number isn't known
-			$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 			if(delete($columns{'STREET'})) {
 				if($name) {
 					# For when a name is known but not a street
 					$columns{'NAME'} = $name;
-					$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+					$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
-						$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+						$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 						# print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
 				# Match somewhere in the city when street isn't known
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 			}
 		} elsif($name && delete($columns{'STREET'})) {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
-			$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+			$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
+				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 		}
@@ -2470,10 +2487,10 @@ sub import {
 # Queue data to be added to the database
 # Returns the number of items added to the queued_commits array
 sub insert {
-	my ($sqlite, $redis, $mongodb, $dbh, $global, %columns) = @_;
+	my ($dbh, $redis, $mongodb, $berkeley_db, $global, %columns) = @_;
 
-	if((!$sqlite) && (!$mongodb) && (!$dbh) && (!$redis)) {
-		die 'insert neither sqlite, dbh,  redis nor mongodb defined';
+	if((!$dbh) && (!$mongodb) && (!$berkeley_db) && (!$redis)) {
+		die 'insert neither dbh, berkeley_db, redis nor mongodb defined';
 	}
 	die 'nothing to insert' if(scalar(keys %columns) == 0);
 
@@ -2527,7 +2544,7 @@ sub insert {
 	# }
 	# print "$digest\n";
 
-	# $sqlite->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
+	# $dbh->prepare("SELECT * FROM openaddresses WHERE MD5 = '$digest'");
 	# $sth->execute();
 	# while(my $href = $sth->fetchrow_hashref()) {
 		# my @call_details = caller(0);
@@ -2540,7 +2557,7 @@ sub insert {
 	$columns{'LINE'} = $call_details[2] if(DEBUG);
 	$queued_commits{$digest} = \%columns;
 	if(DEBUG&DEBUG_ALL) {
-		flush_queue($sqlite, $redis, $mongodb, $dbh);
+		flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 	}
 	if(!defined($columns{'COUNTRY'})) {
 		print "insert: no country. Called from line ", $call_details[2], "\n";
@@ -2567,7 +2584,7 @@ sub insert {
 		if($digest = create_md5($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = \%columns2;
 			if(DEBUG&DEBUG_ALL) {
-				flush_queue($sqlite, $redis, $mongodb, $dbh);
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 			}
 			return 2;
 		# } else {
@@ -2581,7 +2598,7 @@ sub insert {
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
-	my ($sqlite, $redis, $mongodb, $dbh) = @_;
+	my ($dbh, $redis, $mongodb, $berkeley_db) = @_;
 
 	print 'flush ', scalar(keys %queued_commits), " records\n" if(DEBUG&DEBUG_FLUSH);
 
@@ -2780,9 +2797,9 @@ sub flush_queue
 		# $| = 1;
 		# print '.';
 		# $| = 0;
-		if($sqlite) {
+		if($dbh) {
 			try {
-				$sqlite->do($query);
+				$dbh->do($query);
 			} catch {
 				my @call_details = caller(1);
 				print "Error in flush_queue ($query) called from line ", $call_details[2], "\n\t",
@@ -2791,9 +2808,9 @@ sub flush_queue
 				die $_;
 			};
 		}
-		if($dbh) {
+		if($berkeley_db) {
 			while(my($k, $v) = each(%queued_commits)) {
-				# $dbh->put($k, $v);
+				# $berkeley_db->put($k, $v);
 				$dbtie{$k} = $v;
 			}
 		}
@@ -2805,7 +2822,7 @@ sub flush_queue
 		# print '.';
 		# $| = 0;
 		try {
-			$sqlite->do($tree_query);
+			$dbh->do($tree_query);
 		} catch {
 			print Data::Dumper->new([\%queued_commits])->Dump();
 			die $_;

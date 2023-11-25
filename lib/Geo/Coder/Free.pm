@@ -406,6 +406,14 @@ You will need to create the database used by Geo::Coder::Free.
 Install L<App::csv2sqlite> and L<https://github.com/nigelhorne/NJH-Snippets>.
 Run bin/create_sqlite - converts the Maxmind "cities" database from CSV to SQLite.
 
+To use with MariaDB,
+set MARIADB_SERVER="$hostname;$port" and
+MARIADB_USER="$user;$password" (TODO: username/password should be asked for)
+The code will use a database called geo_code_free which will be deleted
+if it exists.
+$user should only need to privileges to DROP, CREATE, SELECT and INSERT
+on that database.
+
 Optional steps to download and install large databases.
 This will take a long time and use a lot of disc space, be clear that this is what you want.
 In the bin directory there are some helper scripts to do this.
