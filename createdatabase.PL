@@ -1402,8 +1402,9 @@ if((-r 'downloads/allCountries.txt') &&
 }
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
+$dbh->commit();	# Hoping this will save memory here
+
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $dbh->commit();
 # $dbh->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
@@ -1690,6 +1691,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	}
 }
 
+$dbh->commit();
+
 # Find all of the .csv files in $OPENADDR_HOME
 foreach my $csv_file (create_tree($oa, 1)) {
 	# next unless($csv_file =~ /us\/md\/statewide/);
@@ -1791,8 +1794,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	}
 }
 
+$dbh->commit();
+
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $dbh->commit();
 # $dbh->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
