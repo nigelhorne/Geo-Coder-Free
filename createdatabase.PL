@@ -1089,6 +1089,10 @@ if(my $e = $ENV{'MARIADB_SERVER'}) {
 	$dbh->do('DROP DATABASE IF EXISTS geo_coder_free');
 	$dbh->do('CREATE DATABASE geo_coder_free');
 	$dbh->do('USE geo_coder_free');
+	# So the database is not contantly re-written
+	open(my $fout, '>', $sqlite_file);
+	close($fout);
+	truncate $sqlite_file, 0;
 }
 
 if(!-d $oa) {
