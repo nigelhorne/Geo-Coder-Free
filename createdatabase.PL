@@ -1068,12 +1068,12 @@ exit(0) if((-r $sqlite_file) || (-r $db_file));
 
 # TODO Make this configurable
 my $sqlite;
-if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
-	$sqlite->do('PRAGMA cache_size = -65536');	# 64MB
-	$sqlite->do('PRAGMA journal_mode = OFF');
-	$sqlite->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
-	$sqlite->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
-}
+# if($sqlite = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+	# $sqlite->do('PRAGMA cache_size = -65536');	# 64MB
+	# $sqlite->do('PRAGMA journal_mode = OFF');
+	# $sqlite->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
+	# $sqlite->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
+# }
 if(!-d $oa) {
 	mkdir $oa;
 }
@@ -1125,8 +1125,10 @@ if(my $e = $ENV{'MONGODB_SERVER'}) {
 	require MongoDB;
 	MongoDB->import();
 
+	my $db_name = 'Geo::Coder::Free';
 	my ($server, $port) = split (/:/, $e);
-	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port);
+
+	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port)->get_database($db_name)->get_collection('data');
 }
 
 my $au = Locale::AU->new();
@@ -1177,9 +1179,9 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($sqlite, $redis, $dbh, 1, %columns);
+		$inserts += insert($sqlite, $redis, $mongodb, $dbh, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $dbh);
+			flush_queue($sqlite, $redis, $mongodb, $dbh);
 			$inserts = 0;
 		}
 	}
@@ -1226,9 +1228,9 @@ if(-r $filename) {
 			'LON' => $row->{'Longitude'},
 		);
 		# print "$zip => $query\n";
-		$inserts += insert($sqlite, $redis, $dbh, 1, %columns);
+		$inserts += insert($sqlite, $redis, $mongodb, $dbh, 1, %columns);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $dbh);
+			flush_queue($sqlite, $redis, $mongodb, $dbh);
 			$inserts = 0;
 		}
 	}
@@ -1367,9 +1369,9 @@ if((-r 'downloads/allCountries.txt') &&
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
-		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh, global => 1);
+		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, dbh => $dbh, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $dbh);
+			flush_queue($sqlite, $redis, $mongodb, $dbh);
 			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 			$offset += AIO_READAHEAD_SIZE;
 			$inserts = 0;
@@ -1377,7 +1379,7 @@ if((-r 'downloads/allCountries.txt') &&
 	}
 	$all_countries->close();
 }
-flush_queue($sqlite, $redis, $dbh);
+flush_queue($sqlite, $redis, $mongodb, $dbh);
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
 # $sqlite->commit();
@@ -1558,9 +1560,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'STATE' => $state,
 				'COUNTRY' => $country,
 			};
-			$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, global => 1);
+			$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($sqlite, $redis, $dbh);
+				flush_queue($sqlite, $redis, $mongodb, $dbh);
 				$inserts = 0;
 			}
 			next;
@@ -1613,7 +1615,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						if(DEBUG&DEBUG_DATA_VALIDATE);
 					next;
 				}
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, sqlite => $sqlite, redis => $redis, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
 			}
 		}
 		my $row = {
@@ -1627,7 +1629,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			'COUNTRY' => $country,
 			'POSTCODE' => $postcode,
 		};
-		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, sqlite => $sqlite, redis => $redis, global => 1);
+		$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
 		if(my $addr_full = $properties->{'addr:full'}) {
 			my $ap;
 			if($country =~ /^ENGLAND/) {
@@ -1656,12 +1658,12 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						'POSTCODE' => uc($c{'post_code'}),
 					};
 					# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-					$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
 				}
 			}
 		}
 		if($inserts >= MAX_INSERT_COUNT) {
-			flush_queue($sqlite, $redis, $dbh);
+			flush_queue($sqlite, $redis, $mongodb, $dbh);
 			$inserts = 0;
 		}
 	}
@@ -1697,7 +1699,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if($country eq 'US') {
 			if((!defined($current_state)) || ($state ne $current_state)) {
 				print "New state, clear state_md5s; state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
-				flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current state
+				flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current state
 				%state_md5s = ();
 				%state_parent_md5s = ();
 				$current_country = $country;
@@ -1705,7 +1707,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			}
 		} elsif((!defined($current_country)) || ($country ne $current_country)) {
 			# print "New country, clear state_md5s\n";
-			flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current country
+			flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current country
 			%state_md5s = ();
 			%state_parent_md5s = ();
 			$current_country = $country;
@@ -1715,9 +1717,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		if(my $k = $known_places{$f}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => $file, dbh => $dbh, ua => $ua, sqlite => $sqlite, redis => $redis, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, global => 1);
 				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($sqlite, $redis, $dbh);
+					flush_queue($sqlite, $redis, $mongodb, $dbh);
 					$inserts = 0;
 				}
 			}
@@ -1751,9 +1753,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$csv->column_names($csv->getline($fin));
 
 		while(my $row = $csv->getline_hr($fin)) {
-			$inserts += import(country => $country, state => $state, row => $row, file => $csv_file, ua => $ua, dbh => $dbh, sqlite => $sqlite, redis => $redis);
+			$inserts += import(row => $row, file => $csv_file, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($sqlite, $redis, $dbh);
+				flush_queue($sqlite, $redis, $mongodb, $dbh);
 				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
 				$inserts = 0;
 				$offset += AIO_READAHEAD_SIZE;
@@ -1763,7 +1765,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		$fh->close();
 
-		flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current state
+		flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current state
 		$inserts = 0;
 	}
 }
@@ -1774,7 +1776,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 # $wof_global_dbh->disconnect();
 # exit(0);
 
-flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in last state
+flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in last state
 %state_md5s = ();
 %state_parent_md5s = ();
 
@@ -1783,17 +1785,17 @@ foreach my $country(@whosonfirst_only_countries) {
 	if(my $k = $known_places{'other'}) {
 		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 		foreach my $row(@{$k}) {
-			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh);
+			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, dbh => $dbh);
 		}
 	}
 
 	if($inserts >= MAX_INSERT_COUNT) {
-		flush_queue($sqlite, $redis, $dbh);
+		flush_queue($sqlite, $redis, $mongodb, $dbh);
 		$inserts = 0;
 	}
 }
 
-flush_queue($sqlite, $redis, $dbh);
+flush_queue($sqlite, $redis, $mongodb, $dbh);
 %whosonfirst = ();
 
 if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
@@ -1823,10 +1825,10 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
 					};
-					$inserts += import(row => $row, file => $filename, ua => $ua, sqlite => $sqlite, redis => $redis, dbh => $dbh);
+					$inserts += import(row => $row, file => $filename, ua => $ua, sqlite => $sqlite, redis => $redis, mongodb => $mongodb, dbh => $dbh);
 					# print Data::Dumper->new([$row])->Dump();
 					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($sqlite, $redis, $dbh);
+						flush_queue($sqlite, $redis, $mongodb, $dbh);
 						$inserts = 0;
 					}
 				}
@@ -1836,7 +1838,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 		};
 	}
 
-	flush_queue($sqlite, $redis, $dbh);
+	flush_queue($sqlite, $redis, $mongodb, $dbh);
 	$inserts = 0;
 }
 
@@ -2012,9 +2014,9 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 								'LAT' => $lat,
 								'LON' => $lon,
 							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, sqlite => $sqlite, dbh => $dbh, redis => $redis);
+							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, sqlite => $sqlite, dbh => $dbh, redis => $redis, mongodb => $mongodb);
 							if($inserts >= MAX_INSERT_COUNT) {
-								flush_queue($sqlite, $redis, $dbh);
+								flush_queue($sqlite, $redis, $mongodb, $dbh);
 								$inserts = 0;
 							}
 						}
@@ -2031,7 +2033,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		}
 	}
 
-	flush_queue($sqlite, $redis, $dbh);	# Check for hanging dups in current state
+	flush_queue($sqlite, $redis, $mongodb, $dbh);	# Check for hanging dups in current state
 	$inserts = 0;
 }
 
@@ -2182,8 +2184,8 @@ sub import {
 	my $sqlite = $param{'sqlite'};
 	my $redis = $param{'redis'};
 	my $dbh = $param{'dbh'};
-	if((!$sqlite) && (!$dbh) && !$redis) {
-		die 'import: neither sqlite, dbh nor redis';
+	if((!$sqlite) && (!$dbh) && (!$mongodb) && (!$redis)) {
+		die 'import neither sqlite, dbh, redis nor mongodb defined';
 	}
 	my $global = $param{'global'} || 0;
 	my $inserts = 0;
@@ -2257,7 +2259,7 @@ sub import {
 					'LON' => $place->{'longitude'},
 				);
 				# print "$zip => $query\n";
-				$inserts = insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts = insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 			}
 		}
 		if((!defined($city)) && !defined($state)) {
@@ -2291,10 +2293,10 @@ sub import {
 			if($borough ne $street) {
 				my %columns = ( %{$param{'row'}}, 'COUNTRY' => $country, 'STATE' => $state, 'COUNTY' => $county, 'CITY' => $borough );
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 				$columns{'CITY'} = $city_name;
 				print "\t", Data::Dumper->new([\%columns])->Dump() if(DEBUG&DEBUG_BREAKUP);
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 				print "\tDone\n" if(DEBUG&DEBUG_BREAKUP);
 			}
 		}
@@ -2403,10 +2405,10 @@ sub import {
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
-		$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+		$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			return $inserts if(!defined($city));
-			$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+			$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 		}
 		my $name = $columns{'NAME'};
 		if($name) {
@@ -2415,49 +2417,49 @@ sub import {
 			#	Check if $name ends with uc($classifier->{category})
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 			if(delete($columns{'NAME'})) {
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 			}
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
 				# For when a name is known but not a street number
 				$columns{'NAME'} = $name;
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 				if($name =~ /^(.+)\s+RESTAURANT/i) {
 					$columns{'NAME'} = $1;
-					$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+					$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 					# print "RESTAURANT: $1\n";
 				}
 				delete($columns{'NAME'});
 			}
 			# Match somewhere in the street when number isn't known
-			$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+			$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 			if(delete($columns{'STREET'})) {
 				if($name) {
 					# For when a name is known but not a street
 					$columns{'NAME'} = $name;
-					$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+					$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 					if($name =~ /^(.+)\s+RESTAURANT/i) {
 						$columns{'NAME'} = $1;
-						$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+						$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 						# print "RESTAURANT: $1\n";
 					}
 					delete($columns{'NAME'});
 				}
 				# Match somewhere in the city when street isn't known
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 			}
 		} elsif($name && delete($columns{'STREET'})) {
 			# For when a name is known but not a street
 			$columns{'NAME'} = $name;
-			$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+			$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 			if($name =~ /^(.+)\s+RESTAURANT/i) {
 				$columns{'NAME'} = $1;
-				$inserts += insert($sqlite, $redis, $dbh, $global, %columns);
+				$inserts += insert($sqlite, $redis, $mongodb, $dbh, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
 		}
@@ -2468,10 +2470,10 @@ sub import {
 # Queue data to be added to the database
 # Returns the number of items added to the queued_commits array
 sub insert {
-	my ($sqlite, $redis, $dbh, $global, %columns) = @_;
+	my ($sqlite, $redis, $mongodb, $dbh, $global, %columns) = @_;
 
-	if((!$sqlite) && (!$dbh) && !$redis) {
-		die 'insert neither sqlite, dbh nor redis';
+	if((!$sqlite) && (!$mongodb) && (!$dbh) && (!$redis)) {
+		die 'insert neither sqlite, dbh,  redis nor mongodb defined';
 	}
 	die 'nothing to insert' if(scalar(keys %columns) == 0);
 
@@ -2538,7 +2540,7 @@ sub insert {
 	$columns{'LINE'} = $call_details[2] if(DEBUG);
 	$queued_commits{$digest} = \%columns;
 	if(DEBUG&DEBUG_ALL) {
-		flush_queue($sqlite, $redis, $dbh);
+		flush_queue($sqlite, $redis, $mongodb, $dbh);
 	}
 	if(!defined($columns{'COUNTRY'})) {
 		print "insert: no country. Called from line ", $call_details[2], "\n";
@@ -2565,7 +2567,7 @@ sub insert {
 		if($digest = create_md5($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = \%columns2;
 			if(DEBUG&DEBUG_ALL) {
-				flush_queue($sqlite, $redis, $dbh);
+				flush_queue($sqlite, $redis, $mongodb, $dbh);
 			}
 			return 2;
 		# } else {
@@ -2579,7 +2581,7 @@ sub insert {
 # Be aware of https://github.com/openaddresses/openaddresses/issues/3928
 sub flush_queue
 {
-	my ($sqlite, $redis, $dbh) = @_;
+	my ($sqlite, $redis, $mongodb, $dbh) = @_;
 
 	print 'flush ', scalar(keys %queued_commits), " records\n" if(DEBUG&DEBUG_FLUSH);
 
@@ -2633,6 +2635,9 @@ sub flush_queue
 		if($redis) {
 			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
 			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'}, sub {});
+		}
+		if($mongodb) {
+			$mongodb->insert_one({ md5 => $row });
 		}
 		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 
