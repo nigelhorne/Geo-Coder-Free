@@ -4,6 +4,8 @@ Revision history for Geo-Coder-Free
 	Fix scantext.t when OSM is installed
 	Fix openaddr.t test for not/there
 	Rework the GETTING STARTED section of the POD
+	Trying different databases since the creation of a database in SQLite
+		eats a lot of RAM
 
 0.34	Mon Nov  6 16:53:43 EST 2023
 	Latest DB.pm from NJH-Snippets
