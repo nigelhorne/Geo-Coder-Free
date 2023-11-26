@@ -1026,8 +1026,8 @@ my $current_state;
 my %global_md5s;
 my %state_md5s;
 my %queued_commits;
-my $city_sequence;
-my %cities;
+# my $city_sequence;
+# my %cities;
 my %unknown_zips;
 my %state_parent_md5s;
 
@@ -2097,7 +2097,7 @@ $| = 0;
 %state_md5s = ();
 %state_parent_md5s = ();
 %global_md5s = ();
-%cities = ();
+# %cities = ();
 
 if(MAX_INSERT_COUNT > 1) {
 	# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
@@ -2576,12 +2576,13 @@ sub insert {
 		print "insert: no country. Called from line ", $call_details[2], "\n";
 		die Data::Dumper->new([\%columns])->Dump();
 	}
-	my $key = city_key($columns{'CITY'}, $columns{'COUNTY'}, $columns{'STATE'}, $columns{'COUNTRY'});
-	if(!$cities{$key}) {
-		$city_sequence++;
-		# print "adding '$key' to cities list\n";
-		$cities{$key} = $city_sequence;
-	}
+
+	# my $key = city_key($columns{'CITY'}, $columns{'COUNTY'}, $columns{'STATE'}, $columns{'COUNTRY'});
+	# if(!$cities{$key}) {
+		# $city_sequence++;
+		# # print "adding '$key' to cities list\n";
+		# $cities{$key} = $city_sequence;
+	# }
 
 	# Some postal address parsers have problems with "N FOO ST", so also store "NFOOST"
 	if($columns{'STREET'} && ($columns{'STREET'} =~ /^[A-Z]\s\w+\s\w+$/)) {
@@ -2862,21 +2863,21 @@ sub create_md5
 	return $digest;
 }
 
-# State must be the abbreviated form
-sub city_key {
-	my ($city, $county, $state, $country) = @_;
-
-	if(!defined($city)) {
-		$city = '0';
-	}
-	if(!defined($county)) {
-		$county = '0';
-	}
-	if(!defined($state)) {
-		return "$city,$county,0,$country";
-	}
-	return "$city,$county,$state,$country";
-}
+# # State must be the abbreviated form
+# sub city_key {
+	# my ($city, $county, $state, $country) = @_;
+# 
+	# if(!defined($city)) {
+		# $city = '0';
+	# }
+	# if(!defined($county)) {
+		# $county = '0';
+	# }
+	# if(!defined($state)) {
+		# return "$city,$county,0,$country";
+	# }
+	# return "$city,$county,$state,$country";
+# }
 
 # Given a Whosonfirst ID, return the matching geojson. Cache lookups
 sub get_wof {
