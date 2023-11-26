@@ -2205,8 +2205,8 @@ sub import {
 		die 'import: no args';
 	}
 
-	my $r = $param{'row'} || die 'import: no row';
-	my $row = { %{$r} };	# Take a copy of the hash because we're going to play with it
+	my $row = $param{'row'} || die 'import: no row';
+	$row = { %{$row} };	# Take a copy of the hash because we're going to play with it
 	my $country = $param{'country'} || $row->{'COUNTRY'} || die 'import: no country';
 	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
@@ -2841,6 +2841,9 @@ sub flush_queue
 			print Data::Dumper->new([\%queued_commits])->Dump();
 			die $_;
 		};
+	}
+	if($dbh) {
+		$dbh->commit();
 	}
 	%queued_commits = ();
 }
