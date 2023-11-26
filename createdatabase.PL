@@ -1269,10 +1269,10 @@ $ua->env_proxy(1);
 if((-r 'downloads/allCountries.txt') &&
    # open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
+   # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
    (my $all_countries = File::Open::NoCache::ReadOnly->new('downloads/allCountries.txt')) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
-   # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 	my $fin = $all_countries->fd();
 	aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 	my $fin1 = $admin1->fd();
@@ -1402,11 +1402,8 @@ if((-r 'downloads/allCountries.txt') &&
 }
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
-$dbh->commit();	# Hoping this will save memory here
-
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
 # $dbh->disconnect();
-# $wof_global_dbh->disconnect();
 # exit(0);
 
 my $inserts = 0;
@@ -1415,13 +1412,21 @@ my $inserts = 0;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	my %address_parsers;
 	my $j = JSON::MaybeXS->new()->utf8();
+	my $string = '';
 
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
-		$| = 1;
-		printf "%-70s\r", $geojson_file;
-		print "\n" if(DEBUG);
-		$| = 0;
+		# Print progress, but not for every file as there are a lot
+		my $s = $geojson_file;
+		$s =~ s/\/data\/.+$//;
+		if($s ne $string) {
+			$| = 1;
+			printf "%-70s\r", $s;
+			print "\n" if(DEBUG);
+			$| = 0;
+			$dbh->commit();	# Hoping this will save memory here
+			$string = $s;
+		}
 
 		# Don't combine these statements - it creates CPANEL usage errors
 		# which I need to investigate
@@ -2878,7 +2883,7 @@ sub get_wof {
 	my ($properties, $id) = @_;
 
 	state %l1_cache;
-	# state $l2_cache;
+	state $l2_cache;
 
 	return if($id < 0);
 	if($l1_cache{$id}) {
@@ -2890,16 +2895,16 @@ sub get_wof {
 		%l1_cache = ();
 	}
 
-	# if(defined($l2_cache)) {
-		# if(my $name = $l2_cache->get($id)) {
-			# my @call_details = caller(0);
-			# print "get_wof: cached $name at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
-			# $l1_cache{$id} = $name;
-			# return $name;
-		# }
-	# } else {
-		# $l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
-	# }
+	if(defined($l2_cache)) {
+		if(my $name = $l2_cache->get($id)) {
+			my @call_details = caller(0);
+			print "get_wof: cached $name at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
+			$l1_cache{$id} = $name;
+			return $name;
+		}
+	} else {
+		$l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
+	}
 
 	print "get_wof: not cached $id\n" if(DEBUG&DEBUG_GET_WOF);
 	my $filename;
@@ -2931,11 +2936,9 @@ sub get_wof {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = uc($properties->{'wof:country'});
 			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
-				# return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, '1 minute');
-				return $l1_cache{$id} = $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'};
+				return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, '1 minute');
 			}
 		}
-		# return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
-		return $l1_cache{$id} = $properties->{'wof:name'};
+		return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
 	# }
 }
