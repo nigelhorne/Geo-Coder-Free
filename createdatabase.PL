@@ -1021,7 +1021,6 @@ BEGIN {
 	};
 }
 
-my %postcodes = ();
 my $current_state;
 my %global_md5s;
 my %state_md5s;
@@ -1029,7 +1028,7 @@ my %queued_commits;
 # my $city_sequence;
 # my %cities;
 my %unknown_zips;
-my %state_parent_md5s;
+# my %state_parent_md5s;
 
 my $cities_sql = 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql';
 
@@ -1260,7 +1259,7 @@ if(-r $filename) {
 
 my $current_state;
 my $current_country;
-my %whosonfirst;
+# my %whosonfirst;
 my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 $ua->throttle({ 'api.zippopotam.us' => 1 });
 $ua->env_proxy(1);
@@ -1730,7 +1729,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 				print "New state, clear state_md5s; state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
 				flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 				%state_md5s = ();
-				%state_parent_md5s = ();
+				# %state_parent_md5s = ();
 				$current_country = $country;
 				$current_state = $state;
 			}
@@ -1738,7 +1737,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			# print "New country, clear state_md5s\n";
 			flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current country
 			%state_md5s = ();
-			%state_parent_md5s = ();
+			# %state_parent_md5s = ();
 			$current_country = $country;
 		}
 
@@ -1808,7 +1807,7 @@ $dbh->commit();
 
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
 %state_md5s = ();
-%state_parent_md5s = ();
+# %state_parent_md5s = ();
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
@@ -1826,7 +1825,7 @@ foreach my $country(@whosonfirst_only_countries) {
 }
 
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-%whosonfirst = ();
+# %whosonfirst = ();
 
 if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 	my $filename = File::Spec->catfile($dr5hn, 'countries+states+cities.json');
@@ -2095,7 +2094,7 @@ $| = 0;
 
 # Reclaim memory
 %state_md5s = ();
-%state_parent_md5s = ();
+# %state_parent_md5s = ();
 %global_md5s = ();
 # %cities = ();
 
@@ -2695,116 +2694,116 @@ sub flush_queue
 
 	my $tree_query;
 	# while(my($md5, $row) = each %queued_commits) {
-	if(0) {
-		my $row;
-		my $digest = $row->{'COUNTRY'};
-		my $parent_md5;
+	# if(0) {
+		# my $row;
+		# my $digest = $row->{'COUNTRY'};
+		# my $parent_md5;
+# 
+		# my $md5 = $state_parent_md5s{$digest};
+		# if(!defined($md5)) {
+			# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			# $state_parent_md5s{$md5} = $digest;
+			# if(!defined($tree_query)) {
+				# $tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+			# } else {
+				# $tree_query .= ',(';
+			# }
+			# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+				# ",'$md5',NULL)";
+		# }
+# 
+		# $digest = undef;
+		# foreach my $column('STATE','COUNTRY') {
+			# $digest .= $row->{$column} if($row->{$column});
+		# }
+		# $parent_md5 = $md5;
+		# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+		# if(!defined($state_parent_md5s{$md5})) {
+			# $state_parent_md5s{$md5} = $digest;
+			# if(!defined($tree_query)) {
+				# $tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+			# } else {
+				# $tree_query .= ',(';
+			# }
+			# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+				# ",'$md5','$parent_md5')";
+		# }
+# 
+		# if($row->{'COUNTY'}) {
+			# $digest = undef;
+			# foreach my $column('COUNTY','STATE','COUNTRY') {
+				# $digest .= $row->{$column} if($row->{$column});
+			# }
+			# $parent_md5 = $md5;
+			# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			# if(!defined($state_parent_md5s{$md5})) {
+				# $state_parent_md5s{$md5} = $digest;
+				# if(!defined($tree_query)) {
+					# $tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				# } else {
+					# $tree_query .= ',(';
+				# }
+				# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					# ",'$md5','$parent_md5')";
+			# }
+		# }
+		# if($row->{'CITY'}) {
+			# $digest = undef;
+			# foreach my $column('CITY','COUNTY','STATE','COUNTRY') {
+				# $digest .= $row->{$column} if($row->{$column});
+			# }
+			# $parent_md5 = $md5;
+			# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			# if(!defined($state_parent_md5s{$md5})) {
+				# $state_parent_md5s{$md5} = $digest;
+				# if(!defined($tree_query)) {
+					# $tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				# } else {
+					# $tree_query .= ',(';
+				# }
+				# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					# ",'$md5','$parent_md5')";
+			# }
+		# }
+		# if($row->{'STREET'}) {
+			# $digest = undef;
+			# foreach my $column('STREET','CITY','COUNTY','STATE','COUNTRY') {
+				# $digest .= $row->{$column} if($row->{$column});
+			# }
+			# $parent_md5 = $md5;
+			# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			# if(!defined($state_parent_md5s{$md5})) {
+				# $state_parent_md5s{$md5} = $digest;
+				# if(!defined($tree_query)) {
+					# $tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				# } else {
+					# $tree_query .= ',(';
+				# }
+				# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					# ",'$md5','$parent_md5')";
+			# }
+		# }
+		# if($row->{'NUMBER'}) {
+			# $digest = undef;
+			# foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
+				# $digest .= $row->{$column} if($row->{$column});
+			# }
+			# $parent_md5 = $md5;
+			# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
+			# if(!defined($state_parent_md5s{$md5})) {
+				# $state_parent_md5s{$md5} = $digest;
+				# if(!defined($tree_query)) {
+					# $tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
+				# } else {
+					# $tree_query .= ',(';
+				# }
+				# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
+					# ",'$md5','$parent_md5')";
+			# }
+		# }
 
-		my $md5 = $state_parent_md5s{$digest};
-		if(!defined($md5)) {
-			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
-			$state_parent_md5s{$md5} = $digest;
-			if(!defined($tree_query)) {
-				$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
-			} else {
-				$tree_query .= ',(';
-			}
-			$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
-				",'$md5',NULL)";
-		}
-
-		$digest = undef;
-		foreach my $column('STATE','COUNTRY') {
-			$digest .= $row->{$column} if($row->{$column});
-		}
-		$parent_md5 = $md5;
-		$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
-		if(!defined($state_parent_md5s{$md5})) {
-			$state_parent_md5s{$md5} = $digest;
-			if(!defined($tree_query)) {
-				$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
-			} else {
-				$tree_query .= ',(';
-			}
-			$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
-				",'$md5','$parent_md5')";
-		}
-
-		if($row->{'COUNTY'}) {
-			$digest = undef;
-			foreach my $column('COUNTY','STATE','COUNTRY') {
-				$digest .= $row->{$column} if($row->{$column});
-			}
-			$parent_md5 = $md5;
-			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
-			if(!defined($state_parent_md5s{$md5})) {
-				$state_parent_md5s{$md5} = $digest;
-				if(!defined($tree_query)) {
-					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
-				} else {
-					$tree_query .= ',(';
-				}
-				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
-					",'$md5','$parent_md5')";
-			}
-		}
-		if($row->{'CITY'}) {
-			$digest = undef;
-			foreach my $column('CITY','COUNTY','STATE','COUNTRY') {
-				$digest .= $row->{$column} if($row->{$column});
-			}
-			$parent_md5 = $md5;
-			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
-			if(!defined($state_parent_md5s{$md5})) {
-				$state_parent_md5s{$md5} = $digest;
-				if(!defined($tree_query)) {
-					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
-				} else {
-					$tree_query .= ',(';
-				}
-				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
-					",'$md5','$parent_md5')";
-			}
-		}
-		if($row->{'STREET'}) {
-			$digest = undef;
-			foreach my $column('STREET','CITY','COUNTY','STATE','COUNTRY') {
-				$digest .= $row->{$column} if($row->{$column});
-			}
-			$parent_md5 = $md5;
-			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
-			if(!defined($state_parent_md5s{$md5})) {
-				$state_parent_md5s{$md5} = $digest;
-				if(!defined($tree_query)) {
-					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
-				} else {
-					$tree_query .= ',(';
-				}
-				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
-					",'$md5','$parent_md5')";
-			}
-		}
-		if($row->{'NUMBER'}) {
-			$digest = undef;
-			foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
-				$digest .= $row->{$column} if($row->{$column});
-			}
-			$parent_md5 = $md5;
-			$md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
-			if(!defined($state_parent_md5s{$md5})) {
-				$state_parent_md5s{$md5} = $digest;
-				if(!defined($tree_query)) {
-					$tree_query = 'INSERT INTO tree(lat,lon,md5,parent) VALUES ('
-				} else {
-					$tree_query .= ',(';
-				}
-				$tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
-					",'$md5','$parent_md5')";
-			}
-		}
-
-		# TODO: add NAME field
-	}
+		# # TODO: add NAME field
+	# }
 
 	if($query) {
 		# print "$query\n";
