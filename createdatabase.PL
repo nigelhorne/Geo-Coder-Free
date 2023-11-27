@@ -2133,16 +2133,17 @@ sub create_tree {
 	my @files;
 	my $fin;
 
-	$| = 1;
-	printf "%-70s\r", $where;
-	print "\n" if(DEBUG);
-	$| = 0;
-
 	if($csv) {
 		open($fin, '-|', "find $where -name *.csv");
 	} else {
 		open($fin, '-|', "find $where -name *.geojson");
 	}
+
+	$| = 1;
+	printf "%-70s\r", $where;
+	print "\n" if(DEBUG);
+	$| = 0;
+
 	while(my $line = <$fin>) {
 		# print $line;
 		chomp $line;
