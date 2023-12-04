@@ -20,7 +20,7 @@ use CHI;
 use Lingua::EN::AddressParse;
 use Locale::Country;
 use Geo::StreetAddress::US;
-use Digest::MD5;
+use Digest::CRC;
 use Encode;
 use Storable;
 
@@ -882,7 +882,8 @@ sub _get {
 	$location =~ s/^\s+//;
 	$location =~ s/,\s*//g;
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": _get: $location");
-	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
+	# my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;	# 32-bit code
+	my $digest = Digest::CRC::crc64($digest);	# Code for 64-bits - there could be some clashes
 
 	if(defined($unknown_locations{$digest})) {
 		return;
@@ -940,7 +941,7 @@ To be done.
 
 =cut
 
-# At the moment this can't be supported as the DB only has an MD5 in it
+# At the moment this can't be supported as the DB only has an hash in it
 sub reverse_geocode {
 	Carp::croak(__PACKAGE__, ': Reverse lookup is not yet supported');
 }

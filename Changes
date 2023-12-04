@@ -6,6 +6,8 @@ Revision history for Geo-Coder-Free
 	Rework the GETTING STARTED section of the POD
 	Trying different databases since the creation of a database in SQLite
 		eats a lot of RAM
+	Added mysql support in createdatabase - TODO add support to DB.pm
+	Experimental code - use CRC to generate a 64 bit number for key instead of a string
 
 0.34	Mon Nov  6 16:53:43 EST 2023
 	Latest DB.pm from NJH-Snippets

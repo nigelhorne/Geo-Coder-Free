@@ -71,7 +71,8 @@ use Locale::AU;	# TODO: use Locale::Geocode
 use Locale::CA;
 use Locale::Country;
 use Locale::US;
-use Digest::MD5;
+#	use Digest::MD5;	# 32-bit
+use Digest::CRC;	# 64 bit
 use Encode;
 use Geo::StreetAddress::US;
 use CHI;
@@ -83,6 +84,7 @@ use Lingua::EN::AddressParse;
 use Locale::SubCountry;
 use Text::CSV;
 use Try::Tiny;
+use Devel::Size;
 
 use	constant	AIO_READAHEAD_SIZE => 1048576;	# 1MB
 
@@ -1022,8 +1024,7 @@ BEGIN {
 }
 
 my $current_state;
-my %global_md5s;
-my %state_md5s;
+my %global_md5s;	# This hash becomes HUGE - TODO: find another way to do this
 my %queued_commits;
 # my $city_sequence;
 # my %cities;
@@ -1113,9 +1114,11 @@ if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 
 if($dbh) {
 	if(MAX_INSERT_COUNT == 1) {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 32-bit
+		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 64-bit
 	} else {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');	# 32-bit
+		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED, lat DECIMAL, lon DECIMAL)');	# 64-bit
 	}
 }
 # $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
@@ -1155,6 +1158,7 @@ my $au = Locale::AU->new();
 my $ca = Locale::CA->new();
 my $us = Locale::US->new();
 my $abbr = Geo::Coder::Abbreviations->new();
+# my %digests_added;
 
 my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
 if(-r $filename) {
@@ -1399,6 +1403,8 @@ if((-r 'downloads/allCountries.txt') &&
 	}
 	$all_countries->close();
 }
+# undef %digests_added;
+
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
@@ -1406,6 +1412,8 @@ flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 # exit(0);
 
 my $inserts = 0;
+
+print STDERR __LINE__, ' >>>>', Devel::Size::total_size(\%queued_commits), "\n";
 
 # my $wof_global_dbh;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
@@ -1419,12 +1427,17 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		my $s = $geojson_file;
 		$s =~ s/\/data\/.+$//;
 		if($s ne $string) {
+			# undef %digests_added;
 			$| = 1;
 			printf "%-70s\r", $s;
 			print "\n" if(DEBUG);
 			$| = 0;
 			$dbh->commit();	# Hoping this will save memory here
 			$string = $s;
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n";
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n";
+			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
 
 		# Don't combine these statements - it creates CPANEL usage errors
@@ -1513,7 +1526,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
 				if(defined($region_id) && ($region == $region_id)) {
 					$state = $region_name;
-					# print "Saved state = $state\n" if(DEBUG&DEBUG_ALL);
+					print "Saved state = $state\n" if(DEBUG&DEBUG_DETERMINE_LOCATION);
 				} else {
 					next if($region < 0);
 					print "Getting state from hierarchy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
@@ -1586,7 +1599,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'STATE' => $state,
 				'COUNTRY' => $country,
 			};
-			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+			# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 			if($inserts >= MAX_INSERT_COUNT) {
 				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				$inserts = 0;
@@ -1641,7 +1655,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						if(DEBUG&DEBUG_DATA_VALIDATE);
 					next;
 				}
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+				# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 			}
 		}
 		my $row = {
@@ -1655,7 +1670,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			'COUNTRY' => $country,
 			'POSTCODE' => $postcode,
 		};
-		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+		# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 		if(my $addr_full = $properties->{'addr:full'}) {
 			my $ap;
 			if($country =~ /^ENGLAND/) {
@@ -1684,7 +1700,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						'POSTCODE' => uc($c{'post_code'}),
 					};
 					# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+					# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 				}
 			}
 		}
@@ -1708,8 +1725,10 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	next if($csv_file =~ /ca\/ab\/airdrie.csv/);
 
 	my $f = $csv_file;
+	# print __LINE__, ": >>>>>>>>>>>>>>: $f\n";
 	$f =~ s/^$oa\///;
 	my @components = split(/\//, $f);
+	print __LINE__, ": $f: ", Data::Dumper->new([\@components])->Dump(), "\n";
 	if(my $country = uc($components[0])) {
 		my $state;
 		my $file;
@@ -1726,17 +1745,16 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		# Clear the deduping hash when we can, to avoid it becoming too large
 		if($country eq 'US') {
 			if((!defined($current_state)) || ($state ne $current_state)) {
-				print "New state, clear state_md5s; state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
+				print "New state: state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
+				# undef %digests_added;
 				flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
-				%state_md5s = ();
-				# %state_parent_md5s = ();
 				$current_country = $country;
 				$current_state = $state;
 			}
 		} elsif((!defined($current_country)) || ($country ne $current_country)) {
-			# print "New country, clear state_md5s\n";
+			print "New country\n" if(DEBUG&DEBUG_NEW_LOCATION);
+			# undef %digests_added;
 			flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current country
-			%state_md5s = ();
 			# %state_parent_md5s = ();
 			$current_country = $country;
 		}
@@ -1758,7 +1776,6 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		my $fin = $fh->fd();
 
-		# open(my $fin, '<', $csv_file);
 		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 		my $offset = AIO_READAHEAD_SIZE;
 
@@ -1781,14 +1798,17 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$csv->column_names($csv->getline($fin));
 
 		while(my $row = $csv->getline_hr($fin)) {
+			$row->{'COUNTRY'} //= $country;
+			if(($country eq 'CA') || ($country eq 'US')) {
+				$row->{'STATE'} //= $state;
+			}
 			$inserts += import(row => $row, file => $csv_file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				$inserts = 0;
 				$offset += AIO_READAHEAD_SIZE;
 			}
-
 		}
 
 		$fh->close();
@@ -1806,8 +1826,7 @@ $dbh->commit();
 # exit(0);
 
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
-%state_md5s = ();
-# %state_parent_md5s = ();
+# undef %digests_added;
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
@@ -1841,6 +1860,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 	$data = $j->decode($data);
 
 	foreach my $country(@{$data}) {
+		# undef %digests_added;
 		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN') || ($country->{'iso3'} eq 'AUS')) {
 			if($country->{'name'} eq 'United Statees') {
 				$country->{'name'} = 'US';
@@ -1886,6 +1906,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 		printf "%-70s\r", $filename;
 		$| = 0;
 		print "\n" if(MAX_INSERT_COUNT == 1);
+		# undef %digests_added;
 
 		# TODO: check for the presence of bzcat
 		open(my $pin, '-|', "bzcat $filename");
@@ -2066,6 +2087,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	$inserts = 0;
 }
 
+# undef %digests_added;
 # $| = 1;
 # printf "%-70s\r", 'creating cities';
 # print "\n" if(DEBUG);
@@ -2093,9 +2115,7 @@ print "\n" if(DEBUG);
 $| = 0;
 
 # Reclaim memory
-%state_md5s = ();
-# %state_parent_md5s = ();
-%global_md5s = ();
+undef %global_md5s;
 # %cities = ();
 
 if(MAX_INSERT_COUNT > 1) {
@@ -2193,7 +2213,9 @@ sub create_tree_from_git {
 
 # Import a location into the database
 # Parses the data and prepares a set of columns to be queued for insertion
-sub import {
+# global stores in the global_md5 as well, useful when going through something state by state
+sub import
+{
 	my %param;
 	if(ref($_[0]) eq 'HASH') {
 		%param = %{$_[0]};
@@ -2207,17 +2229,27 @@ sub import {
 
 	my $row = $param{'row'} || die 'import: no row';
 	$row = { %{$row} };	# Take a copy of the hash because we're going to play with it
-	my $country = $param{'country'} || $row->{'COUNTRY'} || die 'import: no country';
+	my $country = $param{'country'} || $row->{'COUNTRY'};
+	if(!defined($country)) {
+		print STDERR "\nMissing parameter for import():\n",
+			Data::Dumper->new([\$row])->Dump(),
+			"\n";
+		my $i = 0;
+		while(my @call_details = caller($i++)) {
+			print STDERR "\tCalled at line ", $call_details[2], "\n";
+		}
+		die 'country not defined';
+	}
 	my $state = $param{'state'} || $row->{'STATE'};	# Will come from $row->{'REGION'}
 	my $file = $param{'file'} || die 'import: no file';
 	my $ua = $param{'ua'} || die 'import: no ua';
 	my $dbh = $param{'dbh'};
 	my $redis = $param{'redis'};
 	my $berkeley_db = $param{'berkeley_db'};
+	my $global = $param{'global'} || 0;
 	if((!$dbh) && (!$berkeley_db) && (!$mongodb) && (!$redis)) {
 		die 'import neither dbh, berkeley_db, redis nor mongodb defined';
 	}
-	my $global = $param{'global'} || 0;
 	my $inserts = 0;
 
 	if($state) {
@@ -2226,6 +2258,15 @@ sub import {
 
 	my $city = $row->{'CITY'};
 	my $county = $row->{'COUNTY'};
+	if(defined($county) && ($county =~ /geojson/i)) {
+		print STDERR "\nError in county name:\n";
+		my $i = 0;
+		while(my @call_details = caller($i++)) {
+			print STDERR "\tCalled at line ", $call_details[2], "\n";
+		}
+		die "$county is not a valid county name";
+	}
+
 	if(($file !~ /^statewide/) && ($file !~ /^province/) && ($file !~ /countrywide/)) {
 		if($file =~ /^city_of_(.+).csv$/) {
 			$city = $1;
@@ -2242,7 +2283,10 @@ sub import {
 		} elsif(!defined($city)) {
 			$city = $file;
 			$city =~ s/\.csv$//;
-		} elsif(($file !~ /^WHOSONFIRST\-DATA/i) && ($file !~ /countrywide/)) {
+		} elsif((!defined($county)) &&
+			($file !~ /^WHOSONFIRST\-DATA/i)
+			&& ($file !~ /countrywide/)
+			&& ($file !~ /^\d+\.GEOJSON$/i)) {
 			$county = $file;
 			$county =~ s/\.csv$//;
 		}
@@ -2341,6 +2385,8 @@ sub import {
 		$city =~ s/^CITY\s+OF\s+//i;
 		$city =~ s/^THE\s+CITY\s+OF\s+//i;
 		$city =~ s/^TOWNSHIP\s+OF\s+//;
+		$city =~ s/^URBAN\s+//;
+		$city =~ s/\(HISTORICAL\)//;
 		$city =~ s/\s\s+/ /g;
 		$city =~ s/\s+$//g;
 		$city =~ s/^\s+//g;
@@ -2369,8 +2415,18 @@ sub import {
 			$city = undef;
 		}
 	}
-	if((!defined($county)) && $row->{'DISTRICT'} && ($row->{'DISTRICT'} ne $state)) {
-		if($row->{'DISTRICT'} !~ /^\d+$/) {
+	if((!defined($county)) && $row->{'DISTRICT'}) {
+		if(!defined($state)) {
+			print STDERR "\nMissing parameter for import():\n",
+				Data::Dumper->new([\$row])->Dump(),
+				"\n";
+			my $i = 0;
+			while(my @call_details = caller($i++)) {
+				print STDERR "\tCalled at line ", $call_details[2], "\n";
+			}
+			die 'state not defined';
+		}
+		if(($row->{'DISTRICT'} ne $state) && ($row->{'DISTRICT'} !~ /^\d+$/)) {
 			$county = $row->{'DISTRICT'};
 		}
 	}
@@ -2499,7 +2555,8 @@ sub import {
 
 # Queue data to be added to the database
 # Returns the number of items added to the queued_commits array
-sub insert {
+sub insert
+{
 	my ($dbh, $redis, $mongodb, $berkeley_db, $global, %columns) = @_;
 
 	if((!$dbh) && (!$mongodb) && (!$berkeley_db) && (!$redis)) {
@@ -2514,14 +2571,24 @@ sub insert {
 			delete $columns{$column};
 		}
 	}
+	if(defined($columns{'COUNTY'}) && ($columns{'COUNTY'} =~ /geojson/i)) {
+		print STDERR "\nError in county name:\n";
+		my $i = 0;
+		while(my @call_details = caller($i++)) {
+			print STDERR "\tCalled at line ", $call_details[2], "\n";
+		}
+		die $columns{'COUNTY'}, ' is not a valid county name';
+	}
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'CITY'} && (uc($columns{'CITY'}) eq 'INDIANAPOLIS'));
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'NAME'} && (uc($columns{'NAME'}) eq 'EL PAPI STREET TACOS'));
-	# {
-		# my @call_details = caller(0);
-		# print "line ", $call_details[2], "\n";
-		# print Data::Dumper->new([\%columns])->Dump();
-	# }
+	if(DEBUG&DEBUG_ALL) {
+		print Data::Dumper->new([\%columns])->Dump();
+		my $i = 0;
+		while(my @call_details = caller($i++)) {
+			print STDERR "\tcalled at line ", $call_details[2], "\n";
+		}
+	}
 
 	my $lat = $columns{'LAT'};
 	my $lon = $columns{'LON'};
@@ -2531,16 +2598,25 @@ sub insert {
 
 	# Remove duplicate, leading and trailing spaces from entries.  Some openaddresses files are littered with them
 	foreach my $column(keys %columns) {
-		$columns{$column} =~ s/\s+$//g;
-		$columns{$column} =~ s/^\s+//g;
-		$columns{$column} =~ s/\s\s+/ /g;
+		if(exists($columns{$column})) {
+			$columns{$column} =~ s/\s+$//g;
+			$columns{$column} =~ s/^\s+//g;
+			$columns{$column} =~ s/\s\s+/ /g;
+		} else {
+			my $i = 0;
+			while(my @call_details = caller($i++)) {
+				print STDERR "\tCalled at line ", $call_details[2], "\n";
+			}
+			die Data::Dumper->new([\%columns])->Dump();
+			delete $columns{$column};
+		}
 	}
 
 	# my $digest = Digest::MD5::md5_base64(map { Encode::encode_utf8($columns{$_}) } sort keys %{$columns});
 	my $digest;
-	# print Data::Dumper->new([$columns])->Dump();
+	# print __LINE__, ': ', Data::Dumper->new([\%columns])->Dump();
 	foreach my $column('NAME','NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
-		$digest .= $columns{$column} if($columns{$column});
+		$digest .= $columns{$column} if(exists($columns{$column}));
 	}
 	# print "$digest\n";
 	$digest = create_md5($global, Encode::encode_utf8($digest));
@@ -2592,8 +2668,9 @@ sub insert {
 		$columns2{'LINE'} = $call_details[2] if(DEBUG);
 		$digest = undef;
 
+		print __LINE__, ': ', Data::Dumper->new([\%columns2])->Dump() if(DEBUG&DEBUG_ALL);
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
-			$digest .= $columns2{$column} if($columns2{$column});
+			$digest .= $columns2{$column} if(exists($columns2{$column}));
 		}
 		if($digest = create_md5($global, Encode::encode_utf8($digest))) {
 			$queued_commits{$digest} = \%columns2;
@@ -2670,7 +2747,9 @@ sub flush_queue
 		if($mongodb) {
 			$mongodb->insert_one({ md5 => $row });
 		}
-		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+		# TODO: fix 32-bit version
+		# $query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",$md5)";
 
 		# my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 		# foreach my $column(@columns) {
@@ -2815,11 +2894,15 @@ sub flush_queue
 			try {
 				$dbh->do($query);
 			} catch {
-				my @call_details = caller(1);
-				print "Error in flush_queue ($query) called from line ", $call_details[2], "\n\t",
-					Data::Dumper->new([\%queued_commits])->Dump();
-				# print "$query\n";
-				die $_;
+				my $err = $_;
+				print STDERR "Error in flush_queue ($query)\n",
+					Data::Dumper->new([\%queued_commits])->Dump(),
+					"\n";
+				my $i = 0;
+				while(my @call_details = caller($i++)) {
+					print STDERR "\tCalled at line ", $call_details[2], "\n";
+				}
+				die $err;
 			};
 		}
 		if($berkeley_db) {
@@ -2842,9 +2925,6 @@ sub flush_queue
 			die $_;
 		};
 	}
-	if($dbh) {
-		$dbh->commit();
-	}
 	%queued_commits = ();
 }
 
@@ -2852,18 +2932,27 @@ sub flush_queue
 # Returns undef if we already know it
 sub create_md5
 {
-	my $global = shift;
+	my($global, $digest) = @_;
 
-	# my $digest = Digest::MD5::md5_base64(@_);
-	my $digest = substr Digest::MD5::md5_base64(@_), 0, 16;
-	return if($global_md5s{$digest} || $state_md5s{$digest} || $queued_commits{$digest});
+	# if($digests_added{$digest}) {
+		# print "ignoring duplicate $digest\n" if(DEBUG&DEBUG_ALL);
+		# return;
+	# }
+	# $digests_added{$digest} = 1;
 
-	# print join(',', @_), ": $digest\n";
-	if($global) {
-		$global_md5s{$digest} = 1;
+	# FIXME: work out number of bits on this machine
+	# my $rc = substr Digest::MD5::md5_base64(@_), 0, 16;	# Code for 32-bits
+	# my $rc = hex(Digest::MD5::md5_base64(@_));	# Code for 64-bits
+	my $rc = Digest::CRC::crc64($digest);	# Code for 64-bits - there could be some clashes
+	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
+	if($global_md5s{$rc} || $queued_commits{$rc}) {
+		warn "Potential clash $digest => $rc";
+		return;
 	}
-	$state_md5s{$digest} = 1;
-	return $digest;
+
+	print "$digest => $rc\n" if(DEBUG&DEBUG_ALL);
+	# $global_md5s{$rc} = 1;
+	return $rc;
 }
 
 # # State must be the abbreviated form
@@ -2892,10 +2981,12 @@ sub get_wof {
 	return if($id < 0);
 	if($l1_cache{$id}) {
 		# my @call_details = caller(0);
-		# print "get_wof: stored $l1_cache{$id} at line ", $call_details[2], "\n" if(DEBUG&DEBUG_ALL);
+		# print "get_wof: stored $l1_cache{$id} at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
 		return $l1_cache{$id};
 	}
 	if(scalar(keys %l1_cache) >= 100) {
+		# TODO: LRU
+		print "get_wof: emptying l1_cache\n" if(DEBUG&DEBUG_GET_WOF);
 		%l1_cache = ();
 	}
 
@@ -2926,14 +3017,12 @@ sub get_wof {
 	$filename = $filelist[0];
 	if(!$filename) {
 		# Don't die here
-		print "Can't find $id file for ", $properties->{'wof:name'} if(DEBUG&DEBUG_GET_WOF);
+		print "Can't find $id file for ", $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
 		return;
 	}
 
-	my $j = JSON::MaybeXS->new()->utf8();
 	my $data = File::Slurp::read_file($filename);
-	$data = $j->decode($data);
-	my $properties = $data->{'properties'};
+	my $properties = JSON::MaybeXS->new()->utf8()->decode($data)->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
 	# if($properties->{'wof:name'}) {
