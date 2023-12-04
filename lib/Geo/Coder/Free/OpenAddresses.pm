@@ -883,7 +883,7 @@ sub _get {
 	$location =~ s/,\s*//g;
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": _get: $location");
 	# my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;	# 32-bit code
-	my $digest = Digest::CRC::crc64($digest);	# Code for 64-bits - there could be some clashes
+	my $digest = Digest::CRC::crc64(uc($location));	# Code for 64-bits - there could be some clashes
 
 	if(defined($unknown_locations{$digest})) {
 		return;
