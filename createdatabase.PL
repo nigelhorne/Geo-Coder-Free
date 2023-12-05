@@ -97,7 +97,8 @@ use	constant	DEBUG_GET_WOF => 0x10;
 use	constant	DEBUG_BREAKUP => 0x20;
 use	constant	DEBUG_DATA_VALIDATE => 0x40;
 use	constant	DEBUG_FLUSH => 0x80;
-use	constant	DEBUG_ALL => 0xFF;
+use	constant	DEBUG_SIZE => 0x100;
+use	constant	DEBUG_ALL => 0x1FF;
 use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
@@ -1416,7 +1417,7 @@ my $inserts = 0;
 my %l1_cache;
 my $l2_cache;
 
-print STDERR __LINE__, ' >>>>', Devel::Size::total_size(\%queued_commits), "\n";
+print STDERR __LINE__, ' >>>>', Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 
 # my $wof_global_dbh;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
