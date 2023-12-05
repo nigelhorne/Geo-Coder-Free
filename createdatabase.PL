@@ -1413,6 +1413,9 @@ flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
 my $inserts = 0;
 
+my %l1_cache;
+my $l2_cache;
+
 print STDERR __LINE__, ' >>>>', Devel::Size::total_size(\%queued_commits), "\n";
 
 # my $wof_global_dbh;
@@ -1713,6 +1716,10 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 }
 
 $dbh->commit();
+%l1_cache = ();
+l2_cache->clear();
+undef %l1_cache;
+undef $l2_cache;
 
 # Find all of the .csv files in $OPENADDR_HOME
 foreach my $csv_file (create_tree($oa, 1)) {
@@ -2974,9 +2981,6 @@ sub create_md5
 # Given a Whosonfirst ID, return the matching geojson. Cache lookups
 sub get_wof {
 	my ($properties, $id) = @_;
-
-	state %l1_cache;
-	state $l2_cache;
 
 	return if($id < 0);
 	if($l1_cache{$id}) {
