@@ -1735,7 +1735,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	# print __LINE__, ": >>>>>>>>>>>>>>: $f\n";
 	$f =~ s/^$oa\///;
 	my @components = split(/\//, $f);
-	print __LINE__, ": $f: ", Data::Dumper->new([\@components])->Dump(), "\n";
+	# print __LINE__, ": $f: ", Data::Dumper->new([\@components])->Dump(), "\n";
 	if(my $country = uc($components[0])) {
 		my $state;
 		my $file;
@@ -2071,7 +2071,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 								'LAT' => $lat,
 								'LON' => $lon,
 							};
-							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 							if($inserts >= MAX_INSERT_COUNT) {
 								flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 								$inserts = 0;
@@ -2088,6 +2088,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 				}
 			}
 		}
+		close $pin;
 	}
 
 	flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
@@ -2255,6 +2256,13 @@ sub import
 	my $berkeley_db = $param{'berkeley_db'};
 	my $global = $param{'global'} || 0;
 	if((!$dbh) && (!$berkeley_db) && (!$mongodb) && (!$redis)) {
+		print STDERR "\nMissing parameter for import():\n",
+			Data::Dumper->new([\$row])->Dump(),
+			"\n";
+		my $i = 0;
+		while(my @call_details = caller($i++)) {
+			print STDERR "\tCalled at line ", $call_details[2], "\n";
+		}
 		die 'import neither dbh, berkeley_db, redis nor mongodb defined';
 	}
 	my $inserts = 0;
