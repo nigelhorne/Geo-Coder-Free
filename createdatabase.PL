@@ -1718,7 +1718,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 
 $dbh->commit();
 %l1_cache = ();
-l2_cache->clear();
+$l2_cache->clear();
 undef %l1_cache;
 undef $l2_cache;
 
