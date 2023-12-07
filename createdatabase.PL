@@ -1069,14 +1069,8 @@ exit(0) if((-r $sqlite_file) || (-r $db_file));
 
 # TODO Make this configurable
 my $dbh;
-# if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
-	# $sqlite->do('PRAGMA cache_size = -65536');	# 64MB
-	# $sqlite->do('PRAGMA journal_mode = OFF');
-	# $sqlite->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
-	# $sqlite->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
-# }
-
 if(my $e = $ENV{'MARIADB_SERVER'}) {
+	# MariaDB/MySQL
 	require DBD::MariaDB;
 	DBD::MariaDB->import();
 
@@ -1094,6 +1088,12 @@ if(my $e = $ENV{'MARIADB_SERVER'}) {
 	open(my $fout, '>', $sqlite_file);
 	close($fout);
 	truncate $sqlite_file, 0;
+} elsif($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+	# SQLite
+	$dbh->do('PRAGMA cache_size = -65536');	# 64MB
+	$dbh->do('PRAGMA journal_mode = OFF');
+	$dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
+	$dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
 }
 
 if(!-d $oa) {
@@ -1114,7 +1114,7 @@ if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 }
 
 if($dbh) {
-	if(MAX_INSERT_COUNT == 1) {
+	if((MAX_INSERT_COUNT == 1) || $ENV{'MARIADB_SERVER'}) {
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 32-bit
 		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 64-bit
 	} else {
@@ -1440,6 +1440,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n" if(DEBUG&DEBUG_SIZE);
 			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
@@ -2127,12 +2128,11 @@ $| = 0;
 undef %global_md5s;
 # %cities = ();
 
-if(MAX_INSERT_COUNT > 1) {
+if((MAX_INSERT_COUNT > 1) && $dbh && !$ENV{'MARIADB_SERVER'}) {
+	# SQLite
 	# GRANT INDEX ON geo_coder_free.openaddresses TO 'njh'@'localhost';
+	$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
 	# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
-	if($dbh) {
-		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
-	}
 	# $dbh->prepare('CREATE UNIQUE INDEX tree_index ON tree(md5,parent)')->execute();
 	# $dbh->prepare('CREATE UNIQUE INDEX node_index ON level(md5)')->execute();
 	# $dbh->prepare('CREATE UNIQUE INDEX leaf_index ON leaf(md5)')->execute();
@@ -2749,7 +2749,14 @@ sub flush_queue
 		}
 
 		if(!defined($query)) {
-			$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
+			if($ENV{'MARIADB_SERVER'}) {
+				# This is why you need DELETE privileges
+				# Don't use INSERT IGNORE because it ignores *all* errors
+				# GRANT DELETE ON geo_coder_free.openaddresses TO 'njh'@'localhost';
+				$query = 'REPLACE INTO openaddresses(LAT, LON, MD5) VALUES (';
+			} else {
+				$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
+			}
 		} else {
 			$query .= ',(';
 		}
