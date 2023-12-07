@@ -1440,7 +1440,6 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
-			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n" if(DEBUG&DEBUG_SIZE);
 			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
