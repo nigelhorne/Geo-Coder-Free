@@ -2128,6 +2128,7 @@ undef %global_md5s;
 # %cities = ();
 
 if(MAX_INSERT_COUNT > 1) {
+	# GRANT INDEX ON geo_coder_free.openaddresses TO 'njh'@'localhost';
 	# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
 	if($dbh) {
 		$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();

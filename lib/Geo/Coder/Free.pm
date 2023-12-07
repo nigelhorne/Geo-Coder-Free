@@ -411,7 +411,7 @@ set MARIADB_SERVER="$hostname;$port" and
 MARIADB_USER="$user;$password" (TODO: username/password should be asked for)
 The code will use a database called geo_code_free which will be deleted
 if it exists.
-$user should only need to privileges to DROP, CREATE, SELECT and INSERT
+$user should only need to privileges to DROP, CREATE, SELECT,INSERT and INDEX
 on that database.
 
 Optional steps to download and install large databases.
