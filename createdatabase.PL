@@ -1149,13 +1149,13 @@ $DB_HASH->{'cachesize'} = 65536;
 my $berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $DB_HASH
 	or die "Cannot open file $db_file: $!";
 
-# $sqlite->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
-# $sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 	warn 'MAX_INSERT_COUNT not set to 1 in DEBUG mode';
 }
 
 if($dbh) {
+	# $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
+	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 	if(MAX_INSERT_COUNT == 1) {
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 32-bit
 		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 64-bit
@@ -1450,7 +1450,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			printf "%-70s\r", $s;
 			print "\n" if(DEBUG);
 			$| = 0;
-			$dbh->commit();	# Hoping this will save memory here
+			if($dbh) {
+				$dbh->commit();	# Hoping this will save memory here
+			}
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
@@ -1731,7 +1733,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	}
 }
 
-$dbh->commit();
+if($dbh) {
+	$dbh->commit();
+}
 %l1_cache = ();
 $l2_cache->clear();
 undef %l1_cache;
@@ -1841,7 +1845,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	}
 }
 
-$dbh->commit();
+if($dbh) {
+	$dbh->commit();
+}
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
 # $dbh->disconnect();
@@ -2213,12 +2219,12 @@ sub create_tree_from_git {
 
 	foreach my $dir(<"$where/*/.git">) {
 		my($d1, $d2) = fileparse($dir);	# File::BaseName
-		print "Changing directory to $d2\n" if(DEBUG&DEBUG_ALL);
 		chdir $d2;
 		# Some call the main branch master, some call it main
 		# So use HEAD
 		# open(my $fin, '-|', 'git ls-tree -r master --name-only');
 		open(my $fin, '-|', 'git ls-tree -r HEAD --name-only');
+		print "Getting file list in $d2\n" if(DEBUG&DEBUG_ALL);
 		while(my $line = <$fin>) {
 			chomp $line;
 			my $file = File::Spec->catfile($d2, $line);
