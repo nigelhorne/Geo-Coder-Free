@@ -1086,9 +1086,14 @@ if(my $e = $ENV{'MARIADB_SERVER'}) {
 		$password,
 		{ RaiseError => 1, AutoCommit => 0 }
 	);
+	$| = 1;
+	print "removing old data\r";
+	print "\n" if(DEBUG);
+	$| = 0;
 	$dbh->do('DROP DATABASE IF EXISTS geo_coder_free');
 	$dbh->do('CREATE DATABASE geo_coder_free');
 	$dbh->do('USE geo_coder_free');
+
 	# So the database is not contantly re-written
 	open(my $fout, '>', $sqlite_file);
 	close($fout);
