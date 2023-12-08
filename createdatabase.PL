@@ -58,7 +58,7 @@ use autodie;	# Don't want system() to die, we catch failures
 use Cwd;
 use Data::Dumper;
 # use BerkeleyDB;
-# use DB_File;
+use DB_File;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use DBI;
 use File::Copy;
@@ -1062,19 +1062,47 @@ my $oa = $ENV{'OPENADDR_HOME'};
 
 exit(0) if((!defined($oa)) || (length($oa) == 0));
 
+if(!-d $oa) {
+	mkdir $oa;
+}
+
 $Data::Dumper::Sortkeys = 1;
 
 # Import openaddresses.io data into an SQLite database
 # TODO: download and unzip the files from results.openaddresses.io
 # TODO: only Australian, US and Canadian data is supported at the moment
+# TODO Make the database choice configurable
 
 my $sqlite_file = "$oa/openaddresses.sql";
 my $db_file = "$oa/openaddresses.db";
 exit(0) if((-r $sqlite_file) || (-r $db_file));
 
-# TODO Make this configurable
 my $dbh;
-if(my $e = $ENV{'MARIADB_SERVER'}) {
+my $redis;
+my $mongodb;
+
+if($ENV{'REDIS_SERVER'}) {
+	# Warning:  Redis stores the database in RAM which makes it
+	#	slow and unrealistic for most scenarios as it will
+	#	use all the memory on your machine
+	require Redis;
+	Redis->import();
+
+	$redis = Redis->new(reconnect => 1200, every => 5_000_000);
+	$redis->select(1);
+	$redis->flushdb();
+} elsif(my $e = $ENV{'MONGODB_SERVER'}) {
+	# TODO
+	# I'm hoping this will require less RAM than SQLite which just chews
+	#	it up
+	require MongoDB;
+	MongoDB->import();
+
+	my $db_name = 'Geo::Coder::Free';
+	my ($server, $port) = split (/:/, $e);
+
+	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port)->get_database($db_name)->get_collection('data');
+} elsif(my $e = $ENV{'MARIADB_SERVER'}) {
 	# MariaDB/MySQL
 	require DBD::MariaDB;
 	DBD::MariaDB->import();
@@ -1087,7 +1115,7 @@ if(my $e = $ENV{'MARIADB_SERVER'}) {
 		{ RaiseError => 1, AutoCommit => 0 }
 	);
 	$| = 1;
-	print "removing old data\r";
+	print "Removing old data\r";
 	print "\n" if(DEBUG);
 	$| = 0;
 	$dbh->do('DROP DATABASE IF EXISTS geo_coder_free');
@@ -1098,24 +1126,28 @@ if(my $e = $ENV{'MARIADB_SERVER'}) {
 	open(my $fout, '>', $sqlite_file);
 	close($fout);
 	truncate $sqlite_file, 0;
-} elsif($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
-	# SQLite
-	$dbh->do('PRAGMA cache_size = -65536');	# 64MB
-	$dbh->do('PRAGMA journal_mode = OFF');
-	$dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
-	$dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
+# } elsif($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+	# # SQLite
+	# $dbh->do('PRAGMA cache_size = -65536');	# 64MB
+	# $dbh->do('PRAGMA journal_mode = OFF');
+	# $dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
+	# $dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
 }
 
-if(!-d $oa) {
-	mkdir $oa;
-}
-
-my $berkeley_db;
-my %dbtie;
+my %db_tie;
+my $db_file = "$oa/openaddresses.db";
+unlink $db_file if(-r $db_file);
 # if($berkeley_db = DB_File::HASHINFO->new()) {
 	# $berkeley_db->{'cachesize'} = 65536;
-	# tie %dbtie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $berkeley_db;
+	# tie %db_tie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $berkeley_db;
 # }
+# my $berkeley_db = BerkeleyDB::Hash->new(
+		# -Filename => $db_file,
+		# -Flags => DB_CREATE)
+	# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
+$DB_HASH->{'cachesize'} = 65536;
+my $berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $DB_HASH
+	or die "Cannot open file $db_file: $!";
 
 # $sqlite->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 # $sqlite->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
@@ -1136,34 +1168,6 @@ if($dbh) {
 # $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
 
 print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
-
-my $redis;
-
-if($ENV{'REDIS_SERVER'}) {
-	# Warning:  Redis stores the database in RAM which makes it
-	#	slow and unrealistic for most scenarios as it will
-	#	use all the memory on your machine
-	require Redis;
-	Redis->import();
-
-	$redis = Redis->new(reconnect => 1200, every => 5_000_000);
-	$redis->select(1);
-	$redis->flushdb();
-}
-
-my $mongodb;
-if(my $e = $ENV{'MONGODB_SERVER'}) {
-	# TODO
-	# I'm hoping this will require less RAM than SQLite which just chews
-	#	it up
-	require MongoDB;
-	MongoDB->import();
-
-	my $db_name = 'Geo::Coder::Free';
-	my ($server, $port) = split (/:/, $e);
-
-	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port)->get_database($db_name)->get_collection('data');
-}
 
 my $au = Locale::AU->new();
 my $ca = Locale::CA->new();
@@ -2158,7 +2162,7 @@ if($dbh) {
 	$dbh->disconnect();
 }
 if($berkeley_db) {
-	untie %dbtie;
+	untie %db_tie;
 }
 if($redis) {
 	$redis->bgsave();
@@ -2944,7 +2948,7 @@ sub flush_queue
 		if($berkeley_db) {
 			while(my($k, $v) = each(%queued_commits)) {
 				# $berkeley_db->put($k, $v);
-				$dbtie{$k} = $v;
+				$db_tie{$k} = $v;
 			}
 		}
 	}
@@ -2989,7 +2993,7 @@ sub create_md5
 	if(DEBUG&DEBUG_MD5) {
 		print "$digest => $rc\n";
 		$global_md5s{$rc} = $digest;
-	} else {
+	} elsif(defined($dbh)) {
 		$global_md5s{$rc} = 1;
 	}
 	return $rc;
