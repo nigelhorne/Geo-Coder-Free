@@ -412,7 +412,9 @@ MARIADB_USER="$user;$password" (TODO: username/password should be asked for)
 The code will use a database called geo_code_free which will be deleted
 if it exists.
 $user should only need to privileges to DROP, CREATE, SELECT, INSERT, CREATE and INDEX
-on that database.
+on that database. If you've set DEBUG mode in createdatabase.PL, or are playing
+with REPLACE instead of INSERT, you'll also need DELETE privliges - but non-developers
+don't need to have that.
 
 Optional steps to download and install large databases.
 This will take a long time and use a lot of disc space, be clear that this is what you want.

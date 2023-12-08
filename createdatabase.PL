@@ -98,12 +98,13 @@ use	constant	DEBUG_BREAKUP => 0x20;
 use	constant	DEBUG_DATA_VALIDATE => 0x40;
 use	constant	DEBUG_FLUSH => 0x80;
 use	constant	DEBUG_SIZE => 0x100;
-use	constant	DEBUG_ALL => 0x1FF;
+use	constant	DEBUG_MD5 => 0x200;
+use	constant	DEBUG_ALL => 0x3FF;
 use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
-use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
+# use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
 
 binmode(STDOUT, "encoding(UTF-8)");
 
@@ -1025,12 +1026,16 @@ BEGIN {
 }
 
 my $current_state;
-my %global_md5s;	# This hash becomes HUGE - TODO: find another way to do this
 my %queued_commits;
 # my $city_sequence;
 # my %cities;
 my %unknown_zips;
 # my %state_parent_md5s;
+
+# This hash becomes HUGE - TODO: find another way to do this
+# One alternative would be to create a PRIMARY key to begin with,
+# but that really slows down the INSERT/REPLACE
+my %global_md5s;
 
 my $cities_sql = 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql';
 
@@ -1114,7 +1119,7 @@ if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 }
 
 if($dbh) {
-	if((MAX_INSERT_COUNT == 1) || $ENV{'MARIADB_SERVER'}) {
+	if(MAX_INSERT_COUNT == 1) {
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 32-bit
 		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 64-bit
 	} else {
@@ -1440,6 +1445,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n" if(DEBUG&DEBUG_SIZE);
 			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
@@ -2127,7 +2133,7 @@ $| = 0;
 undef %global_md5s;
 # %cities = ();
 
-if((MAX_INSERT_COUNT > 1) && $dbh && !$ENV{'MARIADB_SERVER'}) {
+if(MAX_INSERT_COUNT > 1) {
 	# SQLite
 	# GRANT INDEX ON geo_coder_free.openaddresses TO 'njh'@'localhost';
 	$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
@@ -2748,14 +2754,16 @@ sub flush_queue
 		}
 
 		if(!defined($query)) {
-			if($ENV{'MARIADB_SERVER'}) {
-				# This is why you need DELETE privileges
-				# Don't use INSERT IGNORE because it ignores *all* errors
-				# GRANT DELETE ON geo_coder_free.openaddresses TO 'njh'@'localhost';
-				$query = 'REPLACE INTO openaddresses(LAT, LON, MD5) VALUES (';
-			} else {
+			# Don't do this - it saves on global_md5s memory but is so slow
+			# Without this code, you don't need DELETE privileges
+			# if($ENV{'MARIADB_SERVER'}) {
+				# # This is why you need DELETE privileges
+				# # Don't use INSERT IGNORE because it ignores *all* errors
+				# # GRANT DELETE ON geo_coder_free.openaddresses TO 'njh'@'localhost';
+				# $query = 'REPLACE INTO openaddresses(LAT, LON, MD5) VALUES (';
+			# } else {
 				$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
-			}
+			# }
 		} else {
 			$query .= ',(';
 		}
@@ -2958,7 +2966,7 @@ sub create_md5
 	my($global, $digest) = @_;
 
 	# if($digests_added{$digest}) {
-		# print "ignoring duplicate $digest\n" if(DEBUG&DEBUG_ALL);
+		# print "ignoring duplicate $digest\n" if(DEBUG&DEBUG_MD5);
 		# return;
 	# }
 	# $digests_added{$digest} = 1;
@@ -2973,8 +2981,12 @@ sub create_md5
 		return;
 	}
 
-	print "$digest => $rc\n" if(DEBUG&DEBUG_ALL);
-	# $global_md5s{$rc} = 1;
+	if(DEBUG&DEBUG_MD5) {
+		print "$digest => $rc\n";
+		$global_md5s{$rc} = $digest;
+	} else {
+		$global_md5s{$rc} = 1;
+	}
 	return $rc;
 }
 
