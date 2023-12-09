@@ -1126,12 +1126,12 @@ if($ENV{'REDIS_SERVER'}) {
 	open(my $fout, '>', $sqlite_file);
 	close($fout);
 	truncate $sqlite_file, 0;
-# } elsif($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
-	# # SQLite
-	# $dbh->do('PRAGMA cache_size = -65536');	# 64MB
-	# $dbh->do('PRAGMA journal_mode = OFF');
-	# $dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
-	# $dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
+} elsif($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+	# SQLite
+	$dbh->do('PRAGMA cache_size = -65536');	# 64MB
+	$dbh->do('PRAGMA journal_mode = OFF');
+	$dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
+	$dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
 }
 
 my %db_tie;
@@ -1145,9 +1145,10 @@ unlink $db_file if(-r $db_file);
 		# -Filename => $db_file,
 		# -Flags => DB_CREATE)
 	# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
-$DB_HASH->{'cachesize'} = 65536;
-my $berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $DB_HASH
-	or die "Cannot open file $db_file: $!";
+# $DB_HASH->{'cachesize'} = 65536;
+# my $berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $DB_HASH
+	# or die "Cannot open file $db_file: $!";
+my $berkeley_db;
 
 if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 	warn 'MAX_INSERT_COUNT not set to 1 in DEBUG mode';
@@ -1163,9 +1164,9 @@ if($dbh) {
 		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');	# 32-bit
 		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED, lat DECIMAL, lon DECIMAL)');	# 64-bit
 	}
+	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
+	# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
 }
-# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
-# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
 
 print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
 
@@ -2953,8 +2954,8 @@ sub flush_queue
 		}
 		if($berkeley_db) {
 			while(my($k, $v) = each(%queued_commits)) {
-				# $berkeley_db->put($k, $v);
-				$db_tie{$k} = $v;
+				$berkeley_db->put($k, $v);
+				# $db_tie{$k} = $v;
 			}
 		}
 	}
