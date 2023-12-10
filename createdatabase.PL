@@ -1036,6 +1036,8 @@ my %unknown_zips;
 # One alternative would be to create a PRIMARY key to begin with,
 # but that really slows down the INSERT/REPLACE
 my %global_md5s;
+my %state_md5s;
+my %state_parent_md5s;
 
 my $cities_sql = 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql';
 
@@ -1776,6 +1778,8 @@ foreach my $csv_file (create_tree($oa, 1)) {
 				print "New state: state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
 				# undef %digests_added;
 				flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
+				%state_md5s = ();
+				%state_parent_md5s = ();
 				$current_country = $country;
 				$current_state = $state;
 			}
@@ -1783,7 +1787,8 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			print "New country\n" if(DEBUG&DEBUG_NEW_LOCATION);
 			# undef %digests_added;
 			flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current country
-			# %state_parent_md5s = ();
+			%state_md5s = ();
+			%state_parent_md5s = ();
 			$current_country = $country;
 		}
 
@@ -1857,6 +1862,8 @@ if($dbh) {
 
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
 # undef %digests_added;
+%state_md5s = ();
+%state_parent_md5s = ();
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
@@ -2148,6 +2155,8 @@ $| = 0;
 # Reclaim memory
 undef %global_md5s;
 # %cities = ();
+%state_md5s = ();
+%state_parent_md5s = ();
 
 if(MAX_INSERT_COUNT > 1) {
 	# SQLite
@@ -2992,16 +3001,19 @@ sub create_md5
 	# my $rc = hex(Digest::MD5::md5_base64(@_));	# Code for 64-bits
 	my $rc = Digest::CRC::crc64($digest);	# Code for 64-bits - there could be some clashes
 	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
-	if($global_md5s{$rc} || $queued_commits{$rc}) {
+	if($global_md5s{$rc} || $state_md5s{$rc} || $queued_commits{$rc}) {
 		warn "Potential clash $digest => $rc";
 		return;
 	}
 
-	if(DEBUG&DEBUG_MD5) {
-		print "$digest => $rc\n";
-		$global_md5s{$rc} = $digest;
-	} elsif(defined($dbh)) {
-		$global_md5s{$rc} = 1;
+	$state_md5s{$rc} = 1;
+	if($global) {
+		if(DEBUG&DEBUG_MD5) {
+			print "$digest => $rc\n";
+			$global_md5s{$rc} = $digest;
+		} elsif(defined($dbh)) {
+			$global_md5s{$rc} = 1;
+		}
 	}
 	return $rc;
 }
