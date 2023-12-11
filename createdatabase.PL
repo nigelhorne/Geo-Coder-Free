@@ -1623,8 +1623,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				'STATE' => $state,
 				'COUNTRY' => $country,
 			};
-			# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+			$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 			if($inserts >= MAX_INSERT_COUNT) {
 				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				$inserts = 0;
@@ -1679,8 +1678,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						if(DEBUG&DEBUG_DATA_VALIDATE);
 					next;
 				}
-				# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 			}
 		}
 		my $row = {
@@ -1694,8 +1692,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			'COUNTRY' => $country,
 			'POSTCODE' => $postcode,
 		};
-		# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+		$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 		if(my $addr_full = $properties->{'addr:full'}) {
 			my $ap;
 			if($country =~ /^ENGLAND/) {
@@ -1724,8 +1721,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 						'POSTCODE' => uc($c{'post_code'}),
 					};
 					# print(Data::Dumper->new([$row])->Dump()) if(DEBUG&DEBUG_ALL);
-					# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+					$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 				}
 			}
 		}
@@ -1862,8 +1858,8 @@ if($dbh) {
 
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
 # undef %digests_added;
-%state_md5s = ();
-%state_parent_md5s = ();
+undef %state_md5s;
+undef %state_parent_md5s;
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
@@ -3058,7 +3054,9 @@ sub get_wof {
 			return $name;
 		}
 	} else {
-		$l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000);
+		# On machines that are paging heavily because of the large memory usage,
+		# discarding can take more than 10 seconds, so up the timeout to a minute
+		$l2_cache = CHI->new(driver => 'RawMemory', global => 0, max_size => 1_000, discard_timeout => 60);
 	}
 
 	print "get_wof: not cached $id\n" if(DEBUG&DEBUG_GET_WOF);
