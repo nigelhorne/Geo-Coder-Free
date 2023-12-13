@@ -1155,7 +1155,7 @@ if($ENV{'REDIS_SERVER'}) {
 
 	# See the DB_File example "Key is a C int"
 	$berkeley_db->filter_fetch_key(sub { $_ = unpack('i', $_) } );
-	$berkeley_db->filter_store_key(sub { $_ = pack ('i', $_) } );
+	$berkeley_db->filter_store_key(sub { $_ = pack('i', $_) } );
 } elsif(defined($sqlite_file)) {
 	# SQLite
 	if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
@@ -2977,9 +2977,15 @@ sub flush_queue
 			};
 		}
 		if($berkeley_db) {
-			while(my($k, $v) = each(%queued_commits)) {
-				$berkeley_db->put($k, $v);
-				# $db_tie{$k} = $v;
+			my $j = JSON::MaybeXS->new()->utf8();
+			while(my($md5, $row) = each(%queued_commits)) {
+				my $data = $j->encode({
+					'LAT' => $row->{'LAT'},
+					'LON' => $row->{'LON'}
+				});
+				$berkeley_db->put($md5, $data);
+				print "$data\n" if(DEBUG&DEBUG_FLUSH);
+				# $db_tie{$md5} = $data;
 			}
 		}
 	}
