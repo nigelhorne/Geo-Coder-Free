@@ -2977,15 +2977,17 @@ sub flush_queue
 			};
 		}
 		if($berkeley_db) {
-			my $j = JSON::MaybeXS->new()->utf8();
+			# my $j = JSON::MaybeXS->new()->utf8();
 			while(my($md5, $row) = each(%queued_commits)) {
-				my $data = $j->encode({
-					'LAT' => $row->{'LAT'},
-					'LON' => $row->{'LON'}
-				});
-				$berkeley_db->put($md5, $data);
-				print "$data\n" if(DEBUG&DEBUG_FLUSH);
+				# my $data = $j->encode({
+					# 'LAT' => $row->{'LAT'},
+					# 'LON' => $row->{'LON'}
+				# });
+				# $berkeley_db->put($md5, $data);
+				# print "$data\n" if(DEBUG&DEBUG_FLUSH);
 				# $db_tie{$md5} = $data;
+
+				$berkeley_db->put($md5, $row->{'LAT'} . ',' . $row->{'LON'});
 			}
 		}
 	}
