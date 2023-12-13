@@ -1070,18 +1070,27 @@ if(!-d $oa) {
 
 $Data::Dumper::Sortkeys = 1;
 
-# Import openaddresses.io data into an SQLite database
+# Import openaddresses.io data into a database
 # TODO: download and unzip the files from results.openaddresses.io
 # TODO: only Australian, US and Canadian data is supported at the moment
+
 # TODO Make the database choice configurable
-
-my $sqlite_file = "$oa/openaddresses.sql";
+# my $sqlite_file = "$oa/openaddresses.sql";
+my $sqlite_file;
 my $db_file = "$oa/openaddresses.db";
-exit(0) if((-r $sqlite_file) || (-r $db_file));
 
+if($sqlite_file && $db_file) {
+	die 'Choose only one database driver';
+}
+
+exit(0) if($sqlite_file && (-r $sqlite_file));
+exit(0) if($db_file && (-r $db_file));
+
+my %db_tie;
 my $dbh;
 my $redis;
 my $mongodb;
+my $berkeley_db;
 
 if($ENV{'REDIS_SERVER'}) {
 	# Warning:  Redis stores the database in RAM which makes it
@@ -1128,29 +1137,33 @@ if($ENV{'REDIS_SERVER'}) {
 	open(my $fout, '>', $sqlite_file);
 	close($fout);
 	truncate $sqlite_file, 0;
-} elsif($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+} elsif(defined($db_file)) {
+	# if($berkeley_db = DB_File::HASHINFO->new()) {
+		# $berkeley_db->{'cachesize'} = 65536;
+		# tie %db_tie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $berkeley_db;
+	# }
+	# my $berkeley_db = BerkeleyDB::Hash->new(
+			# -Filename => $db_file,
+			# -Flags => DB_CREATE)
+		# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
+	# $DB_HASH->{'cachesize'} = 65536;
+	$berkeley_db = DB_File::HASHINFO->new();
+	$berkeley_db->{'cachesize'} = 65536;
+	$berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $berkeley_db
+		or die "Cannot open file $db_file: $!";
+} elsif(defined($sqlite_file)) {
 	# SQLite
-	$dbh->do('PRAGMA cache_size = -65536');	# 64MB
-	$dbh->do('PRAGMA journal_mode = OFF');
-	$dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
-	$dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
+	if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
+		$dbh->do('PRAGMA cache_size = -65536');	# 64MB
+		$dbh->do('PRAGMA journal_mode = OFF');
+		$dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
+		$dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
+	} else {
+		die "$sqlite_file: $!";
+	}
+} else {
+	die 'Which database driver?';
 }
-
-my %db_tie;
-my $db_file = "$oa/openaddresses.db";
-unlink $db_file if(-r $db_file);
-# if($berkeley_db = DB_File::HASHINFO->new()) {
-	# $berkeley_db->{'cachesize'} = 65536;
-	# tie %db_tie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $berkeley_db;
-# }
-# my $berkeley_db = BerkeleyDB::Hash->new(
-		# -Filename => $db_file,
-		# -Flags => DB_CREATE)
-	# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
-# $DB_HASH->{'cachesize'} = 65536;
-# my $berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $DB_HASH
-	# or die "Cannot open file $db_file: $!";
-my $berkeley_db;
 
 if((DEBUG&DEBUG_ALL) && (MAX_INSERT_COUNT != 1)) {
 	warn 'MAX_INSERT_COUNT not set to 1 in DEBUG mode';
@@ -2175,6 +2188,7 @@ if($dbh) {
 }
 if($berkeley_db) {
 	untie %db_tie;
+	undef $berkeley_db;
 }
 if($redis) {
 	$redis->bgsave();
@@ -3002,13 +3016,22 @@ sub create_md5
 		return;
 	}
 
-	$state_md5s{$rc} = 1;
-	if($global) {
-		if(DEBUG&DEBUG_MD5) {
-			print "$digest => $rc\n";
-			$global_md5s{$rc} = $digest;
-		} elsif(defined($dbh)) {
-			$global_md5s{$rc} = 1;
+	if(defined($dbh)) {
+		# Avoid duplictes on SQL databases since the PRIMARY KEY is added later
+		if($global) {
+			if(DEBUG&DEBUG_MD5) {
+				print "global $digest => $rc\n";
+				$global_md5s{$rc} = $digest;
+			} else {
+				$global_md5s{$rc} = 1;
+			}
+		} else {
+			if(DEBUG&DEBUG_MD5) {
+				print "state $digest => $rc\n";
+				$state_md5s{$rc} = $digest;
+			} else {
+				$state_md5s{$rc} = 1;
+			}
 		}
 	}
 	return $rc;
