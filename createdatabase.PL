@@ -1147,10 +1147,15 @@ if($ENV{'REDIS_SERVER'}) {
 			# -Flags => DB_CREATE)
 		# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
 	# $DB_HASH->{'cachesize'} = 65536;
+
 	$berkeley_db = DB_File::HASHINFO->new();
 	$berkeley_db->{'cachesize'} = 65536;
 	$berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $berkeley_db
 		or die "Cannot open file $db_file: $!";
+
+	# See the DB_File example "Key is a C int"
+	$berkeley_db->filter_fetch_key(sub { $_ = unpack('i', $_) } );
+	$berkeley_db->filter_store_key(sub { $_ = pack ('i', $_) } );
 } elsif(defined($sqlite_file)) {
 	# SQLite
 	if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
@@ -1472,7 +1477,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
-			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
+			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n" if(DEBUG&DEBUG_SIZE);
 			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
@@ -2187,8 +2192,8 @@ if($dbh) {
 	$dbh->disconnect();
 }
 if($berkeley_db) {
-	untie %db_tie;
 	undef $berkeley_db;
+	untie %db_tie;
 }
 if($redis) {
 	$redis->bgsave();
