@@ -1139,14 +1139,14 @@ if($ENV{'REDIS_SERVER'}) {
 	truncate $sqlite_file, 0;
 } elsif(defined($db_file)) {
 	# if($berkeley_db = DB_File::HASHINFO->new()) {
-		# $berkeley_db->{'cachesize'} = 65536;
+		# $berkeley_db->{'cachesize'} = 64 * 1024 * 1024;
 		# tie %db_tie, 'DB_File', "$oa/openaddresses.db", 0, 0644, $berkeley_db;
 	# }
 	# my $berkeley_db = BerkeleyDB::Hash->new(
 			# -Filename => $db_file,
 			# -Flags => DB_CREATE)
 		# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
-	# $DB_HASH->{'cachesize'} = 65536;
+	# $DB_HASH->{'cachesize'} = 64 * 1024 * 1024;
 
 	$berkeley_db = DB_File::HASHINFO->new();
 	$berkeley_db->{'cachesize'} = 65536;
