@@ -1075,9 +1075,10 @@ $Data::Dumper::Sortkeys = 1;
 # TODO: only Australian, US and Canadian data is supported at the moment
 
 # TODO Make the database choice configurable
-# my $sqlite_file = "$oa/openaddresses.sql";
-my $sqlite_file;
-my $db_file = "$oa/openaddresses.db";
+my $sqlite_file = "$oa/openaddresses.sql";
+# my $sqlite_file;
+# my $db_file = "$oa/openaddresses.db";
+my $db_file;
 
 if($sqlite_file && $db_file) {
 	die 'Choose only one database driver';
@@ -1806,6 +1807,14 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			$current_country = $country;
 		}
 
+		# The readahead code can start doing its thing now
+		my $fh = File::Open::NoCache::ReadOnly->new($csv_file)
+			or die($csv_file);
+
+		my $fin = $fh->fd();
+
+		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+
 		# Import this state's hand curated data
 		if(my $k = $known_places{$f}) {
 			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
@@ -1818,12 +1827,6 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			}
 		}
 
-		my $fh = File::Open::NoCache::ReadOnly->new($csv_file)
-			or die($csv_file);
-
-		my $fin = $fh->fd();
-
-		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
 		my $offset = AIO_READAHEAD_SIZE;
 
 		$| = 1;
