@@ -1100,7 +1100,11 @@ if($ENV{'REDIS_SERVER'}) {
 	require Redis;
 	Redis->import();
 
-	$redis = Redis->new(reconnect => 1200, every => 5_000_000);
+	$redis = Redis->new(
+		reconnect => 1200,
+		every => 5_000_000,
+		name => 'openaddresses'
+	);
 	$redis->select(1);
 	$redis->flushdb();
 } elsif(my $e = $ENV{'MONGODB_SERVER'}) {
