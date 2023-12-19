@@ -2816,10 +2816,13 @@ sub flush_queue
 
 		if($redis) {
 			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
-			$redis->hmset($md5, 'LAT', $row->{'LAT'}, 'LON', $row->{'LON'}, sub {});
+			$redis->set($md5 => $row->{'LAT'} . ',' . $row->{'LON'});
 		}
 		if($mongodb) {
 			$mongodb->insert_one({ md5 => $row });
+		}
+		if($berkeley_db) {
+			$berkeley_db->put($md5, $row->{'LAT'} . ',' . $row->{'LON'});
 		}
 		# TODO: fix 32-bit version
 		# $query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
@@ -2978,20 +2981,6 @@ sub flush_queue
 				}
 				die $err;
 			};
-		}
-		if($berkeley_db) {
-			# my $j = JSON::MaybeXS->new()->utf8();
-			while(my($md5, $row) = each(%queued_commits)) {
-				# my $data = $j->encode({
-					# 'LAT' => $row->{'LAT'},
-					# 'LON' => $row->{'LON'}
-				# });
-				# $berkeley_db->put($md5, $data);
-				# print "$data\n" if(DEBUG&DEBUG_FLUSH);
-				# $db_tie{$md5} = $data;
-
-				$berkeley_db->put($md5, $row->{'LAT'} . ',' . $row->{'LON'});
-			}
 		}
 	}
 	# if($tree_query) {
