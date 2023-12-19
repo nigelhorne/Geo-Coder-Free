@@ -1916,7 +1916,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 	foreach my $country(@{$data}) {
 		# undef %digests_added;
 		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN') || ($country->{'iso3'} eq 'AUS')) {
-			if($country->{'name'} eq 'United Statees') {
+			if($country->{'name'} eq 'United States') {
 				$country->{'name'} = 'US';
 			}
 			foreach my $state(@{$country->{'states'}}) {
