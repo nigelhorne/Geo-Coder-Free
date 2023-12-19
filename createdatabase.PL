@@ -2826,10 +2826,6 @@ sub flush_queue
 		# print join(',', @columns), ": $md5\n";
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
-		if($redis) {
-			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
-			$redis->set($md5 => $row->{'LAT'} . ',' . $row->{'LON'});
-		}
 		if($mongodb) {
 			$mongodb->insert_one({ md5 => $row });
 		}
@@ -2993,6 +2989,14 @@ sub flush_queue
 				}
 				die $err;
 			};
+		}
+		if($redis) {
+			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
+			my %data;
+			while(my($k, $row) = each(%queued_commits)) {
+				$data{$k} = $row->{'LAT'} . ',' . $row->{'LON'};
+			}
+			$redis->mset(%data);
 		}
 	}
 	# if($tree_query) {
