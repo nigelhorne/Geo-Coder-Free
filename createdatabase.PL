@@ -1107,6 +1107,10 @@ if($ENV{'REDIS_SERVER'}) {
 	);
 	$redis->select(1);
 	$redis->flushdb();
+
+	# So the database is not contantly re-written
+	open(my $fout, '>', $sqlite_file);
+	close($fout);
 } elsif(my $e = $ENV{'MONGODB_SERVER'}) {
 	# TODO
 	# I'm hoping this will require less RAM than SQLite which just chews
@@ -1118,6 +1122,10 @@ if($ENV{'REDIS_SERVER'}) {
 	my ($server, $port) = split (/:/, $e);
 
 	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port)->get_database($db_name)->get_collection('data');
+
+	# So the database is not contantly re-written
+	open(my $fout, '>', $sqlite_file);
+	close($fout);
 } elsif(my $e = $ENV{'MARIADB_SERVER'}) {
 	# MariaDB/MySQL
 	require DBD::MariaDB;
