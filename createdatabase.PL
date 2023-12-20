@@ -2211,6 +2211,8 @@ if($berkeley_db) {
 	untie %db_tie;
 }
 if($redis) {
+	print "waiting for redis\n" if(DEBUG&DEBUG_FLUSH);
+	$redis->wait_all_responses();	# Pipelining mode
 	$redis->bgsave();
 	$redis->shutdown();
 }
@@ -2852,10 +2854,6 @@ sub flush_queue
 		# die $key unless $cities{$key};
 		# $query .= $cities{$key} . ",'$md5')";
 	}
-	if($redis) {
-		print "waiting for redis\n" if(DEBUG&DEBUG_FLUSH);
-		$redis->wait_all_responses();
-	}
 
 	my $tree_query;
 	# while(my($md5, $row) = each %queued_commits) {
@@ -2992,11 +2990,13 @@ sub flush_queue
 		}
 		if($redis) {
 			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
-			my %data;
-			while(my($k, $row) = each(%queued_commits)) {
-				$data{$k} = $row->{'LAT'} . ',' . $row->{'LON'};
-			}
-			$redis->mset(%data);
+			my %data = map {
+				my $row = $queued_commits{$_};
+				$_ => $row->{'LAT'} . ',' . $row->{'LON'}
+			} keys %queued_commits;
+
+			# The sub {} means that we use pipelining mode
+			$redis->mset(%data, sub {});
 		}
 	}
 	# if($tree_query) {
