@@ -2992,7 +2992,9 @@ sub flush_queue
 			print "writing to redis\n" if(DEBUG&DEBUG_FLUSH);
 			my %data = map {
 				my $row = $queued_commits{$_};
-				$_ => $row->{'LAT'} . ',' . $row->{'LON'}
+				# Use the key as a 64-bit number
+				# to save some memory
+				pack('i', $_) => $row->{'LAT'} . ',' . $row->{'LON'}
 			} keys %queued_commits;
 
 			# The sub {} means that we use pipelining mode
