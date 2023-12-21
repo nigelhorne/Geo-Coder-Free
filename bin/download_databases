@@ -40,8 +40,15 @@ if [ -r $OPENADDR_HOME/openaddresses.sql ]; then
 	chmod 444 $OPENADDR_HOME/openaddresses.sql.keep
 fi
 
-mkdir -p $DR5HN_HOME
-cd $DR5HN_HOME
+if [ -d $DR5HN_HOME ]; then
+	cd $DR5HN_HOME
+	git pull
+else
+	mkdir -p $DR5HN_HOME
+	cd $DR5HN_HOME/..
+	rmdir $DR5HN_HOME
+	git clone https://github.com/dr5hn/countries-states-cities-database.git
+fi
 
 mkdir -p $OSM_HOME
 # cd $HOME/Downloads && wget -N -c https://ftpmirror.your.org/pub/openstreetmap/planet/planet-latest.osm.bz2
