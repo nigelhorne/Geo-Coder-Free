@@ -1174,8 +1174,6 @@ if($ENV{'REDIS_SERVER'}) {
 	if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
 		$dbh->do('PRAGMA cache_size = -65536');	# 64MB
 		$dbh->do('PRAGMA journal_mode = OFF');
-		$dbh->do('PRAGMA soft_heap_limit = 16777216');	# 16 MB
-		$dbh->do('PRAGMA hard_heap_limit = 33554432');	# 32 MB
 	} else {
 		die "$sqlite_file: $!";
 	}
@@ -2186,6 +2184,8 @@ undef %global_md5s;
 # %cities = ();
 %state_md5s = ();
 %state_parent_md5s = ();
+undef %state_md5s;
+undef %state_parent_md5s;
 
 if(MAX_INSERT_COUNT > 1) {
 	# SQLite
