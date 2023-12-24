@@ -3040,8 +3040,9 @@ sub create_md5
 	}
 
 	if(defined($dbh)) {
-		# Avoid duplictes on SQL databases since the PRIMARY KEY is added later
-		if($global) {
+		# Avoid duplicates on SQL databases since the PRIMARY KEY is added later
+		# if($global) {
+		if(1) {
 			if(DEBUG&DEBUG_MD5) {
 				print "global $digest => $rc\n";
 				$global_md5s{$rc} = $digest;
