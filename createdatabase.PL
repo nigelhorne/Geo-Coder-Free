@@ -1022,6 +1022,7 @@ BEGIN {
 		   ($warning =~ /isn't numeric in numeric eq /i)) {
 			die $warning;
 		}
+		warn $warning;
 	};
 }
 
