@@ -389,6 +389,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
 		}, {
+			'LAT' => 39.100869,
+			'LON' => -76.812162,
+			'NUMBER' => 8616,
+			'STREET' => 'SAVANNAH RIVER RD',
+			'CITY' => 'LAUREL',
+			'COUNTY' => 'ANNE ARUNDEL',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20724
+		}, {
 			'LAT' => 39.110711,
 			'LON' => -76.434062,
 			'NAME' => 'DOWNS PARK',
