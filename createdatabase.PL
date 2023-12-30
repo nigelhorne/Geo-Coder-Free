@@ -86,6 +86,10 @@ use Text::CSV;
 use Try::Tiny;
 use Devel::Size;
 
+# ONE or ALL - import from one database or all of them
+# ALL uses HUGE amounts of RAM
+use	constant	BUILDMODE => 'ONE';
+
 use	constant	AIO_READAHEAD_SIZE => 1048576;	# 1MB
 
 use	constant	DEBUG_OFF => 0;
@@ -1029,6 +1033,7 @@ BEGIN {
 		my $warning = shift;
 		if(($warning =~ /^Use of uninitialized value/) ||
 		   ($warning =~ /Wide/) ||
+		   ($warning =~ /masks earlier declaration in same scope/) ||
 		   ($warning =~ /isn't numeric in numeric eq /i)) {
 			die $warning;
 		}
@@ -1036,7 +1041,6 @@ BEGIN {
 	};
 }
 
-my $current_state;
 my %queued_commits;
 # my $city_sequence;
 # my %cities;
@@ -1137,7 +1141,7 @@ if($ENV{'REDIS_SERVER'}) {
 	# So the database is not contantly re-written
 	open(my $fout, '>', $sqlite_file);
 	close($fout);
-} elsif(my $e = $ENV{'MARIADB_SERVER'}) {
+} elsif($e = $ENV{'MARIADB_SERVER'}) {
 	# MariaDB/MySQL
 	require DBD::MariaDB;
 	DBD::MariaDB->import();
@@ -1499,7 +1503,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
-			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n" if(DEBUG&DEBUG_SIZE);
 			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
@@ -1770,6 +1774,12 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$inserts = 0;
 		}
 	}
+
+	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'DR5HN_HOME'};
+		undef $ENV{'OSM_HOME'};
+		undef $oa;
+	}
 }
 
 if($dbh) {
@@ -1887,6 +1897,11 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 		$inserts = 0;
 	}
+
+	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'DR5HN_HOME'};
+		undef $ENV{'OSM_HOME'};
+	}
 }
 
 if($dbh) {
@@ -1905,6 +1920,12 @@ undef %state_parent_md5s;
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
+
+	$| = 1;
+	printf "%-70s\r", "Known place $country";
+	print "\n" if(DEBUG);
+	$| = 0;
+
 	if(my $k = $known_places{'other'}) {
 		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
 		foreach my $row(@{$k}) {
@@ -1964,6 +1985,10 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 
 	flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 	$inserts = 0;
+
+	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'OSM_HOME'};
+	}
 }
 
 if(my $osm = $ENV{'OSM_HOME'}) {
@@ -2231,7 +2256,7 @@ print ' ' x 70, "\r" if(!DEBUG);
 
 # Return a list of all .csv or .geojson files under the given directory
 sub create_tree {
-	my $where = shift;
+	my $where = shift or return;
 	my $csv = shift;
 	my @files;
 	my $fin;
@@ -3046,7 +3071,7 @@ sub create_md5
 	my $rc = Digest::CRC::crc64($digest);	# Code for 64-bits - there could be some clashes
 	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
 	if($global_md5s{$rc} || $state_md5s{$rc} || $queued_commits{$rc}) {
-		warn "Potential clash $digest => $rc";
+		warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
 		return;
 	}
 
@@ -3138,7 +3163,7 @@ sub get_wof {
 	}
 
 	my $data = File::Slurp::read_file($filename);
-	my $properties = JSON::MaybeXS->new()->utf8()->decode($data)->{'properties'};
+	$properties = JSON::MaybeXS->new()->utf8()->decode($data)->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
 	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
 	# if($properties->{'wof:name'}) {
