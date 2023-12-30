@@ -8,6 +8,7 @@ Revision history for Geo-Coder-Free
 		eats a lot of RAM
 	Added mysql support in createdatabase - TODO add support to DB.pm
 	Experimental code - use CRC to generate a 64 bit number for key instead of a string
+	Added BUILDMODE to optionally only import from one large database
 
 0.34	Mon Nov  6 16:53:43 EST 2023
 	Latest DB.pm from NJH-Snippets
