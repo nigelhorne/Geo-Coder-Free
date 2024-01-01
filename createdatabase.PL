@@ -71,8 +71,7 @@ use Locale::AU;	# TODO: use Locale::Geocode
 use Locale::CA;
 use Locale::Country;
 use Locale::US;
-#	use Digest::MD5;	# 32-bit
-use Digest::CRC;	# 64 bit
+use Digest::MD5;
 use Encode;
 use Geo::StreetAddress::US;
 use CHI;
@@ -1204,11 +1203,9 @@ if($dbh) {
 	# $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 	if(MAX_INSERT_COUNT == 1) {
-		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 32-bit
-		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED PRIMARY KEY, lat DECIMAL, lon DECIMAL)');	# 64-bit
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
 	} else {
-		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');	# 32-bit
-		$dbh->do('CREATE TABLE openaddresses(md5 BIGINT UNSIGNED, lat DECIMAL, lon DECIMAL)');	# 64-bit
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
 	}
 	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 	# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
@@ -2794,7 +2791,7 @@ sub insert
 			}
 			return 2;
 		# } else {
-			# print "Ignore ", join(',', values(%columns2)), "\n";
+			# print 'Ignore ', join(',', values(%columns2)), "\n";
 		}
 	}
 	return 1;
@@ -2819,6 +2816,11 @@ sub flush_queue
 		# if($md5 eq 'D8GO4pMZCAYej/OR') {
 			# my @call_details = caller(0);
 			# print "flush_queue: Flomation called from line ", $call_details[2], "\n\t",
+				# Data::Dumper->new([\%queued_commits])->Dump();
+		# }
+		# if($md5 == 17736627262094380841) {
+			# my @call_details = caller(0);
+			# print "flush_queue: 177366... called from line ", $call_details[2], "\n\t",
 				# Data::Dumper->new([\%queued_commits])->Dump();
 		# }
 		die if(ref($row) ne 'HASH');
@@ -2846,21 +2848,6 @@ sub flush_queue
 			next;
 		}
 
-		if(!defined($query)) {
-			# Don't do this - it saves on global_md5s memory but is so slow
-			# Without this code, you don't need DELETE privileges
-			# if($ENV{'MARIADB_SERVER'}) {
-				# # This is why you need DELETE privileges
-				# # Don't use INSERT IGNORE because it ignores *all* errors
-				# # GRANT DELETE ON geo_coder_free.openaddresses TO 'njh'@'localhost';
-				# $query = 'REPLACE INTO openaddresses(LAT, LON, MD5) VALUES (';
-			# } else {
-				$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
-			# }
-		} else {
-			$query .= ',(';
-		}
-
 		# print join(',', @columns), ": $md5\n";
 		# print "$md5: ", Data::Dumper->new([$row])->Dump();
 
@@ -2870,9 +2857,24 @@ sub flush_queue
 		if($berkeley_db) {
 			$berkeley_db->put($md5, $row->{'LAT'} . ',' . $row->{'LON'});
 		}
-		# TODO: fix 32-bit version
-		# $query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
-		$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",$md5)";
+		if($dbh) {
+			if(!defined($query)) {
+				# Don't do this - it saves on global_md5s memory but is so slow
+				# Without this code, you don't need DELETE privileges
+				# if($ENV{'MARIADB_SERVER'}) {
+					# # This is why you need DELETE privileges
+					# # Don't use INSERT IGNORE because it ignores *all* errors
+					# # GRANT DELETE ON geo_coder_free.openaddresses TO 'njh'@'localhost';
+					# $query = 'REPLACE INTO openaddresses(LAT, LON, MD5) VALUES (';
+				# } else {
+					$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
+				# }
+			} else {
+				$query .= ',(';
+			}
+
+			$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+		}
 
 		# my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);
 		# foreach my $column(@columns) {
@@ -3065,14 +3067,11 @@ sub create_md5
 	# }
 	# $digests_added{$digest} = 1;
 
-	# FIXME: work out number of bits on this machine
-	# my $rc = substr Digest::MD5::md5_base64(@_), 0, 16;	# Code for 32-bits
-	# my $rc = hex(Digest::MD5::md5_base64(@_));	# Code for 64-bits
-	my $rc = Digest::CRC::crc64($digest);	# Code for 64-bits - there could be some clashes
+	my $rc = substr Digest::MD5::md5_base64(@_), 0, 16;
 	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
 	if($global_md5s{$rc} || $state_md5s{$rc} || $queued_commits{$rc}) {
-		warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
-		return;
+		# warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
+		return undef;
 	}
 
 	if(defined($dbh)) {
