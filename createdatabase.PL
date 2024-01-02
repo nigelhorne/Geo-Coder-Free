@@ -62,7 +62,6 @@ use DB_File;
 use DBD::SQLite::Constants qw/:file_open/;	# For SQLITE_OPEN_READONLY
 use DBI;
 use File::Copy;
-use File::Open::NoCache::ReadOnly 0.02;
 use File::Slurp;
 use Geo::Coder::Abbreviations;
 use JSON::MaybeXS;
@@ -78,7 +77,6 @@ use CHI;
 use CHI::Driver::RawMemory;
 use File::Basename;
 use File::Spec;
-use IO::AIO;
 use Lingua::EN::AddressParse;
 use Locale::SubCountry;
 use Text::CSV;
@@ -1040,6 +1038,18 @@ BEGIN {
 	};
 }
 
+if($^O ne 'solaris') {
+	eval {
+		require File::Open::NoCache::ReadOnly;
+		require IO::AIO;
+
+		File::Open::NoCache::ReadOnly->import();
+		IO::AIO->import()
+	};
+	if($@) {
+		die $@;
+	}
+}
 my %queued_commits;
 # my $city_sequence;
 # my %cities;
@@ -1336,11 +1346,11 @@ if((-r 'downloads/allCountries.txt') &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
-	aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+	aio_readahead($fin, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 	my $fin1 = $admin1->fd();
-	aio_readahead($fin1, 0, AIO_READAHEAD_SIZE);
+	aio_readahead($fin1, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 	my $fin2 = $admin2->fd();
-	aio_readahead($fin2, 0, AIO_READAHEAD_SIZE);
+	aio_readahead($fin2, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 
 	$| = 1;
 	printf "%-70s\r", 'downloads/allCountries.txt';
@@ -1455,7 +1465,7 @@ if((-r 'downloads/allCountries.txt') &&
 		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
+			aio_readahead($fin, $offset, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 			$offset += AIO_READAHEAD_SIZE;
 			$inserts = 0;
 		}
@@ -1526,7 +1536,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		my $fin = $fh->fd();
 
-		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+		aio_readahead($fin, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 
 		# Import this state's hand curated data
 		if(my $k = $known_places{$f}) {
@@ -1567,7 +1577,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			}
 			$inserts += import(row => $row, file => $csv_file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 			if($inserts >= MAX_INSERT_COUNT) {
-				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
+				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 				$inserts = 0;
 				$offset += AIO_READAHEAD_SIZE;
