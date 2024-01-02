@@ -20,7 +20,7 @@ use CHI;
 use Lingua::EN::AddressParse;
 use Locale::Country;
 use Geo::StreetAddress::US;
-use Digest::CRC;
+use Digest::MD5;
 use Encode;
 use Storable;
 
@@ -881,9 +881,9 @@ sub _get {
 	my $location = join('', @location);
 	$location =~ s/^\s+//;
 	$location =~ s/,\s*//g;
+
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": _get: $location");
-	# my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;	# 32-bit code
-	my $digest = Digest::CRC::crc64(uc($location));	# Code for 64-bits - there could be some clashes
+	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
 
 	if(defined($unknown_locations{$digest})) {
 		return;
