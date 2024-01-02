@@ -1472,6 +1472,136 @@ flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
 my $inserts = 0;
 
+# Find all of the .csv files in $OPENADDR_HOME
+foreach my $csv_file (create_tree($oa, 1)) {
+	# next unless($csv_file =~ /us\/md\/statewide/);
+	# next unless($csv_file =~ /us\/ne\/dawes/);
+	# next unless($csv_file =~ /us\/in\//);
+
+	# Handle https://github.com/openaddresses/openaddresses/issues/3928
+	# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
+	next if($csv_file =~ /ca\/ab\/airdrie.csv/);
+
+	my $f = $csv_file;
+	# print __LINE__, ": >>>>>>>>>>>>>>: $f\n";
+	$f =~ s/^$oa\///;
+	my @components = split(/\//, $f);
+	# print __LINE__, ": $f: ", Data::Dumper->new([\@components])->Dump(), "\n";
+	if(my $country = uc($components[0])) {
+		my $state;
+		my $file;
+
+		next unless($openaddresses_supported_countries{lc($country)});
+
+		if($components[1] =~ /\.csv$/) {
+			$file = $components[1];
+		} else {
+			$state = uc($components[1]);
+			$file = $components[2];
+		}
+
+		# Clear the deduping hash when we can, to avoid it becoming too large
+		if($country eq 'US') {
+			if((!defined($current_state)) || ($state ne $current_state)) {
+				print "New state: state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
+				# undef %digests_added;
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
+				%state_md5s = ();
+				%state_parent_md5s = ();
+				$current_country = $country;
+				$current_state = $state;
+			}
+		} elsif((!defined($current_country)) || ($country ne $current_country)) {
+			print "New country\n" if(DEBUG&DEBUG_NEW_LOCATION);
+			# undef %digests_added;
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current country
+			%state_md5s = ();
+			%state_parent_md5s = ();
+			$current_country = $country;
+		}
+
+		# The readahead code can start doing its thing now
+		my $fh = File::Open::NoCache::ReadOnly->new($csv_file)
+			or die($csv_file);
+
+		my $fin = $fh->fd();
+
+		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
+
+		# Import this state's hand curated data
+		if(my $k = $known_places{$f}) {
+			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
+			foreach my $row(@{$k}) {
+				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+				if($inserts >= MAX_INSERT_COUNT) {
+					flush_queue($dbh, $redis, $mongodb, $berkeley_db);
+					$inserts = 0;
+				}
+			}
+		}
+
+		my $offset = AIO_READAHEAD_SIZE;
+
+		$| = 1;
+		printf "%-70s\r", $f;
+		$| = 0;
+		print "\n" if(MAX_INSERT_COUNT == 1);
+
+		# Import this state's OpenAddresses data
+		my $csv = Text::CSV->new({
+			# sep_char => $sep_char,
+			allow_loose_quotes => 1,
+			blank_is_undef => 1,
+			empty_is_undef => 1,
+			binary => 1,
+			# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
+			# escape_char => '\\',	# Put back once issue 3905 has been fixed
+		});
+
+		$csv->column_names($csv->getline($fin));
+
+		while(my $row = $csv->getline_hr($fin)) {
+			$row->{'COUNTRY'} //= $country;
+			if(($country eq 'CA') || ($country eq 'US')) {
+				$row->{'STATE'} //= $state;
+			}
+			$inserts += import(row => $row, file => $csv_file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+			if($inserts >= MAX_INSERT_COUNT) {
+				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
+				$inserts = 0;
+				$offset += AIO_READAHEAD_SIZE;
+			}
+		}
+
+		$fh->close();
+
+		flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
+		$inserts = 0;
+	}
+
+	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'DR5HN_HOME'};
+		undef $ENV{'OSM_HOME'};
+		undef $ENV{'WHOSONFIRST_HOME'};
+		undef $oa;
+	}
+}
+
+if($dbh) {
+	$dbh->commit();
+}
+
+# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
+# $dbh->disconnect();
+# $wof_global_dbh->disconnect();
+# exit(0);
+
+flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
+# undef %digests_added;
+undef %state_md5s;
+undef %state_parent_md5s;
+
 my %l1_cache;
 my $l2_cache;
 
@@ -1772,9 +1902,15 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		}
 	}
 
+	%l1_cache = ();
+	$l2_cache->clear();
+	undef %l1_cache;
+	undef $l2_cache;
+
 	if(BUILDMODE eq 'ONE') {
 		undef $ENV{'DR5HN_HOME'};
 		undef $ENV{'OSM_HOME'};
+		undef $ENV{'WHOSONFIRST_HOME'};
 		undef $oa;
 	}
 }
@@ -1782,138 +1918,6 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 if($dbh) {
 	$dbh->commit();
 }
-%l1_cache = ();
-$l2_cache->clear();
-undef %l1_cache;
-undef $l2_cache;
-
-# Find all of the .csv files in $OPENADDR_HOME
-foreach my $csv_file (create_tree($oa, 1)) {
-	# next unless($csv_file =~ /us\/md\/statewide/);
-	# next unless($csv_file =~ /us\/ne\/dawes/);
-	# next unless($csv_file =~ /us\/in\//);
-
-	# Handle https://github.com/openaddresses/openaddresses/issues/3928
-	# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
-	next if($csv_file =~ /ca\/ab\/airdrie.csv/);
-
-	my $f = $csv_file;
-	# print __LINE__, ": >>>>>>>>>>>>>>: $f\n";
-	$f =~ s/^$oa\///;
-	my @components = split(/\//, $f);
-	# print __LINE__, ": $f: ", Data::Dumper->new([\@components])->Dump(), "\n";
-	if(my $country = uc($components[0])) {
-		my $state;
-		my $file;
-
-		next unless($openaddresses_supported_countries{lc($country)});
-
-		if($components[1] =~ /\.csv$/) {
-			$file = $components[1];
-		} else {
-			$state = uc($components[1]);
-			$file = $components[2];
-		}
-
-		# Clear the deduping hash when we can, to avoid it becoming too large
-		if($country eq 'US') {
-			if((!defined($current_state)) || ($state ne $current_state)) {
-				print "New state: state = $state, country = $country\n" if(DEBUG&DEBUG_NEW_LOCATION);
-				# undef %digests_added;
-				flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
-				%state_md5s = ();
-				%state_parent_md5s = ();
-				$current_country = $country;
-				$current_state = $state;
-			}
-		} elsif((!defined($current_country)) || ($country ne $current_country)) {
-			print "New country\n" if(DEBUG&DEBUG_NEW_LOCATION);
-			# undef %digests_added;
-			flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current country
-			%state_md5s = ();
-			%state_parent_md5s = ();
-			$current_country = $country;
-		}
-
-		# The readahead code can start doing its thing now
-		my $fh = File::Open::NoCache::ReadOnly->new($csv_file)
-			or die($csv_file);
-
-		my $fin = $fh->fd();
-
-		aio_readahead($fin, 0, AIO_READAHEAD_SIZE);
-
-		# Import this state's hand curated data
-		if(my $k = $known_places{$f}) {
-			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
-			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-					$inserts = 0;
-				}
-			}
-		}
-
-		my $offset = AIO_READAHEAD_SIZE;
-
-		$| = 1;
-		printf "%-70s\r", $f;
-		$| = 0;
-		print "\n" if(MAX_INSERT_COUNT == 1);
-
-		# Import this state's OpenAddresses data
-		my $csv = Text::CSV->new({
-			# sep_char => $sep_char,
-			allow_loose_quotes => 1,
-			blank_is_undef => 1,
-			empty_is_undef => 1,
-			binary => 1,
-			# Workaround for https://github.com/openaddresses/openaddresses/issues/3905
-			# escape_char => '\\',	# Put back once issue 3905 has been fixed
-		});
-
-		$csv->column_names($csv->getline($fin));
-
-		while(my $row = $csv->getline_hr($fin)) {
-			$row->{'COUNTRY'} //= $country;
-			if(($country eq 'CA') || ($country eq 'US')) {
-				$row->{'STATE'} //= $state;
-			}
-			$inserts += import(row => $row, file => $csv_file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
-			if($inserts >= MAX_INSERT_COUNT) {
-				aio_readahead($fin, $offset, AIO_READAHEAD_SIZE);
-				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-				$inserts = 0;
-				$offset += AIO_READAHEAD_SIZE;
-			}
-		}
-
-		$fh->close();
-
-		flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
-		$inserts = 0;
-	}
-
-	if(BUILDMODE eq 'ONE') {
-		undef $ENV{'DR5HN_HOME'};
-		undef $ENV{'OSM_HOME'};
-	}
-}
-
-if($dbh) {
-	$dbh->commit();
-}
-
-# print "Debug exit\n" if(DEBUG&DEBUG_ALL);
-# $dbh->disconnect();
-# $wof_global_dbh->disconnect();
-# exit(0);
-
-flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
-# undef %digests_added;
-undef %state_md5s;
-undef %state_parent_md5s;
 
 foreach my $country(@whosonfirst_only_countries) {
 	# Import this country's hand curated data
@@ -1984,7 +1988,10 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 	$inserts = 0;
 
 	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'DR5HN_HOME'};
 		undef $ENV{'OSM_HOME'};
+		undef $ENV{'WHOSONFIRST_HOME'};
+		undef $oa;
 	}
 }
 
