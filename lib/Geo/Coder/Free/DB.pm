@@ -125,7 +125,8 @@ sub new {
 	}, $class;
 }
 
-sub set_logger {
+sub set_logger
+{
 	my $self = shift;
 
 	my %args;
@@ -142,7 +143,7 @@ sub set_logger {
 		$self->{'logger'} = $args{'logger'};
 		return $self;
 	}
-	Carp::croak('Usage: execute(query => $query)')
+	Carp::croak('Usage: set_logger(logger => $logger)')
 }
 
 # Open the database.
