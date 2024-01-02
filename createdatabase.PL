@@ -1906,13 +1906,13 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	$l2_cache->clear();
 	undef %l1_cache;
 	undef $l2_cache;
+}
 
-	if(BUILDMODE eq 'ONE') {
-		undef $ENV{'DR5HN_HOME'};
-		undef $ENV{'OSM_HOME'};
-		undef $ENV{'WHOSONFIRST_HOME'};
-		undef $oa;
-	}
+if(BUILDMODE eq 'ONE') {
+	undef $ENV{'DR5HN_HOME'};
+	undef $ENV{'OSM_HOME'};
+	undef $ENV{'WHOSONFIRST_HOME'};
+	undef $oa;
 }
 
 if($dbh) {
