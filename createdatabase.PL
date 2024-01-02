@@ -1589,13 +1589,13 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 		$inserts = 0;
 	}
+}
 
-	if(BUILDMODE eq 'ONE') {
-		undef $ENV{'DR5HN_HOME'};
-		undef $ENV{'OSM_HOME'};
-		undef $ENV{'WHOSONFIRST_HOME'};
-		undef $oa;
-	}
+if(BUILDMODE eq 'ONE') {
+	undef $ENV{'DR5HN_HOME'};
+	undef $ENV{'OSM_HOME'};
+	undef $ENV{'WHOSONFIRST_HOME'};
+	undef $oa;
 }
 
 if($dbh) {
