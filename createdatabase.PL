@@ -1557,6 +1557,11 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$| = 0;
 		print "\n" if(MAX_INSERT_COUNT == 1);
 
+		print STDERR __LINE__, " >>>>: $f: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
+		print STDERR __LINE__, " >>>>: $f: ", Devel::Size::total_size(\%state_md5s), "\n" if(DEBUG&DEBUG_SIZE);
+		print STDERR __LINE__, " >>>>: $f: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
+		# print STDERR __LINE__, " >>>>: $f: ", Devel::Size::total_size(\%global_md5s), "\n";
+
 		# Import this state's OpenAddresses data
 		my $csv = Text::CSV->new({
 			# sep_char => $sep_char,
@@ -1640,7 +1645,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
-			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
+			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n";
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%unknown_zips), "\n" if(DEBUG&DEBUG_SIZE);
 			# print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%digests_added), "\n";
 		}
@@ -2916,7 +2921,7 @@ sub flush_queue
 		# my $row;
 		# my $digest = $row->{'COUNTRY'};
 		# my $parent_md5;
-# 
+#
 		# my $md5 = $state_parent_md5s{$digest};
 		# if(!defined($md5)) {
 			# $md5 = substr(Digest::MD5::md5_base64(Encode::encode_utf8($digest)), 0, 16);
@@ -2929,7 +2934,7 @@ sub flush_queue
 			# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
 				# ",'$md5',NULL)";
 		# }
-# 
+#
 		# $digest = undef;
 		# foreach my $column('STATE','COUNTRY') {
 			# $digest .= $row->{$column} if($row->{$column});
@@ -2946,7 +2951,7 @@ sub flush_queue
 			# $tree_query .= $row->{'LAT'} . ',' .  $row->{'LON'} .
 				# ",'$md5','$parent_md5')";
 		# }
-# 
+#
 		# if($row->{'COUNTY'}) {
 			# $digest = undef;
 			# foreach my $column('COUNTY','STATE','COUNTRY') {
@@ -3093,8 +3098,7 @@ sub create_md5
 
 	if(defined($dbh)) {
 		# Avoid duplicates on SQL databases since the PRIMARY KEY is added later
-		# if($global) {
-		if(1) {
+		if($global || (BUILDMODE eq 'ALL')) {
 			if(DEBUG&DEBUG_MD5) {
 				print "global $digest => $rc\n";
 				$global_md5s{$rc} = $digest;
@@ -3116,7 +3120,7 @@ sub create_md5
 # # State must be the abbreviated form
 # sub city_key {
 	# my ($city, $county, $state, $country) = @_;
-# 
+#
 	# if(!defined($city)) {
 		# $city = '0';
 	# }
