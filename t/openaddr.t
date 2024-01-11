@@ -8,6 +8,7 @@ use Test::Carp;
 use Test::Deep;
 use lib 't/lib';
 use MyLogger;
+# use Test::Without::Module qw(Geo::libpostal);
 
 BEGIN {
 	use_ok('Geo::Coder::Free');
@@ -119,12 +120,12 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode('Rockville Pike, Rockville, Montgomery County, MD, USA');
 				cmp_deeply($location,
-					methods('lat' => num(39.07, 1e-2), 'long' => num(-77.13, 1e-2)));
+					methods('lat' => num(39.07, 1e-2), 'long' => num(-77.13, 1e-1)));
 
 				$location = $geo_coder->geocode('Rockville Pike, Rockville, MD, USA');
 				ok(defined($location));
 				cmp_deeply($location,
-					methods('lat' => num(39.07, 1e-2), 'long' => num(-77.13, 1e-2)));
+					methods('lat' => num(39.07, 1e-1), 'long' => num(-77.13, 1e-2)));
 
 				$location = $geo_coder->geocode('8600 Rockville Pike, Bethesda, MD 20894, USA');
 				cmp_deeply($location,

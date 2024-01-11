@@ -2,7 +2,10 @@
 
 # Import geo-coding data into an SQLite database.
 
-# Copyright 2020-2023 Nigel Horne.
+# Software copyright 2020-2024 Nigel Horne.
+
+# Except for the "known_places" database, all the databases are copyrighted by third parties.
+#	I've tried my best to acknowledge that, but if I haven't please let me know.
 
 # The program code is released under the following licence: GPL2 for personal use on a single computer.
 # All other users (including Commercial, Charity, Educational, Government)
@@ -100,7 +103,9 @@ use	constant	DEBUG_DATA_VALIDATE => 0x40;
 use	constant	DEBUG_FLUSH => 0x80;
 use	constant	DEBUG_SIZE => 0x100;
 use	constant	DEBUG_MD5 => 0x200;
-use	constant	DEBUG_ALL => 0x3FF;
+use	constant	DEBUG_INSERT => 0x400;
+use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
+use	constant	DEBUG_ALL => 0x7FF;
 use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
@@ -256,6 +261,16 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTY' => 'MONTGOMERY',
 			'STATE' => 'MD',
 			'COUNTRY' => 'US',
+		}, {
+			'LAT' => 38.9890861111111,
+			'LON' => -77.0975722222222,
+			'NAME' => 'ROCK BOTTOM RESTAURANT & BREWERY',
+			'STREET' => 'NORFOLK AVE',
+			'CITY' => 'BETHESDA',
+			'COUNTY' => 'MONTGOMERY',
+			'STATE' => 'MD',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20814
 		}, {
 			'LAT' => 39.028326,
 			'LON' => -77.136774,
@@ -1038,6 +1053,8 @@ BEGIN {
 	};
 }
 
+exit(0) if($ENV{'AUTOMATED_TESTING'});
+
 if($^O ne 'solaris') {
 	eval {
 		require File::Open::NoCache::ReadOnly;
@@ -1077,8 +1094,6 @@ if(!-r $cities_sql) {
 			or die "Can't copy SQLite file to blib: $!";
 	}
 }
-
-exit(0) if($ENV{'AUTOMATED_TESTING'});
 
 if(!(-r 'downloads/allCountries.txt')) {
 	print "Consider downloading http://download.geonames.org/export/dump/allCountries.zip to downloads/allCountries.txt\n";
@@ -1230,12 +1245,20 @@ my $abbr = Geo::Coder::Abbreviations->new();
 # my %digests_added;
 
 my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
-if(-r $filename) {
+if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename)) {
 	# Import US states and counties from https://github.com/openaddresses/openaddresses/tree/master/us-data
 	$| = 1;
 	printf "%-70s\r", $filename;
 	print "\n" if(DEBUG);
 	$| = 0;
+	my $fh = File::Open::NoCache::ReadOnly->new($filename);
+
+	my $fin = $fh->fd();
+
+	aio_readahead($fin, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
+
+	# open(my $fin, '<', $filename);
+
 	my %state_fips;
 
 	my $csv = Text::CSV->new({
@@ -1249,12 +1272,6 @@ if(-r $filename) {
 	});
 
 	my $inserts = 0;
-
-	my $fh = File::Open::NoCache::ReadOnly->new($filename);
-
-	my $fin = $fh->fd();
-
-	# open(my $fin, '<', $filename);
 
 	$csv->column_names($csv->getline($fin));
 
@@ -1337,12 +1354,14 @@ my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
 $ua->throttle({ 'api.zippopotam.us' => 1 });
 $ua->env_proxy(1);
 
+$filename = 'downloads/allCountries.txt';
+
 # Import the Maxmind databases
-if((-r 'downloads/allCountries.txt') &&
+if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename) &&
    # open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
-   (my $all_countries = File::Open::NoCache::ReadOnly->new('downloads/allCountries.txt')) &&
+   (my $all_countries = File::Open::NoCache::ReadOnly->new($filename)) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
@@ -1353,7 +1372,7 @@ if((-r 'downloads/allCountries.txt') &&
 	aio_readahead($fin2, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
 
 	$| = 1;
-	printf "%-70s\r", 'downloads/allCountries.txt';
+	printf "%-70s\r", $filename;
 	$| = 0;
 	print "\n" if(MAX_INSERT_COUNT == 1);
 
@@ -1390,6 +1409,9 @@ if((-r 'downloads/allCountries.txt') &&
 	my $inserts = 0;
 	my $offset = AIO_READAHEAD_SIZE;
 
+	# TODO: Double check this is adding what I think it should be adding
+	#	I may be able to extract more as the 'city' name often contains venues
+	# DEBUG_INSERT helps
 	while(my $line = <$fin>) {
 		my @fields = split(/\t/, $line);
 
@@ -1407,7 +1429,10 @@ if((-r 'downloads/allCountries.txt') &&
 		my $city;
 		if($fields[7] ne 'ADM1') {
 			# Not State/County/Province
+			# Fix entries like 'Kansas City/NW/Airport' in allCountries.txt
 			$city = uc($fields[2]);
+			$city =~ s/\/.+$//;
+			die "$filename: $line: $city" if(defined($city) && ($city =~ /\/..\//));
 		}
 
 		my $latitude = $fields[4];
@@ -1424,6 +1449,9 @@ if((-r 'downloads/allCountries.txt') &&
 				'LAT' => $latitude,
 				'LON' => $longitude,
 			);
+			if($columns{'STATE'} eq 'GREATER LONDON') {
+				$columns{'STATE'} = 'LONDON';
+			}
 		} else {
 			my $state = $admin1{uc($country) . '.' . uc($fields[10])};
 			next if(!defined($state));
@@ -1462,6 +1490,7 @@ if((-r 'downloads/allCountries.txt') &&
 			}
 		}
 		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city));
+		die $columns{'CITY'} if(defined($columns{'CITY'}) && ($columns{'CITY'} =~ /\/..\//));
 		$inserts += import(row => \%columns, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db, global => 1);
 		if($inserts >= MAX_INSERT_COUNT) {
 			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
@@ -1508,6 +1537,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		} else {
 			$state = uc($components[1]);
 			$file = $components[2];
+			if($state eq 'GREATER LONDON') {
+				$state = 'LONDON';
+			}
 		}
 
 		# Clear the deduping hash when we can, to avoid it becoming too large
@@ -1540,15 +1572,33 @@ foreach my $csv_file (create_tree($oa, 1)) {
 
 		# Import this state's hand curated data
 		if(my $k = $known_places{$f}) {
-			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
+			print __LINE__, ": known place ($f):\n\t", Data::Dumper->new([$k])->Dump() if(DEBUG&DEBUG_KNOWN_PLACES);
 			foreach my $row(@{$k}) {
 				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-				if($inserts >= MAX_INSERT_COUNT) {
-					flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-					$inserts = 0;
+				if(defined($row->{'STREET'}) && ($row->{'STREET'} =~ /MEDLARS DR/i) && (DEBUG&DEBUG_KNOWN_PLACES)) {
+					# 'CITY' => 'BETHESDA',
+					# 'COUNTRY' => 'US',
+					# 'COUNTY' => 'MONTGOMERY',
+					# 'LAT' => '38.99516556',
+					# 'LON' => '-77.09943963',
+					# 'NAME' => 'NCBI',
+					# 'POSTCODE' => 20894,
+					# 'STATE' => 'MD',
+					# 'STREET' => 'MEDLARS DR'
+					# global NCBIMEDLARS DRBETHESDAMONTGOMERYMDUS => RFa5+GhoBmCb91M8
+					# global NCBIMEDLARS DRBETHESDAMDUS => tMt972yoDCKkdE5u
+					# global MEDLARS DRBETHESDAMDUS => KZCIB0nblX/Etlnx
+					# global NCBIBETHESDAMDUS => aQ1pIla9rwruGeg0
+					print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 				}
 			}
+			if($inserts >= MAX_INSERT_COUNT) {
+				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
+				$inserts = 0;
+			}
 		}
+
+		next if(DEBUG&DEBUG_KNOWN_PLACES);
 
 		my $offset = AIO_READAHEAD_SIZE;
 
@@ -1579,6 +1629,11 @@ foreach my $csv_file (create_tree($oa, 1)) {
 			$row->{'COUNTRY'} //= $country;
 			if(($country eq 'CA') || ($country eq 'US')) {
 				$row->{'STATE'} //= $state;
+			}
+			delete $row->{'HASH'};
+			delete $row->{'ID'};
+			foreach my $column(keys %{$row}) {
+				delete $row->{$column} if(!defined($row->{$column}));
 			}
 			$inserts += import(row => $row, file => $csv_file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 			if($inserts >= MAX_INSERT_COUNT) {
@@ -2401,28 +2456,56 @@ sub import
 		die "$county is not a valid county name";
 	}
 
-	if(($file !~ /^statewide/) && ($file !~ /^province/) && ($file !~ /countrywide/)) {
-		if($file =~ /^city_of_(.+).csv$/) {
+	if(($file !~ /statewide/) && ($file !~ /^province/) && ($file !~ /countrywide/)) {
+		if($file =~ /^city[_\s]of[_\s](.+).csv$/) {
 			$city = $1;
-		} elsif($file =~ /^town_of_(.+).csv$/) {
+if(defined($city) && (($city =~ /\Q$oa\E/i) || ($city =~ /\/..\//))) {
+	print __LINE__, ': ', Data::Dumper->new([\$row])->Dump();
+	my $i = 0;
+	while(my @call_details = caller($i++)) {
+		print STDERR "\tCalled at line ", $call_details[2], "\n";
+	}
+	die "$file: $city ($country/$state)";
+}
+		} elsif($file =~ /^town[_\s]of[_\s](.+).csv$/) {
 			$city = $1;
-		} elsif($file =~ /^(.+)_borough.csv$/) {
-			$city = $1;
+		} elsif($file =~ /^(.+)[_\s]borough.csv$/) {
+			# See $oa/us/ak/kenai_peninsula_borough.csv
+			$city = $1 if((!defined($city)) || ($city eq 'REMOTE'));
+			$city =~ s/\Q$oa\E\/?//i;
+			$city =~ s/\.csv$//;
+			$city =~ s/^.+\///;
+			$city =~ s/(.+)[_\s]borough.csv$/$1/;
+			$city =~ tr/_/ /;
 		} elsif($file =~ /^(.+)-region.csv$/) {
+			$city = $1 if(!defined($city));
+		} elsif($file =~ /^township[_\s]of[_\s](.+).csv$/) {
 			$city = $1;
-		} elsif($file =~ /^township_of_(.+).csv$/) {
-			$city = $1;
-		} elsif($file =~ /^(.+)_district.csv$/) {
-			$city = $1;
+		} elsif($file =~ /^(.+)[_\s]district.csv$/) {
+			$city = $1 if(!defined($city));
+			$city =~ s/\Q$oa\E\/?//i;
+			$city =~ s/\.csv$//;
+			$city =~ s/^.+\///;
+			$city =~ s/(.+)[_\s]district.csv$/$1/;
+			$city =~ tr/_/ /;
+			die "BUG: $file: couldn't extract city name" if(length($city) == 0);
 		} elsif(!defined($city)) {
 			$city = $file;
+			$city =~ s/\Q$oa\E\/?//i;
 			$city =~ s/\.csv$//;
+			$city =~ s/^.+\///;	# Remove leading ca/nt in ca/nt/city_of_yellow_knife
+			$city =~ s/^city[_\s]of[_\s](.+).csv$/$1/;
+			$city =~ tr/_/ /;
+			die "BUG: $file: couldn't extract city name" if(length($city) == 0);
 		} elsif((!defined($county)) &&
 			($file !~ /^WHOSONFIRST\-DATA/i)
 			&& ($file !~ /countrywide/)
 			&& ($file !~ /^\d+\.GEOJSON$/i)) {
 			$county = $file;
 			$county =~ s/\.csv$//;
+			$county =~ s/\Q$oa\E\/?//i;
+			$county =~ s/^.+\///;
+			$county =~ tr/_/ /;
 		}
 	}
 	if(!defined($city)) {
@@ -2432,6 +2515,9 @@ sub import
 			$city = $info->{'city'};
 			$county = $info->{'county'};
 		}
+		# die $county if(defined($county) && ($county =~ /\Q$oa\E/i));
+		# die $city if(defined($city) && ($city =~ /\Q$oa\E/i));
+		# die $city if(defined($city) && ($city =~ /\/..\//));
 		if((!defined($city)) && defined($zip) && ($zip =~ /^(\d{5})/)) {
 			$zip = $1;
 			if(exists($unknown_zips{"$country/$zip"})) {
@@ -2439,7 +2525,7 @@ sub import
 			}
 			my $res = $ua->get("https://api.zippopotam.us/$country/$zip");
 			if(!$res->is_success()) {
-				warn "$country/$zip: ", $res->status_line();
+				warn "$file: https://api.zippopotam.us/$country/$zip: ", $res->status_line();
 				$unknown_zips{"$country/$zip"} = 1;
 				return 0;
 			}
@@ -2541,10 +2627,13 @@ sub import
 		}
 		$street =~ s/^0+//;	# Turn 04th St into 4th St
 	}
-	if($file =~ /^(.+)[_\-]county.csv$/) {
-		$county = $1;
-	} elsif((!defined($county)) && defined($city)) {
-		if($city =~ /(.+)\s+COUNTY$/i) {
+	if(!defined($county)) {
+		if($file =~ /^(.+)[_\-]county.csv$/) {
+			$county = $1;
+			$county =~ s/\Q$oa\E\/?//i;
+			$county =~ s/^.+\///;
+			$county =~ tr/_/ /;
+		} elsif(defined($city) && ($city =~ /(.+)\s+COUNTY$/i)) {
 			$county = $1;
 			$city = undef;
 		}
@@ -2584,6 +2673,15 @@ sub import
 		$county =~ s/\s+$//g;
 		$county =~ s/^\s+//g;
 	}
+	# die $county if(defined($county) && ($county =~ /\Q$oa\E/i));
+	# if(defined($city) && (($city =~ /\Q$oa\E/i) || ($city =~ /\/..\//))) {
+		# print __LINE__, ": $file: ", Data::Dumper->new([\$row])->Dump();
+		# my $i = 0;
+		# while(my @call_details = caller($i++)) {
+			# print STDERR "\tCalled at line ", $call_details[2], "\n";
+		# }
+		# die "$file: $city ($country/$state)";
+	# }
 	if(defined($state)) {
 		if($state eq 'IN') {
 			if(defined($city) && ($city eq 'FW')) {
@@ -2600,16 +2698,46 @@ sub import
 		}
 	}
 	if(($city && ($city !~ /^\s+$/)) || $county || $state) {
+		if(!defined($state)) {
+			if(($country eq 'AU') && ($file =~ /\/au\/(...)\/.+.csv$/)) {
+				$state = uc($1);
+			} elsif(my $region = $row->{'REGION'}) {
+				delete $row->{'REGION'};
+				$state = uc($region);
+			}
+
+			if(!defined($state)) {
+				print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+				my $i = 0;
+				while(my @call_details = caller($i++)) {
+					print STDERR "\tCalled at line ", $call_details[2], "\n";
+				}
+				die "$file: $country";
+			}
+		}
+
+		if(defined($city) && (length($state) == 2) && ($city =~ /(.+)\s\Q$state\E/)) {
+			$city = $1;
+		}
+
 		my %columns = (
 			'COUNTRY' => $country,
 			'CITY' => $city,
 			'STATE' => $state,
-			'COUNTY' => $county,
-			'STREET' => $street
 		);
+
+		$columns{'COUNTY'} = $county if(defined($county));
+		$columns{'STREET'} = $street if(defined($street));
+
 		foreach my $c('LAT', 'LON', 'NAME', 'NUMBER') {
-			$columns{$c} = $row->{$c};
+			# Use 'defined" because LON can be 0 in London
+			$columns{$c} = $row->{$c} if(defined($row->{$c}));
 		}
+
+		# Can't compare '== 0' because of house numbers such as '43A'
+		delete($columns{'NUMBER'}) if(defined($columns{'NUMBER'}) && ($columns{'NUMBER'} eq '0'));
+
+		# print __LINE__, ': ', Data::Dumper->new([\%columns])->Dump();
 		if((!defined($city)) ||
 		   ($country eq 'GB') && ($city eq 'LONDON') && defined($state) && ($state eq 'LONDON')) {
 			delete $columns{'CITY'};
@@ -2618,13 +2746,15 @@ sub import
 			delete $columns{$column} if(!defined($columns{$column}));
 		}
 		if((!defined($city)) && defined($street) && defined($row->{'REGION'}) && !defined($county)) {
-			$county = uc($row->{'REGION'});
+			$county = uc(delete $row->{'REGION'});
 			if(!defined($street)) {
 				print "County and street with no city:\n", Data::Dumper->new([$row])->Dump() if($county && (DEBUG&DEBUG_DATA_VALIDATE));
 				return $inserts;
 			}
 		}
-		# print Data::Dumper->new([\%columns])->Dump() if(!defined($city) && !defined($county));
+
+		print __LINE__, ": $file\n" if(DEBUG);
+
 		$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 		if(delete($columns{'COUNTY'})) {
 			return $inserts if(!defined($city));
@@ -2640,9 +2770,8 @@ sub import
 				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 				# print "RESTAURANT: $1\n";
 			}
-			if(delete($columns{'NAME'})) {
-				$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
-			}
+			delete $columns{'NAME'};
+			$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 		}
 		if(delete($columns{'NUMBER'})) {
 			if($name) {
@@ -2656,6 +2785,7 @@ sub import
 				}
 				delete($columns{'NAME'});
 			}
+
 			# Match somewhere in the street when number isn't known
 			$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, $global, %columns);
 			if(delete($columns{'STREET'})) {
@@ -2687,7 +2817,7 @@ sub import
 	return $inserts;
 }
 
-# Queue data to be added to the database
+# Queue one row to be added to the database
 # Returns the number of items added to the queued_commits array
 sub insert
 {
@@ -2716,8 +2846,22 @@ sub insert
 
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'CITY'} && (uc($columns{'CITY'}) eq 'INDIANAPOLIS'));
 	# print Data::Dumper->new([$columns])->Dump() if($columns{'NAME'} && (uc($columns{'NAME'}) eq 'EL PAPI STREET TACOS'));
-	if(DEBUG&DEBUG_ALL) {
-		print Data::Dumper->new([\%columns])->Dump();
+	if(defined($columns{'COUNTY'}) && defined($columns{'CITY'}) && ($columns{'COUNTY'} =~ /CITY OF \Q$columns{'CITY'}\E/i)) {
+		# /home/njh/misc/openaddr/ca/on/city_of_markham.csv:
+		# {
+		#	'CITY' => 'MARKHAM',
+		#	'COUNTRY' => 'CA',
+		#	'COUNTY' => 'CITY OF MARKHAM',
+		#	'LAT' => '43.8514452',
+		#	'LON' => '-79.3525134',
+		#	'NUMBER' => '2',
+		#	'STATE' => 'ON',
+		#	'STREET' => 'MONTGOMERY CT'
+		# };
+		delete $columns{'COUNTY'};
+	}
+	if(DEBUG&DEBUG_INSERT) {
+		print __LINE__, ': ', Data::Dumper->new([\%columns])->Dump();
 		my $i = 0;
 		while(my @call_details = caller($i++)) {
 			print STDERR "\tcalled at line ", $call_details[2], "\n";
@@ -2727,7 +2871,7 @@ sub insert
 	my $lat = $columns{'LAT'};
 	my $lon = $columns{'LON'};
 
-	die Data::Dumper->new([\%columns])->Dump() unless(defined($lat) && defined($lon));
+	die __LINE__, ': ', Data::Dumper->new([\%columns])->Dump() unless(defined($lat) && defined($lon));
 	# die "$lat/$lon" unless($columns{'STATE'});
 
 	# Remove duplicate, leading and trailing spaces from entries.  Some openaddresses files are littered with them
@@ -2757,7 +2901,7 @@ sub insert
 
 	if(!defined($digest)) {
 		# Already known
-		# print "Ignore ", join(',', values(%columns)), "\n";
+		print 'Ignore duplicate: ', join(',', values(%columns)), "\n" if(DEBUG&DEBUG_INSERT);
 		return 0;
 	}
 
@@ -2779,7 +2923,7 @@ sub insert
 	my @call_details = caller(0);
 	$columns{'LINE'} = $call_details[2] if(DEBUG);
 	$queued_commits{$digest} = \%columns;
-	if(DEBUG&DEBUG_ALL) {
+	if(DEBUG&DEBUG_INSERT) {
 		flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 	}
 	if(!defined($columns{'COUNTRY'})) {
@@ -2802,7 +2946,7 @@ sub insert
 		$columns2{'LINE'} = $call_details[2] if(DEBUG);
 		$digest = undef;
 
-		print __LINE__, ': ', Data::Dumper->new([\%columns2])->Dump() if(DEBUG&DEBUG_ALL);
+		print __LINE__, ': ', Data::Dumper->new([\%columns2])->Dump() if(DEBUG&DEBUG_INSERT);
 		foreach my $column('NUMBER','STREET','CITY','COUNTY','STATE','COUNTRY') {
 			$digest .= $columns2{$column} if(exists($columns2{$column}));
 		}
@@ -3089,10 +3233,10 @@ sub create_md5
 	# }
 	# $digests_added{$digest} = 1;
 
-	my $rc = substr Digest::MD5::md5_base64(@_), 0, 16;
+	my $rc = substr Digest::MD5::md5_base64($digest), 0, 16;
 	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
 	if($global_md5s{$rc} || $state_md5s{$rc} || $queued_commits{$rc}) {
-		# warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
+		warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
 		return undef;
 	}
 

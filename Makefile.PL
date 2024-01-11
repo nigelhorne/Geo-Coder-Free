@@ -35,7 +35,7 @@ BEGIN {
 	}
 }
 
-if(defined($ENV{'GITHUB_ACTION'}) || defined($ENV{'TRAVIS_PERL_VERSION'})) {
+if(defined($ENV{'GITHUB_ACTION'}) || defined($ENV{'TRAVIS_PERL_VERSION'}) || defined($ENV{'APPVEYOR'})) {
 	# Prevent downloading and installing stuff
 	$ENV{'AUTOMATED_TESTING'} = 1;
 }
@@ -197,15 +197,22 @@ if(!(-r 'downloads/allCountries.txt')) {
 		# }
 	} elsif(open(my $fout, '>', 'downloads/allCountries.txt')) {
 		IO::Uncompress::Unzip->import();
-		my $fin = IO::Uncompress::Unzip->new($zip);
-		do {
-			if($fin->getHeaderInfo->{'Name'} eq 'allCountries.txt') {
-				while(my $line = $fin->getline()) {
-					print $fout $line;
+		if(my $fin = IO::Uncompress::Unzip->new($zip)) {
+			do {
+				if($fin->getHeaderInfo->{'Name'} eq 'allCountries.txt') {
+					while(my $line = $fin->getline()) {
+						print $fout $line;
+					}
+					# last; # Gives syntax error that it's not in a loop :-(
 				}
-				# last; # Gives syntax error that it's not in a loop :-(
-			}
-		} while($fin->nextStream());
+			} while($fin->nextStream());
+		} elsif($ENV{'AUTOMATED_TESTING'}) {
+			print STDERR "$zip: $IO::Uncompress::Unzip::UnzipError\n";
+			exit(0);
+		} else {
+			die "$zip: $IO::Uncompress::Unzip::UnzipError";
+		}
+		close $fout || die "$zip: $!";
 	}
 	truncate $zip, 0;
 }
@@ -353,6 +360,7 @@ WriteMakefile(
 			}, homepage => 'https://geocode.nigelhorne.com'
 		},
 	},
+	# PL_FILES => (defined($ENV{'AUTOMATED_TESTING'}) ? {} : {'bin/create_db.PL' => 'bin/create_db'}),
 	# PPM_INSTALL_EXEC	=> 'bash',
 	# PPM_INSTALL_SCRIPT	=> 'bin/create_sqlite',
 	MIN_PERL_VERSION	=> '5.6.2'	# Probably would work, but never tested on earlier versions than this
