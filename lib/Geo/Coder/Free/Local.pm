@@ -15,10 +15,10 @@ use Text::xSV::Slurp;
 
 Geo::Coder::Free::Local -
 Provides an interface to locations that you know yourself.
-I have found locations by using GPS apps on a smartphone and by
+For example, I have found locations by using GPS apps on a smartphone and by
 inspecting GeoTagged photographs using
 L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/geotag>
-or by using the app GPSCF.
+or by using the app GPSCF which are included here.
 
 =head1 VERSION
 
@@ -670,11 +670,14 @@ it under the same terms as Perl itself.
 
 =head1 BUGS
 
+The data are stored in the source,
+they should be read in from somewhere else to make it easier for non-authors to add data.
+
 =head1 SEE ALSO
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2020-2023 Nigel Horne.
+Copyright 2020-2024 Nigel Horne.
 
 The program code is released under the following licence: GPL2 for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

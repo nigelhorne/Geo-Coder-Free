@@ -72,17 +72,15 @@ When it's back up you will be able to use this to test it.
     $geo_coder = Geo::Coder::Free->new();
 
 Takes one optional parameter, openaddr, which is the base directory of
-the OpenAddresses data downloaded from L<http://results.openaddresses.io>.
-
-The database also will include data from Who's On First
-L<https://whosonfirst.org>.
+the OpenAddresses data from L<http://results.openaddresses.io>,
+and Who's On First data from L<https://whosonfirst.org>.
 
 Takes one optional parameter, directory,
 which tells the object where to find the MaxMind and GeoNames files admin1db,
 admin2.db and cities.[sql|csv.gz].
 If that parameter isn't given,
 the module will attempt to find the databases,
-but that can't be guaranteed.
+but that can't be guaranteed to work.
 
 =cut
 
@@ -543,7 +541,7 @@ L<http://search.cpan.org/dist/Geo-Coder-Free/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2023 Nigel Horne.
+Copyright 2017-2024 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
