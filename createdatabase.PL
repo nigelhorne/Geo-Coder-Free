@@ -88,7 +88,7 @@ use Devel::Size;
 
 # ONE or ALL - import from one database or all of them
 # ALL uses HUGE amounts of RAM
-use	constant	BUILDMODE => 'ONE';
+use	constant	BUILDMODE => 'ALL';
 
 use	constant	AIO_READAHEAD_SIZE => 1048576;	# 1MB
 

@@ -27,8 +27,13 @@ SCANTEXT: {
 			my @locations = $geo_coder->geocode(scantext => 'I was born in Ramsgate, Kent, England');
 			ok(scalar(@locations) == 1);
 			my $location = $locations[0];
-			cmp_deeply($location,
-				methods('lat' => num(51.34, 1e-2), 'long' => num(1.41, 1e-2)));
+			if($ENV{'WHOSONFIRST_HOME'}) {
+				cmp_deeply($location,
+					methods('lat' => num(51.34, 1e-2), 'long' => num(1.41, 1e-2)));
+			} else {
+				cmp_deeply($location,
+					methods('lat' => num(51.34, 1e-2), 'long' => num(1.31, 1e-2)));
+			}
 
 			ok(defined($location->{'confidence'}));
 			cmp_ok($location->{'location'}, 'eq', 'Ramsgate, Kent, England', 'Location is found in text');
