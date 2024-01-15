@@ -1211,7 +1211,8 @@ if($ENV{'REDIS_SERVER'}) {
 } elsif(defined($sqlite_file)) {
 	# SQLite
 	if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
-		$dbh->do('PRAGMA cache_size = -65536');	# 64MB
+		$dbh->do('PRAGMA synchonuous = OFF');
+		$dbh->do('PRAGMA cache_size = 262144');	# 256MB
 		$dbh->do('PRAGMA journal_mode = OFF');
 	} else {
 		die "$sqlite_file: $!";
@@ -1230,6 +1231,7 @@ if($dbh) {
 	if(MAX_INSERT_COUNT == 1) {
 		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
 	} else {
+		# Add the keys later for performance
 		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
 	}
 	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
@@ -2298,7 +2300,7 @@ undef %state_md5s;
 undef %state_parent_md5s;
 
 if(MAX_INSERT_COUNT > 1) {
-	# SQLite
+	# SQLite - add the keys
 	# GRANT INDEX ON geo_coder_free.openaddresses TO 'njh'@'localhost';
 	$dbh->prepare('CREATE UNIQUE INDEX md5_index ON openaddresses(md5)')->execute();
 	# $dbh->prepare('CREATE UNIQUE INDEX sequence_index ON cities(sequence)')->execute();
@@ -3242,7 +3244,8 @@ sub create_md5
 
 	if(defined($dbh)) {
 		# Avoid duplicates on SQL databases since the PRIMARY KEY is added later
-		if($global || (BUILDMODE eq 'ALL')) {
+		# if($global || (BUILDMODE eq 'ALL')) {
+		if($global) {
 			if(DEBUG&DEBUG_MD5) {
 				print "global $digest => $rc\n";
 				$global_md5s{$rc} = $digest;
