@@ -6,11 +6,11 @@
 # Based on VWF - https://github.com/nigelhorne/vwf
 
 # Can be tested at the command line, e.g.:
-#	rootdir=$(pwd)/.. ./page.fcgi page=index
+#	root_dir=$(pwd)/.. ./page.fcgi page=index
 # To mimic a French mobile site:
-#	rootdir=$(pwd)/.. ./page.fcgi mobile=1 page=index lang=fr
+#	root_dir=$(pwd)/.. ./page.fcgi mobile=1 page=index lang=fr
 # To turn off linting of HTML on a search-engine landing page
-#	rootdir=$(pwd)/.. ./page.fcgi --search-engine page=index lint_content=0
+#	root_dir=$(pwd)/.. ./page.fcgi --search-engine page=index lint_content=0
 
 # TODO: use the memory_cache in the config file for the database searches
 
@@ -246,9 +246,9 @@ sub doit
 		logger => $logger,
 		lingua => $lingua
 	};
-	if(!$info->is_search_engine() && $config->rootdir() && ((!defined($info->param('action'))) || ($info->param('action') ne 'send'))) {
+	if(!$info->is_search_engine() && $config->root_dir() && ((!defined($info->param('action'))) || ($info->param('action') ne 'send'))) {
 		$args->{'save_to'} = {
-			directory => File::Spec->catfile($config->rootdir(), 'save_to'),
+			directory => File::Spec->catfile($config->root_dir(), 'save_to'),
 			ttl => 3600 * 24,
 			create_table => 1
 		};
