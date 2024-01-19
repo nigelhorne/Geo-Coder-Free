@@ -2206,6 +2206,12 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 									$city = $name;
 									undef $name;
 								}
+								if($city =~ /(.+?), (.+)/) {
+									if(my $code = $ca->{province2code}{uc($2)}) {
+										$state = $code;
+										$city = $1;
+									}
+								}
 							} else {
 								$preamble = $1;
 								print "\tname is not defined\n";
