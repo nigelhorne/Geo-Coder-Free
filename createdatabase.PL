@@ -2101,7 +2101,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 		while($reader->read()) {
 			# These constants are not exported by default :-(
-			print $reader->document->toString(1);
+			# print $reader->document->toString(1);
 			if($reader->nodeType() == 1) {
 				my $node = $reader->name();
 				if($node eq 'node') {
@@ -2187,12 +2187,21 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 						}
 						$country = 'US';
 					} elsif($is_in =~ /, Canada/) {
+						print __LINE__, ": decode Canadian place '$is_in'\n";
 						if($is_in =~ /(.+), (.+), Canada/) {
 							if($name) {
 								$city = $1;
 								$preamble = undef;
+								print "\tname=$name, city=$city\n";
+								if(my $code = $ca->{province2code}{uc($city)}) {
+									$is_in = $city;
+									$state = $code;
+									$city = $name;
+									undef $name;
+								}
 							} else {
 								$preamble = $1;
+								print "\tname is not defined\n";
 							}
 							$state = $2;
 						} elsif($is_in =~ /^(.+), Canada/) {
@@ -2295,7 +2304,6 @@ print __LINE__, ": $city, $state, $country\n";
 									$country = $is_in;
 								} else {
 									print __LINE__, ": is_in = $is_in (couldn't find country for $city)\n";
-									die "is_in = $is_in (couldn't find country for $city)";
 									$add_record = 0;
 								}
 							}
@@ -2315,7 +2323,6 @@ print __LINE__, ": $city, $state, $country\n";
 										$country = 'US';
 									} else {
 										print __LINE__, ": is_in = $is_in (couldn't find country for $country)\n";
-										die "is_in = $is_in (couldn't find country for $country)";
 										$add_record = 0;
 									}
 								}
@@ -2325,10 +2332,11 @@ print __LINE__, ": $city, $state, $country\n";
 						$add_record = 0 if($is_in =~ /,.+,/);	# Just towns for now
 						# means it's another country
 						if(!defined($country)) {
-							die $is_in;
+							print __LINE__, ": country not defined ($is_in)";
 							$add_record = 0;
 						} elsif($country !~ /(Australia|Canada|US|GB)$/i) {
 							# FIXME: use %openaddresses_supported_countries
+							print __LINE__, ": unsupported country $country\n";
 							$add_record = 0;
 						}
 						print __LINE__, ": is_in = $is_in (add_record = $add_record)\n";
