@@ -2123,13 +2123,16 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 						# print "name:en: $name\n";
 					} elsif(($key eq 'name') && !defined($name)) {
 						$name = $reader->getAttribute('v');
+						# print "name: $name\n";
 					} elsif($key eq 'is_in') {
 						$is_in = $reader->getAttribute('v');
+						# print "is_in: $is_in\n";
 						if(Locale::Country::country2code($country)) {
 							$country = $is_in;
 						}
 					} elsif($key eq 'is_in:country') {
 						$country = $reader->getAttribute('v');
+						# print "is_in:country $country\n";
 						# if(defined($is_in) && ($is_in !~ /\Q$country\E$/)) {
 							# $is_in .= ", $country";
 						# } elsif(!defined($is_in)) {
@@ -2137,6 +2140,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 						# }
 					} elsif($key eq 'is_in:province') {	# Canada
 						my $province = $reader->getAttribute('v');
+						# print "is_in:province $province\n";
 						if(defined($is_in)) {
 							$is_in = "$province, $is_in";
 						} else {
@@ -2146,6 +2150,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 						}
 					} elsif($key eq 'wikipedia') {
 						my $v = $reader->getAttribute('v');
+						# print "wikipedia $v\n";
 						if($v =~ /^en:(.+)/) {
 							$place = $1;
 						}
@@ -2160,6 +2165,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 						}
 					} elsif($key eq 'place') {
 						$place = $reader->getAttribute('v');
+						# print "place $place\n";
 					}
 				}
 			} elsif($reader->nodeType() == 15) {
@@ -2185,6 +2191,7 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 					my $preamble;
 					my $state;
 					my $city = $name;
+					my $county;
 					if($is_in =~ /, US/) {
 						if($is_in =~ /(.+), (.+), US/) {
 							$preamble = $1;
@@ -2192,6 +2199,20 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 						} elsif($is_in =~ /^(.+), US/) {
 							$state = $1;
 						}
+						if($is_in =~ /^([a-z\s]+?)\sCounty, (.+)/i) {
+							$county = $1;
+							$is_in = $2;
+						}
+						if($is_in =~ /^(.+?), (.+)/) {
+							if(my $code = $us->{state2code}{uc($1)}) {
+								$state = $code;
+								$is_in = $2;
+							}
+						}
+						if(defined($city) && defined($county)) {
+							$is_in = "$state, US";
+						}
+print __LINE__, ": is_in = '$is_in', state = $state, city = $city\n";
 						$country = 'US';
 					} elsif($is_in =~ /, Canada/) {
 						print __LINE__, ": decode Canadian place '$is_in'\n";
@@ -2210,6 +2231,15 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 									if(my $code = $ca->{province2code}{uc($2)}) {
 										$state = $code;
 										$city = $1;
+									} elsif($code = $ca->{province2code}{uc($1)}) {
+										$state = $code;
+										$city = $2;
+										if($city eq 'Alta.') {
+											$city = $name;
+											undef $name;
+											print __LINE__, ": is_in = $is_in; (city/state/country) $city/$state/$country";
+											$is_in = "$state, Canada";
+										}
 									}
 								}
 							} else {
@@ -2220,6 +2250,7 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 						} elsif($is_in =~ /^(.+), Canada/) {
 							$state = $1;
 						}
+						print "\tstate = $state\n";
 						$country = 'Canada';
 					} elsif(($is_in eq 'Canada') && ($place =~ /\Q$name\E, (.+)/)) {
 						if(my $code = $ca->{province2code}{uc($1)}) {
@@ -2317,7 +2348,7 @@ print __LINE__, ": state = $state\n";
 								undef $city;
 							}
 						}
-print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$country)\n";
+print __LINE__, ": add_record = $add_record, is_in = '$is_in', (city/state/country = $city/$state/$country)\n";
 					} elsif(my $code = $us->{state2code}{uc($is_in)}) {
 						$is_in = "$code, US";
 						$state = $code if(!defined($state));
@@ -2371,7 +2402,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 									$country = $is_in;
 								} else {
 									print __LINE__, ": is_in = $is_in (couldn't find country for $city)\n";
-									$add_record = 0;
+									$add_record = 0 if(!defined($country));
 								}
 							}
 						} elsif($is_in =~ /(.+), (.+)$/) {
@@ -2396,15 +2427,29 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 							}
 						}
 						print __LINE__, ": is_in = $is_in (add_record = $add_record)\n";
-						$add_record = 0 if($is_in =~ /,.+,/);	# Just towns for now
-						# means it's another country
+						if((!defined($country)) && (my $full_name = $us->{'code2state'}{$is_in})) {
+							print __LINE__, ": is_in = $is_in\n";
+							$country = 'US';
+							$state = $is_in;
+							if($place =~ /(.+),\s\Q$full_name\E/) {
+								$city = $1;
+								undef $name;
+								undef $place;
+							}
+							$add_record = 1;
+							print __LINE__, ": $city, $state, $country\n";
+						}
 						if(!defined($country)) {
-							print __LINE__, ": country not defined ($is_in\n)";
+							print __LINE__, ": country not defined ($is_in)\n";
 							$add_record = 0;
 						} elsif($country !~ /(Australia|Canada|US|GB)$/i) {
 							# FIXME: use %openaddresses_supported_countries
 							print __LINE__, ": unsupported country $country\n";
 							$add_record = 0;
+						} elsif($is_in =~ /,.+,/) {
+							# Just towns for now
+							die "is_in = $is_in" unless($city && $state && $country);
+							print __LINE__, ": is_in = $is_in ($city, $state, $country)\n";
 						}
 						print __LINE__, ": is_in = $is_in (add_record = $add_record)\n";
 						$add_record = 0 if(!defined($state));
@@ -2420,6 +2465,9 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 							};
 							if($name && ($name ne $city)) {
 								$row->{'NAME'} = $name;
+							}
+							if($county) {
+								$row->{'COUNTY'} = $county;
 							}
 							print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 							$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
