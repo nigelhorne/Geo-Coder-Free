@@ -2189,7 +2189,7 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 					$is_in =~ s/(\w)? USA$/$1, US/;
 print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 
-					undef $place if($place eq 'neighbourhood');
+					undef $place if($place =~ /neighbourhood|hamlet|village|town/);
 
 					my $preamble;
 					my $state;
@@ -2255,7 +2255,7 @@ print __LINE__, ": is_in = '$is_in', state = $state, city = $city\n";
 						}
 						print "\tstate = $state\n";
 						$country = 'Canada';
-					} elsif(($is_in eq 'Canada') && ($place =~ /\Q$name\E, (.+)/)) {
+					} elsif(($is_in eq 'Canada') && (defined $place) && ($place =~ /\Q$name\E, (.+)/)) {
 						if(my $code = $ca->{province2code}{uc($1)}) {
 							$state = $code;
 							$place = $name;
