@@ -105,7 +105,8 @@ use	constant	DEBUG_SIZE => 0x100;
 use	constant	DEBUG_MD5 => 0x200;
 use	constant	DEBUG_INSERT => 0x400;
 use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
-use	constant	DEBUG_ALL => 0x7FF;
+use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
+use	constant	DEBUG_ALL => 0x1000;
 use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
@@ -1358,14 +1359,13 @@ $ua->env_proxy(1);
 
 $filename = 'downloads/allCountries.txt';
 
-# TULIP
 # Import the Maxmind databases
 if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename) &&
    # open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
    (my $all_countries = File::Open::NoCache::ReadOnly->new($filename)) &&
-   (0) &&
+   (!(DEBUG&DEBUG_OSM)) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
@@ -1515,13 +1515,13 @@ flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
 my $inserts = 0;
 
-# TULIP
 # Find all of the .csv files in $OPENADDR_HOME
-# foreach my $csv_file (create_tree($oa, 1)) {
-if(0) { my $csv_file;
+foreach my $csv_file (create_tree($oa, 1)) {
 	# next unless($csv_file =~ /us\/md\/statewide/);
 	# next unless($csv_file =~ /us\/ne\/dawes/);
 	# next unless($csv_file =~ /us\/in\//);
+
+	next if(DEBUG&DEBUG_OSM);
 
 	# Handle https://github.com/openaddresses/openaddresses/issues/3928
 	# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -2191,7 +2191,7 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 					$is_in =~ s/(\w)? USA$/$1, US/;
 print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|village|farm/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|village|farm/);
 
 					my $preamble;
 					my $state;
@@ -2414,6 +2414,9 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 						} elsif($is_in =~ /(.+), (.+)$/) {
 							$country = $2;
 							if($country eq 'GB') {
+								# TODO: complete this code
+								#	It's tricky because the county system in the
+								#	UK is much less well defined compared to US states
 								$state = $1;
 								print __LINE__, ": is_in = $is_in ($city, $state, $country)\n";
 								if($state =~ /\Q$city\E, London/) {
@@ -2453,13 +2456,13 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 						if(!defined($country)) {
 							print __LINE__, ": country not defined ($is_in)\n";
 							$add_record = 0;
-						} elsif($country !~ /(Australia|Canada|US|GB)$/i) {
+						} elsif($country !~ /Australia|Canada|US|GB/) {
 							# FIXME: use %openaddresses_supported_countries
 							print __LINE__, ": unsupported country $country\n";
 							$add_record = 0;
 						} elsif($is_in =~ /,.+,/) {
 							# Just towns for now
-							die "is_in = $is_in" unless($city && $state && $country);
+							die "is_in = $is_in, country = $country" unless($city && $state && $country);
 							print __LINE__, ": is_in = $is_in ($city, $state, $country)\n";
 						}
 						print __LINE__, ": is_in = $is_in (add_record = $add_record)\n";
