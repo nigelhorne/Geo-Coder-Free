@@ -2074,7 +2074,9 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 if(my $osm = $ENV{'OSM_HOME'}) {
 	# Openstreetmap
 
-	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
+	# TULIP
+	# my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
+	my @files = ('europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
 	foreach my $file(@files) {
 		require XML::LibXML::Reader;
@@ -2189,12 +2191,13 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 					$is_in =~ s/(\w)? USA$/$1, US/;
 print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 
-					undef $place if($place =~ /neighbourhood|hamlet|village|town/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|village|farm/);
 
 					my $preamble;
 					my $state;
 					my $city = $name;
 					my $county;
+
 					if($is_in =~ /, US/) {
 						if($is_in =~ /(.+), (.+), US/) {
 							$preamble = $1;
@@ -2409,9 +2412,14 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 								}
 							}
 						} elsif($is_in =~ /(.+), (.+)$/) {
-							my $place = $1;
 							$country = $2;
-							if($country ne 'GB') {
+							if($country eq 'GB') {
+								$state = $1;
+								print __LINE__, ": is_in = $is_in ($city, $state, $country)\n";
+								if($state =~ /\Q$city\E, London/) {
+									$state = 'London';
+								}
+							} else {
 								if(!Locale::Country::country2code($country)) {
 									if(my $province = $ca->{'province2code'}{uc($country)}) {
 										$country = 'Canada';
