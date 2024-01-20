@@ -2203,7 +2203,7 @@ print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
 							$county = $1;
 							$is_in = $2;
 						}
-						if($is_in =~ /^(.+?), (.+)/) {
+						if((!defined($state)) && ($is_in =~ /^(.+?), (.+)/)) {
 							if(my $code = $us->{state2code}{uc($1)}) {
 								$state = $code;
 								$is_in = $2;
