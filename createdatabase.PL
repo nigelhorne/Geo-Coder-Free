@@ -2269,7 +2269,7 @@ print __LINE__, ": $state\n";
 					} elsif($is_in eq 'Canada') {
 						$country = 'Canada';
 					} elsif($is_in =~ /^Australia, (.+)/) {
-						# Australian data starts with country, rather than ending with it
+						# Some Australian data starts with country, rather than ending with it
 						print __LINE__, ": parse Australian is_in '$is_in'\n";
 						$country = 'Australia';
 						$is_in = $1;
@@ -2292,18 +2292,46 @@ print __LINE__, ": $state\n";
 								if($is_in !~ /(.+?), (.+)/) {
 									$city = $is_in;
 								}
-								print __LINE__, ": city = $city\n";
+								print __LINE__, ": city = $city, state = $state\n";
 							}
 						}
-					} elsif(defined($country) &&
-						($country eq 'Australia') &&
-						($is_in !~ /,/) &&
-						(my $code = $au->{state2code}{uc($is_in)})) {
-						$state = $code;
-						undef $name if($name eq $city);
+					} elsif($is_in =~ /(.+), Australia$/) {
+						print __LINE__, ": parse Australian is_in '$is_in'\n";
+						$country = 'Australia';
+						$is_in = $1;
+						if($is_in =~ /(.+?), (.+)/) {
+							if($au->{code2state}{uc($2)}) {
+								$state = uc($2);
+								$is_in = $1;
+								if($is_in !~ /(.+?), (.+)/) {
+									$name = $2;
+									$city = $1;
+								} else {
+									$city = $is_in;
+								}
+							}
+						}
+						if($is_in =~ /(.+?), (.+)/) {
+							if(my $code = $au->{state2code}{uc($2)}) {
+								$state = $code;
+								$is_in = $1;
+								if($is_in !~ /(.+?), (.+)/) {
+									$city = $is_in;
+								}
+								print __LINE__, ": city = $city, state = $state\n";
+							}
+						}
+					} elsif(defined($country) && ($country eq 'Australia')) {
+						if(($is_in !~ /,/) && (my $code = $au->{state2code}{uc($is_in)})) {
+							$state = $code;
+							undef $name if($name eq $city);
+						} elsif(!defined($state)) {
+							print __LINE__, "Can't determine Australian state from $is_in\n";
+							$add_record = 0;
+						}
 					}
 					if($state && (length($state) > 2)) {
-print __LINE__, ": state = $state\n";
+						print __LINE__, ": state = $state\n";
 						if(my $code = $us->{state2code}{uc($state)}) {
 							if($preamble) {
 								$is_in = "$preamble, $code, US";
@@ -2420,46 +2448,77 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 								if($state =~ /\Q$city\E, London/) {
 									$state = 'London';
 								}
-							} else {
-								if(!Locale::Country::country2code($country)) {
-									if(my $province = $ca->{'province2code'}{uc($country)}) {
-										$country = 'Canada';
-										$state = $province;
-									} elsif(my $s = $us->{'state2code'}{uc($country)}) {
-										$state = $s;
-										$country = 'US';
-									} elsif($us->{'code2state'}{uc($country)}) {
-										$state = uc($country);
-										$country = 'US';
-									} else {
-										print __LINE__, ": is_in = $is_in (couldn't find country for $country)\n";
-										$add_record = 0;
-									}
+							} elsif(!Locale::Country::country2code($country)) {
+								if(my $province = $ca->{'province2code'}{uc($country)}) {
+									$country = 'Canada';
+									$state = $province;
+								} elsif(my $s = $us->{'state2code'}{uc($country)}) {
+									$state = $s;
+									$country = 'US';
+								} elsif($us->{'code2state'}{uc($country)}) {
+									$state = uc($country);
+									$country = 'US';
+								} elsif($s = $au->{'state2code'}{uc($country)}) {
+									$state = $s;
+									$country = 'Australia';
+								} else {
+									print __LINE__, ": is_in = $is_in (couldn't find country for $country)\n";
+									$add_record = 0;
 								}
 							}
 						}
 						print __LINE__, ": is_in = $is_in (add_record = $add_record)\n";
-						if((!defined($country)) && (my $full_name = $us->{'code2state'}{$is_in})) {
+						if(!defined($country)) {
+							my $full_name;
+
 							print __LINE__, ": is_in = $is_in\n";
-							$country = 'US';
-							$state = $is_in;
-							if($place =~ /(.+),\s\Q$full_name\E/) {
+							if(($full_name = $us->{'code2state'}{$is_in})) {
+								# Watch, because WA could be Western Australia or Washington, US
+								if($file =~ /north-america/) {
+									$country = 'US';
+								} elsif($file =~ /australia/ && ($full_name = $au->{'code2state'}{$is_in})) {
+									$country = 'Australia';
+								}
+								$state = $is_in;
+							} elsif($full_name = $au->{'code2state'}{$is_in}) {
+								$country = 'Australia';
+								$state = $is_in;
+							}
+							if(defined($place) && defined($full_name) && ($place =~ /(.+),\s\Q$full_name\E/)) {
 								$city = $1;
 								undef $name;
 								undef $place;
 							}
+							if(defined($city) && defined($full_name) && ($city =~ /(.+),\s\Q$full_name\E/)) {
+								$city = $1;
+							}
 							$add_record = 1;
-							print __LINE__, ": $city, $state, $country\n";
+							print __LINE__, ": $city, $state, $country\n" if(defined($full_name));
 						}
 						if(!defined($country)) {
 							print __LINE__, ": country not defined ($is_in)\n";
 							$add_record = 0;
 						} elsif($country !~ /Australia|Canada|US|GB/) {
 							# FIXME: use %openaddresses_supported_countries
-							print __LINE__, ": unsupported country $country\n";
-							$add_record = 0;
+							if(my $code = $au->{'state2code'}{uc($country)}) {
+								if($is_in =~ /(.+?), \Q$country\E$/) {
+									$city = $is_in;
+									$add_record = 1;
+								}
+								$state = $code;
+								$country = 'Australia';
+							} else {
+								print __LINE__, ": unsupported country $country\n";
+								$add_record = 0;
+							}
 						} elsif($is_in =~ /,.+,/) {
 							# Just towns for now
+							if($state) {
+								print "state = $state\n";
+							}
+							if($city) {
+								print "city = $city\n";
+							}
 							die "is_in = $is_in, country = $country" unless($city && $state && $country);
 							print __LINE__, ": is_in = $is_in ($city, $state, $country)\n";
 						}
