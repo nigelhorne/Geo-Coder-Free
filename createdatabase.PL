@@ -2465,7 +2465,6 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 						}
 						print __LINE__, ": is_in = $is_in (add_record = $add_record)\n";
 						$add_record = 0 if(!defined($state));
-						warn ">>>>>>>>>>>>>>>$is_in" if(!$add_record);
 						if($add_record) {
 							print "$city, $is_in: $lat, $lon\n" if(DEBUG&DEBUG_ALL);
 							my $row = {
@@ -2487,6 +2486,8 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 								flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 								$inserts = 0;
 							}
+						} else {
+							print __LINE__, ": did not add record is_in = $is_in, country = $country\n";
 						}
 					}
 					$name = undef;
