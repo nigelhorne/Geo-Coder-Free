@@ -107,7 +107,7 @@ use	constant	DEBUG_INSERT => 0x400;
 use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_ALL => 0x1000;
-use	constant	DEBUG => DEBUG_OFF;
+use	constant	DEBUG => DEBUG_OSM;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
@@ -2074,9 +2074,7 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 if(my $osm = $ENV{'OSM_HOME'}) {
 	# Openstreetmap
 
-	# TULIP
-	# my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
-	my @files = ('europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
+	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
 	foreach my $file(@files) {
 		require XML::LibXML::Reader;
@@ -2706,14 +2704,14 @@ sub import
 	if(($file !~ /statewide/) && ($file !~ /^province/) && ($file !~ /countrywide/)) {
 		if($file =~ /^city[_\s]of[_\s](.+).csv$/) {
 			$city = $1;
-if(defined($city) && (($city =~ /\Q$oa\E/i) || ($city =~ /\/..\//))) {
-	print __LINE__, ': ', Data::Dumper->new([\$row])->Dump();
-	my $i = 0;
-	while(my @call_details = caller($i++)) {
-		print STDERR "\tCalled at line ", $call_details[2], "\n";
-	}
-	die "$file: $city ($country/$state)";
-}
+			if(defined($city) && (($city =~ /\Q$oa\E/i) || ($city =~ /\/..\//))) {
+				print __LINE__, ': ', Data::Dumper->new([\$row])->Dump();
+				my $i = 0;
+				while(my @call_details = caller($i++)) {
+					print STDERR "\tCalled at line ", $call_details[2], "\n";
+				}
+				die "$file: $city ($country/$state)";
+			}
 		} elsif($file =~ /^town[_\s]of[_\s](.+).csv$/) {
 			$city = $1;
 		} elsif($file =~ /^(.+)[_\s]borough.csv$/) {
