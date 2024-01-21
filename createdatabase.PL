@@ -2486,8 +2486,10 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 								flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 								$inserts = 0;
 							}
-						} else {
+						} elsif($country) {
 							print __LINE__, ": did not add record is_in = $is_in, country = $country\n";
+						} else {
+							print __LINE__, ": did not add record is_in = $is_in, country = undef\n";
 						}
 					}
 					$name = undef;
