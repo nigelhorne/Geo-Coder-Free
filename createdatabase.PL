@@ -2229,6 +2229,17 @@ if($place) {
 							'LAT' => $lat,
 							'LON' => $lon,
 						};
+					} elsif(defined($name) && defined($place) && ($place eq "$name, $is_in") && ($state = $us->{'state2code'}{uc($is_in)})) {
+						# name/place/is_in = Marysville/Marysville, Pennsylvania/Pennsylvania
+						my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+						die if(!defined($country));
+						$row = {
+							'CITY' => $name,
+							'STATE' => $state,
+							'COUNTRY' => $country,
+							'LAT' => $lat,
+							'LON' => $lon,
+						};
 					} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada$/) && ($is_in =~ /[;,]/)) {
 						my @is_in_fields = split(/[,;]\s/, $is_in);
 						if(scalar(@is_in_fields) == 3) {
