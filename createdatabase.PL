@@ -2342,11 +2342,14 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 								};
 							}
 						} elsif(scalar(@is_in_fields) >= 5) {
-							if(($ca->{'province2code'}{uc($is_in_fields[0])}) && ($is_in_fields[0] eq $is_in_fields[4])) {
-								# Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
+							if(($is_in_fields[0] eq $is_in_fields[4]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
+								# name/place/is_in = Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
+								shift @is_in_fields;
+							} elsif(($is_in_fields[0] eq $is_in_fields[3]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
+								# name/place/is_in = Roblin Park/undef/Winnipeg;Charleswood–Tuxedo;Assiniboia;Winnipeg;Manitoba;Canada,
 								shift @is_in_fields;
 							}
-							if($state = $ca->{'province2code'}{uc($is_in_fields[3])}) {
+							if($state = $ca->{'province2code'}{uc($is_in_fields[4])}) {
 								# name/place/is_in = Garden City/undef/Old Kildonan; Lord Selkirk–West Kildonan; Winnipeg;Manitoba;Canada
 								$row = {
 									NAME => $name || $is_in_fields[1],
