@@ -2282,7 +2282,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 							if(my $p = $provinces{uc($is_in_fields[1])}) {
 								$is_in_fields[1] = $p;
 							}
-							print __LINE__, "$is_in\n";
+							print __LINE__, ": $is_in\n";
 
 							if(($state = $ca->{'province2code'}{uc($is_in_fields[0])}) &&
 							   ($code = $ca->{'province2code'}{uc($is_in_fields[1])})) {
@@ -2296,6 +2296,27 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 										'LON' => $lon,
 									};
 								}
+							} elsif($state = $ca->{'province2code'}{uc($is_in_fields[2])}) {
+								# name/place/is_in = Tyndall Park/undef/Point Douglas; Winnipeg;Manitoba;Canada
+								$row = {
+									'CITY' => $is_in_fields[1],
+									'STATE' => $state,
+									'COUNTRY' => 'Canada',
+									'LAT' => $lat,
+									'LON' => $lon,
+								};
+								$row->{'NAME'} = $name if(defined($name));
+							} elsif($ca->{'province2code'}{uc($is_in_fields[1])} eq $is_in_fields[2]) {
+								$state = $is_in_fields[2];
+								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
+								$row = {
+									'CITY' => $is_in_fields[0],
+									'STATE' => $state,
+									'COUNTRY' => 'Canada',
+									'LAT' => $lat,
+									'LON' => $lon,
+								};
+								$row->{'NAME'} = $name if(defined($name));
 							}
 						} elsif(scalar(@is_in_fields) == 2) {
 							undef $name if(defined($place) && $name eq $place);
