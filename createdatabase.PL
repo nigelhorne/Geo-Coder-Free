@@ -2298,6 +2298,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 							if($is_in_fields[2] =~ /Qu.bec/) {
 								$is_in_fields[2] = 'Quebec';
 							}
+							print __LINE__, "\n";
 							if(($state = $ca->{'province2code'}{uc($is_in_fields[0])}) &&
 							   ($code = $ca->{'province2code'}{uc($is_in_fields[1])})) {
 							   	if(($state eq $is_in_fields[2]) && ($code eq $state)) {
@@ -2311,6 +2312,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 									};
 								}
 							} elsif($state = $ca->{'province2code'}{uc($is_in_fields[2])}) {
+print __LINE__, "\n";
 								# name/place/is_in = Tyndall Park/undef/Point Douglas; Winnipeg;Manitoba;Canada
 								$row = {
 									'CITY' => $is_in_fields[1],
@@ -2321,6 +2323,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 								};
 								$row->{'NAME'} = $name if(defined($name));
 							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($state eq $is_in_fields[2])) {
+print __LINE__, "\n";
 								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
 								$row = {
 									'CITY' => $is_in_fields[0],
@@ -2331,6 +2334,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 								};
 								$row->{'NAME'} = $name if(defined($name));
 							} elsif($ca->{'province2code'}{uc($is_in_fields[0])} eq $is_in_fields[2]) {
+print __LINE__, "\n";
 								$state = $is_in_fields[2];
 								# name/place/is_in = Queens/undef/New Brunswick,N.B.,NB,Canada
 								$row = {
@@ -2345,6 +2349,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 									$row->{'CITY'} = $name;
 								}
 							} elsif($ca->{'province2code'}{uc($is_in_fields[1])} eq $is_in_fields[2]) {
+print __LINE__, "\n";
 								$state = $is_in_fields[2];
 								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
 								$row = {
@@ -2357,23 +2362,63 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 								$row->{'NAME'} = $name if(defined($name));
 							}
 						} elsif(scalar(@is_in_fields) == 2) {
-							undef $name if(defined($place) && $name eq $place);
+print __LINE__, "\n";
+							undef $name if(defined($place) && ($name eq $place));
 							if($is_in_fields[0] =~ /Qu.bec/) {
 								$is_in_fields[0] = 'Quebec';
 							}
+print __LINE__, "\n";
 							if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
-								# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
-								$row = {
-									CITY => $place,
-									STATE => $state,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								};
+print __LINE__, "\n";
+								if(!defined($place)) {
+									# name/place/is_in = Whitecap/undef/Saskatchewan, Canada
+									$row = {
+										CITY => $name,
+										STATE => $state,
+										COUNTRY => 'Canada',
+										LAT => $lat,
+										LON => $lon,
+									}
+								} else {
+									my @place_fields = split(/[,;]\s/, $place);
+									if(scalar(@place_fields) == 1) {
+										# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
+										$row = {
+											CITY => $place,
+											STATE => $state,
+											COUNTRY => 'Canada',
+											LAT => $lat,
+											LON => $lon,
+										}
+									} elsif(scalar(@place_fields) == 2) {
+	print __LINE__, "\n";
+										# name/place/is_in = Dundurn Millitary Base/Chatham, Ontario/Saskatchewan, Canada
+										$row = {
+											CITY => $place_fields[1],
+											STATE => $state,
+											COUNTRY => 'Canada',
+											LAT => $lat,
+											LON => $lon,
+										}
+									}
+								}
 							}
-						} elsif(scalar(@is_in_fields) == 7) {
+							$row->{'NAME'} = $name if(defined($name));
+						} elsif((scalar(@is_in_fields) == 7) && ($state = $ca->{'province2code'}{uc($is_in_fields[5])})) {
 							# name/place/is_in = Gilwood Road/400 Lake Shore Drive/High Prairie,Alberta,Canada;Big Lakes, M.D. of,Alberta,Canada
-							die TODO;
+							$row = {
+								CITY => $is_in_fields[0],
+								STATE => $state,
+								COUNTRY => 'Canada',
+								LAT => $lat,
+								LON => $lon,
+							};
+							if(defined($place) && ($place =~ /^(\d+?)\s(.+)/)) {
+								$row->{'NUMBER'} = $1;
+								$row->{'ROAD'} = $2;
+							}
+							$row->{'NAME'} = $name if(defined($name));
+							die Data::Dumper->new([$row])->Dump();
 						} elsif(scalar(@is_in_fields) >= 5) {
 							if(($is_in_fields[0] eq $is_in_fields[4]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
 								# name/place/is_in = Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
@@ -2399,6 +2444,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 					} elsif(defined($name) && ($name !~ /,/) && defined($place) && ($place =~ /,/) && $ca->{code2province}{$is_in}) {
 						my @place_fields = split(/[,;]\s/, $place);
 						if(scalar(@place_fields) == 2) {
+							my @is_in_fields = split(/[,;]\s/, $is_in);
 							if($ca->{'province2code'}{uc($place_fields[1])} eq $is_in) {
 								# name/place/is_in = Hague/Hague, Saskatchewan/SK
 								die "$name, $place_fields[1]" if ($name ne $place_fields[0]);
@@ -2427,9 +2473,10 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 					}
 					if(defined($row)) {
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+die if($row->{'CITY'} =~ /,/);
 die 'no state' if(!defined($state));
 die $state if(length($state) > 2);
-						$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 							$inserts = 0;
@@ -2962,6 +3009,7 @@ sub create_tree_from_git {
 # Import a location into the database
 # Parses the data and prepares a set of columns to be queued for insertion
 # global stores in the global_md5 as well, useful when going through something state by state
+# If NUMBER is given, also add without that field
 sub import
 {
 	my %param;
