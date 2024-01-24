@@ -2295,6 +2295,9 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 							}
 							print __LINE__, ": $is_in\n";
 
+							if($is_in_fields[2] =~ /Qu.bec/) {
+								$is_in_fields[2] = 'Quebec';
+							}
 							if(($state = $ca->{'province2code'}{uc($is_in_fields[0])}) &&
 							   ($code = $ca->{'province2code'}{uc($is_in_fields[1])})) {
 							   	if(($state eq $is_in_fields[2]) && ($code eq $state)) {
@@ -2317,6 +2320,30 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 									'LON' => $lon,
 								};
 								$row->{'NAME'} = $name if(defined($name));
+							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($state eq $is_in_fields[2])) {
+								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
+								$row = {
+									'CITY' => $is_in_fields[0],
+									'STATE' => $state,
+									'COUNTRY' => 'Canada',
+									'LAT' => $lat,
+									'LON' => $lon,
+								};
+								$row->{'NAME'} = $name if(defined($name));
+							} elsif($ca->{'province2code'}{uc($is_in_fields[0])} eq $is_in_fields[2]) {
+								$state = $is_in_fields[2];
+								# name/place/is_in = Queens/undef/New Brunswick,N.B.,NB,Canada
+								$row = {
+									STATE => $state,
+									COUNTRY => 'Canada',
+									LAT => $lat,
+									LON => $lon,
+								};
+								if($place eq 'county') {
+									$row->{'COUNTY'} = $name;
+								} else {
+									$row->{'CITY'} = $name;
+								}
 							} elsif($ca->{'province2code'}{uc($is_in_fields[1])} eq $is_in_fields[2]) {
 								$state = $is_in_fields[2];
 								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
@@ -2331,6 +2358,9 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 							}
 						} elsif(scalar(@is_in_fields) == 2) {
 							undef $name if(defined($place) && $name eq $place);
+							if($is_in_fields[0] =~ /Qu.bec/) {
+								$is_in_fields[0] = 'Quebec';
+							}
 							if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
 								# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
 								$row = {
@@ -2341,6 +2371,9 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 									LON => $lon,
 								};
 							}
+						} elsif(scalar(@is_in_fields) == 7) {
+							# name/place/is_in = Gilwood Road/400 Lake Shore Drive/High Prairie,Alberta,Canada;Big Lakes, M.D. of,Alberta,Canada
+							die TODO;
 						} elsif(scalar(@is_in_fields) >= 5) {
 							if(($is_in_fields[0] eq $is_in_fields[4]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
 								# name/place/is_in = Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
@@ -2349,7 +2382,7 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 								# name/place/is_in = Roblin Park/undef/Winnipeg;Charleswood–Tuxedo;Assiniboia;Winnipeg;Manitoba;Canada,
 								shift @is_in_fields;
 							}
-							if($state = $ca->{'province2code'}{uc($is_in_fields[4])}) {
+							if($state = $ca->{'province2code'}{uc($is_in_fields[4])} || $ca->{'province2code'}{uc($is_in_fields[3])}) {
 								# name/place/is_in = Garden City/undef/Old Kildonan; Lord Selkirk–West Kildonan; Winnipeg;Manitoba;Canada
 								$row = {
 									NAME => $name || $is_in_fields[1],
