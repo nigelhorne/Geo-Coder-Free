@@ -2178,7 +2178,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 					my $add_record = 1;
 
 print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|village|farm|locality/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -2218,6 +2218,8 @@ if($place) {
 					my $row;
 					my $state;
 
+					my @is_in_fields = split(/[,;]\s/, $is_in);
+					my @place_fields = split(/[,;]\s/, $place) if(defined($place));
 					if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = $us->{'state2code'}{uc($is_in)})) {
 						# name/place/is_in = Danville/undef/Pennsylvania
 						my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
@@ -2229,6 +2231,21 @@ if($place) {
 							'LAT' => $lat,
 							'LON' => $lon,
 						};
+					} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
+						if($place_fields[1] eq $is_in_fields[0]) {
+							# name/place/is_in = Bemidji/Bemidji, Minnesota/Minnesota, USA
+							$row = {
+								CITY => $name,
+								STATE => $state,
+								COUNTRY => 'US',
+								LAT => $lat,
+								LON => $lon
+							}
+						} else {
+							die;
+						}
+					} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
+						die;
 					} elsif(defined($name) && defined($place) && ($place eq "$name, $is_in") && ($state = $us->{'state2code'}{uc($is_in)})) {
 						# name/place/is_in = Marysville/Marysville, Pennsylvania/Pennsylvania
 						my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
@@ -2241,7 +2258,6 @@ if($place) {
 							'LON' => $lon,
 						};
 					} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada$/) && ($is_in =~ /[;,]/)) {
-						my @is_in_fields = split(/[,;]\s/, $is_in);
 						if(scalar(@is_in_fields) == 3) {
 							my $code;
 							if($is_in_fields[1] =~ /Qu.bec/i) {
@@ -2380,7 +2396,6 @@ print __LINE__, "\n";
 										LON => $lon,
 									}
 								} else {
-									my @place_fields = split(/[,;]\s/, $place);
 									if(scalar(@place_fields) == 1) {
 										# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
 										$row = {
@@ -2462,18 +2477,28 @@ print __LINE__, "\n";
 					} elsif(defined($place) && $ca->{'code2province'}{$is_in}) {
 						# name/place/is_in = Rosthern/Rosthern/SK
 						$row = {
-							'CITY' => $place,
-							'STATE' => $is_in,
-							'COUNTRY' => 'Canada',
-							'LAT' => $lat,
-							'LON' => $lon,
+							CITY => $place,
+							STATE => $is_in,
+							COUNTRY => 'Canada',
+							LAT => $lat,
+							LON => $lon
 						};
 						$state = $is_in;
+						$country = 'Canada';
+					} elsif(defined($name) && ($state = $ca->{'province2code'}{uc($is_in)})) {
+						# name/place/is_in = Kimberley/undev/British Columbia
+						$row = {
+							CITY => $name,
+							STATE => $state,
+							COUNTRY => 'Canada',
+							LAT => $lat,
+							LON => $lon
+						};
 						$country = 'Canada';
 					}
 					if(defined($row)) {
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
-die if($row->{'CITY'} =~ /,/);
+die if(defined($row->{'CITY'}) && ($row->{'CITY'} =~ /,/));
 die 'no state' if(!defined($state));
 die $state if(length($state) > 2);
 $inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
@@ -2484,7 +2509,7 @@ $inserts += import(country => $country, state => $state, row => $row, file => $f
 						print $tulip ': ', Data::Dumper->new([$row])->Dump();
 						next;
 					}
-print $tulip "\n";
+print $tulip ": TODO\n";
 print __LINE__, ": is_in = $is_in, name = $name\n";
 print "\tplace = $place\n" if(defined($place));
 # die;
