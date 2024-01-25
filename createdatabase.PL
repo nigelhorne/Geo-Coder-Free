@@ -3718,8 +3718,8 @@ sub extract_osm_home
 	my $row;
 	my $state;
 
-	my @is_in_fields = split(/[,;]\s/, $is_in);
-	my @place_fields = split(/[,;]\s/, $place) if(defined($place));
+	my @is_in_fields = split(/[,;]\s?/, $is_in);
+	my @place_fields = split(/[,;]\s?/, $place) if(defined($place));
 	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = $us->{'state2code'}{uc($is_in)})) {
 		# name/place/is_in = Danville/undef/Pennsylvania
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
