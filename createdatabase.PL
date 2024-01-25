@@ -109,8 +109,8 @@ use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_ALL => 0x1000;
 use	constant	DEBUG => DEBUG_OSM;
 
-use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
 
 binmode(STDOUT, "encoding(UTF-8)");
@@ -2074,6 +2074,9 @@ if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
 
 if(my $osm = $ENV{'OSM_HOME'}) {
 	# Openstreetmap
+	# There are a range of differing formats -
+	#	the format doesn't seem to be normalized and fields are inconsistent,
+	#	so try hard to extract the data
 
 	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
@@ -2257,7 +2260,7 @@ if($place) {
 							'LAT' => $lat,
 							'LON' => $lon,
 						};
-					} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada$/) && ($is_in =~ /[;,]/)) {
+					} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 						if(scalar(@is_in_fields) == 3) {
 							my $code;
 							if($is_in_fields[1] =~ /Qu.bec/i) {
@@ -2349,9 +2352,10 @@ print __LINE__, "\n";
 									'LON' => $lon,
 								};
 								$row->{'NAME'} = $name if(defined($name));
-							} elsif($ca->{'province2code'}{uc($is_in_fields[0])} eq $is_in_fields[2]) {
+							} elsif($ca->{'province2code'}{uc($is_in_fields[0])} && ($ca->{'province2code'}{uc($is_in_fields[0])} eq $is_in_fields[2])) {
 print __LINE__, "\n";
 								$state = $is_in_fields[2];
+								die if(!$ca->{'code2province'}{$state});
 								# name/place/is_in = Queens/undef/New Brunswick,N.B.,NB,Canada
 								$row = {
 									STATE => $state,
@@ -2368,6 +2372,16 @@ print __LINE__, "\n";
 print __LINE__, "\n";
 								$state = $is_in_fields[2];
 								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
+								$row = {
+									'CITY' => $is_in_fields[0],
+									'STATE' => $state,
+									'COUNTRY' => 'Canada',
+									'LAT' => $lat,
+									'LON' => $lon,
+								};
+								$row->{'NAME'} = $name if(defined($name));
+							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($is_in_fields[2] eq 'Canada')) {
+								# name/place/is_in = Elmwood/undef/Winnipeg; Manitoba; Canada; CA,
 								$row = {
 									'CITY' => $is_in_fields[0],
 									'STATE' => $state,
@@ -2434,6 +2448,16 @@ print __LINE__, "\n";
 							}
 							$row->{'NAME'} = $name if(defined($name));
 							die Data::Dumper->new([$row])->Dump();
+						} elsif((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
+							# name/place/in_in = Pembina Strip/undef/Fort Garry South; Winnipeg; River Heights—Fort Garry; Fort Garry; Winnipeg; Manitoba; Canada; CA
+							$state = $ca->{'state2code'}{uc($is_in_fields[5])};
+							$row = {
+								CITY => $name,
+								STATE => $state,
+								COUNTRY => 'Canada',
+								LAT => $lat,
+								LON => $lon,
+							};
 						} elsif(scalar(@is_in_fields) >= 5) {
 							if(($is_in_fields[0] eq $is_in_fields[4]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
 								# name/place/is_in = Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
@@ -2451,7 +2475,17 @@ print __LINE__, "\n";
 									COUNTRY => 'Canada',
 									LAT => $lat,
 									LON => $lon,
-								};
+								}
+							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[2])}) && ($is_in_fields[3] eq 'Canada')) {
+								# name/place/is_in = East Kildonan/undef/East Kildonan–Transcona; Winnipeg; Manitoba; Canada; CA
+								$row = {
+									NAME => $name || $is_in_fields[0],
+									CITY => $is_in_fields[1],
+									STATE => $state,
+									COUNTRY => 'Canada',
+									LAT => $lat,
+									LON => $lon,
+								}
 							}
 						}
 						die scalar(@is_in_fields) if(!defined($row));
@@ -3034,7 +3068,7 @@ sub create_tree_from_git {
 # Import a location into the database
 # Parses the data and prepares a set of columns to be queued for insertion
 # global stores in the global_md5 as well, useful when going through something state by state
-# If NUMBER is given, also add without that field
+# If NUMBER and/or NAME is given, also add without that field
 sub import
 {
 	my %param;
