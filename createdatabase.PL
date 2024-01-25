@@ -3793,7 +3793,7 @@ sub extract_osm_home
 		}
 		return $row;
 	} elsif((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in})) {
-		# name/place/is_in = Epping/Epping, New Hampshire/NH: TODO
+		# name/place/is_in = Epping/Epping, New Hampshire/NH
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
 		return {
@@ -3811,6 +3811,17 @@ sub extract_osm_home
 			COUNTRY => $country,
 		};
 		if($place_fields[1] =~ /(.+) County$/) {
+			$row->{'COUNTY'} = $1;
+		}
+		return $row;
+	} elsif((scalar(@is_in_fields) == 4) && (scalar(@place_fields) == 2) && ($is_in_fields[3] eq 'US') && $us->{'code2state'}{$is_in_fields[2]}) {
+		# name/place/is_in = Archbold/Archbold, Ohio/Fulton County, Ohio, OH, USA
+		$row = {
+			CITY => $place_fields[0],
+			STATE => $is_in_fields[2],
+			COUNTRY => 'US'
+		};
+		if($is_in_fields[0] =~ /(.+)\sCounty$/) {
 			$row->{'COUNTY'} = $1;
 		}
 		return $row;
@@ -3860,12 +3871,9 @@ die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 			if(my $p = $provinces{uc($is_in_fields[1])}) {
 				$is_in_fields[1] = $p;
 			}
-			print __LINE__, ": $is_in\n";
-
 			if($is_in_fields[2] =~ /Qu.bec/) {
 				$is_in_fields[2] = 'Quebec';
 			}
-			print __LINE__, "\n";
 			if(($state = ca_province2code($is_in_fields[0])) &&
 			   ($code = ca_province2code($is_in_fields[1]))) {
 				if(($state eq $is_in_fields[2]) && ($code eq $state)) {
@@ -3929,14 +3937,11 @@ print __LINE__, "\n";
 			}
 			return $row;
 		} elsif(scalar(@is_in_fields) == 2) {
-print __LINE__, "\n";
 			undef $name if(defined($place) && ($name eq $place));
 			if($is_in_fields[0] =~ /Qu.bec/) {
 				$is_in_fields[0] = 'Quebec';
 			}
-print __LINE__, "\n";
 			if($state = ca_province2code($is_in_fields[0])) {
-print __LINE__, "\n";
 				if(!defined($place)) {
 					# name/place/is_in = Whitecap/undef/Saskatchewan, Canada
 					$row = {
@@ -3965,6 +3970,18 @@ print __LINE__, "\n";
 			}
 			$row->{'NAME'} = $name if(defined($name));
 			return $row;
+		} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
+			# name/place/is_in = Hébertville/undef/Canada,Québec,Saguenay Lac-St-Jean
+			if($is_in_fields[1] =~ /Qu.bec/) {
+				$is_in_fields[1] = 'Quebec';
+			}
+			if($state = ca_province2code($is_in_fields[1])) {
+				return {
+					CITY => $name || $is_in_fields[2],
+					STATE => $state,
+					COUNTRY => 'Canada'
+				}
+			}
 		} elsif((scalar(@is_in_fields) == 7) && ($state = ca_province2code($is_in_fields[5]))) {
 			# name/place/is_in = Gilwood Road/400 Lake Shore Drive/High Prairie,Alberta,Canada;Big Lakes, M.D. of,Alberta,Canada
 			$row = {
