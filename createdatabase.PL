@@ -2205,7 +2205,7 @@ if($place) {
 die if(defined($row->{'CITY'}) && ($row->{'CITY'} =~ /,/));
 my $state = $row->{'STATE'};
 die 'no state' if(!defined($state));
-die $state if(length($state) > 2);
+die $state if($state !~ /[A-Z]{2}/);
 						$row->{'LAT'} = $lat;
 						$row->{'LON'} = $lon;
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
@@ -3693,6 +3693,7 @@ sub get_wof {
 	# }
 }
 
+# Do our best to parse and extract data from OpenStreetMaps
 sub extract_osm_home
 {
 	die scalar(@_) if(scalar(@_) != 4);
@@ -3740,7 +3741,7 @@ sub extract_osm_home
 		die;
 	} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
 		die;
-	} elsif(defined($name) && defined($place) && ($place eq "$name, $is_in") && ($state = $us->{'state2code'}{uc($is_in)})) {
+	} elsif(defined($name) && defined($place) && ($place eq "$name, $is_in") && ($state = us_state2code($is_in))) {
 		# name/place/is_in = Marysville/Marysville, Pennsylvania/Pennsylvania
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
@@ -3749,7 +3750,7 @@ sub extract_osm_home
 			STATE => $state,
 			COUNTRY => $country
 		}
-	} elsif((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[1])})) {
+	} elsif((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = us_state2code($is_in_fields[1]))) {
 		# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
 		$row = {
 			CITY => $name,
@@ -3760,6 +3761,24 @@ sub extract_osm_home
 			$row->{'COUNTY'} = $1;
 		}
 		return $row;
+	} elsif((scalar(@is_in_fields) == 2) && (scalar(@place_fields) == 2) && ($state = us_state2code($is_in_fields[0])) && ($state eq $is_in_fields[1]) && ($place_fields[1] eq $is_in_fields[0])) {
+		# name/place/is_in = Mifflinville/Mifflinville, Pennsylvania/Pennsylvania,PA
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => $country
+		}
+	} elsif((scalar(@is_in_fields) == 2) && defined($name) && (!defined($place)) && us_state2code($is_in_fields[0]) && (us_state2code($is_in_fields[0]) eq $is_in_fields[1])) {
+		# name/place/is_in = Catawissa/undef/Pennsylvania,PA
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			CITY => $name,
+			STATE => $is_in_fields[1],
+			COUNTRY => $country
+		}
 	} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
 			my $code;
@@ -3986,7 +4005,7 @@ print __LINE__, "\n";
 			STATE => $state,
 			COUNTRY => 'Canada',
 		}
-	} elsif(defined($name) && (scalar(@is_in_fields) == 2) && ($state = $ca->{'province2code'}{uc($is_in_fields[1])})) {
+	} elsif(defined($name) && (scalar(@is_in_fields) == 2) && ($state = ca_province2code($is_in_fields[1]))) {
 		# name/place/is_in = Inwood/undef/Armstrong, Manitoba
 		return {
 			CITY => $name,
@@ -3995,4 +4014,39 @@ print __LINE__, "\n";
 		}
 	}
 	return $row;
+}
+
+# Procedural interface to Locale::US
+sub us_state2code
+{
+	my $state = uc(shift);
+	my $rc;
+
+	if($rc = $us->{'state2code'}{$state}) {
+		return $rc;
+	}
+	if($us->{'code2state'}{$state}) {
+		return $state;
+	}
+	my @call_details = caller(0);
+	print STDERR __LINE__, "Unknown state '$state'\n",
+		"\tcalled from line ", $call_details[2], "\n";
+	return;	# undef
+}
+
+# Procedural interface to Locale::CA
+sub ca_province2code
+{
+	my $province = uc(shift);
+	my $rc;
+
+	if($rc = $ca->{'province2code'}{$province}) {
+		return $rc;
+	}
+	if($ca->{'code2province'}{$province}) {
+		return $province;
+	}
+	my @call_details = caller(0);
+	print STDERR __LINE__, "Unknown province '$province'\n",
+		"\tcalled from line ", $call_details[2], "\n";
 }
