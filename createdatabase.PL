@@ -2450,7 +2450,7 @@ print __LINE__, "\n";
 							die Data::Dumper->new([$row])->Dump();
 						} elsif((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
 							# name/place/in_in = Pembina Strip/undef/Fort Garry South; Winnipeg; River Heights—Fort Garry; Fort Garry; Winnipeg; Manitoba; Canada; CA
-							$state = $ca->{'state2code'}{uc($is_in_fields[5])};
+							$state = $ca->{'province2code'}{uc($is_in_fields[5])};
 							$row = {
 								CITY => $name,
 								STATE => $state,
