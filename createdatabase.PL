@@ -109,9 +109,8 @@ use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_ALL => 0x1000;
 use	constant	DEBUG => DEBUG_OSM;
 
-# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
-# use	constant	SQLITE_CHUNK_SIZE => 1_000;	# Number of rows to read at a time
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 binmode(STDOUT, "encoding(UTF-8)");
 binmode(STDERR, "encoding(UTF-8)");
@@ -2178,10 +2177,9 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 				}
 			} elsif($reader->nodeType() == 15) {
 				if(defined($name) && defined($is_in) && defined($lat) && defined($lon) && defined($place)) {
-					my $add_record = 1;
 
 print __LINE__, ": is_in = $is_in, name = $name, place = $place\n";
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -2203,339 +2201,15 @@ if($place) {
 } else {
 	print $tulip "/undef/$is_in";
 }
-					$is_in =~ s/[;,](\w)/, $1/g;
-					$is_in =~ s/, United Kingdom/, GB/;
-					$is_in =~ s/, UK,.+$/, GB/;
-					$is_in =~ s/^UK, UK$/GB/;
-					$is_in =~ s/GB, GB$/GB/;
-					$is_in =~ s/, UK$/, GB/;
-					$is_in =~ s/(England|Scotland|Wales), GB/GB/;
-					$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
-					$is_in =~ s/, Europe$//;
-					$is_in =~ s/;\s?/, /g;
-					$is_in =~ s/United States of America.*/US/;
-					$is_in =~ s/United States$/US/;
-					$is_in =~ s/USA$/US/;
-					$is_in =~ s/(\w)? USA$/$1, US/;
-
-					my $row;
-					my $state;
-
-					my @is_in_fields = split(/[,;]\s/, $is_in);
-					my @place_fields = split(/[,;]\s/, $place) if(defined($place));
-					if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = $us->{'state2code'}{uc($is_in)})) {
-						# name/place/is_in = Danville/undef/Pennsylvania
-						my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
-						die if(!defined($country));
-						$row = {
-							'CITY' => $name,
-							'STATE' => $state,
-							'COUNTRY' => $country,
-							'LAT' => $lat,
-							'LON' => $lon,
-						};
-					} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
-						if($place_fields[1] eq $is_in_fields[0]) {
-							# name/place/is_in = Bemidji/Bemidji, Minnesota/Minnesota, USA
-							$row = {
-								CITY => $name,
-								STATE => $state,
-								COUNTRY => 'US',
-								LAT => $lat,
-								LON => $lon
-							}
-						} else {
-							die;
-						}
-					} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
-						die;
-					} elsif(defined($name) && defined($place) && ($place eq "$name, $is_in") && ($state = $us->{'state2code'}{uc($is_in)})) {
-						# name/place/is_in = Marysville/Marysville, Pennsylvania/Pennsylvania
-						my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
-						die if(!defined($country));
-						$row = {
-							'CITY' => $name,
-							'STATE' => $state,
-							'COUNTRY' => $country,
-							'LAT' => $lat,
-							'LON' => $lon,
-						};
-					} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
-						if(scalar(@is_in_fields) == 3) {
-							my $code;
-							if($is_in_fields[1] =~ /Qu.bec/i) {
-								$is_in_fields[1] = 'Quebec';
-							} elsif($is_in_fields[0] =~ /Qu.bec/i) {
-								$is_in_fields[0] = 'Quebec';
-							}
-							if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
-								$code = $state;
-							} elsif($state = $ca->{'province2code'}{uc($is_in_fields[1])}) {
-								$code = $state;
-							}
-							if(defined($place) && ($place =~ /, \Q$is_in_fields[0]\E$/)) {
-								# name/place/is_in = The Bridle Path/Bridle Path, Toronto/Toronto, Ontario, Canada
-								$row = {
-									NAME => $name,
-									CITY => $is_in_fields[0],
-									STATE => $state,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								};
-							} elsif(defined($state) && defined($code)) {
-								# name/place/is_in = Redwood Meadows/undef/AB; Alberta; Canada
-								# name/place/is_in = Tofino/undef/British Columbia, BC, Canada
-								$row = {
-									'CITY' => $name,
-									'STATE' => $state,
-									'COUNTRY' => 'Canada',
-									'LAT' => $lat,
-									'LON' => $lon,
-								};
-							} else {
-								# name/place/is_in = Saint-Étienne-de-Lauzon/undef/Lévis, Québec, Canada
-								$row = {
-									CITY => $is_in_fields[0],
-									STATE => $state,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								};
-die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
-							}
-						} elsif(scalar(@is_in_fields) == 4) {
-							my $code;
-							my %provinces = (
-								'ALTA.' => 'ALBERTA'
-							);
-							if(my $p = $provinces{uc($is_in_fields[1])}) {
-								$is_in_fields[1] = $p;
-							}
-							print __LINE__, ": $is_in\n";
-
-							if($is_in_fields[2] =~ /Qu.bec/) {
-								$is_in_fields[2] = 'Quebec';
-							}
-							print __LINE__, "\n";
-							if(($state = $ca->{'province2code'}{uc($is_in_fields[0])}) &&
-							   ($code = $ca->{'province2code'}{uc($is_in_fields[1])})) {
-							   	if(($state eq $is_in_fields[2]) && ($code eq $state)) {
-									# name/place/is_in = Boyle/undef/Alberta,Alta.,AB,Canada
-									$row = {
-										'CITY' => $name,
-										'STATE' => $state,
-										'COUNTRY' => 'Canada',
-										'LAT' => $lat,
-										'LON' => $lon,
-									};
-								}
-							} elsif($state = $ca->{'province2code'}{uc($is_in_fields[2])}) {
-print __LINE__, "\n";
-								# name/place/is_in = Tyndall Park/undef/Point Douglas; Winnipeg;Manitoba;Canada
-								$row = {
-									'CITY' => $is_in_fields[1],
-									'STATE' => $state,
-									'COUNTRY' => 'Canada',
-									'LAT' => $lat,
-									'LON' => $lon,
-								};
-								$row->{'NAME'} = $name if(defined($name));
-							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($state eq $is_in_fields[2])) {
-print __LINE__, "\n";
-								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
-								$row = {
-									'CITY' => $is_in_fields[0],
-									'STATE' => $state,
-									'COUNTRY' => 'Canada',
-									'LAT' => $lat,
-									'LON' => $lon,
-								};
-								$row->{'NAME'} = $name if(defined($name));
-							} elsif($ca->{'province2code'}{uc($is_in_fields[0])} && ($ca->{'province2code'}{uc($is_in_fields[0])} eq $is_in_fields[2])) {
-print __LINE__, "\n";
-								$state = $is_in_fields[2];
-								die if(!$ca->{'code2province'}{$state});
-								# name/place/is_in = Queens/undef/New Brunswick,N.B.,NB,Canada
-								$row = {
-									STATE => $state,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								};
-								if($place eq 'county') {
-									$row->{'COUNTY'} = $name;
-								} else {
-									$row->{'CITY'} = $name;
-								}
-							} elsif($ca->{'province2code'}{uc($is_in_fields[1])} eq $is_in_fields[2]) {
-print __LINE__, "\n";
-								$state = $is_in_fields[2];
-								# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
-								$row = {
-									'CITY' => $is_in_fields[0],
-									'STATE' => $state,
-									'COUNTRY' => 'Canada',
-									'LAT' => $lat,
-									'LON' => $lon,
-								};
-								$row->{'NAME'} = $name if(defined($name));
-							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($is_in_fields[2] eq 'Canada')) {
-								# name/place/is_in = Elmwood/undef/Winnipeg; Manitoba; Canada; CA,
-								$row = {
-									'CITY' => $is_in_fields[0],
-									'STATE' => $state,
-									'COUNTRY' => 'Canada',
-									'LAT' => $lat,
-									'LON' => $lon,
-								};
-								$row->{'NAME'} = $name if(defined($name));
-							}
-						} elsif(scalar(@is_in_fields) == 2) {
-print __LINE__, "\n";
-							undef $name if(defined($place) && ($name eq $place));
-							if($is_in_fields[0] =~ /Qu.bec/) {
-								$is_in_fields[0] = 'Quebec';
-							}
-print __LINE__, "\n";
-							if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
-print __LINE__, "\n";
-								if(!defined($place)) {
-									# name/place/is_in = Whitecap/undef/Saskatchewan, Canada
-									$row = {
-										CITY => $name,
-										STATE => $state,
-										COUNTRY => 'Canada',
-										LAT => $lat,
-										LON => $lon,
-									}
-								} else {
-									if(scalar(@place_fields) == 1) {
-										# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
-										$row = {
-											CITY => $place,
-											STATE => $state,
-											COUNTRY => 'Canada',
-											LAT => $lat,
-											LON => $lon,
-										}
-									} elsif(scalar(@place_fields) == 2) {
-	print __LINE__, "\n";
-										# name/place/is_in = Dundurn Millitary Base/Chatham, Ontario/Saskatchewan, Canada
-										$row = {
-											CITY => $place_fields[1],
-											STATE => $state,
-											COUNTRY => 'Canada',
-											LAT => $lat,
-											LON => $lon,
-										}
-									}
-								}
-							}
-							$row->{'NAME'} = $name if(defined($name));
-						} elsif((scalar(@is_in_fields) == 7) && ($state = $ca->{'province2code'}{uc($is_in_fields[5])})) {
-							# name/place/is_in = Gilwood Road/400 Lake Shore Drive/High Prairie,Alberta,Canada;Big Lakes, M.D. of,Alberta,Canada
-							$row = {
-								CITY => $is_in_fields[0],
-								STATE => $state,
-								COUNTRY => 'Canada',
-								LAT => $lat,
-								LON => $lon,
-							};
-							if(defined($place) && ($place =~ /^(\d+?)\s(.+)/)) {
-								$row->{'NUMBER'} = $1;
-								$row->{'ROAD'} = $2;
-							}
-							$row->{'NAME'} = $name if(defined($name));
-							die Data::Dumper->new([$row])->Dump();
-						} elsif((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
-							# name/place/in_in = Pembina Strip/undef/Fort Garry South; Winnipeg; River Heights—Fort Garry; Fort Garry; Winnipeg; Manitoba; Canada; CA
-							$state = $ca->{'province2code'}{uc($is_in_fields[5])};
-							$row = {
-								CITY => $name,
-								STATE => $state,
-								COUNTRY => 'Canada',
-								LAT => $lat,
-								LON => $lon,
-							};
-						} elsif(scalar(@is_in_fields) >= 5) {
-							if(($is_in_fields[0] eq $is_in_fields[4]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
-								# name/place/is_in = Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
-								shift @is_in_fields;
-							} elsif(($is_in_fields[0] eq $is_in_fields[3]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
-								# name/place/is_in = Roblin Park/undef/Winnipeg;Charleswood–Tuxedo;Assiniboia;Winnipeg;Manitoba;Canada,
-								shift @is_in_fields;
-							}
-							if($state = $ca->{'province2code'}{uc($is_in_fields[4])} || $ca->{'province2code'}{uc($is_in_fields[3])}) {
-								# name/place/is_in = Garden City/undef/Old Kildonan; Lord Selkirk–West Kildonan; Winnipeg;Manitoba;Canada
-								$row = {
-									NAME => $name || $is_in_fields[1],
-									CITY => $is_in_fields[2],
-									STATE => $state,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								}
-							} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[2])}) && ($is_in_fields[3] eq 'Canada')) {
-								# name/place/is_in = East Kildonan/undef/East Kildonan–Transcona; Winnipeg; Manitoba; Canada; CA
-								$row = {
-									NAME => $name || $is_in_fields[0],
-									CITY => $is_in_fields[1],
-									STATE => $state,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								}
-							}
-						}
-						die scalar(@is_in_fields) if(!defined($row));
-						$country = 'Canada';
-					} elsif(defined($name) && ($name !~ /,/) && defined($place) && ($place =~ /,/) && $ca->{code2province}{$is_in}) {
-						my @place_fields = split(/[,;]\s/, $place);
-						if(scalar(@place_fields) == 2) {
-							my @is_in_fields = split(/[,;]\s/, $is_in);
-							if($ca->{'province2code'}{uc($place_fields[1])} eq $is_in) {
-								# name/place/is_in = Hague/Hague, Saskatchewan/SK
-								die "$name, $place_fields[1]" if ($name ne $place_fields[0]);
-								$row = {
-									CITY => $name,
-									STATE => $is_in,
-									COUNTRY => 'Canada',
-									LAT => $lat,
-									LON => $lon,
-								};
-								$state = $is_in;
-							}
-						}
-						$country = 'Canada';
-					} elsif(defined($place) && $ca->{'code2province'}{$is_in}) {
-						# name/place/is_in = Rosthern/Rosthern/SK
-						$row = {
-							CITY => $place,
-							STATE => $is_in,
-							COUNTRY => 'Canada',
-							LAT => $lat,
-							LON => $lon
-						};
-						$state = $is_in;
-						$country = 'Canada';
-					} elsif(defined($name) && ($state = $ca->{'province2code'}{uc($is_in)})) {
-						# name/place/is_in = Kimberley/undev/British Columbia
-						$row = {
-							CITY => $name,
-							STATE => $state,
-							COUNTRY => 'Canada',
-							LAT => $lat,
-							LON => $lon
-						};
-						$country = 'Canada';
-					}
-					if(defined($row)) {
-						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+					if(my $row = extract_osm_home($file, $name, $place, $is_in)) {
 die if(defined($row->{'CITY'}) && ($row->{'CITY'} =~ /,/));
+my $state = $row->{'STATE'};
 die 'no state' if(!defined($state));
 die $state if(length($state) > 2);
-$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
+						$row->{'LAT'} = $lat;
+						$row->{'LON'} = $lon;
+						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+						$inserts += import(country => $country, state => $state, row => $row, file => $filename, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb);
 						if($inserts >= MAX_INSERT_COUNT) {
 							flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 							$inserts = 0;
@@ -2551,7 +2225,9 @@ next;
 
 					my $preamble;
 					my $city = $name;
+					my $state;
 					my $county;
+					my $add_record = 1;
 
 					if($is_in =~ /, US/) {
 						if($is_in =~ /(.+), (.+), US/) {
@@ -3408,6 +3084,7 @@ sub import
 			$columns{$c} = $row->{$c} if(defined($row->{$c}));
 		}
 
+		die __LINE__, ': ', Data::Dumper->new([$row])->Dump() if((DEBUG&DEBUG_DATA_VALIDATE) && ($columns{'NUMBER'} !~ /^\d/));
 		# Can't compare '== 0' because of house numbers such as '43A'
 		delete($columns{'NUMBER'}) if(defined($columns{'NUMBER'}) && ($columns{'NUMBER'} eq '0'));
 
@@ -4014,4 +3691,308 @@ sub get_wof {
 		}
 		return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
 	# }
+}
+
+sub extract_osm_home
+{
+	die scalar(@_) if(scalar(@_) != 4);
+
+	my($file, $name, $place, $is_in) = @_;
+
+	$is_in =~ s/[;,](\w)/, $1/g;
+	$is_in =~ s/, United Kingdom/, GB/;
+	$is_in =~ s/, UK,.+$/, GB/;
+	$is_in =~ s/^UK, UK$/GB/;
+	$is_in =~ s/GB, GB$/GB/;
+	$is_in =~ s/, UK$/, GB/;
+	$is_in =~ s/(England|Scotland|Wales), GB/GB/;
+	$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
+	$is_in =~ s/, Europe$//;
+	$is_in =~ s/;\s?/, /g;
+	$is_in =~ s/United States of America.*/US/;
+	$is_in =~ s/United States$/US/;
+	$is_in =~ s/USA$/US/;
+	$is_in =~ s/(\w)? USA$/$1, US/;
+
+	my $row;
+	my $state;
+
+	my @is_in_fields = split(/[,;]\s/, $is_in);
+	my @place_fields = split(/[,;]\s/, $place) if(defined($place));
+	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = $us->{'state2code'}{uc($is_in)})) {
+		# name/place/is_in = Danville/undef/Pennsylvania
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			'CITY' => $name,
+			'STATE' => $state,
+			'COUNTRY' => $country,
+		};
+	} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
+		if($place_fields[1] eq $is_in_fields[0]) {
+			# name/place/is_in = Bemidji/Bemidji, Minnesota/Minnesota, USA
+			return {
+				CITY => $name,
+				STATE => $state,
+				COUNTRY => 'US',
+			}
+		}
+		die;
+	} elsif((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
+		die;
+	} elsif(defined($name) && defined($place) && ($place eq "$name, $is_in") && ($state = $us->{'state2code'}{uc($is_in)})) {
+		# name/place/is_in = Marysville/Marysville, Pennsylvania/Pennsylvania
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => $country
+		}
+	} elsif((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[1])})) {
+		# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
+		$row = {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => 'US',
+		};
+		if($is_in_fields[0] =~ /(.+) County$/) {
+			$row->{'COUNTY'} = $1;
+		}
+		return $row;
+	} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
+		if(scalar(@is_in_fields) == 3) {
+			my $code;
+			if($is_in_fields[1] =~ /Qu.bec/i) {
+				$is_in_fields[1] = 'Quebec';
+			} elsif($is_in_fields[0] =~ /Qu.bec/i) {
+				$is_in_fields[0] = 'Quebec';
+			}
+			if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
+				$code = $state;
+			} elsif($state = $ca->{'province2code'}{uc($is_in_fields[1])}) {
+				$code = $state;
+			}
+			if(defined($place) && ($place =~ /, \Q$is_in_fields[0]\E$/)) {
+				# name/place/is_in = The Bridle Path/Bridle Path, Toronto/Toronto, Ontario, Canada
+				$row = {
+					NAME => $name,
+					CITY => $is_in_fields[0],
+					STATE => $state,
+					COUNTRY => 'Canada',
+				};
+			} elsif(defined($state) && defined($code)) {
+				# name/place/is_in = Redwood Meadows/undef/AB; Alberta; Canada
+				# name/place/is_in = Tofino/undef/British Columbia, BC, Canada
+				return {
+					'CITY' => $name,
+					'STATE' => $code,
+					'COUNTRY' => 'Canada',
+				}
+			} else {
+				# name/place/is_in = Saint-Étienne-de-Lauzon/undef/Lévis, Québec, Canada
+				$row = {
+					CITY => $is_in_fields[0],
+					STATE => $state,
+					COUNTRY => 'Canada',
+				};
+die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+			}
+		} elsif(scalar(@is_in_fields) == 4) {
+			my $code;
+			my %provinces = (
+				'ALTA.' => 'ALBERTA'
+			);
+			if(my $p = $provinces{uc($is_in_fields[1])}) {
+				$is_in_fields[1] = $p;
+			}
+			print __LINE__, ": $is_in\n";
+
+			if($is_in_fields[2] =~ /Qu.bec/) {
+				$is_in_fields[2] = 'Quebec';
+			}
+			print __LINE__, "\n";
+			if(($state = $ca->{'province2code'}{uc($is_in_fields[0])}) &&
+			   ($code = $ca->{'province2code'}{uc($is_in_fields[1])})) {
+				if(($state eq $is_in_fields[2]) && ($code eq $state)) {
+					# name/place/is_in = Boyle/undef/Alberta,Alta.,AB,Canada
+					return {
+						'CITY' => $name,
+						'STATE' => $state,
+						'COUNTRY' => 'Canada',
+					}
+				}
+			} elsif($state = $ca->{'province2code'}{uc($is_in_fields[2])}) {
+print __LINE__, "\n";
+				# name/place/is_in = Tyndall Park/undef/Point Douglas; Winnipeg;Manitoba;Canada
+				$row = {
+					'CITY' => $is_in_fields[1],
+					'STATE' => $state,
+					'COUNTRY' => 'Canada',
+				};
+				$row->{'NAME'} = $name if(defined($name));
+			} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($state eq $is_in_fields[2])) {
+print __LINE__, "\n";
+				# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
+				$row = {
+					'CITY' => $is_in_fields[0],
+					'STATE' => $state,
+					'COUNTRY' => 'Canada',
+				};
+				$row->{'NAME'} = $name if(defined($name));
+			} elsif($ca->{'province2code'}{uc($is_in_fields[0])} && ($ca->{'province2code'}{uc($is_in_fields[0])} eq $is_in_fields[2])) {
+print __LINE__, "\n";
+				$state = $is_in_fields[2];
+				die if(!$ca->{'code2province'}{$state});
+				# name/place/is_in = Queens/undef/New Brunswick,N.B.,NB,Canada
+				$row = {
+					STATE => $state,
+					COUNTRY => 'Canada',
+				};
+				if($place eq 'county') {
+					$row->{'COUNTY'} = $name;
+				} else {
+					$row->{'CITY'} = $name;
+				}
+			} elsif($ca->{'province2code'}{uc($is_in_fields[1])} eq $is_in_fields[2]) {
+print __LINE__, "\n";
+				$state = $is_in_fields[2];
+				# name/place/is_in = Thickwood/undef/Fort McMurray, Alberta, AB, Canada
+				$row = {
+					'CITY' => $is_in_fields[0],
+					'STATE' => $state,
+					'COUNTRY' => 'Canada',
+				};
+				$row->{'NAME'} = $name if(defined($name));
+			} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[1])}) && ($is_in_fields[2] eq 'Canada')) {
+				# name/place/is_in = Elmwood/undef/Winnipeg; Manitoba; Canada; CA,
+				$row = {
+					'CITY' => $is_in_fields[0],
+					'STATE' => $state,
+					'COUNTRY' => 'Canada',
+				};
+				$row->{'NAME'} = $name if(defined($name));
+			}
+			return $row;
+		} elsif(scalar(@is_in_fields) == 2) {
+print __LINE__, "\n";
+			undef $name if(defined($place) && ($name eq $place));
+			if($is_in_fields[0] =~ /Qu.bec/) {
+				$is_in_fields[0] = 'Quebec';
+			}
+print __LINE__, "\n";
+			if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
+print __LINE__, "\n";
+				if(!defined($place)) {
+					# name/place/is_in = Whitecap/undef/Saskatchewan, Canada
+					$row = {
+						CITY => $name,
+						STATE => $state,
+						COUNTRY => 'Canada',
+					}
+				} else {
+					if(scalar(@place_fields) == 1) {
+						# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
+						$row = {
+							CITY => $place,
+							STATE => $state,
+							COUNTRY => 'Canada',
+						}
+					} elsif(scalar(@place_fields) == 2) {
+print __LINE__, "\n";
+						# name/place/is_in = Dundurn Millitary Base/Chatham, Ontario/Saskatchewan, Canada
+						$row = {
+							CITY => $place_fields[1],
+							STATE => $state,
+							COUNTRY => 'Canada',
+						}
+					}
+				}
+			}
+			$row->{'NAME'} = $name if(defined($name));
+			return $row;
+		} elsif((scalar(@is_in_fields) == 7) && ($state = $ca->{'province2code'}{uc($is_in_fields[5])})) {
+			# name/place/is_in = Gilwood Road/400 Lake Shore Drive/High Prairie,Alberta,Canada;Big Lakes, M.D. of,Alberta,Canada
+			$row = {
+				CITY => $is_in_fields[0],
+				STATE => $state,
+				COUNTRY => 'Canada',
+			};
+			if(defined($place) && ($place =~ /^(\d+?)\s(.+)/)) {
+				$row->{'NUMBER'} = $1;
+				$row->{'ROAD'} = $2;
+			}
+			$row->{'NAME'} = $name if(defined($name));
+			die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+		} elsif((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
+			# name/place/in_in = Pembina Strip/undef/Fort Garry South; Winnipeg; River Heights—Fort Garry; Fort Garry; Winnipeg; Manitoba; Canada; CA
+			return {
+				CITY => $name,
+				STATE => $ca->{'province2code'}{uc($is_in_fields[5])},
+				COUNTRY => 'Canada'
+			}
+		} elsif(scalar(@is_in_fields) >= 5) {
+			if(($is_in_fields[0] eq $is_in_fields[4]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
+				# name/place/is_in = Weston/undef/Manitoba, St. James–Brooklands; Assiniboia; Winnipeg; Manitoba; Canada
+				shift @is_in_fields;
+			} elsif(($is_in_fields[0] eq $is_in_fields[3]) && $ca->{'province2code'}{uc($is_in_fields[4])}) {
+				# name/place/is_in = Roblin Park/undef/Winnipeg;Charleswood–Tuxedo;Assiniboia;Winnipeg;Manitoba;Canada,
+				shift @is_in_fields;
+			}
+			if($state = $ca->{'province2code'}{uc($is_in_fields[4])} || $ca->{'province2code'}{uc($is_in_fields[3])}) {
+				# name/place/is_in = Garden City/undef/Old Kildonan; Lord Selkirk–West Kildonan; Winnipeg;Manitoba;Canada
+				return {
+					NAME => $name || $is_in_fields[1],
+					CITY => $is_in_fields[2],
+					STATE => $state,
+					COUNTRY => 'Canada',
+				}
+			} elsif(($state = $ca->{'province2code'}{uc($is_in_fields[2])}) && ($is_in_fields[3] eq 'Canada')) {
+				# name/place/is_in = East Kildonan/undef/East Kildonan–Transcona; Winnipeg; Manitoba; Canada; CA
+				return {
+					NAME => $name || $is_in_fields[0],
+					CITY => $is_in_fields[1],
+					STATE => $state,
+					COUNTRY => 'Canada',
+				}
+			}
+		}
+		die scalar(@is_in_fields) if(!defined($row));
+	} elsif(defined($name) && ($name !~ /,/) && defined($place) && ($place =~ /,/) && $ca->{code2province}{$is_in}) {
+		my @place_fields = split(/[,;]\s/, $place);
+		if(scalar(@place_fields) == 2) {
+			my @is_in_fields = split(/[,;]\s/, $is_in);
+			if($ca->{'province2code'}{uc($place_fields[1])} eq $is_in) {
+				# name/place/is_in = Hague/Hague, Saskatchewan/SK
+				die "$name, $place_fields[1]" if ($name ne $place_fields[0]);
+				return {
+					CITY => $name,
+					STATE => $is_in,
+					COUNTRY => 'Canada',
+				};
+			}
+		}
+	} elsif(defined($place) && $ca->{'code2province'}{$is_in}) {
+		# name/place/is_in = Rosthern/Rosthern/SK
+		return {
+			CITY => $place,
+			STATE => $is_in,
+			COUNTRY => 'Canada',
+		}
+	} elsif(defined($name) && ($state = $ca->{'province2code'}{uc($is_in)})) {
+		# name/place/is_in = Kimberley/undev/British Columbia
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => 'Canada',
+		}
+	} elsif(defined($name) && (scalar(@is_in_fields) == 2) && ($state = $ca->{'province2code'}{uc($is_in_fields[1])})) {
+		# name/place/is_in = Inwood/undef/Armstrong, Manitoba
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => 'Canada'
+		}
+	}
+	return $row;
 }
