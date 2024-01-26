@@ -3880,6 +3880,17 @@ sub extract_osm_home
 			COUNTRY => $country
 		}
 	}
+	if(defined($name) && ($name !~ /,/) && defined($place) && ($name eq $place_fields[0]) && ($is_in eq 'Washington DC')) {
+		# name/place/is_in = Petworth/Petworth (Washington, D.C.)/Washington DC: TODO
+		# is_in will have been split into 2 by the space
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			CITY => $name,
+			STATE => 'DC',
+			COUNTRY => $country
+		}
+	}
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
 			my $code;
