@@ -2179,6 +2179,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 				if(defined($name) && defined($is_in) && defined($lat) && defined($lon) && defined($place)) {
 
 print __LINE__, ": name = $name, place = $place, is_in = $is_in\n";
+					# Don't add county to this list
 					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
@@ -3762,7 +3763,17 @@ sub extract_osm_home
 		if($is_in_fields[0] =~ /(.+) County$/) {
 			$row->{'COUNTY'} = $1;
 		}
-		return $row;
+		return $row
+	}
+	if((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = us_state2code($is_in_fields[3]))) {
+		# name/place/is_in = Forest Park/Forest Park (Columbus, Ohio)/Nortland, Columbus, Franklin, Ohio, USA
+		$row = {
+			CITY => $is_in_fields[1],
+			STATE => $state,
+			COUNTRY => 'US'
+		};
+		$row->{'NAME'} = $name if(defined($name));
+		return $row
 	}
 	if((scalar(@is_in_fields) == 2) && (scalar(@place_fields) == 2) && ($state = us_state2code($is_in_fields[0])) && ($state eq $is_in_fields[1]) && ($place_fields[1] eq $is_in_fields[0])) {
 		# name/place/is_in = Mifflinville/Mifflinville, Pennsylvania/Pennsylvania,PA
