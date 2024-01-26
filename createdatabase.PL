@@ -3716,11 +3716,7 @@ sub extract_osm_home
 	$is_in =~ s/USA$/US/;
 	$is_in =~ s/(\w)? USA$/$1, US/;
 
-	my $row;
 	my $state;
-
-	my @is_in_fields = split(/[,;]\s?/, $is_in);
-	my @place_fields = split(/[,;]\s?/, $place) if(defined($place));
 
 	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = $us->{'state2code'}{uc($is_in)})) {
 		# name/place/is_in = Danville/undef/Pennsylvania
@@ -3732,6 +3728,11 @@ sub extract_osm_home
 			COUNTRY => $country,
 		}
 	}
+
+	my $row;
+	my @is_in_fields = split(/[,;]\s?/, $is_in);
+	my @place_fields = split(/[,;]\s?/, $place) if(defined($place));
+
 	if((scalar(@is_in_fields) > 1) && ($is_in_fields[1] eq 'US') && ($state = $us->{'state2code'}{uc($is_in_fields[0])})) {
 		if($place_fields[1] eq $is_in_fields[0]) {
 			# name/place/is_in = Bemidji/Bemidji, Minnesota/Minnesota, USA
@@ -3794,7 +3795,8 @@ sub extract_osm_home
 			STATE => $is_in_fields[1],
 			COUNTRY => $country
 		}
-	} elsif((scalar(@is_in_fields) == 2) && defined($name) && (scalar(@place_fields) == 3) && ($state = us_state2code($is_in_fields[1]))) {
+	}
+	if((scalar(@is_in_fields) == 2) && defined($name) && (scalar(@place_fields) == 3) && ($state = us_state2code($is_in_fields[1]))) {
 		# name/place/is_in = Enterprise/Enterprise, Lake County, California/Lake, California
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
@@ -3807,7 +3809,8 @@ sub extract_osm_home
 			$row->{'COUNTY'} = $1;
 		}
 		return $row;
-	} elsif((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in})) {
+	}
+	if((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in})) {
 		# name/place/is_in = Epping/Epping, New Hampshire/NH
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
@@ -3816,7 +3819,20 @@ sub extract_osm_home
 			STATE => $is_in,
 			COUNTRY => $country
 		}
-	} elsif((scalar(@place_fields) == 3) && defined($name) && ($state = us_state2code($is_in))) {
+	}
+	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
+		# name/place/is_in = West Athens/West Athens, California/Los Angeles, California
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		$row = {
+			CITY => $is_in_fields[0] || $name,
+			STATE => $state,
+			COUNTRY => $country
+		};
+		$row->{'NAME'} = $name if(defined($name));
+		return $row
+	}
+	if((scalar(@place_fields) == 3) && defined($name) && ($state = us_state2code($is_in))) {
 		# name/place/is_in = Waterville/Cummings Township, Lycoming County, Pennsylvania#Waterville/Pennsylvania
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
@@ -3840,7 +3856,8 @@ sub extract_osm_home
 			$row->{'COUNTY'} = $1;
 		}
 		return $row;
-	} elsif(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
+	}
+	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
 			my $code;
 			if($is_in_fields[1] =~ /Qu.bec/i) {
