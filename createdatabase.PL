@@ -3719,7 +3719,7 @@ sub extract_osm_home
 
 	my $state;
 
-	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = $us_state2code(uc($is_in))) {
+	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = us_state2code(uc($is_in)))) {
 		# name/place/is_in = Danville/undef/Pennsylvania
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
@@ -3914,6 +3914,18 @@ sub extract_osm_home
 			STATE => $is_in_fields[2],
 			COUNTRY => 'US'
 		}
+	}
+	if(defined($name) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($state = us_state2code($place_fields[1])) && ($is_in =~ /(.+)\sCounty$/)) {
+		# name/place/is_in = Hard Rock/Hardrock, Arizona/Navajo County
+		$row = {
+			COUNTY => $1,
+			STATE => $state,
+			COUNTRY => 'US'
+		};
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		$row->{'COUNTRY'} = $country;
+		return $row
 	}
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
