@@ -3845,7 +3845,8 @@ sub extract_osm_home
 			$row->{'COUNTY'} = $1;
 		}
 		return $row;
-	} elsif((scalar(@is_in_fields) == 4) && (scalar(@place_fields) == 2) && ($is_in_fields[3] eq 'US') && $us->{'code2state'}{$is_in_fields[2]}) {
+	}
+	if((scalar(@is_in_fields) == 4) && (scalar(@place_fields) == 2) && ($is_in_fields[3] eq 'US') && $us->{'code2state'}{$is_in_fields[2]}) {
 		# name/place/is_in = Archbold/Archbold, Ohio/Fulton County, Ohio, OH, USA
 		$row = {
 			CITY => $place_fields[0],
@@ -3855,7 +3856,29 @@ sub extract_osm_home
 		if($is_in_fields[0] =~ /(.+)\sCounty$/) {
 			$row->{'COUNTY'} = $1;
 		}
-		return $row;
+		return $row
+	}
+	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($is_in eq 'Washington DC')) {
+		# name/place/is_in = Bellevue/undef/Washington DC
+		# is_in will have been split into 2 by the space
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			CITY => $name,
+			STATE => 'DC',
+			COUNTRY => $country
+		}
+	}
+	if(defined($name) && ($name !~ /,/) && defined($place) && ($name eq $place) && ($is_in eq 'Washington DC')) {
+		# name/place/is_in = Congress Heights/Congress Heights/Washington DC
+		# is_in will have been split into 2 by the space
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		return {
+			CITY => $name,
+			STATE => 'DC',
+			COUNTRY => $country
+		}
 	}
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
@@ -4014,8 +4037,9 @@ print __LINE__, "\n";
 				$row->{'ROAD'} = $2;
 			}
 			$row->{'NAME'} = $name if(defined($name));
-			die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
-		} elsif((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
+			return $row;
+		}
+		if((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
 			# name/place/in_in = Pembina Strip/undef/Fort Garry South; Winnipeg; River Heights—Fort Garry; Fort Garry; Winnipeg; Manitoba; Canada; CA
 			return {
 				CITY => $name,
@@ -4127,6 +4151,11 @@ sub us_state2code
 # Procedural interface to Locale::CA
 sub ca_province2code
 {
+	if(!defined($_[0])) {
+		my @call_details = caller(0);
+		die "ca_province2code, argument not given\n",
+			"\tcalled from line ", $call_details[2];
+	}
 	my $province = uc(shift);
 	my $rc;
 
