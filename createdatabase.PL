@@ -3999,17 +3999,34 @@ print __LINE__, "\n";
 			COUNTRY => 'US'
 		}
 	}
-	if(defined($name) && (scalar(@is_in_fields) == 4) && ($name ne $is_in_fields[0]) && ($state = us_state2code($is_in_fields[1]))) {
-		# name/place/is_in = Greenbrae Marina/undef/Marin,California,Calif.,CA
+print __LINE__, "\n";
+	if(defined($name) && (scalar(@is_in_fields) == 4)) {
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
-		return {
-			NAME => $name,
-			CITY => $is_in_fields[0],
-			STATE => $state,
-			COUNTRY => $country
+		if(($name ne $is_in_fields[0]) && ($state = us_state2code($is_in_fields[1]))) {
+			# name/place/is_in = Greenbrae Marina/undef/Marin,California,Calif.,CA
+			return {
+				NAME => $name,
+				CITY => $is_in_fields[0],
+				STATE => $state,
+				COUNTRY => $country
+			}
+		}
+		if(($state = us_state2code($is_in_fields[2])) && ($is_in_fields[3] eq 'US')) {
+			# name/place/is_in = Burke Village/undef/Burke, Fairfax County, Virginia, United States of America
+			$row = {
+				NAME => $name,
+				CITY => $is_in_fields[0],
+				STATE => $state,
+				COUNTRY => $country
+			};
+			if($is_in_fields[1] =~ /(.+)\sCounty$/) {
+				$row->{'COUNTY'} = $1;
+			}
+			return $row
 		}
 	}
+print __LINE__, "\n";
 	if(defined($name) && (scalar(@is_in_fields) == 6) && ($state = us_state2code($is_in_fields[2])) && ($is_in_fields[5] eq 'US')) {
 		# name/place/is_in = Paloma del Sol/undef/Temecula;Riverside;California;Calif;CA;USA
 		return {
@@ -4019,6 +4036,7 @@ print __LINE__, "\n";
 			COUNTRY => 'US'
 		}
 	}
+print __LINE__, "\n";
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && (scalar(@is_in_fields) > 1)) {
 		if(scalar(@is_in_fields) == 3) {
 			my $code;
@@ -4160,10 +4178,12 @@ print __LINE__, "\n";
 						COUNTRY => 'Canada',
 					}
 				}
+				$row->{'NAME'} = $name if(defined($name));
+				return $row;
 			}
-			$row->{'NAME'} = $name if(defined($name));
-			return $row;
-		} elsif((scalar(@is_in_fields) == 7) && ($state = ca_province2code($is_in_fields[5]))) {
+			die;
+		}
+		if((scalar(@is_in_fields) == 7) && ($state = ca_province2code($is_in_fields[5]))) {
 			# name/place/is_in = Gilwood Road/400 Lake Shore Drive/High Prairie,Alberta,Canada;Big Lakes, M.D. of,Alberta,Canada
 			$row = {
 				CITY => $is_in_fields[0],
