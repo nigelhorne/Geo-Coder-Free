@@ -2207,6 +2207,9 @@ die if(defined($row->{'CITY'}) && ($row->{'CITY'} =~ /,/));
 my $state = $row->{'STATE'};
 die 'no state' if(!defined($state));
 die $state if($state !~ /[A-Z]{2}/);
+foreach my $v(keys %{$row}) {
+	die if(!defined($row->{$v}));
+}
 						$row->{'LAT'} = $lat;
 						$row->{'LON'} = $lon;
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
@@ -3951,6 +3954,28 @@ sub extract_osm_home
 		}
 		return $row
 	}
+	if(defined($name) && (scalar(@is_in_fields) == 3) && ($is_in_fields[2] eq 'US') && ($state = us_state2code($is_in_fields[1]))) {
+		if(defined($place)) {
+			# name/place/is_in = Bird Springs Overlook/Monument Valley/Navajo County; Arizona; United States of America
+			$row = {
+				NAME => $name,
+				CITY => $place,
+				STATE => $state,
+				COUNTRY => 'US'
+			};
+			if($is_in_fields[0] =~ /(.+)\sCounty$/) {
+				$row->{'COUNTY'} = $1;
+			}
+			return $row
+		}
+		# name/place/is_in = El Presidio/undef/Tucson, Arizona, USA
+		return {
+			NAME => $name,
+			CITY => $is_in_fields[0],
+			STATE => $state,
+			COUNTRY => 'US'
+		}
+	}
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
 			my $code;
@@ -4146,18 +4171,18 @@ print __LINE__, "\n";
 					COUNTRY => 'Canada',
 				}
 			}
-		}
-		if((scalar(@is_in_fields) == 10) && (scalar(@place_fields) == 1) && defined($name) && ($name !~ /,/) && ($state = ca_code2province($is_in_fields[8]))) {
-			# name/place/is_in = Transpeninsular Highway, place = Blake Island, is_in = Leduc County,Alberta,Canada; Wetaskiwin No. 10, County of,Alberta,Canada; Leduc County,Alberta,Canada
-			$row = {
-				NAME => $place,
-				STATE => $state,
-				COUNTRY => 'Canada'
-			};
-			if($is_in_fields[0] =~ /(.+)\sCounty$/) {
-				$row->{'COUNTY'} = $1;
+			if((scalar(@is_in_fields) == 10) && (scalar(@place_fields) == 1) && defined($name) && ($name !~ /,/) && ($state = ca_province2code($is_in_fields[8]))) {
+				# name/place/is_in = Transpeninsular Highway, place = Blake Island, is_in = Leduc County,Alberta,Canada; Wetaskiwin No. 10, County of,Alberta,Canada; Leduc County,Alberta,Canada
+				$row = {
+					NAME => $place,
+					STATE => $state,
+					COUNTRY => 'Canada'
+				};
+				if($is_in_fields[0] =~ /(.+)\sCounty$/) {
+					$row->{'COUNTY'} = $1;
+				}
+				return $row
 			}
-			return $row
 		}
 		die scalar(@is_in_fields) if(!defined($row));
 	} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
