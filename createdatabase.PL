@@ -4147,6 +4147,18 @@ print __LINE__, "\n";
 				}
 			}
 		}
+		if((scalar(@is_in_fields) == 10) && (scalar(@place_fields) == 1) && defined($name) && ($name !~ /,/) && ($state = ca_code2province($is_in_fields[8]))) {
+			# name/place/is_in = Transpeninsular Highway, place = Blake Island, is_in = Leduc County,Alberta,Canada; Wetaskiwin No. 10, County of,Alberta,Canada; Leduc County,Alberta,Canada
+			$row = {
+				NAME => $place,
+				STATE => $state,
+				COUNTRY => 'Canada'
+			};
+			if($is_in_fields[0] =~ /(.+)\sCounty$/) {
+				$row->{'COUNTY'} = $1;
+			}
+			return $row
+		}
 		die scalar(@is_in_fields) if(!defined($row));
 	} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
 		# name/place/is_in = Hébertville/undef/Canada,Québec,Saguenay Lac-St-Jean
