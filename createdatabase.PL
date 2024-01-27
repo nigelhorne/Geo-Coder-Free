@@ -3935,18 +3935,21 @@ sub extract_osm_home
 		}
 	}
 	if(defined($name) && defined($place) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
-		# name/place/is_in = Ten Bear Road/Wheatland Ferry/Champaign, IL: TODO
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
+		$row = {
+			CITY => $is_in_fields[0],
+			STATE => $state,
+			COUNTRY => $country
+		};
 		if($name =~ /\sRoad$/) {
-			return {
-				ROAD => $name,
-				CITY => $is_in_fields[0],
-				STATE => $state,
-				COUNTRY => $country
-			}
+			# name/place/is_in = Ten Bear Road/Wheatland Ferry/Champaign, IL
+			$row->{'ROAD'} = $name
+		} else {
+			# name/place/is_in = Monroe County Airport/Monroe County Airport (Indiana)/Bloomington, Indiana
+			$row->{'NAME'} = $name
 		}
-		die;
+		return $row
 	}
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
