@@ -3907,7 +3907,7 @@ sub extract_osm_home
 			COUNTRY => $country
 		}
 	}
-	if(defined($name) && defined($place) && ($place eq 'county') && (scalar(@is_in_fields) == 4) && (us_state2code($is_in_fields[0]) eq $is_in_fields[2]) && ($is_in_fields[3] eq 'US')) {
+	if(defined($name) && defined($place) && ($place eq 'county') && ($is_in_fields[3] eq 'US') && (scalar(@is_in_fields) == 4) && (us_state2code($is_in_fields[0]) eq $is_in_fields[2])) {
 		# name/place/is_in = Bartholomew/county/Indiana,Ind.,IN,USA
 		return {
 			COUNTY => $name,
@@ -3926,6 +3926,27 @@ sub extract_osm_home
 		die if(!defined($country));
 		$row->{'COUNTRY'} = $country;
 		return $row
+	}
+	if(defined($name) && defined($place) && ($name eq $place) && ($is_in eq 'US') && ($state = us_state2code($name))) {
+		# name/place/is_in = Massachusetts/Massachusetts/USA
+		return {
+			STATE => $state,
+			COUNTRY => 'US'
+		}
+	}
+	if(defined($name) && defined($place) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
+		# name/place/is_in = Ten Bear Road/Wheatland Ferry/Champaign, IL: TODO
+		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		die if(!defined($country));
+		if($name =~ /\sRoad$/) {
+			return {
+				ROAD => $name,
+				CITY => $is_in_fields[0],
+				STATE => $state,
+				COUNTRY => $country
+			}
+		}
+		die;
 	}
 	if(defined($name) && ($name !~ /,/) && ($is_in =~ /[,;]\sCanada/) && ($is_in =~ /[;,]/)) {
 		if(scalar(@is_in_fields) == 3) {
@@ -4102,13 +4123,15 @@ print __LINE__, "\n";
 				# name/place/is_in = Roblin Park/undef/Winnipeg;Charleswood–Tuxedo;Assiniboia;Winnipeg;Manitoba;Canada,
 				shift @is_in_fields;
 			}
-			if($state = (ca_province2code($is_in_fields[4]) || ca_province2code($is_in_fields[3]))) {
-				# name/place/is_in = Garden City/undef/Old Kildonan; Lord Selkirk–West Kildonan; Winnipeg;Manitoba;Canada
-				return {
-					NAME => $name || $is_in_fields[1],
-					CITY => $is_in_fields[2],
-					STATE => $state,
-					COUNTRY => 'Canada',
+			foreach my $i (3..4) {
+				if(defined($is_in_fields[$i]) && ($state = ca_province2code($is_in_fields[$i]))) {
+					# name/place/is_in = Garden City/undef/Old Kildonan; Lord Selkirk–West Kildonan; Winnipeg;Manitoba;Canada
+					return {
+						NAME => $name || $is_in_fields[1],
+						CITY => $is_in_fields[2],
+						STATE => $state,
+						COUNTRY => 'Canada',
+					}
 				}
 			}
 			if(($state = ca_province2code($is_in_fields[2])) && ($is_in_fields[3] eq 'Canada')) {
