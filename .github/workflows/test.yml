@@ -36,8 +36,8 @@ jobs:
       - name: Install Dependencies
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most Clone
-          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
-          cpanm -iqn --skip-satisfied HTML::Entities
+          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS DB_File
+          cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https
           cpanm -ivn --installdeps .
       - name: Make Module
         run: |

@@ -4315,13 +4315,13 @@ print __LINE__, "\n";
 				return $row
 			}
 		}
-		if(!defined($row)) {
+		if(defined($row)) {
 			# name/place/is_in = Carpenter Rd/U.S. Route 82 in Texas/Québec, Canada
 			# name/place/is_in = Chaudière Bridge/Tenth Avenue (Manhattan)/Québec, Canada
-			print STDERR "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
-			return
+			print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
+		} else {
+			return $row
 		}
-		return $row
 	} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
 print __LINE__, "\n";
 		# name/place/is_in = Hébertville/undef/Canada,Québec,Saguenay Lac-St-Jean
