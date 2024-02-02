@@ -2180,7 +2180,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 print __LINE__, ": name = $name, place = $place, is_in = $is_in\n";
 					# Don't add county to this list
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated dwelling|State Route /);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated[_\s]dwelling|State Route /);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -4205,7 +4205,7 @@ print __LINE__, ": $is_in ($state)\n";
 					}
 				}
 print __LINE__, "\n";
-				if((scalar(@place_fields) == 1) && defined($name) && ($place =~ /,/)) {
+				if((scalar(@place_fields) == 1) && defined($name) && ($place !~ /,/)) {
 print __LINE__, "\n";
 					if($name eq $place) {
 						# name/place/is_in = Winnipeg/Winnipeg/Manitoba, Canada
@@ -4264,10 +4264,12 @@ print __LINE__, "\n";
 				$row->{'ROAD'} = $2;
 			}
 			$row->{'NAME'} = $name if(defined($name));
+print __LINE__, "\n";
 			return $row;
 		}
 		if((scalar(@is_in_fields) == 8) && ($is_in_fields[6] eq 'Canada')) {
 			# name/place/in_in = Pembina Strip/undef/Fort Garry South; Winnipeg; River Heights—Fort Garry; Fort Garry; Winnipeg; Manitoba; Canada; CA
+print __LINE__, "\n";
 			return {
 				CITY => $name,
 				STATE => ca_province2code($is_in_fields[5]),
@@ -4316,12 +4318,12 @@ print __LINE__, "\n";
 			}
 		}
 		if(defined($row)) {
-			# name/place/is_in = Carpenter Rd/U.S. Route 82 in Texas/Québec, Canada
-			# name/place/is_in = Chaudière Bridge/Tenth Avenue (Manhattan)/Québec, Canada
-			print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
-		} else {
+print __LINE__, "\n";
 			return $row
 		}
+		# name/place/is_in = Carpenter Rd/U.S. Route 82 in Texas/Québec, Canada
+		# name/place/is_in = Chaudière Bridge/Tenth Avenue (Manhattan)/Québec, Canada
+		print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
 	} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
 print __LINE__, "\n";
 		# name/place/is_in = Hébertville/undef/Canada,Québec,Saguenay Lac-St-Jean
@@ -4397,15 +4399,17 @@ print __LINE__, "\n";
 					$row->{'CITY'} = $name_fields[1];
 				}
 			} else {
-				$row->{'CITY'} = $is_in_fields[0];
+				$row->{'CITY'} = $is_in_fields[0]
 			}
 			return $row
 		}
 		# name/place/is_in = Inwood/undef/Armstrong, Manitoba
-		return {
-			CITY => $name,
-			STATE => $state,
-			COUNTRY => 'Canada'
+		if(scalar(@name_fields) == 1) {
+			return {
+				CITY => $name,
+				STATE => $state,
+				COUNTRY => 'Canada'
+			}
 		}
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 3) && ($name ne $is_in_fields[1]) && ($state = ca_province2code($is_in_fields[2]))) {
