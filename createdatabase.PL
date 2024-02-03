@@ -3725,6 +3725,9 @@ sub extract_osm_home
 	$is_in =~ s/(.+),\sOntario Canada$/$1, Ontario, Canada/;	# name/place/is_in = Brookville/undef/Halton, Ontario Canada
 
 	undef $place if(defined($name) && defined($place) && ($name eq $place));
+	if(defined($place)) {
+		$place =~ s/\x{2013}/-/g;
+	}
 
 	my $state;
 
@@ -3855,7 +3858,13 @@ print __LINE__, "\n";
 			STATE => $state,
 			COUNTRY => $country
 		};
-		$row->{'NAME'} = $name if(defined($name));
+		if(defined($name)) {
+			if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/)) {
+				$row->{'ROAD'} = $name;
+			} else {
+				$row->{'NAME'} = $name;
+			}
+		}
 		return $row
 	}
 print __LINE__, "\n";
@@ -4383,8 +4392,8 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 2) && ($state = ca_province2code($is_in_fields[1]))) {
+		if(($name =~ /\sStreet/) || ($name =~ /\sRoad$/)) {
 print __LINE__, "\n";
-		if($name =~ /\sStreet/) {
 			# name/place/is_in = 212th Street W/Hastings Rail Bridge/Nobleford,Alberta
 			return {
 				ROAD => $name,
@@ -4395,6 +4404,7 @@ print __LINE__, "\n";
 		}
 		my @name_fields = split(/[,;]\s?/, $name);
 		if(scalar(@name_fields) == 2) {
+print __LINE__, "\n";
 			$row = {
 				NAME => $name_fields[0],
 				STATE => $state,
@@ -4404,16 +4414,22 @@ print __LINE__, "\n";
 				$row->{'COUNTY'} = $1;
 				if(defined($place)) {
 					# name/place/is_in = Community College of Denver, Clear Creek/Douglass Park/Strathcona County,Alberta
-					$row->{'CITY'} = $place
+					$row->{'CITY'} = $place if(scalar(@place_fields) == 1)
 				} else {
 					$row->{'CITY'} = $name_fields[1];
 				}
+			} elsif($is_in_fields[0] =~ /\sRoad$/) {
+				# name/place/is_in = North Fork East Road;North Fork Klondike River Bridge/Big River (Saskatchewan)/Red Deer County,Alberta
+				$row->{'NAME'} = $place if(defined($place));
+				$row->{'ROAD'} = $is_in_fields[0];
+				$row->{'CITY'} = $is_in_fields[1];
 			} else {
 				$row->{'CITY'} = $is_in_fields[0]
 			}
 			return $row
 		}
 		if(scalar(@name_fields) == 1) {
+print __LINE__, "\n";
 			$row = {
 				CITY => $name,
 				STATE => $state,
@@ -4432,6 +4448,7 @@ print __LINE__, "\n";
 			}
 			return $row
 		}
+print __LINE__, "\n";
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 3) && ($name ne $is_in_fields[1]) && ($state = ca_province2code($is_in_fields[2]))) {
 		# name/place/is_in = Cabbagetown/undef/Old Toronto, Toronto, Ontario
