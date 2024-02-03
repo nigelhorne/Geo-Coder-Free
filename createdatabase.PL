@@ -3937,7 +3937,7 @@ print __LINE__, "\n";
 			COUNTRY => $country
 		}
 	}
-	if(defined($name) && defined($place) && ($place eq 'county') && ($is_in_fields[3] eq 'US') && (scalar(@is_in_fields) == 4) && (us_state2code($is_in_fields[0]) eq $is_in_fields[2])) {
+	if(defined($name) && defined($place) && ($place eq 'county') && (scalar(@is_in_fields) == 4) && ($is_in_fields[3] eq 'US') && (us_state2code($is_in_fields[0]) eq $is_in_fields[2])) {
 		# name/place/is_in = Bartholomew/county/Indiana,Ind.,IN,USA
 		return {
 			COUNTY => $name,
@@ -4050,42 +4050,48 @@ print __LINE__, "\n";
 print __LINE__, "\n";
 		if(scalar(@is_in_fields) == 3) {
 print __LINE__, "\n";
-			my $code;
 			if($is_in_fields[1] =~ /Qu.bec/i) {
 				$is_in_fields[1] = 'Quebec';
+				$state = 'QC';
 			} elsif($is_in_fields[0] =~ /Qu.bec/i) {
 				$is_in_fields[0] = 'Quebec';
-			}
-			if($state = $ca->{'province2code'}{uc($is_in_fields[0])}) {
-				$code = $state;
-			} elsif($state = $ca->{'province2code'}{uc($is_in_fields[1])}) {
-				$code = $state;
+				$state = 'QC';
+			} else {
+				$state = ca_province2code($is_in_fields[0]) || ca_province2code($is_in_fields[1]);
 			}
 			if(defined($place) && ($place =~ /, \Q$is_in_fields[0]\E$/)) {
 				# name/place/is_in = The Bridle Path/Bridle Path, Toronto/Toronto, Ontario, Canada
-				$row = {
+				return {
 					NAME => $name,
 					CITY => $is_in_fields[0],
 					STATE => $state,
-					COUNTRY => 'Canada',
-				};
-			} elsif(defined($state) && defined($code)) {
+					COUNTRY => 'Canada'
+				}
+			}
+			if(defined($state) && ($is_in_fields[0] =~ /(.+) County$/)) {
+				# name/place/is_in = name = 76, place = Trinity-St. Paul's United Church, is_in = Northern Sunrise County,Alberta,Canada
+				return {
+					COUNTY => $1,
+					STATE => $state,
+					COUNTRY => 'Canada'
+				}
+			}
+			if(defined($state)) {
 				# name/place/is_in = Redwood Meadows/undef/AB; Alberta; Canada
 				# name/place/is_in = Tofino/undef/British Columbia, BC, Canada
 				return {
-					'CITY' => $name,
-					'STATE' => $code,
-					'COUNTRY' => 'Canada',
-				}
-			} else {
-				# name/place/is_in = Saint-Étienne-de-Lauzon/undef/Lévis, Québec, Canada
-				$row = {
-					CITY => $is_in_fields[0],
+					CITY => $name,
 					STATE => $state,
-					COUNTRY => 'Canada',
-				};
-die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+					COUNTRY => 'Canada'
+				}
 			}
+			# name/place/is_in = Saint-Étienne-de-Lauzon/undef/Lévis, Québec, Canada
+			$row = {
+				CITY => $is_in_fields[0],
+				STATE => $state,
+				COUNTRY => 'Canada'
+			};
+die __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 		} elsif(scalar(@is_in_fields) == 4) {
 print __LINE__, "\n";
 			my $code;
@@ -4323,7 +4329,11 @@ print __LINE__, "\n";
 		}
 		# name/place/is_in = Carpenter Rd/U.S. Route 82 in Texas/Québec, Canada
 		# name/place/is_in = Chaudière Bridge/Tenth Avenue (Manhattan)/Québec, Canada
-		print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
+		if(defined($place)) {
+			print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
+		} else {
+			print "$file: Can't parse name = $name, place = undef, is_in = $is_in\n";
+		}
 	} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
 print __LINE__, "\n";
 		# name/place/is_in = Hébertville/undef/Canada,Québec,Saguenay Lac-St-Jean
@@ -4403,13 +4413,24 @@ print __LINE__, "\n";
 			}
 			return $row
 		}
-		# name/place/is_in = Inwood/undef/Armstrong, Manitoba
 		if(scalar(@name_fields) == 1) {
-			return {
+			$row = {
 				CITY => $name,
 				STATE => $state,
 				COUNTRY => 'Canada'
+			};
+			if(defined($place) && ($name eq $place)) {
+				# name/place/is_in = Canada Life Centre/Canada Life Centre/Lamont County,Alberta
+				$row->{'NAME'} = $name;
+				return	# Can't work out the city
+			} else {
+				# name/place/is_in = Inwood/undef/Armstrong, Manitoba
+				$row->{'CITY'} = $name;
 			}
+			if($is_in_fields[0] =~ /(.+)\sCounty$/) {
+				$row->{'COUNTY'} = $1;
+			}
+			return $row
 		}
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 3) && ($name ne $is_in_fields[1]) && ($state = ca_province2code($is_in_fields[2]))) {
