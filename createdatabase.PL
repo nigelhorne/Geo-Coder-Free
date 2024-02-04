@@ -3777,15 +3777,23 @@ print __LINE__, "\n";
 		}
 	}
 print __LINE__, "\n";
+	my @name_fields = split(/[,;]\s?/, $name) if(defined($name));
 	if((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = us_state2code($is_in_fields[1]))) {
-		# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
 		$row = {
-			CITY => $name || $place_fields[0],
 			STATE => $state,
-			COUNTRY => 'US',
+			COUNTRY => 'US'
 		};
+		if(scalar(@name_fields) == 1) {
+			# name/place/is_in = St Marys Cement, McInnis Plant/Sonoma State Observatory/Brazoria,Texas,Tex.,TX,USA
+			$row->{'CITY'} = $name_fields[1]
+		} elsif($name) {
+			# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
+			$row->{'CITY'} = $name
+		} else {
+			$row->{'CITY'} = $place_fields[0]
+		}
 		if($is_in_fields[0] =~ /(.+) County$/) {
-			$row->{'COUNTY'} = $1;
+			$row->{'COUNTY'} = $1
 		}
 		return $row
 	}
@@ -3859,7 +3867,7 @@ print __LINE__, "\n";
 			COUNTRY => $country
 		};
 		if(defined($name)) {
-			if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/)) {
+			if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/ || ($name =~ /\sWay$/))) {
 				$row->{'ROAD'} = $name;
 			} else {
 				$row->{'NAME'} = $name;
@@ -3869,16 +3877,23 @@ print __LINE__, "\n";
 	}
 print __LINE__, "\n";
 	if(defined($name) && (scalar(@is_in_fields) == 2) && (!defined($place)) && ($state = us_state2code($is_in_fields[1]))) {
-		# name/place/is_in = Perryville/undef/Maricopa County; Arizona
+print __LINE__, "\n";
 		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
 		die if(!defined($country));
 		$row = {
-			CITY => $name,
 			STATE => $state,
 			COUNTRY => $country
 		};
 		if($is_in_fields[0] =~ /(.+)\sCounty$/) {
 			$row->{'COUNTY'} = $1;
+		}
+		if(scalar(@name_fields) == 1) {
+			# name/place/is_in = Perryville/undef/Maricopa County; Arizona
+			$row->{'CITY'} = $name
+		} else {
+			# name/place/is_in = Palisades del Rey, California/Palisades del Rey, California/Maricopa, AZ
+			$row->{'NAME'} = $name_fields[0];
+			$row->{'CITY'} = $name_fields[1]
 		}
 		return $row
 	}
@@ -3985,7 +4000,7 @@ print __LINE__, "\n";
 			STATE => $state,
 			COUNTRY => $country
 		};
-		if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/)) {
+		if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/) || ($name =~ /\sWay$/)) {
 			# name/place/is_in = Ten Bear Road/Wheatland Ferry/Champaign, IL
 			$row->{'ROAD'} = $name;
 			$row->{'NAME'} = $place if($place ne $is_in_fields[0])
@@ -4402,7 +4417,6 @@ print __LINE__, "\n";
 				COUNTRY => 'Canada'
 			}
 		}
-		my @name_fields = split(/[,;]\s?/, $name);
 		if(scalar(@name_fields) == 2) {
 print __LINE__, "\n";
 			$row = {
@@ -4435,17 +4449,27 @@ print __LINE__, "\n";
 				STATE => $state,
 				COUNTRY => 'Canada'
 			};
-			if(defined($place) && ($name eq $place)) {
-				# name/place/is_in = Canada Life Centre/Canada Life Centre/Lamont County,Alberta
-				$row->{'NAME'} = $name;
-				return	# Can't work out the city
-			} else {
-				# name/place/is_in = Inwood/undef/Armstrong, Manitoba
-				$row->{'CITY'} = $name;
-			}
 			if($is_in_fields[0] =~ /(.+)\sCounty$/) {
 				$row->{'COUNTY'} = $1;
 			}
+			if(defined($place)) {
+				if($name eq $place) {
+					# name/place/is_in = Canada Life Centre/Canada Life Centre/Lamont County,Alberta
+					$row->{'NAME'} = $name;
+					# delete $row->{'CITY'};
+					return	# Can't work out the city
+				}
+				if($place =~ /\sHospital$/) {
+					$row->{'NAME'} = $place;
+					if($is_in_fields[0] !~ /(.+)\sCounty$/) {
+						# name/place/is_in = Arborcrest Cemetery/New York Community Hospital/Castlegar,British Columbia
+						$row->{'CITY'} = $is_in_fields[0];
+						return
+					}
+				}
+			}
+			# name/place/is_in = Inwood/undef/Armstrong, Manitoba
+			$row->{'CITY'} = $name;
 			return $row
 		}
 print __LINE__, "\n";
