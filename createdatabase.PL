@@ -2180,7 +2180,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 print __LINE__, ": name = $name, place = $place, is_in = $is_in\n";
 					# Don't add county to this list
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated[_\s]dwelling|State Route /);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated[_\s]dwelling|State Route |square/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -2208,7 +2208,7 @@ my $state = $row->{'STATE'};
 die 'no state' if(!defined($state));
 die __LINE__, $state if($state !~ /[A-Z]{2}/);
 foreach my $v(keys %{$row}) {
-	die __LINE__, $v if(!defined($row->{$v}));
+	die __LINE__, ": $v" if(!defined($row->{$v}));
 }
 die if(defined($row->{'CITY'}) && defined($row->{'NAME'}) && ($row->{'CITY'} eq $row->{'NAME'}));
 die if(defined($row->{'NUMBER'}) && !defined($row->{'ROAD'}));
@@ -3784,11 +3784,11 @@ print __LINE__, "\n";
 			COUNTRY => 'US'
 		};
 		if(scalar(@name_fields) == 1) {
-			# name/place/is_in = St Marys Cement, McInnis Plant/Sonoma State Observatory/Brazoria,Texas,Tex.,TX,USA
-			$row->{'CITY'} = $name_fields[1]
-		} elsif($name) {
 			# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
 			$row->{'CITY'} = $name
+		} elsif($name) {
+			# name/place/is_in = St Marys Cement, McInnis Plant/Sonoma State Observatory/Brazoria,Texas,Tex.,TX,USA
+			$row->{'CITY'} = $name_fields[1]
 		} else {
 			$row->{'CITY'} = $place_fields[0]
 		}
