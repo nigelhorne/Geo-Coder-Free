@@ -3748,6 +3748,9 @@ print __LINE__, "\n";
 
 			# de = Germany
 			return if(uc($is_in) eq 'DE');
+
+			# is_in = VI (I think Italy)
+			return if($is_in eq 'VI');
 		}
 		die $file;
 	}
@@ -4515,6 +4518,14 @@ print __LINE__, "\n";
 		return {
 			CITY => $name,
 			STATE => $is_in_fields[1],
+			COUNTRY => 'GB'
+		}
+	}
+	if(defined($name) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'GB')) {
+		# name/place/is_in = Mere/Mere, Wiltshire/Wiltshire, GB
+		return {
+			CITY => $name_fields[0],
+			STATE => $is_in_fields[0],
 			COUNTRY => 'GB'
 		}
 	}
