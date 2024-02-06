@@ -3710,14 +3710,16 @@ sub extract_osm_home
 	my($file, $name, $place, $is_in) = @_;
 
 	$is_in =~ s/[;,](\w)/, $1/g;
-	$is_in =~ s/, United Kingdom/, GB/;
+	$is_in =~ s/,\sUnited Kingdom/, GB/;
 	$is_in =~ s/, UK,.+$/, GB/;
 	$is_in =~ s/^UK, UK$/GB/;
 	$is_in =~ s/GB, GB$/GB/;
 	$is_in =~ s/, UK$/, GB/;
 	$is_in =~ s/^UK,\s?United Kingdom,\s?/GB, /;
+	$is_in =~ s/^UK,\s?GB,\s?/GB, /;
 	$is_in =~ s/(England|Scotland|Wales), GB/GB/;
 	$is_in =~ s/,\s?(England|Scotland|Wales)$/, GB/;
+	$is_in =~ s/^(England|Scotland|Wales),\s?/GB, /;
 	$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
 	$is_in =~ s/, Europe$//;
 	$is_in =~ s/;\s?/, /g;
@@ -4529,6 +4531,27 @@ print __LINE__, "\n";
 		return {
 			CITY => $name,
 			STATE => $is_in_fields[0],
+			COUNTRY => 'GB'
+		}
+	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 4) && ($is_in_fields[0] eq 'GB')) {
+		$row = {
+			CITY => $name,
+			COUNTRY => 'GB'
+		};
+		if($is_in_fields[1] eq 'Yorkshire') {
+			# name/place/is_in = Leeds/Leeds/GB, Yorkshire,West Yorkshire, Airedale
+			$row->{'STATE'} = $is_in_fields[2];
+		} else {
+			$row->{'STATE'} = $is_in_fields[1];
+		}
+		return $row
+	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($is_in eq 'GB')) {
+		# name/place/is_in = Biggar/Biggar, South Lanarkshire/Scotland, UK
+		return {
+			CITY => $name,
+			STATE => $place_fields[1],
 			COUNTRY => 'GB'
 		}
 	}
