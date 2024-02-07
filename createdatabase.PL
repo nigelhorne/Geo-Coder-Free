@@ -3715,7 +3715,7 @@ sub extract_osm_home
 	$is_in =~ s/^UK, UK$/GB/;
 	$is_in =~ s/GB, GB$/GB/;
 	$is_in =~ s/, UK$/, GB/;
-	$is_in =~ s/^UK,\s?United Kingdom,\s?/GB, /;
+	$is_in =~ s/^UK,\s?(United Kingdom|England|Scotland|Wales),\s?/GB, /;
 	$is_in =~ s/^UK,\s?GB,\s?/GB, /;
 	$is_in =~ s/(England|Scotland|Wales), GB/GB/;
 	$is_in =~ s/,\s?(England|Scotland|Wales)$/, GB/;
@@ -4552,6 +4552,22 @@ print __LINE__, "\n";
 		return {
 			CITY => $name,
 			STATE => $place_fields[1],
+			COUNTRY => 'GB'
+		}
+	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+		# name/place/is_in = Whitwell/Whitwell, Isle of Wight/England, Isle of Wight
+		return {
+			CITY => $name,
+			STATE => $place_fields[1],
+			COUNTRY => 'GB'
+		}
+	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+		# name/place/is_in = Niton/Niton/England, Isle of Wight
+		return {
+			CITY => $name,
+			STATE => $is_in_fields[1],
 			COUNTRY => 'GB'
 		}
 	}
