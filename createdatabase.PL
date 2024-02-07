@@ -2181,7 +2181,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 print __LINE__, ": name = $name, place = $place, is_in = $is_in\n";
 					# Don't add county to this list
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated[_\s]dwelling|State Route |square/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square|resort\stowns/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -3722,6 +3722,7 @@ sub extract_osm_home
 	$is_in =~ s/,\s?(England|Scotland|Wales|Cymru)$/, GB/;
 	$is_in =~ s/^(England|Scotland|Wales|Cymru),\s?/GB, /;
 	$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
+	$is_in =~ s/\.UK$/, GB/;
 	$is_in =~ s/, Europe$//;
 	$is_in =~ s/United States of America.*/US/;
 	$is_in =~ s/United States$/US/;
@@ -4492,16 +4493,17 @@ print __LINE__, "\n";
 			$row->{'CITY'} = $name;
 			return $row
 		}
-print __LINE__, "\n";
 	}
-	if((scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'GB') && defined($name) && !defined($place)) {
-		return {
+	if((scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'GB') && defined($name) && (scalar(@name_fields) == 1) && !defined($place)) {
+print __LINE__, "\n";
+		$row = {
 			CITY => $name,
 			STATE => $is_in_fields[0],
 			COUNTRY => 'GB'
-		}
+		};
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 3) && ($name ne $is_in_fields[1]) && ($state = ca_province2code($is_in_fields[2]))) {
+print __LINE__, "\n";
 		# name/place/is_in = Cabbagetown/undef/Old Toronto, Toronto, Ontario
 		return {
 			NAME => $name,
@@ -4511,6 +4513,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 3) && ($is_in_fields[2] eq 'GB') && defined($place)) {
+print __LINE__, "\n";
 		# name/place/is_in = Whetstone/Whetstone, London/Barnet, London, GB
 		return {
 			CITY => $place_fields[0],
@@ -4519,6 +4522,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (scalar(@is_in_fields) == 3) && ($is_in_fields[2] eq 'GB') && !defined($place)) {
+print __LINE__, "\n";
 		return {
 			CITY => $name,
 			STATE => $is_in_fields[1],
@@ -4526,6 +4530,7 @@ print __LINE__, "\n";
 		}
 	}
 	if((scalar(@name_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'GB')) {
+print __LINE__, "\n";
 		# name/place/is_in = Mere/Mere, Wiltshire/Wiltshire, GB
 		# name/place/is_in = Shedfield/undef/Hampshire, GB
 		return {
@@ -4535,6 +4540,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 4) && ($is_in_fields[0] eq 'GB')) {
+print __LINE__, "\n";
 		$row = {
 			CITY => $name,
 			COUNTRY => 'GB'
@@ -4548,6 +4554,7 @@ print __LINE__, "\n";
 		return $row
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($is_in eq 'GB')) {
+print __LINE__, "\n";
 		# name/place/is_in = Biggar/Biggar, South Lanarkshire/Scotland, UK
 		return {
 			CITY => $name,
@@ -4556,6 +4563,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+print __LINE__, "\n";
 		# name/place/is_in = Whitwell/Whitwell, Isle of Wight/England, Isle of Wight
 		return {
 			CITY => $name,
@@ -4564,6 +4572,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+print __LINE__, "\n";
 		# name/place/is_in = Waldringfield/Newbourne/England, Suffolk
 		return {
 			CITY => $name,
@@ -4572,6 +4581,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+print __LINE__, "\n";
 		# name/place/is_in = Niton/Niton/England, Isle of Wight
 		return {
 			CITY => $name,
@@ -4580,6 +4590,7 @@ print __LINE__, "\n";
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'GB')) {
+print __LINE__, "\n";
 		# name/place/is_in = Newcastle upon Tyne/Newcastle upon Tyne/UK, England, Northumberland, Tyne & Wear
 		return {
 			CITY => $name,
@@ -4588,6 +4599,7 @@ print __LINE__, "\n";
 		}
 	}
 	if((scalar(@place_fields) == 2) && ($state = ca_province2code($place_fields[1]))) {
+print __LINE__, "\n";
 		# name/place/is_in = Aldergrove/Aldergrove, British Columbia/Township of Langley
 		return {
 			CITY => $place_fields[0],
@@ -4595,6 +4607,7 @@ print __LINE__, "\n";
 			COUNTRY => 'Canada'
 		}
 	}
+print __LINE__, "\n";
 	return $row;
 }
 
