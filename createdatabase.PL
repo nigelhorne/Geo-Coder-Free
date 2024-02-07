@@ -3710,19 +3710,19 @@ sub extract_osm_home
 	my($file, $name, $place, $is_in) = @_;
 
 	$is_in =~ s/[;,](\w)/, $1/g;
+	$is_in =~ s/;\s?/, /g;
 	$is_in =~ s/,\sUnited Kingdom/, GB/;
 	$is_in =~ s/, UK,.+$/, GB/;
 	$is_in =~ s/^UK, UK$/GB/;
 	$is_in =~ s/GB, GB$/GB/;
 	$is_in =~ s/, UK$/, GB/;
-	$is_in =~ s/^UK,\s?(United Kingdom|England|Scotland|Wales),\s?/GB, /;
+	$is_in =~ s/^UK,\s?(United Kingdom|England|Scotland|Wales|Cymru),\s?/GB, /;
 	$is_in =~ s/^UK,\s?GB,\s?/GB, /;
-	$is_in =~ s/(England|Scotland|Wales), GB/GB/;
-	$is_in =~ s/,\s?(England|Scotland|Wales)$/, GB/;
-	$is_in =~ s/^(England|Scotland|Wales),\s?/GB, /;
+	$is_in =~ s/(England|Scotland|Wales|Cymru), GB/GB/;
+	$is_in =~ s/,\s?(England|Scotland|Wales|Cymru)$/, GB/;
+	$is_in =~ s/^(England|Scotland|Wales|Cymru),\s?/GB, /;
 	$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
 	$is_in =~ s/, Europe$//;
-	$is_in =~ s/;\s?/, /g;
 	$is_in =~ s/United States of America.*/US/;
 	$is_in =~ s/United States$/US/;
 	$is_in =~ s/USA$/US/;
@@ -4563,11 +4563,27 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+		# name/place/is_in = Waldringfield/Newbourne/England, Suffolk
+		return {
+			CITY => $name,
+			STATE => $is_in_fields[1],
+			COUNTRY => 'GB'
+		}
+	}
 	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
 		# name/place/is_in = Niton/Niton/England, Isle of Wight
 		return {
 			CITY => $name,
 			STATE => $is_in_fields[1],
+			COUNTRY => 'GB'
+		}
+	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'GB')) {
+		# name/place/is_in = Newcastle upon Tyne/Newcastle upon Tyne/UK, England, Northumberland, Tyne & Wear
+		return {
+			CITY => $name,
+			STATE => $is_in_fields[2],
 			COUNTRY => 'GB'
 		}
 	}
