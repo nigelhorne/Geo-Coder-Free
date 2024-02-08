@@ -2181,7 +2181,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 print __LINE__, ": name = $name, place = $place, is_in = $is_in\n";
 					# Don't add county to this list
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|locality|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square|resort\stowns/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -3865,7 +3865,20 @@ print __LINE__, "\n";
 	if((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in})) {
 print __LINE__, "\n";
 		# name/place/is_in = Epping/Epping, New Hampshire/NH
-		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
+		my $country;	# WA can be in US or Australia
+
+		if($file =~ /north-america/) {
+			$country = 'US'
+		} elsif($file =~ /europe/) {
+			# Country of Georgia, not the state
+			return if($is_in eq 'Georgia');
+
+			# de = Germany
+			return if(uc($is_in) eq 'DE');
+
+			# is_in = VI (I think Italy)
+			return if($is_in eq 'VI');
+		}
 		die if(!defined($country));
 		return {
 			CITY => $name,
@@ -4539,7 +4552,7 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
-	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 4) && ($is_in_fields[0] eq 'GB')) {
+	if(defined($name) && (scalar(@name_fields) == 1) && (scalar(@is_in_fields) == 4) && ($is_in_fields[0] eq 'GB')) {
 print __LINE__, "\n";
 		$row = {
 			CITY => $name,
@@ -4553,6 +4566,7 @@ print __LINE__, "\n";
 		}
 		return $row
 	}
+
 	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($is_in eq 'GB')) {
 print __LINE__, "\n";
 		# name/place/is_in = Biggar/Biggar, South Lanarkshire/Scotland, UK
