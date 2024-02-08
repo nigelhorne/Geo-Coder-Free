@@ -3740,24 +3740,11 @@ sub extract_osm_home
 	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = us_state2code(uc($is_in)))) {
 print __LINE__, "\n";
 		# name/place/is_in = Danville/undef/Pennsylvania
-		if($file =~ /north-america/) {
-			# WA can be in US or Australia
-			return {
-				CITY => $name,
-				STATE => $state,
-				COUNTRY => 'US'
-			}
-		} elsif($file =~ /europe/) {
-			# Country of Georgia, not the state
-			return if($is_in eq 'Georgia');
-
-			# de = Germany
-			return if(uc($is_in) eq 'DE');
-
-			# is_in = VI (I think Italy)
-			return if($is_in eq 'VI');
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => country($file, $is_in)
 		}
-		die $file;
 	}
 
 	my $row;
@@ -3865,25 +3852,10 @@ print __LINE__, "\n";
 	if((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in})) {
 print __LINE__, "\n";
 		# name/place/is_in = Epping/Epping, New Hampshire/NH
-		my $country;	# WA can be in US or Australia
-
-		if($file =~ /north-america/) {
-			$country = 'US'
-		} elsif($file =~ /europe/) {
-			# Country of Georgia, not the state
-			return if($is_in eq 'Georgia');
-
-			# de = Germany
-			return if(uc($is_in) eq 'DE');
-
-			# is_in = VI (I think Italy)
-			return if($is_in eq 'VI');
-		}
-		die if(!defined($country));
 		return {
 			CITY => $name,
 			STATE => $is_in,
-			COUNTRY => $country
+			COUNTRY => country($file, $is_in)
 		}
 	}
 	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
@@ -3907,21 +3879,9 @@ print __LINE__, "\n";
 	}
 	if(defined($name) && (scalar(@is_in_fields) == 2) && (!defined($place)) && ($state = us_state2code($is_in_fields[1]))) {
 print __LINE__, "\n";
-		my $country;
-		if($file =~ /north-america/) {
-			# WA can be in US or Australia
-			$country = 'US'
-		} elsif($file =~ /europe/) {
-			# Country of Georgia, not the state
-			return if($is_in_fields[1] eq 'Georgia');
-
-			# de = Germany
-			return if(uc($is_in_fields[1]) eq 'DE');
-		}
-		die if(!defined($country));
 		$row = {
 			STATE => $state,
-			COUNTRY => $country
+			COUNTRY => country($file, $is_in_fields[1])
 		};
 		if($is_in_fields[0] =~ /(.+)\sCounty$/) {
 			$row->{'COUNTY'} = $1;
@@ -3939,12 +3899,10 @@ print __LINE__, "\n";
 	if((scalar(@place_fields) == 3) && defined($name) && ($state = us_state2code($is_in))) {
 print __LINE__, "\n";
 		# name/place/is_in = Waterville/Cummings Township, Lycoming County, Pennsylvania#Waterville/Pennsylvania
-		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
-		die if(!defined($country));
 		$row = {
 			CITY => $name,
 			STATE => $state,
-			COUNTRY => $country,
+			COUNTRY => country($file, $is_in)
 		};
 		if($place_fields[1] =~ /(.+) County$/) {
 			$row->{'COUNTY'} = $1;
@@ -4664,4 +4622,25 @@ sub ca_province2code
 	# print STDERR __LINE__, ": Unknown province '$province'\n",
 		# "\tcalled from line ", $call_details[2], "\n";
 	return;	# undef
+}
+
+# Given a state and Openstreetmap.org filename, determine the country
+# WA can be in US or Australia
+# Georgia can be a country or US state
+# DE can be a US state or country
+# VI is in Italy, I think
+sub country {
+	my($file, $state) = @_;
+
+	if($file =~ /north-america/) {
+		return 'US';
+	}
+	if($file =~ /europe/) {
+		# Country of Georgia, not the state
+		# de = Germany
+		if(($state eq 'Georgia') || ($state eq 'DE') || ($state eq 'VI')) {
+			return $state;
+		}
+	}
+	die "$file/$state"
 }
