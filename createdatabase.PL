@@ -2223,6 +2223,7 @@ die if(defined($row->{'NUMBER'}) && !defined($row->{'ROAD'}));
 die if(defined($row->{'NUMBER'}) && !defined($row->{'CITY'}));
 die if(defined($row->{'ROAD'}) && !defined($row->{'CITY'}));
 die $row->{'COUNTRY'} if(!defined($osm_countries{lc($row->{'COUNTRY'})}));
+die $row->{'COUNTRY'} if($row->{'COUNTRY'} ne 'GB');
 						$row->{'LAT'} = $lat;
 						$row->{'LON'} = $lon;
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
@@ -3747,12 +3748,15 @@ sub extract_osm_home
 
 	if(defined($name) && ($name !~ /,/) && (!defined($place)) && ($state = us_state2code(uc($is_in)))) {
 print __LINE__, "\n";
-		# name/place/is_in = Danville/undef/Pennsylvania
-		return {
-			CITY => $name,
-			STATE => $state,
-			COUNTRY => country($file, $is_in)
+		if(country($file, $is_in) eq 'US') {
+			# name/place/is_in = Danville/undef/Pennsylvania
+			return {
+				CITY => $name,
+				STATE => $state,
+				COUNTRY => 'US'
+			}
 		}
+		return
 	}
 
 	my $row;
@@ -3885,11 +3889,11 @@ print __LINE__, "\n";
 		}
 		return $row
 	}
-	if(defined($name) && (scalar(@is_in_fields) == 2) && (!defined($place)) && ($state = us_state2code($is_in_fields[1]))) {
+	if(defined($name) && (scalar(@is_in_fields) == 2) && (!defined($place)) && ($state = us_state2code($is_in_fields[1])) && (country($file, $is_in_fields[1]) eq 'US')) {
 print __LINE__, "\n";
 		$row = {
 			STATE => $state,
-			COUNTRY => country($file, $is_in_fields[1])
+			COUNTRY => 'US'
 		};
 		if($is_in_fields[0] =~ /(.+)\sCounty$/) {
 			$row->{'COUNTY'} = $1;
