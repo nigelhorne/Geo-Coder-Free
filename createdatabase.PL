@@ -3991,12 +3991,10 @@ print __LINE__, "\n";
 	}
 	if(defined($name) && defined($place) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
 print __LINE__, "\n";
-		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
-		die if(!defined($country));
 		$row = {
 			CITY => $is_in_fields[0],
 			STATE => $state,
-			COUNTRY => $country
+			COUNTRY => country($file, $state)
 		};
 		if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/) || ($name =~ /\sWay$/)) {
 			# name/place/is_in = Ten Bear Road/Wheatland Ferry/Champaign, IL
@@ -4638,7 +4636,7 @@ sub country {
 	if($file =~ /europe/) {
 		# Country of Georgia, not the state
 		# de = Germany
-		if(($state eq 'Georgia') || ($state eq 'DE') || ($state eq 'VI')) {
+		if(($state eq 'Georgia') || (uc($state) eq 'DE') || ($state eq 'VI')) {
 			return $state;
 		}
 	}
