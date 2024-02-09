@@ -172,13 +172,19 @@ my %zipcodes = (
 	'80650' => { city => 'Pierce', county => 'Weld' },
 );
 
-my %openaddresses_supported_countries = (
+my %openaddresses_countries = (
 	'au' => 1,
 	'ca' => 1,
 	'us' => 1,
 );
 my @whosonfirst_only_countries = (
 	'gb'
+);
+my %osm_countries = (
+	us => 1,
+	canada => 1,
+	gb => 1,
+	us => 1
 );
 
 my %max_state_lengths = (
@@ -1420,7 +1426,7 @@ if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename) &&
 		my @fields = split(/\t/, $line);
 
 		my $country = lc($fields[8]);
-		if(!$openaddresses_supported_countries{$country}) {
+		if(!$openaddresses_countries{$country}) {
 			my $found = 0;
 			foreach my $c(@whosonfirst_only_countries) {
 				if($country eq $c) {
@@ -1536,7 +1542,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		my $state;
 		my $file;
 
-		next unless($openaddresses_supported_countries{lc($country)});
+		next unless($openaddresses_countries{lc($country)});
 
 		if($components[1] =~ /\.csv$/) {
 			$file = $components[1];
@@ -1726,7 +1732,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		next if($placetype eq 'marketarea');
 		my $country = $properties->{'wof:country'};
 		next if(!defined($country));
-		if(!$openaddresses_supported_countries{lc($country)}) {
+		if(!$openaddresses_countries{lc($country)}) {
 			my $found = 0;
 			foreach my $c(@whosonfirst_only_countries) {
 				if(lc($country) eq $c) {
@@ -2181,7 +2187,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 print __LINE__, ": name = $name, place = $place, is_in = $is_in\n";
 					# Don't add county to this list
-					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square/);
+					undef $place if($place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square|farm/);
 
 					if((!defined($place)) && (!defined($name)) && ($is_in !~ /,/)) {
 						print __LINE__, ": nothing at $lat, $lon\n";
@@ -2204,6 +2210,7 @@ if($place) {
 	print $tulip "/undef/$is_in";
 }
 					if(my $row = extract_osm_home($file, $name, $place, $is_in)) {
+						$country = $row->{'COUNTRY'};
 die __LINE__, ': ', $row->{'CITY'} if(defined($row->{'CITY'}) && ($row->{'CITY'} =~ /,/));
 my $state = $row->{'STATE'};
 die 'no state' if(!defined($state));
@@ -2215,6 +2222,7 @@ die if(defined($row->{'CITY'}) && defined($row->{'NAME'}) && ($row->{'CITY'} eq 
 die if(defined($row->{'NUMBER'}) && !defined($row->{'ROAD'}));
 die if(defined($row->{'NUMBER'}) && !defined($row->{'CITY'}));
 die if(defined($row->{'ROAD'}) && !defined($row->{'CITY'}));
+die $row->{'COUNTRY'} if(!defined($osm_countries{lc($row->{'COUNTRY'})}));
 						$row->{'LAT'} = $lat;
 						$row->{'LON'} = $lon;
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
@@ -2541,7 +2549,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 							print __LINE__, ": country not defined ($is_in)\n";
 							$add_record = 0;
 						} elsif($country !~ /Australia|Canada|US|GB/) {
-							# FIXME: use %openaddresses_supported_countries
+							# FIXME: use %openaddresses_countries
 							if(my $code = $au->{'state2code'}{uc($country)}) {
 								if($is_in =~ /(.+?), \Q$country\E$/) {
 									$city = $is_in;
@@ -4634,10 +4642,8 @@ sub country {
 		return 'US';
 	}
 	if($file =~ /europe/) {
-		# Country of Georgia, not the state
-		# de = Germany
-		if(($state eq 'Georgia') || (uc($state) eq 'DE') || ($state eq 'VI')) {
-			return $state;
+		if(($state eq 'Georgia') || ($state eq 'GA') || (uc($state) eq 'DE') || ($state eq 'VI')) {
+			return $state
 		}
 	}
 	die "$file/$state"
