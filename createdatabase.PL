@@ -3908,16 +3908,16 @@ print __LINE__, "\n";
 		}
 		return $row
 	}
-	if((scalar(@place_fields) == 3) && defined($name) && ($state = us_state2code($is_in))) {
+	if((scalar(@place_fields) == 3) && defined($name) && ($state = us_state2code($is_in)) && (country($file, $is_in) eq 'US')) {
 print __LINE__, "\n";
 		# name/place/is_in = Waterville/Cummings Township, Lycoming County, Pennsylvania#Waterville/Pennsylvania
 		$row = {
 			CITY => $name,
 			STATE => $state,
-			COUNTRY => country($file, $is_in)
+			COUNTRY => 'US'
 		};
 		if($place_fields[1] =~ /(.+) County$/) {
-			$row->{'COUNTY'} = $1;
+			$row->{'COUNTY'} = $1
 		}
 		return $row
 	}
