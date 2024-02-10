@@ -3861,13 +3861,13 @@ print __LINE__, "\n";
 		}
 		return $row;
 	}
-	if((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in})) {
+	if((scalar(@place_fields) == 2) && defined($name) && ($name eq $place_fields[0]) && ($us->{'code2state'}{$is_in}) && (country($file, $is_in) eq 'US')) {
 print __LINE__, "\n";
 		# name/place/is_in = Epping/Epping, New Hampshire/NH
 		return {
 			CITY => $name,
 			STATE => $is_in,
-			COUNTRY => country($file, $is_in)
+			COUNTRY => 'US'
 		}
 	}
 	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
