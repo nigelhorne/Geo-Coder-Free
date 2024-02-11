@@ -2307,7 +2307,7 @@ print __LINE__, ": is_in = '$is_in', state = $state, city = $city\n";
 						}
 						print "\tstate = $state\n";
 						$country = 'Canada';
-					} elsif(($is_in eq 'Canada') && (defined $place) && ($place =~ /\Q$name\E, (.+)/)) {
+					} elsif(($is_in eq 'Canada') && defined($place) && ($place =~ /\Q$name\E, (.+)/)) {
 						if(my $code = $ca->{province2code}{uc($1)}) {
 							$state = $code;
 							$place = $name;
@@ -3870,21 +3870,19 @@ print __LINE__, "\n";
 			COUNTRY => 'US'
 		}
 	}
-	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
+	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1])) && (country($file, $is_in_fields[1]) == 'US')) {
 print __LINE__, "\n";
 		# name/place/is_in = West Athens/West Athens, California/Los Angeles, California
-		my $country = 'US' if($file =~ /north-america/);	# WA can be in US or Australia
-		die if(!defined($country));
 		$row = {
 			CITY => $is_in_fields[0] || $name,
 			STATE => $state,
-			COUNTRY => $country
+			COUNTRY => 'US'
 		};
 		if(defined($name)) {
 			if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/ || ($name =~ /\sWay$/))) {
-				$row->{'ROAD'} = $name;
+				$row->{'ROAD'} = $name
 			} else {
-				$row->{'NAME'} = $name;
+				$row->{'NAME'} = $name
 			}
 		}
 		return $row
@@ -4001,12 +3999,12 @@ print __LINE__, "\n";
 			COUNTRY => 'US'
 		}
 	}
-	if(defined($name) && defined($place) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1]))) {
+	if(defined($name) && defined($place) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1])) && (country($file, $state) eq 'US')) {
 print __LINE__, "\n";
 		$row = {
 			CITY => $is_in_fields[0],
 			STATE => $state,
-			COUNTRY => country($file, $state)
+			COUNTRY => 'US'
 		};
 		if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/) || ($name =~ /\sWay$/)) {
 			# name/place/is_in = Ten Bear Road/Wheatland Ferry/Champaign, IL
@@ -4535,7 +4533,7 @@ print __LINE__, "\n";
 		return $row
 	}
 
-	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($is_in eq 'GB')) {
+	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($is_in eq 'GB')) {
 print __LINE__, "\n";
 		# name/place/is_in = Biggar/Biggar, South Lanarkshire/Scotland, UK
 		return {
@@ -4544,7 +4542,7 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
-	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
 print __LINE__, "\n";
 		# name/place/is_in = Whitwell/Whitwell, Isle of Wight/England, Isle of Wight
 		return {
@@ -4553,7 +4551,7 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
-	if(defined($name) && (scalar(@name_fields) == 1) && (defined($place)) && (scalar(@place_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
 print __LINE__, "\n";
 		# name/place/is_in = Waldringfield/Newbourne/England, Suffolk
 		return {
@@ -4562,22 +4560,24 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
-	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
+	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && ($is_in_fields[0] eq 'GB')) {
+		if(scalar(@is_in_fields) == 2) {
 print __LINE__, "\n";
-		# name/place/is_in = Niton/Niton/England, Isle of Wight
-		return {
-			CITY => $name,
-			STATE => $is_in_fields[1],
-			COUNTRY => 'GB'
+			# name/place/is_in = Niton/Niton/England, Isle of Wight
+			return {
+				CITY => $name,
+				STATE => $is_in_fields[1],
+				COUNTRY => 'GB'
+			}
 		}
-	}
-	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'GB')) {
+		if(scalar(@is_in_fields) == 3) {
 print __LINE__, "\n";
-		# name/place/is_in = Newcastle upon Tyne/Newcastle upon Tyne/UK, England, Northumberland, Tyne & Wear
-		return {
-			CITY => $name,
-			STATE => $is_in_fields[2],
-			COUNTRY => 'GB'
+			# name/place/is_in = Newcastle upon Tyne/Newcastle upon Tyne/UK, England, Northumberland, Tyne & Wear
+			return {
+				CITY => $name,
+				STATE => $is_in_fields[2],
+				COUNTRY => 'GB'
+			}
 		}
 	}
 	if((scalar(@place_fields) == 2) && ($state = ca_province2code($place_fields[1]))) {
@@ -4639,12 +4639,18 @@ sub ca_province2code
 # Georgia can be a country or US state
 # DE can be a US state or country
 # VI is in Italy, I think
-sub country {
+sub country
+{
 	my($file, $state) = @_;
+
+	die if(!defined($file));
 
 	if($file =~ /north-america/) {
 		return 'US';
 	}
+
+	die if(!defined($state));
+
 	if($file =~ /europe/) {
 		if(($state eq 'Georgia') || ($state eq 'GA') || (uc($state) eq 'DE') || ($state eq 'VI')) {
 			return $state
