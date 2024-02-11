@@ -3870,23 +3870,6 @@ print __LINE__, "\n";
 			COUNTRY => 'US'
 		}
 	}
-	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1])) && (country($file, $is_in_fields[1]) == 'US')) {
-print __LINE__, "\n";
-		# name/place/is_in = West Athens/West Athens, California/Los Angeles, California
-		$row = {
-			CITY => $is_in_fields[0] || $name,
-			STATE => $state,
-			COUNTRY => 'US'
-		};
-		if(defined($name)) {
-			if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/ || ($name =~ /\sWay$/))) {
-				$row->{'ROAD'} = $name
-			} else {
-				$row->{'NAME'} = $name
-			}
-		}
-		return $row
-	}
 	if(defined($name) && (scalar(@is_in_fields) == 2) && (!defined($place)) && ($state = us_state2code($is_in_fields[1])) && (country($file, $is_in_fields[1]) eq 'US')) {
 print __LINE__, "\n";
 		$row = {
@@ -3916,6 +3899,23 @@ print __LINE__, "\n";
 		};
 		if($place_fields[1] =~ /(.+) County$/) {
 			$row->{'COUNTY'} = $1
+		}
+		return $row
+	}
+	if((scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($state = us_state2code($is_in_fields[1])) && (country($file, $is_in_fields[1]) eq 'US')) {
+print __LINE__, "\n";
+		# name/place/is_in = West Athens/West Athens, California/Los Angeles, California
+		$row = {
+			CITY => $is_in_fields[0] || $name,
+			STATE => $state,
+			COUNTRY => 'US'
+		};
+		if(defined($name)) {
+			if(($name =~ /\sRoad$/) || ($name =~ /\sLn$/) || ($name =~ /\sAvenue/) || ($name =~/\sStreet$/) || ($name =~ /\sRd$/) || ($name =~ /\sCt$/) || ($name =~ /\sRoad\s/ || ($name =~ /\sWay$/))) {
+				$row->{'ROAD'} = $name
+			} else {
+				$row->{'NAME'} = $name
+			}
 		}
 		return $row
 	}
