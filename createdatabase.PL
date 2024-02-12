@@ -4584,13 +4584,24 @@ print __LINE__, "\n";
 				COUNTRY => 'GB'
 			}
 		}
-		if(($state = au_state2code($is_in)) && (country($file, $state) eq 'Australia') && ($is_in eq $place_fields[1])) {
+		if(($state = au_state2code($is_in)) && (country($file, $state) eq 'Australia')) {
+			if($is_in eq $place_fields[1]) {
 print __LINE__, "\n";
-			# name/place/is_in = Kalamunda/Kalamunda, Western Australia/Western Australia
-			return {
-				CITY => $name,
-				STATE => $state,
-				COUNTRY => 'Australia'
+				# name/place/is_in = Kalamunda/Kalamunda, Western Australia/Western Australia
+				return {
+					CITY => $name,
+					STATE => $state,
+					COUNTRY => 'Australia'
+				}
+			}
+			if(!defined($place)) {
+print __LINE__, "\n";
+				# name/place/is_in = Stratham/undef/Western Australia
+				return {
+					CITY => $name,
+					STATE => $state,
+					COUNTRY => 'Australia'
+				}
 			}
 		}
 	}
