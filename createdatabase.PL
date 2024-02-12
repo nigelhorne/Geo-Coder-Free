@@ -184,7 +184,7 @@ my %osm_countries = (
 	us => 1,
 	canada => 1,
 	gb => 1,
-	us => 1
+	australia => 1
 );
 
 my %max_state_lengths = (
@@ -2084,7 +2084,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	#	so try hard to extract the data
 
 	# my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
-	my @files = ('europe-latest.osm.bz2');
+	my @files = ('australia-oceania-latest.osm.bz2');
 
 	open(my $tulip, '>', '/tmp/tulip');
 	binmode($tulip, ':encoding(UTF-8)');
@@ -2223,7 +2223,7 @@ die if(defined($row->{'NUMBER'}) && !defined($row->{'ROAD'}));
 die if(defined($row->{'NUMBER'}) && !defined($row->{'CITY'}));
 die if(defined($row->{'ROAD'}) && !defined($row->{'CITY'}));
 die $row->{'COUNTRY'} if(!defined($osm_countries{lc($row->{'COUNTRY'})}));
-die $row->{'COUNTRY'} if($row->{'COUNTRY'} ne 'GB');
+die $row->{'COUNTRY'} if($row->{'COUNTRY'} ne 'Australia');
 						$row->{'LAT'} = $lat;
 						$row->{'LON'} = $lon;
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
@@ -4065,13 +4065,22 @@ print __LINE__, "\n";
 				}
 				return $row
 			}
-		}
-		if($is_in_fields[3] eq 'GB') {
+		} elsif($is_in_fields[3] eq 'GB') {
 			return {
 				NAME => $name,
 				CITY => $is_in_fields[1],
 				STATE => $is_in_fields[2],
 				COUNTRY => 'GB'
+			}
+		} elsif($file =~ /australia/) {
+			# name/place/is_in = Hotel Avonleigh/New South Wales/Australia, NSW, New South Wales, Katoomba
+			if(($state = au_state2code($is_in_fields[2])) && ($is_in_fields[1] eq $state) && ($is_in_fields[0] eq 'Australia')) {
+				return {
+					NAME => $name,
+					CITY => $is_in_fields[3],
+					STATE => $state,
+					COUNTRY => 'Australia'
+				}
 			}
 		}
 	}
@@ -4508,7 +4517,7 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
-	if((scalar(@name_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'GB')) {
+	if((scalar(@name_fields) == 1) && (scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'GB') && ($name !~ /\sStreet$/)) {
 print __LINE__, "\n";
 		# name/place/is_in = Mere/Mere, Wiltshire/Wiltshire, GB
 		# name/place/is_in = Shedfield/undef/Hampshire, GB
@@ -4634,6 +4643,24 @@ sub ca_province2code
 	return;	# undef
 }
 
+# Procedural interface to Locale::AU
+sub au_state2code
+{
+	my $state = uc(shift);
+	my $rc;
+
+	if($rc = $au->{'state2code'}{$state}) {
+		return $rc;
+	}
+	if($au->{'code2state'}{$state}) {
+		return $state;
+	}
+	# my @call_details = caller(0);
+	# print STDERR __LINE__, ": Unknown state '$state'\n",
+		# "\tcalled from line ", $call_details[2], "\n";
+	return;	# undef
+}
+
 # Given a state and Openstreetmap.org filename, determine the country
 # WA can be in US or Australia
 # Georgia can be a country or US state
@@ -4646,7 +4673,10 @@ sub country
 	die if(!defined($file));
 
 	if($file =~ /north-america/) {
-		return 'US';
+		return 'US'
+	}
+	if($file =~ /australia/) {
+		return 'Australia'
 	}
 
 	die if(!defined($state));
