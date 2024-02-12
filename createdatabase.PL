@@ -4574,13 +4574,24 @@ print __LINE__, "\n";
 		return $row
 	}
 
-	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1) && ($is_in eq 'GB')) {
+	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 1)) {
+		if($is_in eq 'GB') {
 print __LINE__, "\n";
-		# name/place/is_in = Biggar/Biggar, South Lanarkshire/Scotland, UK
-		return {
-			CITY => $name,
-			STATE => $place_fields[1],
-			COUNTRY => 'GB'
+			# name/place/is_in = Biggar/Biggar, South Lanarkshire/Scotland, UK
+			return {
+				CITY => $name,
+				STATE => $place_fields[1],
+				COUNTRY => 'GB'
+			}
+		}
+		if(($state = au_state2code($is_in)) && (country($file, $state) eq 'Australia') && ($is_in eq $place_fields[1])) {
+print __LINE__, "\n";
+			# name/place/is_in = Kalamunda/Kalamunda, Western Australia/Western Australia
+			return {
+				CITY => $name,
+				STATE => $state,
+				COUNTRY => 'Australia'
+			}
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
