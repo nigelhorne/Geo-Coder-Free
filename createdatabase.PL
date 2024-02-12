@@ -3793,37 +3793,51 @@ print __LINE__, "\n";
 		}
 	}
 	my @name_fields = split(/[,;]\s?/, $name) if(defined($name));
-	if((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = us_state2code($is_in_fields[1]))) {
+	if(scalar(@is_in_fields) == 5) {
+		if($is_in_fields[4] eq 'US') {
+			if($state = us_state2code($is_in_fields[1])) {
 print __LINE__, "\n";
-		$row = {
-			STATE => $state,
-			COUNTRY => 'US'
-		};
-		if(scalar(@name_fields) == 1) {
-			# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
-			$row->{'CITY'} = $name
-		} elsif($name) {
-			# name/place/is_in = St Marys Cement, McInnis Plant/Sonoma State Observatory/Brazoria,Texas,Tex.,TX,USA
-			$row->{'CITY'} = $name_fields[1]
-		} else {
-			$row->{'CITY'} = $place_fields[0]
-		}
-		if($is_in_fields[0] =~ /(.+) County$/) {
-			$row->{'COUNTY'} = $1
-		}
-		return $row
-	}
-	if((scalar(@is_in_fields) == 5) && ($is_in_fields[4] eq 'US') && ($state = us_state2code($is_in_fields[3]))) {
+				$row = {
+					STATE => $state,
+					COUNTRY => 'US'
+				};
+				if(scalar(@name_fields) == 1) {
+					# name/place/is_in = Normal/Normal, Illinois/Mc Lean County, Illinois, Ill., IL, USA
+					$row->{'CITY'} = $name
+				} elsif($name) {
+					# name/place/is_in = St Marys Cement, McInnis Plant/Sonoma State Observatory/Brazoria,Texas,Tex.,TX,USA
+					$row->{'CITY'} = $name_fields[1]
+				} else {
+					$row->{'CITY'} = $place_fields[0]
+				}
+				if($is_in_fields[0] =~ /(.+) County$/) {
+					$row->{'COUNTY'} = $1
+				}
+				return $row
+			}
+			if($state = us_state2code($is_in_fields[3])) {
 print __LINE__, "\n";
-		# name/place/is_in = Forest Park/Forest Park (Columbus, Ohio)/Nortland, Columbus, Franklin, Ohio, USA
-		$row = {
-			CITY => $is_in_fields[1],
-			STATE => $state,
-			COUNTRY => 'US'
-		};
-		$row->{'NAME'} = $name if(defined($name));
-		return $row
+				# name/place/is_in = Forest Park/Forest Park (Columbus, Ohio)/Nortland, Columbus, Franklin, Ohio, USA
+				$row = {
+					CITY => $is_in_fields[1],
+					STATE => $state,
+					COUNTRY => 'US'
+				};
+				$row->{'NAME'} = $name if(defined($name));
+				return $row
+			}
+		} elsif($is_in_fields[0] eq 'Australia') {
+			# name/place/is_in = Nelson Hotel/Bondi Junction railway station/Australia, NSW, New South Wales, Sydney, Bondi Junction
+			$row = {
+				CITY => $is_in_fields[3],
+				STATE => au_state2code($is_in_fields[1]),
+				COUNTRY => 'Australia'
+			};
+			$row->{'NAME'} = $name if(defined($name));
+			return $row
+		}
 	}
+
 	if((scalar(@is_in_fields) == 2) && (scalar(@place_fields) == 2) && ($state = us_state2code($is_in_fields[0])) && ($state eq $is_in_fields[1]) && ($place_fields[1] eq $is_in_fields[0])) {
 print __LINE__, "\n";
 		# name/place/is_in = Mifflinville/Mifflinville, Pennsylvania/Pennsylvania,PA
@@ -4072,9 +4086,18 @@ print __LINE__, "\n";
 				STATE => $is_in_fields[2],
 				COUNTRY => 'GB'
 			}
-		} elsif($file =~ /australia/) {
-			# name/place/is_in = Hotel Avonleigh/New South Wales/Australia, NSW, New South Wales, Katoomba
-			if(($state = au_state2code($is_in_fields[2])) && ($is_in_fields[1] eq $state) && ($is_in_fields[0] eq 'Australia')) {
+		} elsif(($file =~ /australia/) && ($is_in_fields[0] eq 'Australia')) {
+			if(($state = au_state2code($is_in_fields[2])) && ($is_in_fields[1] eq $state)) {
+				# name/place/is_in = Hotel Avonleigh/New South Wales/Australia, NSW, New South Wales, Katoomba
+				return {
+					NAME => $name,
+					CITY => $is_in_fields[3],
+					STATE => $state,
+					COUNTRY => 'Australia'
+				}
+			}
+			if(($state = au_state2code($is_in_fields[1])) && ($is_in_fields[2] eq $state)) {
+				# name/place/is_in = Harristown/undef/Australia, Queensland, QLD, Toowoomba
 				return {
 					NAME => $name,
 					CITY => $is_in_fields[3],
@@ -4500,6 +4523,15 @@ print __LINE__, "\n";
 			COUNTRY => 'Canada'
 		}
 	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Australia') && ($state = au_state2code($is_in_fields[2])) && ($state eq $is_in_fields[1])) {
+		# name/place/is_in = Fingal/undef/Australia, NSW, New South Wales
+print __LINE__, "\n";
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => 'Australia'
+		}
+	}
 	if(defined($name) && (scalar(@is_in_fields) == 3) && ($is_in_fields[2] eq 'GB') && defined($place)) {
 print __LINE__, "\n";
 		# name/place/is_in = Whetstone/Whetstone, London/Barnet, London, GB
@@ -4599,6 +4631,13 @@ print __LINE__, "\n";
 		}
 	}
 print __LINE__, "\n";
+	if(!defined($row)) {
+		if(defined($place)) {
+			print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
+		} else {
+			print "$file: Can't parse name = $name, place = undef, is_in = $is_in\n";
+		}
+	}
 	return $row;
 }
 
