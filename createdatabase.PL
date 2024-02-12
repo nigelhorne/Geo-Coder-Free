@@ -4612,23 +4612,33 @@ print __LINE__, "\n";
 			COUNTRY => 'GB'
 		}
 	}
-	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && ($is_in_fields[0] eq 'GB')) {
-		if(scalar(@is_in_fields) == 2) {
+	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place))) {
+		if($is_in_fields[0] eq 'GB') {
+			if(scalar(@is_in_fields) == 2) {
 print __LINE__, "\n";
-			# name/place/is_in = Niton/Niton/England, Isle of Wight
-			return {
-				CITY => $name,
-				STATE => $is_in_fields[1],
-				COUNTRY => 'GB'
+				# name/place/is_in = Niton/Niton/England, Isle of Wight
+				return {
+					CITY => $name,
+					STATE => $is_in_fields[1],
+					COUNTRY => 'GB'
+				}
 			}
-		}
-		if(scalar(@is_in_fields) == 3) {
+			if(scalar(@is_in_fields) == 3) {
 print __LINE__, "\n";
-			# name/place/is_in = Newcastle upon Tyne/Newcastle upon Tyne/UK, England, Northumberland, Tyne & Wear
+				# name/place/is_in = Newcastle upon Tyne/Newcastle upon Tyne/UK, England, Northumberland, Tyne & Wear
+				return {
+					CITY => $name,
+					STATE => $is_in_fields[2],
+					COUNTRY => 'GB'
+				}
+			}
+		} elsif((scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'Australia') && ($state = au_state2code($is_in_fields[0]))) {
+			# name/place/is_in: Dudauman/undef/New South Wales, Australia
+print __LINE__, "\n";
 			return {
 				CITY => $name,
-				STATE => $is_in_fields[2],
-				COUNTRY => 'GB'
+				STATE => $state,
+				COUNTRY => 'Australia'
 			}
 		}
 	}
