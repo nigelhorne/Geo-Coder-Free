@@ -106,7 +106,7 @@ use	constant	DEBUG_MD5 => 0x200;
 use	constant	DEBUG_INSERT => 0x400;
 use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
-use	constant	DEBUG_ALL => 0x1000;
+use	constant	DEBUG_ALL => 0xFFFF;
 use	constant	DEBUG => DEBUG_OSM;
 
 # use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
@@ -2083,8 +2083,7 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	#	the format doesn't seem to be normalized and fields are inconsistent,
 	#	so try hard to extract the data
 
-	# my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
-	my @files = ('australia-oceania-latest.osm.bz2');
+	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
 	open(my $tulip, '>', '/tmp/tulip');
 	binmode($tulip, ':encoding(UTF-8)');
@@ -2223,7 +2222,6 @@ die if(defined($row->{'NUMBER'}) && !defined($row->{'ROAD'}));
 die if(defined($row->{'NUMBER'}) && !defined($row->{'CITY'}));
 die if(defined($row->{'ROAD'}) && !defined($row->{'CITY'}));
 die $row->{'COUNTRY'} if(!defined($osm_countries{lc($row->{'COUNTRY'})}));
-die $row->{'COUNTRY'} if($row->{'COUNTRY'} ne 'Australia');
 						$row->{'LAT'} = $lat;
 						$row->{'LON'} = $lon;
 						print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
@@ -4594,15 +4592,15 @@ print __LINE__, "\n";
 					COUNTRY => 'Australia'
 				}
 			}
-			if(!defined($place)) {
+		}
+	}
+	if(defined($name) && (scalar(@name_fields) == 1) && (!defined($place)) && (scalar(@is_in_fields) == 1) && ($state = au_state2code($is_in)) && (country($file, $state) eq 'Australia')) {
 print __LINE__, "\n";
-				# name/place/is_in = Stratham/undef/Western Australia
-				return {
-					CITY => $name,
-					STATE => $state,
-					COUNTRY => 'Australia'
-				}
-			}
+		# name/place/is_in = Stratham/undef/Western Australia
+		return {
+			CITY => $name,
+			STATE => $state,
+			COUNTRY => 'Australia'
 		}
 	}
 	if(defined($name) && (scalar(@name_fields) == 1) && defined($place) && (scalar(@place_fields) == 2) && (scalar(@is_in_fields) == 2) && ($is_in_fields[0] eq 'GB')) {
@@ -4643,6 +4641,24 @@ print __LINE__, "\n";
 					COUNTRY => 'GB'
 				}
 			}
+		} elsif((scalar(@is_in_fields) == 3) && ($state = au_state2code($is_in_fields[1]))) {
+			if($is_in_fields[2] eq 'Australia') {
+				# name/place/is_in = Doncaster Hotel/undef/Doncaster,Victoria,Australia
+				return {
+					NAME => $name,
+					CITY => $is_in_fields[0],
+					STATE => $state,
+					COUNTRY => 'Australia'
+				}
+			}
+			if(($is_in_fields[0] eq 'Australia') && defined(au_state2code($is_in_fields[2])) && (au_state2code($is_in_fields[2]) eq $state)) {
+				# name/place/is_in = Glen Aplin/undef/Australia, Qld, Queensland
+				return {
+					CITY => $name,
+					STATE => $state,
+					COUNTRY => 'Australia'
+				}
+			}
 		} elsif((scalar(@is_in_fields) == 2) && ($is_in_fields[1] eq 'Australia') && ($state = au_state2code($is_in_fields[0]))) {
 			# name/place/is_in: Dudauman/undef/New South Wales, Australia
 print __LINE__, "\n";
@@ -4663,7 +4679,7 @@ print __LINE__, "\n";
 		}
 	}
 print __LINE__, "\n";
-	if(!defined($row)) {
+	if((DEBUG&DEBUG_OSM) && !defined($row)) {
 		if(defined($place)) {
 			print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
 		} else {
