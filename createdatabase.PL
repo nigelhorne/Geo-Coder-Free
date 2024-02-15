@@ -2085,10 +2085,6 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 
 	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
-	open(my $tulip, '>', '/tmp/tulip');
-	binmode($tulip, ':encoding(UTF-8)');
-	print $tulip "name/place/is_in\n";
-
 	foreach my $file(@files) {
 		require XML::LibXML::Reader;
 		XML::LibXML::Reader->import();
@@ -2607,13 +2603,11 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 					$lon = $reader->getAttribute('lon');
 				}
 			} else {
-				print $tulip 'Unknown reader type ', $reader->nodeType(), ' in ', $reader->document->toString(1);
+				warn 'Unknown reader type ', $reader->nodeType(), ' in ', $reader->document->toString(1), "\n"
 			}
 		}
 		close $pin;
 	}
-
-	close $tulip;
 
 	flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 	$inserts = 0;

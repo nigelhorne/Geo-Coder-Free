@@ -75,6 +75,9 @@ sub new {
 		return bless { %{$class}, %args }, ref($class);
 	}
 
+	# TODO: since 'hoh' doesn't allow a CODEREF as a key,
+	#	I could build an hoh manually from this aoh,
+	#	it would make searching much quicker
 	return bless {
 		data => xsv_slurp(
 			shape => 'aoh',
