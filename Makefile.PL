@@ -269,6 +269,7 @@ my $test_requires = {
 	'Test::Carp' => 0,
 	'Test::Deep' => 0,
 	'Test::Most' => 0,
+	'Test::Needs' => 0,
 	'Test::NoWarnings' => 0,
 	'Test::Number::Delta' => 0
 };

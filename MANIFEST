@@ -59,6 +59,7 @@ t/no404s.t
 t/noopentickets.t
 t/noplan.t
 t/openaddr.t
+t/osm.t
 t/pod-cm.t
 t/pod-spelling.t
 t/pod-synopsis.t
@@ -71,6 +72,7 @@ t/strict.t
 t/unused.t
 t/used.t
 t/vars.t
+t/version.t
 t/whosonfirst.t
 templates/default/Geo/Coder/Free/Display/index.tmpl
 templates/default/Geo/Coder/Free/Display/query.txt
