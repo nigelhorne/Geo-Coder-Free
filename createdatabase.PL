@@ -107,10 +107,10 @@ use	constant	DEBUG_INSERT => 0x400;
 use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_ALL => 0xFFFF;
-use	constant	DEBUG => DEBUG_OSM;
+use	constant	DEBUG => DEBUG_OFF;
 
-# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 binmode(STDOUT, "encoding(UTF-8)");
 binmode(STDERR, "encoding(UTF-8)");
@@ -4337,10 +4337,12 @@ sub extract_osm_home
 		}
 		# name/place/is_in = Carpenter Rd/U.S. Route 82 in Texas/Québec, Canada
 		# name/place/is_in = Chaudière Bridge/Tenth Avenue (Manhattan)/Québec, Canada
-		if(defined($place)) {
-			print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
-		} else {
-			print "$file: Can't parse name = $name, place = undef, is_in = $is_in\n";
+		if(DEBUG&DEBUG_OSM) {
+			if(defined($place)) {
+				print "$file: Can't parse name = $name, place = $place, is_in = $is_in\n";
+			} else {
+				print "$file: Can't parse name = $name, place = undef, is_in = $is_in\n";
+			}
 		}
 	} elsif((scalar(@is_in_fields) == 3) && ($is_in_fields[0] eq 'Canada')) {
 		# name/place/is_in = Hébertville/undef/Canada,Québec,Saguenay Lac-St-Jean
