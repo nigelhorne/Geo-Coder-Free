@@ -24,6 +24,7 @@ use Log::Log4perl qw(:levels);	# Put first to cleanup last
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Info;
 use CGI::Lingua;
+use Database::Abstraction;
 use File::Basename;
 # use CGI::Alert 'you@example.com';
 use FCGI;
@@ -79,6 +80,7 @@ die "Set OPENADDR_HOME" if(!$config->OPENADDR_HOME());
 
 my $database_dir = "$script_dir/../lib/Geo/Coder/Free/MaxMind/databases";
 Geo::Coder::Free::DB::init({ directory => $database_dir, logger => $logger });
+Database::Abstraction::init({ directory => $database_dir, logger => $logger });
 
 my $openaddresses = Geo::Coder::Free::DB::openaddresses->new(openaddr => $config->OPENADDR_HOME());
 if($@) {

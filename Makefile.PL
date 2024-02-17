@@ -236,6 +236,7 @@ my $build_requires = {
 	'CHI::Driver::RawMemory' => 0,
 	'Cwd' => 0,
 	'Config::Auto' => 0,
+	'Database::Abstraction' => 0,
 	'Devel::Size' => 0,
 	'File::Basename' => 0,
 	'File::Copy' => 0,

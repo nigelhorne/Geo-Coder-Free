@@ -10,6 +10,7 @@ Revision history for Geo-Coder-Free
 	Added BUILDMODE to optionally only import from one large database
 	Fix usage message in DB.pm
 	Added more data cleanup to createdatabase.PL
+	Started move to Database::Abstraction
 
 0.34	Mon Nov  6 16:53:43 EST 2023
 	Latest DB.pm from NJH-Snippets
