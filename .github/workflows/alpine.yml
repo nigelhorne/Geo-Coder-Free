@@ -27,7 +27,7 @@ jobs:
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
           apk add musl-dev perl-canary-stability perl-file-slurp zlib-dev perl-dbd-csv
           apk add perl-chi perl-dbd-sqlite perl-text-csv perl-text-csv_xs perl-test-number-delta
-          apk add perl-db_file perl-digest-crc
+          apk add perl-db_file
           perl -V
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
@@ -40,7 +40,7 @@ jobs:
           cpanm -iqn Geo::StreetAddress::US Lingua::EN::AddressParse Config::Auto
           cpanm -iqn LWP::UserAgent::Throttled Locale::CA Locale::Country Devel::Size
           cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info
-          cpanm -iqn Text::xSV::Slurp Test::Carp
+          cpanm -iqn Text::xSV::Slurp Test::Carp Digest::CRC Test::Needs
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
