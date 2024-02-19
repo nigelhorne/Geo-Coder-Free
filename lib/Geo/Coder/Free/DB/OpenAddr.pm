@@ -3,7 +3,17 @@ package Geo::Coder::Free::DB::OpenAddr;
 use strict;
 use warnings;
 
-# The data are from http://results.openaddresses.io/
+=head1 NAME
+
+Geo::Coder::Free::DB::Free::OpenAddr - driver for http://results.openaddresses.io/
+
+=head1 VERSION
+
+Version 0.34
+
+=cut
+
+our $VERSION = '0.34';
 
 use Geo::Coder::Free::DB;
 

@@ -3,10 +3,11 @@
 use warnings;
 use strict;
 use Data::Dumper;
-use Test::Most tests => 20;
+use Test::Most tests => 21;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
+
 use lib 't/lib';
 use MyLogger;
 
@@ -21,12 +22,15 @@ SCANTEXT: {
 
 			if($ENV{'TEST_VERBOSE'}) {
 				Geo::Coder::Free::DB::init(logger => MyLogger->new());
+				Database::Abstraction::init({ logger => MyLogger->new() });
 			}
 
 			my $geo_coder = new_ok('Geo::Coder::Free' => [ openaddr => $ENV{'OPENADDR_HOME'} ]);
 			my @locations = $geo_coder->geocode(scantext => 'I was born in Ramsgate, Kent, England');
-			ok(scalar(@locations) == 1);
+			diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+			cmp_ok(scalar(@locations), '==', 1, 'Finds one match');
 			my $location = $locations[0];
+			ok(defined($location));
 			if($ENV{'WHOSONFIRST_HOME'}) {
 				cmp_deeply($location,
 					methods('lat' => num(51.34, 1e-2), 'long' => num(1.41, 1e-2)));
@@ -116,10 +120,10 @@ SCANTEXT: {
 			}
 		} elsif(!defined($ENV{'AUTHOR_TESTING'})) {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 19);
+			skip('Author tests not required for installation', 20);
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 19);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 20);
 		}
 	}
 }

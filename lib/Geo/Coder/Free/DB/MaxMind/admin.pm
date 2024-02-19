@@ -3,6 +3,18 @@ package Geo::Coder::Free::DB::MaxMind::admin;
 use strict;
 use warnings;
 
+=head1 NAME
+
+Geo::Coder::Free::DB::MaxMind::admin
+
+=head1 VERSION
+
+Version 0.34
+
+=cut
+
+our $VERSION = '0.34';
+
 # admin1.db is from http://download.geonames.org/export/dump/admin1CodesASCII.txt
 
 use Geo::Coder::Free::DB;
