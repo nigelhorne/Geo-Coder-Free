@@ -2,6 +2,7 @@ package Geo::Coder::Free::DB::OpenAddr;
 
 use strict;
 use warnings;
+use Database::Abstraction;
 
 =head1 NAME
 
@@ -15,9 +16,7 @@ Version 0.34
 
 our $VERSION = '0.34';
 
-use Geo::Coder::Free::DB;
-
-our @ISA = ('Geo::Coder::Free::DB');
+our @ISA = ('Database::Abstraction');
 
 sub _open {
 	my $self = shift;

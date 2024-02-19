@@ -15,9 +15,9 @@ Version 0.34
 
 our $VERSION = '0.34';
 
-use Geo::Coder::Free::DB;
+use Database::Abstraction;
 
-our @ISA = ('Geo::Coder::Free::DB');
+our @ISA = ('Database::Abstraction');
 
 sub _open {
 	my $self = shift;
