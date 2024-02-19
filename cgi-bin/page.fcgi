@@ -138,6 +138,7 @@ while($handling_request = ($request->Accept() >= 0)) {
 		Log::Any::Adapter->set('Stdout', log_level => 'trace');
 		$logger = Log::Any->get_logger(category => $script_name);
 		Log::WarnDie->dispatcher($logger);
+		# print Data::Dumper->new([\$openaddresses])->Dump();
 		$openaddresses->set_logger($logger);
 		$info->set_logger($logger);
 		$Error::Debug = 1;

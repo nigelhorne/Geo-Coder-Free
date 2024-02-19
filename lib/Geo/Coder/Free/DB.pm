@@ -535,6 +535,7 @@ sub fetchrow_hashref {
 # In an array context, returns an array of hash refs,
 #	in a scalar context returns a hash of the first row
 sub execute {
+print __PACKAGE__, ': ', __LINE__, "\n";
 	my $self = shift;
 	my %args;
 
@@ -546,7 +547,7 @@ sub execute {
 		$args{'query'} = shift;
 	}
 
-	Carp::croak('Usage: execute(query => $query)') unless(defined($args{'query'}));
+	Carp::croak(__PACKAGE__, ': Usage: execute(query => $query)') unless(defined($args{'query'}));
 
 	my $table = $self->{table} || ref($self);
 	$table =~ s/.*:://;
@@ -598,6 +599,7 @@ sub AUTOLOAD {
 	our $AUTOLOAD;
 	my $column = $AUTOLOAD;
 
+print __PACKAGE__, ': ', __LINE__, "\n";
 	$column =~ s/.*:://;
 
 	return if($column eq 'DESTROY');
