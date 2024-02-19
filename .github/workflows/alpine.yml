@@ -27,7 +27,7 @@ jobs:
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
           apk add musl-dev perl-canary-stability perl-file-slurp zlib-dev perl-dbd-csv
           apk add perl-chi perl-dbd-sqlite perl-text-csv perl-text-csv_xs perl-test-number-delta
-          apk add perl-db_file
+          apk add perl-db_file perl-digest-crc
           perl -V
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
@@ -35,11 +35,11 @@ jobs:
           cd $RUNNER_WORKSPACE
           git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
           cd $GITHUB_WORKSPACE
-          cpanm -iqn File::Spec ExtUtils::MakeMaker IO::AIO Locale::AU Locale::US
+          cpanm -iqn File::Spec ExtUtils::MakeMaker IO::AIO Locale::AU Locale::US Database::Abstraction
           cpanm -iqn File::Open::NoCache::ReadOnly Gzip::Faster Geo::Coder::Abbreviations
           cpanm -iqn Geo::StreetAddress::US Lingua::EN::AddressParse Config::Auto
           cpanm -iqn LWP::UserAgent::Throttled Locale::CA Locale::Country Devel::Size
-          cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info Digest::CRC
+          cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info
           cpanm -iqn Text::xSV::Slurp Test::Carp
           cpanm -iqn --installdeps .
         env:
