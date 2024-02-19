@@ -3596,8 +3596,9 @@ sub create_md5
 
 	if(defined($dbh)) {
 		# Avoid duplicates on SQL databases since the PRIMARY KEY is added later
-		# if($global || (BUILDMODE eq 'ALL')) {
-		if($global) {
+		# FIXME: The $global flag is a failed experiment to reduce usage
+		#	remove it
+		if($global || (BUILDMODE eq 'ALL')) {
 			if(DEBUG&DEBUG_MD5) {
 				print "global $digest => $rc\n";
 				$global_md5s{$rc} = $digest;
