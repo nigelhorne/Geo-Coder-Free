@@ -120,12 +120,10 @@ sub new {
 		return bless { %{$class}, %args }, ref($class);
 	}
 
-	# Geo::Coder::Free::DB::init(directory => 'lib/Geo/Coder/Free/databases');
-
 	my $directory = $args{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
 	$directory =~ s/\.pm$//;
 
-	Geo::Coder::Free::DB::init({
+	Database::Abstraction::init({
 		cache_duration => '1 day',
 		%args,
 		directory => File::Spec->catfile($directory, 'databases'),
