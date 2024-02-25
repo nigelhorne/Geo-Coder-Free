@@ -109,8 +109,8 @@ use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_ALL => 0xFFFF;
 use	constant	DEBUG => DEBUG_OFF;
 
-# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 binmode(STDOUT, "encoding(UTF-8)");
 binmode(STDERR, "encoding(UTF-8)");
