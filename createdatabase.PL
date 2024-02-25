@@ -109,8 +109,8 @@ use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_ALL => 0xFFFF;
 use	constant	DEBUG => DEBUG_OFF;
 
-use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
-# use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
+# use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
+use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
 
 binmode(STDOUT, "encoding(UTF-8)");
 binmode(STDERR, "encoding(UTF-8)");
@@ -3330,9 +3330,9 @@ sub flush_queue
 
 	my $query;
 
-	# while(my($md5, $row) = each %queued_commits) {
-	foreach my $md5(keys %queued_commits) {
-		my $row = $queued_commits{$md5};
+	while(my($md5, $row) = each(%queued_commits)) {
+	# foreach my $md5(keys %queued_commits) {
+		# my $row = $queued_commits{$md5};
 		# if($md5 eq 'D8GO4pMZCAYej/OR') {
 			# my @call_details = caller(0);
 			# print "flush_queue: Flomation called from line ", $call_details[2], "\n\t",
@@ -3393,6 +3393,7 @@ sub flush_queue
 				$query .= ',(';
 			}
 
+			$md5 =~ s/'/''/g;
 			$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
 		}
 
@@ -3587,7 +3588,12 @@ sub create_md5
 	# }
 	# $digests_added{$digest} = 1;
 
-	my $rc = substr Digest::MD5::md5_base64($digest), 0, 16;
+	my $rc;
+	if(length($digest) <= 16) {
+		$rc = $digest;
+	} else {
+		$rc = substr Digest::MD5::md5_base64($digest), 0, 16;
+	}
 	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
 	if($global_md5s{$rc} || $state_md5s{$rc} || $queued_commits{$rc}) {
 		warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
