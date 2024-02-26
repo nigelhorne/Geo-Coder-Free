@@ -309,7 +309,7 @@ sub geocode {
 		if($l =~ /(.+), (England|UK)$/i) {
 			$l = "$1, GB";
 		}
-		if(my $error = $ap->parse($l)) {
+		if($ap->parse($l)) {
 			# Carp::croak($ap->report());
 			# ::diag('Address parse failed: ', $ap->report());
 		} else {
