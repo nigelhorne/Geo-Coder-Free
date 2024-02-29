@@ -2083,12 +2083,12 @@ if(my $osm = $ENV{'OSM_HOME'}) {
 	#	the format doesn't seem to be normalized and fields are inconsistent,
 	#	so try hard to extract the data
 
+	require XML::LibXML::Reader;
+	XML::LibXML::Reader->import();
+
 	my @files = ('north-america-latest.osm.bz2', 'europe-latest.osm.bz2', 'australia-oceania-latest.osm.bz2');
 
 	foreach my $file(@files) {
-		require XML::LibXML::Reader;
-		XML::LibXML::Reader->import();
-
 		my $filename = File::Spec->catfile($osm, $file);
 
 		$| = 1;
