@@ -3595,7 +3595,7 @@ sub create_md5
 		$rc = substr Digest::MD5::md5_base64($digest), 0, 16;
 	}
 	# FIXME: prefixing the rc with the NUMBER field could reduce the changes of clashes, perhaps
-	if($global_md5s{$rc} || $state_md5s{$rc} || $queued_commits{$rc}) {
+	if($queued_commits{$rc} || $global_md5s{$rc} || $state_md5s{$rc}) {
 		warn "Potential clash $digest => $rc" if(DEBUG&DEBUG_MD5);
 		return undef;
 	}
