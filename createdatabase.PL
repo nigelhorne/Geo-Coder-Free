@@ -2599,7 +2599,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 						'LON' => $city->{'longitude'},
 					};
 					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
-					print Data::Dumper->new([$row])->Dump();
+					# print Data::Dumper->new([$row])->Dump();
 					if($inserts >= MAX_INSERT_COUNT) {
 						flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 						$inserts = 0;
