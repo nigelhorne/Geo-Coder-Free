@@ -883,7 +883,12 @@ sub _get {
 	$location =~ s/,\s*//g;
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": _get: $location");
-	my $digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
+	my $digest;
+	if(length($location) <= 16) {
+		$digest = uc($location);
+	} else {
+		$digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
+	}
 	# print __PACKAGE__, ': ', __LINE__, ': ', uc($location), " = $digest\n";
 
 	if(defined($unknown_locations{$digest})) {

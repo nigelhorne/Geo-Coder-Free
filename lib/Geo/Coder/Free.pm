@@ -423,6 +423,10 @@ scripts are trivial.
 This can take a long time because it contains lots of directories which filesystem drivers
 seem to take a long time to navigate (at least my EXT4 and ZFS systems do).
 2. Install L<https://github.com/dr5hn/countries-states-cities-database.git> into $DR5HN_HOME.
+This data contains cities only,
+so it's not used if OSM_HOME is set,
+since the latter is much more comprehensive.
+Also, only Australia, Canada and the US is imported, as the UK data is difficult to parse.
 3. Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
 Open Street Map and dr5hn databases.
 Check the values of OSM_HOME, OPENADDR_HOME,

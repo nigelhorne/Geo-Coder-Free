@@ -1988,13 +1988,13 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	$l2_cache->clear();
 	undef %l1_cache;
 	undef $l2_cache;
-}
 
-if(BUILDMODE eq 'ONE') {
-	undef $ENV{'DR5HN_HOME'};
-	undef $ENV{'OSM_HOME'};
-	undef $ENV{'WHOSONFIRST_HOME'};
-	undef $oa;
+	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'DR5HN_HOME'};
+		undef $ENV{'OSM_HOME'};
+		undef $ENV{'WHOSONFIRST_HOME'};
+		undef $oa;
+	}
 }
 
 if($dbh) {
@@ -2024,58 +2024,6 @@ foreach my $country(@whosonfirst_only_countries) {
 
 flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 # %whosonfirst = ();
-
-if(my $dr5hn = $ENV{'DR5HN_HOME'}) {
-	my $filename = File::Spec->catfile($dr5hn, 'countries+states+cities.json');
-
-	$| = 1;
-	printf "%-70s\r", $filename;
-	print "\n" if(DEBUG);
-	$| = 0;
-
-	my $j = JSON::MaybeXS->new()->utf8();
-
-	my $data = File::Slurp::read_file($filename);
-	$data = $j->decode($data);
-
-	foreach my $country(@{$data}) {
-		# undef %digests_added;
-		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN') || ($country->{'iso3'} eq 'AUS')) {
-			if($country->{'name'} eq 'United States') {
-				$country->{'name'} = 'US';
-			}
-			foreach my $state(@{$country->{'states'}}) {
-				foreach my $city(@{$state->{'cities'}}) {
-					my $row = {
-						'COUNTRY' => $country->{'name'},
-						'STATE' => $state->{'state_code'},
-						'CITY' => $city->{'name'},
-						'LAT' => $city->{'latitude'},
-						'LON' => $city->{'longitude'},
-					};
-					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
-					# print Data::Dumper->new([$row])->Dump();
-					if($inserts >= MAX_INSERT_COUNT) {
-						flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-						$inserts = 0;
-					}
-				}
-			}
-		# } elsif($country->{'iso3'} eq 'GBR') {
-			# TODO
-		};
-	}
-
-	flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-	$inserts = 0;
-
-	if(BUILDMODE eq 'ONE') {
-		undef $ENV{'DR5HN_HOME'};
-		undef $ENV{'OSM_HOME'};
-		undef $ENV{'WHOSONFIRST_HOME'};
-		undef $oa;
-	}
-}
 
 if(my $osm = $ENV{'OSM_HOME'}) {
 	# Openstreetmap
@@ -2611,7 +2559,69 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 
 	flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 	$inserts = 0;
+} elsif(my $dr5hn = $ENV{'DR5HN_HOME'}) {
+	# my @files = (
+		# 'cities',
+		# 'countries+states+cities',
+		# 'states+cities',
+		# 'countries+cities',
+		# 'countries+states',
+		# 'states',
+		# 'countries',
+		# 'regions',
+		# 'subregions'
+		
+	my $filename = File::Spec->catfile($dr5hn, 'countries+states+cities.json');
+
+	$| = 1;
+	printf "%-70s\r", $filename;
+	print "\n" if(DEBUG);
+	$| = 0;
+
+	my $j = JSON::MaybeXS->new()->utf8();
+
+	my $data = File::Slurp::read_file($filename);
+	$data = $j->decode($data);
+
+	foreach my $country(@{$data}) {
+		# undef %digests_added;
+		if(($country->{'iso3'} eq 'USA') || ($country->{'iso3'} eq 'CAN') || ($country->{'iso3'} eq 'AUS')) {
+			if($country->{'name'} eq 'United States') {
+				$country->{'name'} = 'US';
+			}
+			foreach my $state(@{$country->{'states'}}) {
+				foreach my $city(@{$state->{'cities'}}) {
+					my $row = {
+						'COUNTRY' => $country->{'name'},
+						'STATE' => $state->{'state_code'},
+						'CITY' => $city->{'name'},
+						'LAT' => $city->{'latitude'},
+						'LON' => $city->{'longitude'},
+					};
+					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
+					print Data::Dumper->new([$row])->Dump();
+					if($inserts >= MAX_INSERT_COUNT) {
+						flush_queue($dbh, $redis, $mongodb, $berkeley_db);
+						$inserts = 0;
+					}
+				}
+			}
+		# } elsif($country->{'iso3'} eq 'GBR') {
+			# TODO
+		};
+	}
+
+	flush_queue($dbh, $redis, $mongodb, $berkeley_db);
+	$inserts = 0;
+
+	if(BUILDMODE eq 'ONE') {
+		undef $ENV{'DR5HN_HOME'};
+		undef $ENV{'OSM_HOME'};
+		undef $ENV{'WHOSONFIRST_HOME'};
+		undef $oa;
+	}
 }
+
 
 # undef %digests_added;
 # $| = 1;
