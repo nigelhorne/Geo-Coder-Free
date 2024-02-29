@@ -18,7 +18,6 @@ OPENADDR: {
 	SKIP: {
 		if($ENV{'OPENADDR_HOME'}) {
 			if($ENV{'TEST_VERBOSE'}) {
-				Geo::Coder::Free::DB::init(logger => MyLogger->new());
 				Database::Abstraction::init(logger => MyLogger->new());
 			}
 
