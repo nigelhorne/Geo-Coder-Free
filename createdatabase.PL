@@ -106,6 +106,7 @@ use	constant	DEBUG_MD5 => 0x200;
 use	constant	DEBUG_INSERT => 0x400;
 use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
+use	constant	DEBUG_WOF => 0x2000;	# Test - and only import, the WHOSONFIRST_HOME data
 use	constant	DEBUG_ALL => 0xFFFF;
 use	constant	DEBUG => DEBUG_OFF;
 
@@ -1254,7 +1255,7 @@ my $abbr = Geo::Coder::Abbreviations->new();
 # my %digests_added;
 
 my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
-if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename)) {
+if((!(DEBUG&(DEBUG_KNOWN_PLACES|DEBUG_WOF|DEBUG_OSM))) && (-r $filename)) {
 	# Import US states and counties from https://github.com/openaddresses/openaddresses/tree/master/us-data
 	$| = 1;
 	printf "%-70s\r", $filename;
@@ -1371,7 +1372,7 @@ if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename) &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
    (my $all_countries = File::Open::NoCache::ReadOnly->new($filename)) &&
-   (!(DEBUG&DEBUG_OSM)) &&
+   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF))) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
@@ -1527,7 +1528,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	# next unless($csv_file =~ /us\/ne\/dawes/);
 	# next unless($csv_file =~ /us\/in\//);
 
-	next if(DEBUG&DEBUG_OSM);
+	next if(DEBUG&(DEBUG_OSM|DEBUG_WOF));
 
 	# Handle https://github.com/openaddresses/openaddresses/issues/3928
 	# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -1706,9 +1707,6 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			printf "%-70s\r", $s;
 			print "\n" if(DEBUG);
 			$| = 0;
-			if($dbh) {
-				$dbh->commit();	# Hoping this will save memory here
-			}
 			$string = $s;
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 			print STDERR __LINE__, " >>>>: $s: ", Devel::Size::total_size(\%global_md5s), "\n" if(DEBUG&DEBUG_SIZE);
@@ -1763,7 +1761,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		}
 		# if((!defined($state)) && ($placetype eq 'borough') && (my $region = $properties->{'wof:region_id'})) {
 			# # FIXME:  This is probably a dup of the next if clause
-			# $state = get_wof($wof_global_dbh, $region);
+			# $state = get_wof($wof_global_dbh, $region, $geojson_file);
 		# }
 		if((!defined($state)) && (my $a1 = ($properties->{'as:a1'} || $properties->{'qs:a1'} || $properties->{'qs:name_adm1'} || $properties->{'qs_pg:name_adm1'} || $properties->{'woe:name_adm1'}))) {
 			if(($a1 eq 'England') || ($a1 eq 'Scotland') || ($a1 eq 'Wales') || ($a1 eq 'Northern Ireland')) {
@@ -1807,7 +1805,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 				} else {
 					next if($region < 0);
 					print "Getting state from hierarchy:\n\t", Data::Dumper->new([$properties])->Dump() if(DEBUG&DEBUG_DETERMINE_LOCATION);
-					$state = get_wof($properties, $region);
+					$state = get_wof($properties, $region, $geojson_file);
 					if($state) {
 						print "\tGot $state\n" if(DEBUG&DEBUG_DETERMINE_LOCATION);
 						# Remember the region's name, since consecutive entries in the file are often the same,
@@ -1845,7 +1843,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 			$city = $properties->{'wof:name'};
 			if(($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
-				if($parent = get_wof($properties, $parent)) {
+				if($parent = get_wof($properties, $parent, $geojson_file)) {
 					$city = "$city, $parent";
 				# } else {
 					# Most likely the parent is in a different database
@@ -1858,7 +1856,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 			# Don't trust sg:city to be correct
 			my @hierarchy = @{$properties->{'wof:hierarchy'}};
 			if(scalar(@hierarchy) && (my $locality = $hierarchy[0]->{'locality_id'})) {
-				if(my $w = get_wof($properties, $locality)) {
+				if(my $w = get_wof($properties, $locality, $geojson_file)) {
 					$city = $w;
 				}
 			}
@@ -2001,31 +1999,33 @@ if($dbh) {
 	$dbh->commit();
 }
 
-foreach my $country(@whosonfirst_only_countries) {
-	# Import this country's hand curated data
+if(!(DEBUG&(DEBUG_OSM|DEBUG_WOF))) {
+	foreach my $country(@whosonfirst_only_countries) {
+		# Import this country's hand curated data
 
-	$| = 1;
-	printf "%-70s\r", "Known place $country";
-	print "\n" if(DEBUG);
-	$| = 0;
+		$| = 1;
+		printf "%-70s\r", "Known place $country";
+		print "\n" if(DEBUG);
+		$| = 0;
 
-	if(my $k = $known_places{'other'}) {
-		# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
-		foreach my $row(@{$k}) {
-			$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
+		if(my $k = $known_places{'other'}) {
+			# print "Known place:\n\t", Data::Dumper->new([\$k])->Dump();
+			foreach my $row(@{$k}) {
+				$inserts += import(row => $row, file => "$country/countrywide.csv", ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
+			}
+		}
+
+		if($inserts >= MAX_INSERT_COUNT) {
+			flush_queue($dbh, $redis, $mongodb, $berkeley_db);
+			$inserts = 0;
 		}
 	}
-
-	if($inserts >= MAX_INSERT_COUNT) {
-		flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-		$inserts = 0;
-	}
+	flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 }
 
-flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 # %whosonfirst = ();
 
-if(my $osm = $ENV{'OSM_HOME'}) {
+if((!(DEBUG&DEBUG_WOF)) && (my $osm = $ENV{'OSM_HOME'})) {
 	# Openstreetmap
 	# There are a range of differing formats -
 	#	the format doesn't seem to be normalized and fields are inconsistent,
@@ -2559,7 +2559,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 
 	flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 	$inserts = 0;
-} elsif(my $dr5hn = $ENV{'DR5HN_HOME'}) {
+} elsif((!(DEBUG&DEBUG_WOF)) && (my $dr5hn = $ENV{'DR5HN_HOME'})) {
 	# my @files = (
 		# 'cities',
 		# 'countries+states+cities',
@@ -3651,7 +3651,7 @@ sub create_md5
 
 # Given a Whosonfirst ID, return the matching geojson. Cache lookups
 sub get_wof {
-	my ($properties, $id) = @_;
+	my ($properties, $id, $geojson_file) = @_;
 
 	return if($id < 0);
 	if($l1_cache{$id}) {
@@ -3686,7 +3686,6 @@ sub get_wof {
 	my $repo;
 	if($properties->{'wof:repo'}) {
 		# Die while I debug the fix
-		die $properties->{'wof:repo'};
 		$repo = $properties->{'wof:repo'};
 	} else {
 		$repo = '*';
@@ -3700,11 +3699,22 @@ sub get_wof {
 	}
 	my @filelist = <"$filename">;
 	$filename = $filelist[0];
-	if(!$filename) {
-		# Don't die here
-		print STDERR "Can't find $id file for ", $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
-		return;
+	if((!$filename) || (! -r $filename)) {
+		# Probably shouldn't die here
+		if(DEBUG&DEBUG_GET_WOF) {
+			print STDERR __LINE__, ":\n";
+			if($filename) {
+				print STDERR "\t$filename: $!\n"
+			}
+			my @call_details = caller(0);
+			print STDERR "\treferenced from $geojson_file:\n\tcalled from line ",
+				$call_details[2], "\n\t";
+			# die "Can't find $id file for ", $properties->{'wof:name'}, "\n"
+		}
+		print STDERR "Can't find $id file for ", $properties->{'wof:name'}, "\n";
+		return
 	}
+	print "get_wof: look at $filename\n" if(DEBUG&DEBUG_GET_WOF);
 
 	my $data = File::Slurp::read_file($filename);
 	$properties = JSON::MaybeXS->new()->utf8()->decode($data)->{'properties'};
@@ -3714,9 +3724,11 @@ sub get_wof {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = uc($properties->{'wof:country'});
 			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
+				print "\t", $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
 				return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, '1 minute');
 			}
 		}
+		print "\tname: ", $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
 		return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
 	# }
 }
