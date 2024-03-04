@@ -3686,11 +3686,12 @@ sub get_wof {
 	my $dir = '*';
 	if($properties->{'wof:repo'}) {
 		die $properties->{'wof:repo'};
+		$dir = $properties->{'wof:repo'};
 	}
 	if($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) {
-		$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$4/$id.geojson";
+		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$dir/data/$1/$2/$3/$4/$id.geojson";
 	} elsif($id =~ /(\d{3})(\d{3})(\d+)/) {
-		$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$id.geojson";
+		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$dir/data/$1/$2/$3/$id.geojson";
 	} else {
 		die "Can't parse $id";
 	}
@@ -3698,7 +3699,7 @@ sub get_wof {
 	$filename = $filelist[0];
 	if(!$filename) {
 		# Don't die here
-		print "Can't find $id file for ", $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
+		print STDERR "Can't find $id file for ", $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
 		return;
 	}
 
