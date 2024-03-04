@@ -1722,6 +1722,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		# print 'processing ', $properties->{'wof:id'}, "\n";
 
 		next if(exists($properties->{'wof:superseded_by'}) && scalar(@{$properties->{'wof:superseded_by'}}));
+		# https://github.com/whosonfirst-data/whosonfirst-data/issues/1844
 		# "mz:is_current":-1 means "not sure" versus 1 meaning known to be current when record last updated and 0 no longer current.
 		# Most records have -1.
 		next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} <= 0));
