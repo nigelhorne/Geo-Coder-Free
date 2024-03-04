@@ -3683,15 +3683,18 @@ sub get_wof {
 	# Unfortunately whosonfirst doesn't tell you the repo of the region_id, just
 	# its name, so you need to search all repos to find it
 	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1844
-	my $dir = '*';
+	my $repo;
 	if($properties->{'wof:repo'}) {
+		# Die while I debug the fix
 		die $properties->{'wof:repo'};
-		$dir = $properties->{'wof:repo'};
+		$repo = $properties->{'wof:repo'};
+	} else {
+		$repo = '*';
 	}
 	if($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) {
-		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$dir/data/$1/$2/$3/$4/$id.geojson";
+		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$repo/data/$1/$2/$3/$4/$id.geojson";
 	} elsif($id =~ /(\d{3})(\d{3})(\d+)/) {
-		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$dir/data/$1/$2/$3/$id.geojson";
+		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$repo/data/$1/$2/$3/$id.geojson";
 	} else {
 		die "Can't parse $id";
 	}
