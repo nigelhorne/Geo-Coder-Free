@@ -1722,7 +1722,9 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		# print 'processing ', $properties->{'wof:id'}, "\n";
 
 		next if(exists($properties->{'wof:superseded_by'}) && scalar(@{$properties->{'wof:superseded_by'}}));
-		next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+		# "mz:is_current":-1 means "not sure" versus 1 meaning known to be current when record last updated and 0 no longer current.
+		# Most records have -1.
+		next if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} <= 0));
 		next if(exists($properties->{'src:geom'}) && ($properties->{'src:geom'} eq 'missing'));	# https://github.com/whosonfirst-data/whosonfirst-data/issues/1346
 		my $placetype = $properties->{'wof:placetype'};
 		next if(!defined($placetype));
@@ -3719,7 +3721,7 @@ sub get_wof {
 	my $data = File::Slurp::read_file($filename);
 	$properties = JSON::MaybeXS->new()->utf8()->decode($data)->{'properties'};
 	return if(scalar(@{$properties->{'wof:superseded_by'}}));
-	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} == 0));
+	return if(exists($properties->{'mz:is_current'}) && ($properties->{'mz:is_current'} <= 0));
 	# if($properties->{'wof:name'}) {
 		if($properties->{'wof:placetype'} eq 'region') {
 			my $country = uc($properties->{'wof:country'});
