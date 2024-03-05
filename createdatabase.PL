@@ -3710,11 +3710,11 @@ sub get_wof {
 				print STDERR "\t$filename: $!\n"
 			}
 			my @call_details = caller(0);
-			print STDERR "\treferenced from $geojson_file:\n\tcalled from line ",
+			print STDERR "\tcalled from line ",
 				$call_details[2], "\n\t";
-			# die "Can't find $id file for ", $properties->{'wof:name'}, "\n"
+			# die "$geojson_file: an't find $id file for ", $properties->{'wof:name'}, "\n"
 		}
-		print STDERR "Can't find $id file for ", $properties->{'wof:name'}, "\n";
+		print STDERR "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, "\n";
 		return
 	}
 	print "get_wof: look at $filename\n" if(DEBUG&DEBUG_GET_WOF);
