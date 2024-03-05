@@ -283,6 +283,7 @@ if($ENV{'AUTHOR_TESTING'}) {
 	$test_requires->{'Log::Any::Adapter::Log4perl'} = 0;
 	$test_requires->{'Log::WarnDie'} = 0;
 	$test_requires->{'IPC::System::Simple'} = 0;
+	$test_requires->{'Template::Filters'} = 0;
 	$test_requires->{'Template::Plugin::EnvHash'} = 0;
 	$test_requires->{'Test::Pod::LinkCheck'} = 0;
 	$test_requires->{'Taint::Runtime'} = 0;
