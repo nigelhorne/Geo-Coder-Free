@@ -1,7 +1,9 @@
 #!perl -T
 
 use strict;
-use lib './lib';
+use lib '../lib';
+use lib 'lib';
+use lib '.';
 
 use Test::Most tests => 12;
 

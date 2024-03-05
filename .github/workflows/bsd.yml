@@ -18,7 +18,7 @@ jobs:
         os:
           - name: freebsd
             version: '13.0'
-            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS p5-LWP-Protocol-https p5-App-cpanminus p5-XML-Parser p5-XML-Simple p5-DBI p5-Devel-Size sqlite3
+            pkginstall: pkg install -y p5-ExtUtils-MakeMaker p5-JSON-MaybeXS p5-LWP-Protocol-https p5-App-cpanminus p5-XML-Parser p5-XML-Simple p5-DBI p5-Devel-Size sqlite3 p5-DBD-SQLite
           - name: openbsd
             version: '7.1'
             pkginstall: pkg_add p5-JSON-MaybeXS p5-LWP-Protocol-https p5-XML-Parser p5-XML-Simple p5-DBI p5-Devel-Size sqlite3 p5-DBD-SQLite
