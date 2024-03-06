@@ -76,10 +76,9 @@ use Geo::Coder::Free::Display::query;
 use Geo::Coder::Free::DB::openaddresses;
 
 my $config = Geo::Coder::Free::Config->new({ logger => $logger, info => $info });
-die "Set OPENADDR_HOME" if(!$config->OPENADDR_HOME());
+die 'Set OPENADDR_HOME' if(!$config->OPENADDR_HOME());
 
 my $database_dir = "$script_dir/../lib/Geo/Coder/Free/MaxMind/databases";
-Geo::Coder::Free::DB::init({ directory => $database_dir, logger => $logger });
 Database::Abstraction::init({ directory => $database_dir, logger => $logger });
 
 my $openaddresses = Geo::Coder::Free::DB::openaddresses->new(openaddr => $config->OPENADDR_HOME());

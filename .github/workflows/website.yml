@@ -1,0 +1,50 @@
+---
+# See https://github.com/actions/virtual-environments
+# https://github.com/marketplace/actions/setup-perl-environment
+
+name: Test Website
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+
+jobs:
+  perl:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        perl-version:
+          # - '5.16'
+          # - '5.22'
+          # - '5.32'
+          - 'latest'
+
+    container:
+      image: perl:${{ matrix.perl-version }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: perl -V
+        run: perl -V
+      - name: Install Dependencies
+        run: |
+          cpanm -iqn ExtUtils::MakeMaker Test::Most Clone
+          cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS DB_File
+          cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https
+          cpanm -ivn --installdeps .
+          cpanm -iqfn CGI::IDS Data::Throttler CGI::ACL
+          cpanm --skip-satisfied -q -n LWP::UserAgent::Cached Data::Serializer
+        env:
+          AUTHOR_TESTING: 1
+      - name: Run Tests
+        run: |
+          perl -c -MO=Lint ./cgi-bin/page.fcgi
+          perl -c -Mwarnings::unused ./cgi-bin/page.fcgi
+          cd cgi-bin && mkdir -p ../data && perl -c -MO=Lint ./page.fcgi '' && perl -c -Mwarnings::unused ./page.fcgi ''
+          rootdir=$(pwd)/../.. perl page.fcgi page=index
+          rootdir=$(pwd)/../.. perl page.fcgi page=meta-data
+          rootdir=$(pwd)/../.. perl page.fcgi page=index tulip='Stock%20or%20(1,2\)=(select*from(select%20name_const(CHAR(111,108,111,108,111,115,104,101,114\),1\),name_const(CHAR( <-- HERE 111,108,111,108,111,115,104,101,114\),1\)\)a\)%20--%20and%201%3D1'
