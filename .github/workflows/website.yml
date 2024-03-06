@@ -35,8 +35,9 @@ jobs:
           cpanm -iqn ExtUtils::MakeMaker Test::Most Clone
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS DB_File
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https
+          cpanm -iqn --skip-satisfied CGI::Carp
           cpanm -ivn --installdeps .
-          cpanm -iqfn CGI::IDS Data::Throttler CGI::ACL
+          cpanm -iqfn Data::Throttler CGI::ACL
           cpanm --skip-satisfied -q -n LWP::UserAgent::Cached Data::Serializer
           cpanm --skip-satisfied -q -n B::Lint
         env:
