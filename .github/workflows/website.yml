@@ -38,6 +38,7 @@ jobs:
           cpanm -ivn --installdeps .
           cpanm -iqfn CGI::IDS Data::Throttler CGI::ACL
           cpanm --skip-satisfied -q -n LWP::UserAgent::Cached Data::Serializer
+          cpanm --skip-satisfied -q -n B::Lint
         env:
           AUTHOR_TESTING: 1
       - name: Run Tests
