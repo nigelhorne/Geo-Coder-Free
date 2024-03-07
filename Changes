@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.35
+0.35	Wed Mar  6 20:48:43 EST 2024
 	Fix scantext.t when OSM is installed
 	Fix openaddr.t test for not/there
 	Rework the GETTING STARTED section of the POD
