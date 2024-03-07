@@ -881,6 +881,9 @@ sub _get {
 	my $location = join('', @location);
 	$location =~ s/^\s+//;
 	$location =~ s/,\s*//g;
+	$location =~ tr/ž/z/;	# Remove wide characters
+	$location =~ s/\xc5\xbe/z/g;
+	$location =~ s/\N{U+017E}/z/g;
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": _get: $location");
 	my $digest;
