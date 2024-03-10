@@ -20,6 +20,7 @@ sub doit
 {
 	my $test = shift or die;
 
+	$ENV{'root_dir'} = "$Bin/..";
 	if($test == 1) {
 		# print "Test 1 - q\n";
 		system("$^X $Bin/../cgi-bin/page.fcgi page=query q='1600+Pennsylvania+Avenue+NW+Washington+DC+USA'");

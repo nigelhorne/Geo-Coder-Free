@@ -1,21 +1,41 @@
 package Geo::Coder::Free::Config;
 
+=head1 NAME
+
+Geo::Coder::Free::Config - Site independent configuration file
+
+=cut
+
 # VWF is licensed under GPL2.0 for personal use only
 # njh@bandsman.co.uk
 
-# Site independent configuration file
-# Takes three optional arguments:
-#	info (CGI::Info object)
-#	logger
-#	default_config_directory - used when the configuration directory can't be worked out
-#	config (ref to hash to of values to override in the config file
-# Values in the file are overridden by what's in the environment
+# Usage is subject to licence terms.
+# The licence terms of this software are as follows:
+# Personal single user, single computer use: GPL2
+# All other users (including Commercial, Charity, Educational, Government)
+#       must apply in writing for a licence for use from Nigel Horne at the
+#       above e-mail.
 
 use warnings;
 use strict;
 use Config::Auto;
 use CGI::Info;
 use File::Spec;
+
+=head1 SUBROUTINES/METHODS
+
+=head2 new
+
+# Takes four optional arguments:
+#	info (CGI::Info object)
+#	logger
+#	config_directory - used when the configuration directory can't be worked out
+#	config_file - name of the configuration file - otherwise determined dynamically
+#	config (ref to hash of values to override in the config file
+
+# Values in the file are overridden by what's in the environment
+
+=cut
 
 sub new {
 	my $proto = shift;
@@ -71,8 +91,8 @@ sub new {
 		}
 
 		if(!-d $path) {
-			if($args{default_config_directory}) {
-				$path = $args{default_config_directory};
+			if($args{config_directory}) {
+				$path = $args{config_directory};
 			} elsif($args{logger}) {
 				while(my ($key,$value) = each %ENV) {
 					$args{logger}->debug("$key=$value");
@@ -94,12 +114,11 @@ sub new {
 		# $Config::Auto::Debug = 1;
 	# }
 	my $config;
-	my $config_file;
+	my $config_file = $args{'config_file'} || $ENV{'CONFIG_FILE'} || File::Spec->catdir($path, $info->domain_name());
+	if($args{logger}) {
+		$args{logger}->debug("Configuration path: $config_file");
+	}
 	eval {
-		$config_file = File::Spec->catdir($path, $info->domain_name());
-		if($args{logger}) {
-			$args{logger}->debug("Configuration path: $config_file");
-		}
 		if(-r $config_file) {
 			if($args{logger}) {
 				$args{logger}->debug("Found configuration in $config_file");
