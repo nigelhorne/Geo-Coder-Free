@@ -93,35 +93,35 @@ sub new {
 			}
 		}
 	}
-	my $path;
-	if($ENV{'CONFIG_DIRECTORY'}) {
-		$path = $ENV{'CONFIG_DIRECTORY'};
+	my $config_dir;
+	if($ENV{'CONFIG_DIR'}) {
+		$config_dir = $ENV{'CONFIG_DIR'};
 	} else {
-		$path = File::Spec->catdir(
+		$config_dir = File::Spec->catdir(
 				$info->script_dir(),
 				File::Spec->updir(),
 				File::Spec->updir(),
 				'conf'
 			);
 
-		if(!-d $path) {
-			$path = File::Spec->catdir(
+		if(!-d $config_dir) {
+			$config_dir = File::Spec->catdir(
 					$info->script_dir(),
 					File::Spec->updir(),
 					'conf'
 				);
 		}
 
-		if(!-d $path) {
+		if(!-d $config_dir) {
 			if($ENV{'DOCUMENT_ROOT'}) {
-				$path = File::Spec->catdir(
+				$config_dir = File::Spec->catdir(
 					$ENV{'DOCUMENT_ROOT'},
 					File::Spec->updir(),
 					'lib',
 					'conf'
 				);
 			} else {
-				$path = File::Spec->catdir(
+				$config_dir = File::Spec->catdir(
 					$ENV{'HOME'},
 					'lib',
 					'conf'
@@ -129,28 +129,37 @@ sub new {
 			}
 		}
 
-		if(!-d $path) {
+		if(!-d $config_dir) {
 			if($args{default_config_directory}) {
-				$path = $args{default_config_directory};
+				$config_dir = $args{default_config_directory};
 			} elsif($args{logger}) {
-				while(my ($key,$value) = each %ENV) {
-					$args{logger}->debug("$key=$value");
+				while(my ($k, $v) = each %ENV) {
+					$args{logger}->debug("$k=$v");
 				}
 			}
 		}
 	}
+	if($args{'logger'}) {
+		$args{'logger'}->debug(__PACKAGE__, ': ', __LINE__, " path = $config_dir");
+	}
 	my $config;
 	eval {
-		if(-r File::Spec->catdir($path, $info->domain_name())) {
-			$config = Config::Auto::parse($info->domain_name(), path => $path);
-		} elsif (-r File::Spec->catdir($path, 'default')) {
-			$config = Config::Auto::parse('default', path => $path);
+		if(-r File::Spec->catdir($config_dir, $info->domain_name())) {
+			$config = Config::Auto::parse($info->domain_name(), path => $config_dir);
+		} elsif (-r File::Spec->catdir($config_dir, 'default')) {
+			$config = Config::Auto::parse('default', path => $config_dir);
 		} else {
 			die 'no suitable config file found';
 		}
 	};
 	if($@ || !defined($config)) {
-		die "Configuration error: $@: $path/", $info->domain_name();
+		die "Configuration error: $@: $config_dir/", $info->domain_name();
+	}
+
+	# The values in config are defaults which can be overridden by
+	# the values in args{config}
+	if(defined($args{'config'})) {
+		$config = { %{$config}, %{$args{'config'}} };
 	}
 
 	Template::Filters->use_html_entities();

@@ -45,9 +45,13 @@ sub new {
 
 	my $info = $args{info} || CGI::Info->new();
 
+	if($args{'logger'}) {
+		$args{'logger'}->debug(__PACKAGE__, '->new()');
+	}
+
 	my $path;
-	if($ENV{'CONFIG_DIRECTORY'}) {
-		$path = $ENV{'CONFIG_DIRECTORY'};
+	if($ENV{'CONFIG_DIR'}) {
+		$path = $ENV{'CONFIG_DIR'};
 	} else {
 		$path = File::Spec->catdir(
 				$info->script_dir(),
@@ -147,6 +151,9 @@ sub new {
 	# Allow variables to be overridden by the environment
 	foreach my $key(keys %{$config}) {
 		if($ENV{$key}) {
+			if($args{'logger'}) {
+				$args{'logger'}->debug(__PACKAGE__, ': ', __LINE__, " overwriting $key, ", $config->{$key}, ' with ', $ENV{$key});
+			}
 			$config->{$key} = $ENV{$key};
 		}
 	}
