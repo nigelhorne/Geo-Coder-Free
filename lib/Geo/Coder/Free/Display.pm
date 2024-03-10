@@ -158,14 +158,20 @@ sub new {
 	my $self = {
 		_config => $config,
 		_info => $info,
-		_lingua => $args{lingua},
 		_logger => $args{logger},
 		_cachedir => $args{cachedir},
+		%args,
 		# _page => $info->param('page'),
 	};
 
+	if(my $lingua = $args{'lingua'}) {
+		$self->{'_lingua'} = $lingua;
+	}
 	if(my $key = $info->param('key')) {
 		$self->{'_key'} = $key;
+	}
+	if(my $page = $info->param('page')) {
+		$self->{'_page'} = $page;
 	}
 
 	if(my $twitter = $config->{'twitter'}) {
@@ -186,13 +192,17 @@ sub get_template_path {
 	my $self = shift;
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
+	if($self->{_logger}) {
+		$self->{_logger}->trace('Entering get_template_path');
+	}
+
 	if($self->{_filename}) {
 		return $self->{_filename};
 	}
 
 	my $dir = $self->{_config}->{root_dir} || $self->{_info}->root_dir();
 	if($self->{_logger}) {
-		$self->{_logger}->debug("Rootdir: $dir");
+		$self->{_logger}->debug(__PACKAGE__, ': ', __LINE__, ": root_dir $dir");
 		$self->{_logger}->debug(Data::Dumper->new([$self->{_config}])->Dump());
 	}
 	$dir .= '/templates';
@@ -349,10 +359,10 @@ sub html {
 
 		if(!$template->process($filename, $vals, \$rc)) {
 			if(my $err = $template->error()) {
-                                die $err;
-                        }
-                        die "Unknown error in template: $filename";
-                }
+				die $err;
+			}
+			die "Unknown error in template: $filename";
+		}
 	} elsif($filename =~ /\.(html?|txt)$/) {
 		open(my $fin, '<', $filename) || die "$filename: $!";
 

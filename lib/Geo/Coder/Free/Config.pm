@@ -13,8 +13,8 @@ Geo::Coder::Free::Config - Site independent configuration file
 # The licence terms of this software are as follows:
 # Personal single user, single computer use: GPL2
 # All other users (including Commercial, Charity, Educational, Government)
-#       must apply in writing for a licence for use from Nigel Horne at the
-#       above e-mail.
+#	must apply in writing for a licence for use from Nigel Horne at the
+#	above e-mail.
 
 use warnings;
 use strict;
