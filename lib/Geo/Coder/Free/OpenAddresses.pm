@@ -204,7 +204,7 @@ sub geocode {
 				if(($l = $self->geocode(location => $addr)) && ref($l)) {
 					$l->confidence(0.1);
 					$l->location($addr);
-					::diag(__LINE__, ": $addr");
+					# ::diag(__LINE__, ": $addr");
 					push @rc, $l;
 				}
 				if($offset < $count - 2) {
