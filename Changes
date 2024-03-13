@@ -2,7 +2,7 @@ Revision history for Geo-Coder-Free
 
 0.36
 	Handle wide characters
-	Latest Config.pm from VWF
+	Latest VWF
 
 0.35	Wed Mar  6 20:48:43 EST 2024
 	Fix scantext.t when OSM is installed
