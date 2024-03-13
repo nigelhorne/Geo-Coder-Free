@@ -130,8 +130,8 @@ sub new {
 		}
 
 		if(!-d $config_dir) {
-			if($args{default_config_directory}) {
-				$config_dir = $args{default_config_directory};
+			if($args{config_directory}) {
+				$config_dir = $args{config_directory};
 			} elsif($args{logger}) {
 				while(my ($k, $v) = each %ENV) {
 					$args{logger}->debug("$k=$v");
@@ -170,7 +170,6 @@ sub new {
 		_logger => $args{logger},
 		_cachedir => $args{cachedir},
 		%args,
-		# _page => $info->param('page'),
 	};
 
 	if(my $lingua = $args{'lingua'}) {
@@ -192,7 +191,7 @@ sub new {
 		$sm = HTML::SocialMedia->new({ cache => $smcache, lingua => $args{lingua}, logger => $args{logger} });
 	}
 	$self->{'_social_media'}->{'facebook_share_button'} = $sm->as_string(facebook_share_button => 1);
-	$self->{'_social_media'}->{'google_plusone'} = $sm->as_string(google_plusone => 1);
+	# $self->{'_social_media'}->{'google_plusone'} = $sm->as_string(google_plusone => 1);
 
 	return bless $self, $class;
 }
@@ -268,13 +267,15 @@ sub get_template_path {
 	return $filename;
 }
 
-sub set_cookie {
+sub set_cookie
+{
 	my $self = shift;
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
 	foreach my $key(keys(%params)) {
 		$self->{_cookies}->{$key} = $params{$key};
 	}
+	return $self;
 }
 
 sub http {
@@ -320,7 +321,7 @@ sub http {
 
 	# https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet
 	# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
-	return $rc . "X-Frame-Options: SAMEORIGIN\nX-Content-Type-Options: nosniff\n\n";
+	return $rc . "X-Frame-Options: SAMEORIGIN\nX-Content-Type-Options: nosniff\nReferrer-Policy: strict-origin-when-cross-origin\n\n";
 }
 
 sub html {
@@ -431,7 +432,8 @@ sub as_string {
 	return $rc . $self->html($args);
 }
 
-sub _debug {
+sub _debug
+{
 	my $self = shift;
 
 	if($self->{_logger}) {
@@ -442,6 +444,7 @@ sub _debug {
 			$self->{_logger}->debug($params{'message'});
 		}
 	}
+	return $self;
 }
 
 sub obfuscate {
@@ -463,8 +466,8 @@ sub _append_browser_type {
 	if($self->{_logger}) {
 		$self->{_logger}->debug("_append_browser_type: directory = $directory");
 	}
-	my $rc;
 
+	my $rc;
 	if(-d $directory) {
 		if($self->{_info}->is_search_engine()) {
 			$rc = "$directory/search:$directory/robot:";
@@ -480,7 +483,6 @@ sub _append_browser_type {
 	}
 
 	return '';	# Don't return undef or else the caller may use an uninit variable
-
 }
 
 1;
