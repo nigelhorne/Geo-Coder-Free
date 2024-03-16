@@ -21,6 +21,14 @@ BEGIN {
 		}
 	}
 
+	# Test for broken smokers that don't set AUTOMATED_TESTING
+	if(my $reporter = $ENV{'PERL_CPAN_REPORTER_CONFIG'}) {
+		if($reporter =~ /smoker/i) {
+			warn 'AUTOMATED_TESTING added for you';
+			$ENV{'AUTOMATED_TESTING'} = 1;
+		}
+	}
+
 	if(scalar(@needfull)) {
 		my $list = join(' ', @needfull);
 		if($ENV{'AUTOMATED_TESTING'} &&
