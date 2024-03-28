@@ -18,10 +18,11 @@ if(scalar(@ARGV) == 0) {
 }
 
 my %opts;
-getopts('v', \%opts);
-Database::Abstraction::init(logger => MyLogger->new()) if($opts{'v'});
+getopts('vd', \%opts);
+# Watch what's going on in debug mode
+Database::Abstraction::init(logger => MyLogger->new()) if($opts{'d'});
 
-print join(' ', @ARGV), "\n" if($opts{'v'});
+print join(' ', @ARGV), ': ' if($opts{'v'});
 if(my $rc = Geo::Coder::Free::Local::geocode(join(' ', @ARGV))) {
 	print 'Local: ', Data::Dumper->new([$rc])->Dump();
 } elsif($rc = Geo::Coder::Free::geocode(join(' ', @ARGV))) {
