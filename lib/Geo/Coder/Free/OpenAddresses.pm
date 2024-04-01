@@ -127,10 +127,13 @@ street is found, a place in the street is given.
 So "106 Wells Street, Fort Wayne, Allen, Indiana, USA" isn't found, a match for
 "Wells Street, Fort Wayne, Allen, Indiana, USA" will be given instead.
 Arguably that's incorrect, but it is the behaviour I want.
+If "exact" is not given,
+it will go on to look just for the town if the street isn't found.
 
 =cut
 
-sub geocode {
+sub geocode
+{
 	my $self = shift;
 
 	my %param;
@@ -357,8 +360,10 @@ sub geocode {
 					return $rc;
 				}
 			}
-			if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
-				return $rc;
+			if((!$addr{'house_number'}) || !$param{'exact'}) {
+				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+					return $rc;
+				}
 			}
 		}
 	}
@@ -738,7 +743,7 @@ sub geocode {
 				}
 				if($city =~ /^(\w[\w\s]+),\s*([,\w\s]+)/) {
 					# City includes a street name
-					my $street = uc($1);
+					$street = uc($1);
 					$city = uc($2);
 					my $number;
 					if($street =~ /^(\d+)\s+(.+)/) {
@@ -761,16 +766,18 @@ sub geocode {
 						return $rc;
 					}
 				}
-				if(my $rc = $self->_get("$city$state$c")) {
-					# return {
-						# 'number' => undef,
-						# 'street' => undef,
-						# 'city' => $city,
-						# 'state' => $state,
-						# 'country' => $country,
-						# %{$rc}
-					# };
-					return $rc;
+				if((!$street) || !$param{'exact'}) {
+					if(my $rc = $self->_get("$city$state$c")) {
+						# return {
+							# 'number' => undef,
+							# 'street' => undef,
+							# 'city' => $city,
+							# 'state' => $state,
+							# 'country' => $country,
+							# %{$rc}
+						# };
+						return $rc;
+					}
 				}
 			}
 		}
