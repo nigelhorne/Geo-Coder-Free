@@ -337,6 +337,7 @@ WriteMakefile(
 	},
 	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz' },
 	clean		=> { FILES => 'Geo-Coder-Free-*' },
+	EXE_FILES => [ 'bin/address_lookup' ],
 	# META_ADD => {
 		# provides => {
 			# 'Geo::Coder::Free' => {

@@ -5,6 +5,7 @@ Revision history for Geo-Coder-Free
 	Latest VWF
 	Added "exact" to OpenAddresses.pm
 	Local.pm - remove empty fields
+	Install bin/address_lookup
 
 0.35	Wed Mar  6 20:48:43 EST 2024
 	Fix scantext.t when OSM is installed
