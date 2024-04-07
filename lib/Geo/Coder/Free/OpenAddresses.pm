@@ -150,7 +150,7 @@ sub geocode
 	if(my $scantext = $param{'scantext'}) {
 		return if(length($scantext) < 6);
 		# FIXME:  wow this is inefficient
-		$scantext =~ s/\W+/ /g;
+		$scantext =~ s/[^\w']+/ /g;
 		my @words = split(/\s/, $scantext);
 		my $count = scalar(@words);
 		my $offset = 0;

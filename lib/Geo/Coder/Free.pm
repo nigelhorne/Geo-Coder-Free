@@ -15,6 +15,7 @@ use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use List::MoreUtils;
+use Locale::US;
 use Carp;
 
 =head1 NAME
@@ -198,7 +199,7 @@ sub geocode {
 		if(wantarray) {
 			my @rc = $self->{'openaddr'}->geocode(\%params);
 			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
-				$scantext =~ s/\W+/ /g;
+				$scantext =~ s/[^\w']+/ /g;
 				my @a = List::MoreUtils::uniq(split(/\s/, $scantext));
 				my $iterator = Array::Iterator->new({ __array__ => \@a });
 				while(my $w = $iterator->get_next()) {
@@ -206,10 +207,15 @@ sub geocode {
 					if($w =~ /^[a-z]{2,}$/i) {
 						my $peek = $iterator->peek();
 						last if(!defined($peek));
-						my $peekpeek = $peek->peek();
-						last if(!defined($peekpeek));
-						my $s = "$w $peek $peekpeek";
-						::diag($s);
+						my $s;
+						if((length($peek) == 2) && (Locale::US->new()->{code2state}{uc($peek)})) {
+							$s = "$w $peek US";
+						} else {
+							my $peekpeek = $iterator->peek(2);
+							last if(!defined($peekpeek));
+							$s = "$w $peek $peekpeek";
+						}
+						# ::diag($s);
 					}
 				}
 
