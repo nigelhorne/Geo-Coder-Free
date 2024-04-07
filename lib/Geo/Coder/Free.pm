@@ -9,6 +9,7 @@ use warnings;
 
 # use lib '.';
 
+use Array::Iterator;
 use Config::Auto;
 use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::MaxMind;
@@ -198,9 +199,23 @@ sub geocode {
 			my @rc = $self->{'openaddr'}->geocode(\%params);
 			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
 				$scantext =~ s/\W+/ /g;
+				my @a = List::MoreUtils::uniq(split(/\s/, $scantext));
+				my $iterator = Array::Iterator->new({ __array__ => \@a });
+				while(my $w = $iterator->get_next()) {
+					next if(exists($common_words{lc($w)}));
+					if($w =~ /^[a-z]{2,}$/i) {
+						my $peek = $iterator->peek();
+						last if(!defined($peek));
+						my $peekpeek = $peek->peek();
+						last if(!defined($peekpeek));
+						my $s = "$w $peek $peekpeek";
+						::diag($s);
+					}
+				}
+
 				foreach my $word(List::MoreUtils::uniq(split(/\s/, $scantext))) {
 					# FIXME:  There are a *lot* of false positives
-					next if(exists($common_words{lc$word}));
+					next if(exists($common_words{lc($word)}));
 					if($word =~ /^[a-z]{2,}$/i) {
 						my $key = "$word/$region";
 						my @matches;
