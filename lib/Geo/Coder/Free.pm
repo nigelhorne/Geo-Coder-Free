@@ -207,11 +207,19 @@ sub geocode {
 					if($w =~ /^[a-z]{2,}$/i) {
 						my $peek = $iterator->peek();
 						last if(!defined($peek));
+						my $offset;
+						if(exists($common_words{lc($peek)})) {
+							$peek = $iterator->peek(2);
+							last if(!defined($peek));
+							$offset = 3;
+						} else {
+							$offset = 2;
+						}
 						my $s;
 						if((length($peek) == 2) && (Locale::US->new()->{code2state}{uc($peek)})) {
 							$s = "$w $peek US";
 						} else {
-							my $peekpeek = $iterator->peek(2);
+							my $peekpeek = $iterator->peek($offset);
 							last if(!defined($peekpeek));
 							$s = "$w $peek $peekpeek";
 						}
