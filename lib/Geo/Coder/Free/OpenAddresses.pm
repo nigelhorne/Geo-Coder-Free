@@ -255,6 +255,7 @@ sub geocode
 		return Geo::Location::Point->new({
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
+			'lng' => $rc->{'longitude'},
 			'location' => $location,
 			'database' => 'OpenAddresses'
 		});
@@ -936,6 +937,7 @@ sub _get {
 		$rc = Geo::Location::Point->new({
 			'lat' => $rc->{'latitude'},
 			'long' => $rc->{'longitude'},
+			'lng' => $rc->{'longitude'},
 			'location' => $location,
 			'database' => 'OpenAddresses'
 		});
