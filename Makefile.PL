@@ -286,6 +286,7 @@ my $test_requires = {
 
 if($ENV{'AUTHOR_TESTING'}) {
 	$test_requires->{'CGI::ACL'} = 0;
+	$test_requires->{'CGI::Carp'} = 0;
 	$test_requires->{'FCGI'} = 0;
 	$test_requires->{'FCGI::Buffer'} = 0;
 	$test_requires->{'HTML::SocialMedia'} = 0;

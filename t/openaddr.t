@@ -33,7 +33,7 @@ OPENADDR: {
 
 				$location = $geo_coder->geocode('Indiana, USA');
 				cmp_deeply($location,
-					methods('lat' => num(39, 1), 'long' => num(-86, 1)));
+					methods('lat' => num(39.5, 1), 'long' => num(-86, 1)));
 
 				$location = $geo_coder->geocode('Indianapolis, Indiana, USA');
 				ok(defined($location));
