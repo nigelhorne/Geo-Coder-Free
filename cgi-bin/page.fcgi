@@ -35,7 +35,9 @@ use File::Spec;
 use Log::WarnDie 0.09;
 use CGI::ACL;
 use HTTP::Date;
-use Taint::Runtime qw($TAINT taint_env);
+# FIXME: Gives Insecure dependency in require while running with -T switch in Module/Runtime.pm
+# use Taint::Runtime qw($TAINT taint_env);
+use POSIX qw(strftime);
 use autodie qw(:all);
 
 # use lib '/usr/lib';	# This needs to point to the Geo::Coder::Free directory lives,
