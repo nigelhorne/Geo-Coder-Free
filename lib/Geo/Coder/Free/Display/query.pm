@@ -1,10 +1,18 @@
 package Geo::Coder::Free::Display::query;
 
+# Run a query on the database
+
 use strict;
 use warnings;
 use JSON::MaybeXS;
 
-# Run a query on the database
+=head1 VERSION
+
+Version 0.36
+
+=cut
+
+our $VERSION = '0.36';
 
 use Geo::Coder::Free::Display;
 

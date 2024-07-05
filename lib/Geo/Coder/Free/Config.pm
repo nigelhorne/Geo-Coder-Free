@@ -4,7 +4,13 @@ package Geo::Coder::Free::Config;
 
 Geo::Coder::Free::Config - Site independent configuration file
 
+=head1 VERSION
+
+Version 0.36
+
 =cut
+
+our $VERSION = '0.36';
 
 # VWF is licensed under GPL2.0 for personal use only
 # njh@bandsman.co.uk

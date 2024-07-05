@@ -3,6 +3,14 @@ package main;
 # VWF is licensed under GPL2.0 for personal use only
 # njh@bandsman.co.uk
 
+=head1 VERSION
+
+Version 0.36
+
+=cut
+
+our $VERSION = '0.36';
+
 use strict;
 use warnings;
 

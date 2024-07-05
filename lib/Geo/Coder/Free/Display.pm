@@ -3,6 +3,14 @@ package Geo::Coder::Free::Display;
 # Display a page. Certain variables are available to all templates, such as
 # the stuff in the configuration file
 
+=head1 VERSION
+
+Version 0.36
+
+=cut
+
+our $VERSION = '0.36';
+
 use strict;
 use warnings;
 use Config::Auto;
