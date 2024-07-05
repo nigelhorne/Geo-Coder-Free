@@ -3,6 +3,7 @@ bin/address_lookup
 bin/create_db
 bin/create_sqlite
 bin/download_databases
+bin/gedcom_lookup
 bin/geodecode
 bin/testcgibin
 cgi-bin/page.fcgi
