@@ -114,6 +114,7 @@ sub new {
 		}
 	}
 	my $rc = {
+		%args,
 		maxmind => Geo::Coder::Free::MaxMind->new(%args),
 		alternatives => $alternatives
 	};
