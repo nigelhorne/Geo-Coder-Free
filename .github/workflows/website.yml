@@ -41,7 +41,7 @@ jobs:
           cpanm --skip-satisfied -qn warnings::unused HTML::SocialMedia
           cpanm --skip-satisfied -qn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -qn Template::Filters Template::Plugin::EnvHash
-          cpanm --skip-satisfied -qn Log::WarnDie
+          cpanm --skip-satisfied -qn Log::WarnDie IPC::System::Simple
         env:
           AUTHOR_TESTING: 1
       - name: Run Tests
