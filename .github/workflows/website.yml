@@ -35,7 +35,7 @@ jobs:
           cpanm -iqn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS DB_File
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https
-          cpanm -iqn --skip-satisfied CGI::Carp FCGI::Buffer Taint::Runtime
+          cpanm -iqn --skip-satisfied CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -iqfn Data::Throttler CGI::ACL B::Lint
           cpanm --skip-satisfied -qn LWP::UserAgent::Cached Data::Serializer
           cpanm --skip-satisfied -qn warnings::unused HTML::SocialMedia
