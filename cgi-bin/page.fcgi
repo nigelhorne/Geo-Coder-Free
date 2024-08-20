@@ -125,7 +125,13 @@ $SIG{TERM} = \&sig_handler;
 $SIG{PIPE} = 'IGNORE';
 $ENV{'PATH'} = '/usr/local/bin:/bin:/usr/bin';	# For insecurity
 
-$SIG{__WARN__} = sub { Log::WarnDie->dispatcher(undef); die @_ };
+$SIG{__WARN__} = sub {
+	if(open(my $fout, '>>', File::Spec->catfile($tmpdir, "$script_name.stderr"))) {
+		print $fout @_;
+	}
+	Log::WarnDie->dispatcher(undef);
+	CORE::die @_
+};
 
 my $request = FCGI::Request();
 
