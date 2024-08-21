@@ -16,9 +16,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - macos-14
+          - macos-13
           - macos-12
-          - macos-11
-        perl: ['5.36', '5.34', '5.32', '5.30', '5.28', '5.22']
+        perl: ['5.38', '5.36', '5.34', '5.32', '5.30', '5.28', '5.22']
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
