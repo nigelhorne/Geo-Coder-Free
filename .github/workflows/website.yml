@@ -42,6 +42,7 @@ jobs:
           cpanm --skip-satisfied -qn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -qn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -qn Log::WarnDie IPC::System::Simple Array::Iterator
+          cpanm --skip-satisfied -qn Geo::Coder::Abbreviations
         env:
           AUTHOR_TESTING: 1
       - name: Run Tests
