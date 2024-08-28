@@ -45,8 +45,8 @@ jobs:
           cpanm --skip-satisfied -qn Geo::Coder::Abbreviations Geo::Location::Point
           cpanm --skip-satisfied -qn Module::Info Locale::CA Locale::US CHI
           cpanm --skip-satisfied -qn Locale::SubCountry Lingua::EN::AddressParse
-          cpanm --skip-satisfied -qn Geo::StreetAddress::US
-          cpanm -ivn --installdeps .
+          cpanm --skip-satisfied -qn Geo::StreetAddress::US Log::Dispatch::File
+          cpanm -iqn --installdeps .
         env:
           AUTHOR_TESTING: 1
       - name: Run Tests
