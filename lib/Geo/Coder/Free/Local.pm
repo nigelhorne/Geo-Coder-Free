@@ -60,9 +60,10 @@ Geo::Coder::Free::Local provides an interface to your own location data.
 
 =cut
 
-sub new {
-	my($proto, %args) = @_;
-	my $class = ref($proto) || $proto;
+sub new
+{
+	my $class = shift;
+	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
 	if(!defined($class)) {
 		# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new

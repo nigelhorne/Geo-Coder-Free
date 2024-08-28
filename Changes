@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.37
+	Allow new() to take HASH ref
+
 0.36	Fri Jul  5 08:56:52 EDT 2024
 	Handle wide characters
 	Latest VWF

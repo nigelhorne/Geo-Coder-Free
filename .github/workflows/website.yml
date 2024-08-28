@@ -46,10 +46,11 @@ jobs:
           cpanm --skip-satisfied -qn Module::Info Locale::CA Locale::US CHI
           cpanm --skip-satisfied -qn Locale::SubCountry Lingua::EN::AddressParse
           cpanm --skip-satisfied -qn Geo::StreetAddress::US Log::Dispatch::File
-          cpanm --skip-satisfied -qn warnings::unused
+          cpanm --skip-satisfied -qn warnings::unused YAML::XS Mo
           cpanm -ivn --installdeps .
         env:
           AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
       - name: Run Tests
         run: |
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi

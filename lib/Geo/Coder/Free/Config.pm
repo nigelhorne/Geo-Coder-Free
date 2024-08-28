@@ -43,11 +43,10 @@ use File::Spec;
 
 =cut
 
-sub new {
-	my $proto = shift;
+sub new
+{
+	my $class = shift;
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
-
-	my $class = ref($proto) || $proto;
 
 	my $info = $args{info} || CGI::Info->new();
 
