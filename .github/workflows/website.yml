@@ -46,7 +46,7 @@ jobs:
           cpanm --skip-satisfied -qn Module::Info Locale::CA Locale::US CHI
           cpanm --skip-satisfied -qn Locale::SubCountry Lingua::EN::AddressParse
           cpanm --skip-satisfied -qn Geo::StreetAddress::US
-          cpanm --skip-satisfied -iqn --installdeps .
+          cpanm -ivn --installdeps .
         env:
           AUTHOR_TESTING: 1
       - name: Run Tests
