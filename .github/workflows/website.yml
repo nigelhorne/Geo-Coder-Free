@@ -32,7 +32,7 @@ jobs:
       - name: update
         run: apt update && apt-get -y upgrade
       - name: install packages
-        run: apt-get -y install liblwp-protocol-https-perl cpanminus
+        run: apt-get -y install liblwp-protocol-https-perl cpanminus libhtml-parser-perl
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
