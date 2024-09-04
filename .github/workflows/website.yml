@@ -14,21 +14,23 @@ on:
 jobs:
   perl:
     runs-on: ubuntu-latest
-
     strategy:
+      fail-fast: false
       matrix:
         perl-version:
           # - '5.16'
           # - '5.22'
           # - '5.32'
           - 'latest'
-
     container:
       image: perl:${{ matrix.perl-version }}
-
     steps:
       - uses: actions/checkout@v4
       - name: perl -V
+      - name: Setup perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl-version }}
         run: perl -V
       - name: Install Dependencies
         run: |
