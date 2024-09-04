@@ -830,6 +830,14 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 15639
 		}, {
+			'LAT' => 40.154989,
+			'LON' =>  -76.304266,
+			'STREET' => '',
+			'CITY' => 'LITITZ',
+			'COUNTY' => 'LANCASTER',
+			'STATE' => 'PA',
+			'COUNTRY' => 'US',
+		}, {
 			'LAT' => 39.999154,
 			'LON' => -79.046526,
 			'NAME' => 'SOUTH SOMERSET SERVICE PLAZA',
