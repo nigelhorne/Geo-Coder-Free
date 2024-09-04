@@ -26,12 +26,11 @@ jobs:
       image: perl:${{ matrix.perl-version }}
     steps:
       - uses: actions/checkout@v4
-      - name: perl -V
       - name: Setup perl
         uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: ${{ matrix.perl-version }}
-        run: perl -V
+      - run: perl -V
       - name: Install Dependencies
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
