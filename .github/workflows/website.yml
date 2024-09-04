@@ -32,7 +32,7 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: update
-        run: sudo apt update && sudo apt upgrade
+        run: apt update && sudo apt upgrade
       - name: install packages
         run: sudo apt install liblwp-protocol-https-perl
       - name: Install Dependencies
