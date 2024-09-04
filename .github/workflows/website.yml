@@ -29,12 +29,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: update
+        run: apt update && apt-get -y upgrade
+      - name: install packages
+        run: apt-get -y install liblwp-protocol-https-perl
       - name: perl -V
         run: perl -V
-      - name: update
-        run: apt update && apt upgrade
-      - name: install packages
-        run: apt install liblwp-protocol-https-perl
       - name: Install Dependencies
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
