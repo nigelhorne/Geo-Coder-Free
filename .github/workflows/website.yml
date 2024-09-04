@@ -32,9 +32,9 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: update
-        run: apt update && sudo apt upgrade
+        run: apt update && apt upgrade
       - name: install packages
-        run: sudo apt install liblwp-protocol-https-perl
+        run: apt install liblwp-protocol-https-perl
       - name: Install Dependencies
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
