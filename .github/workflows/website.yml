@@ -39,7 +39,6 @@ jobs:
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
           cpanm -ivnf LWP::Simple::WithCache CGI::IDS DB_File
-          cpanm -ivn HTML::Entities
           cpanm -ivn CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -ivfn Data::Throttler CGI::ACL B::Lint
           cpanm --skip-satisfied -vn LWP::UserAgent::Cached Data::Serializer
@@ -47,8 +46,9 @@ jobs:
           cpanm --skip-satisfied -vn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -vn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
+          cpanm -ivn --installdeps .
         env:
-          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
       - name: Run Tests
         run: |
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi
