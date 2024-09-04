@@ -14,23 +14,22 @@ on:
 jobs:
   perl:
     runs-on: ubuntu-latest
+
     strategy:
-      fail-fast: false
       matrix:
         perl-version:
           # - '5.16'
           # - '5.22'
           # - '5.32'
           - 'latest'
+
     container:
       image: perl:${{ matrix.perl-version }}
+
     steps:
       - uses: actions/checkout@v4
-      - name: Setup perl
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: ${{ matrix.perl-version }}
-      - run: perl -V
+      - name: perl -V
+        run: perl -V
       - name: Install Dependencies
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
@@ -39,19 +38,12 @@ jobs:
           cpanm -iqn --skip-satisfied CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -iqfn Data::Throttler CGI::ACL B::Lint
           cpanm --skip-satisfied -qn LWP::UserAgent::Cached Data::Serializer
-          cpanm --skip-satisfied -qn warnings::unused HTML::SocialMedia Config::Auto
+          cpanm --skip-satisfied -qn warnings::unused HTML::SocialMedia
           cpanm --skip-satisfied -qn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -qn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -qn Log::WarnDie IPC::System::Simple Array::Iterator
-          cpanm --skip-satisfied -qn Geo::Coder::Abbreviations Geo::Location::Point
-          cpanm --skip-satisfied -qn Module::Info Locale::CA Locale::US CHI
-          cpanm --skip-satisfied -qn Locale::SubCountry Lingua::EN::AddressParse
-          cpanm --skip-satisfied -qn Geo::StreetAddress::US Log::Dispatch::File
-          cpanm --skip-satisfied -qn warnings::unused YAML::XS Mo
-          cpanm -ivn --installdeps .
         env:
           AUTHOR_TESTING: 1
-          AUTOMATED_TESTING: 1
       - name: Run Tests
         run: |
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi
