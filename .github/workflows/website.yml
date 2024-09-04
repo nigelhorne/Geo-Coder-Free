@@ -31,11 +31,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: perl -V
         run: perl -V
+      - name: update
+        run: sudo apt update && sudo apt upgrade
+      - name: install packages
+        run: sudo apt install liblwp-protocol-https-perl
       - name: Install Dependencies
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
           cpanm -ivnf --skip-satisfied LWP::Simple::WithCache CGI::IDS DB_File
-          cpanm -ivn --skip-satisfied HTML::Entities LWP::Protocol::https
+          cpanm -ivn --skip-satisfied HTML::Entities
           cpanm -ivn --skip-satisfied CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -ivfn Data::Throttler CGI::ACL B::Lint
           cpanm --skip-satisfied -vn LWP::UserAgent::Cached Data::Serializer
