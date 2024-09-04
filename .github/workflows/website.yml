@@ -32,15 +32,15 @@ jobs:
       - name: update
         run: apt update && apt-get -y upgrade
       - name: install packages
-        run: apt-get -y install liblwp-protocol-https-perl
+        run: apt-get -y install liblwp-protocol-https-perl cpanminus
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
-          cpanm -ivnf --skip-satisfied LWP::Simple::WithCache CGI::IDS DB_File
-          cpanm -ivn --skip-satisfied HTML::Entities
-          cpanm -ivn --skip-satisfied CGI::Carp FCGI::Buffer Taint::Runtime FCGI
+          cpanm -ivnf LWP::Simple::WithCache CGI::IDS DB_File
+          cpanm -ivn HTML::Entities
+          cpanm -ivn CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -ivfn Data::Throttler CGI::ACL B::Lint
           cpanm --skip-satisfied -vn LWP::UserAgent::Cached Data::Serializer
           cpanm --skip-satisfied -vn warnings::unused HTML::SocialMedia
