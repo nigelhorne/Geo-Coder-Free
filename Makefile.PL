@@ -24,8 +24,9 @@ BEGIN {
 	# Test for broken smokers that don't set AUTOMATED_TESTING
 	if(my $reporter = $ENV{'PERL_CPAN_REPORTER_CONFIG'}) {
 		if($reporter =~ /smoker/i) {
-			warn 'AUTOMATED_TESTING added for you';
+			warn 'AUTOMATED_TESTING added for you' if(!defined($ENV{'AUTOMATED_TESTING'}));
 			$ENV{'AUTOMATED_TESTING'} = 1;
+			$ENV{'NO_NETWORK_TESTING'} = 1;
 		}
 	}
 
@@ -43,9 +44,11 @@ BEGIN {
 	}
 }
 
-if(defined($ENV{'GITHUB_ACTION'}) || defined($ENV{'TRAVIS_PERL_VERSION'}) || defined($ENV{'APPVEYOR'})) {
+if(defined($ENV{'GITHUB_ACTION'}) || defined($ENV{'CIRCLECI'}) || defined($ENV{'TRAVIS_PERL_VERSION'}) || defined($ENV{'APPVEYOR'})) {
 	# Prevent downloading and installing stuff
+	warn 'AUTOMATED_TESTING added for you' if(!defined($ENV{'AUTOMATED_TESTING'}));
 	$ENV{'AUTOMATED_TESTING'} = 1;
+	$ENV{'NO_NETWORK_TESTING'} = 1;
 }
 
 foreach my $module(@needfull) {
