@@ -860,7 +860,7 @@ my %known_places = (	# Places I've checked with my GPS
 		}, {
 			'LAT' => 39.142146,
 			'LON' => -77.866468,
-			'NAME' => 'SHENANDOAH RETREAT',
+			'NAME' => 'SHENANDOAH COOL SPRINGS BATTLEFIELD',
 			'CITY' => 'BLUEMONT',
 			'COUNTY' => 'CLARKE',
 			'STATE' => 'VA',
