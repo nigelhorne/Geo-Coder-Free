@@ -832,7 +832,6 @@ my %known_places = (	# Places I've checked with my GPS
 		}, {
 			'LAT' => 40.154989,
 			'LON' =>  -76.304266,
-			'STREET' => '',
 			'CITY' => 'LITITZ',
 			'COUNTY' => 'LANCASTER',
 			'STATE' => 'PA',
@@ -858,6 +857,14 @@ my %known_places = (	# Places I've checked with my GPS
 			'STATE' => 'VA',
 			'COUNTRY' => 'US',
 			'POSTCODE' => 22306
+		}, {
+			'LAT' => 39.142146,
+			'LON' => -77.866468,
+			'NAME' => 'SHENANDOAH RETREAT',
+			'CITY' => 'BLUEMONT',
+			'COUNTY' => 'CLARKE',
+			'STATE' => 'VA',
+			'COUNTRY' => 'US',
 		}, {
 			'LAT' => 38.873934,
 			'LON' => -77.461939,
@@ -912,7 +919,6 @@ my %known_places = (	# Places I've checked with my GPS
 		}, {
 			'LAT' => 38.25075,
 			'LON' => -76.9602533333333,
-			'STREET' => '',
 			'CITY' => 'COLONIAL BEACH',
 			'COUNTY' => 'WESTMORELAND',
 			'STATE' => 'VA',
