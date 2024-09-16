@@ -36,6 +36,8 @@ jobs:
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
+        env:
+          AUTOMATED_TESTING: 1
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
           cpanm -ivnf LWP::Simple::WithCache CGI::IDS DB_File
@@ -46,11 +48,11 @@ jobs:
           cpanm --skip-satisfied -vn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -iqn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
-          cpanm --skip-satisfied -iqn Log::Dispatch::File
+          cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo
           cpanm -ivn --installdeps .
+      - name: Run Tests
         env:
           AUTOMATED_TESTING: 1
-      - name: Run Tests
         run: |
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi
           perl -c -Ilib -Mwarnings::unused cgi-bin/page.fcgi
