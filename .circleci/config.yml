@@ -21,7 +21,6 @@ jobs:
             sudo apt-get update && \
             sudo apt-get upgrade && \
             sudo apt-get install --assume-yes --quiet \
-              --no-install-suggests --no-install-recommends \
               perl cpanminus build-essential libaio-dev
       - run:
           name: Perl version
@@ -35,7 +34,7 @@ jobs:
       - run:
           name: Install dependancies
           command: |
-            sudo cpanm -ivnf --skip-satisfied LWP::Simple::WithCache CGI::IDS IO::AIO
+            sudo cpanm -ivnf LWP::Simple::WithCache CGI::IDS IO::AIO
             sudo cpanm -ivn --installdeps .
       - run:
           name: Make Module
