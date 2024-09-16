@@ -22,7 +22,7 @@ jobs:
             sudo apt-get upgrade && \
             sudo apt-get install --assume-yes --quiet \
               perl cpanminus build-essential libaio-dev libio-aio-perl \
-              libtest-needs-perl libtest-most-perl
+              libtest-needs-perl libtest-most-perl libexpat1-dev
       - run:
           name: Perl version
           command: perl --version
