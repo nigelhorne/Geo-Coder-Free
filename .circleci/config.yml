@@ -1,31 +1,83 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
+---
+
+# https://github.com/AtomLinter/atom-linter-perlcritic/blob/master/.circleci/config.yml
+
+# Couldn't automatically generate a config from your source code.
+# This is a generic template to serve as a base for your custom config
 # See: https://circleci.com/docs/configuration-reference
+# Stacks detected: cicd:github-actions:.github/workflows
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
+  test:
     docker:
-      # Specify the version you desire here
-      # See: https://circleci.com/developer/images/image/cimg/base
-      - image: cimg/base:current
+      - image: cimg/base:stable
 
-    # Add steps to the job
-    # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
     steps:
-      # Checkout the code as the first step.
       - checkout
+      # Replace this with a real test runner invocation
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
+          name: Install Perl
+          command: |
+            sudo apt-get update && \
+            sudo apt-get upgrade && \
+            sudo apt-get install --assume-yes --quiet \
+              --no-install-suggests --no-install-recommends \
+              perl cpanminus
+      - run:
+          name: Perl version
+          command: perl --version
+      - run:
+          name: App::cpanminus version
+          command: cpanm --version
+      - run:
+          name: Prepare testing environment
+          command: sudo cpanm -iqn Test::Most Test::Needs
+      - run:
+          name: Install dependancies
+          command: sudo cpanm -iqn --installdeps .
+      - run:
+          name: Make Module
+          command: sudo chown -R circleci . && perl Makefile.PL && make
+      - run:
+          name: Run tests
+          environment:
+            # PATH: ~/perl5/bin:/bin:/usr/bin
+            AUTOMATED_TESTING: 1
+            AUTHOR_TESTING: 1
+          # command: echo 'replace me with real tests!' && false
+          command: |
+            make test
+            # cover -test
+            # cover -report codecov
+  build:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      # Replace this with steps to build a package, or executable
+      - run:
+          name: Build an artifact
+          command: touch example.txt
+      - store_artifacts:
+          path: example.txt
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      # Replace this with steps to deploy to users
+      - run:
+          name: deploy
+          command: '#e.g. ./deploy.sh'
+      - run:
+          name: found github actions config
+          command: ':'
 workflows:
-  say-hello-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
+  test:
     jobs:
-      - say-hello
+      - test
+      - build:
+          requires:
+            - test
+      - deploy:
+          requires:
+            - test

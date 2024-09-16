@@ -153,22 +153,30 @@ sub geocode {
 		my $rc = Geo::Location::Point->new($row);
 		my $str = lc($rc->as_string());
 
+		# ::diag("Compare $str->$lc") if(($location =~ /MINSTER CEME/i) && ($str =~ /MINSTER CEME/i));
 		# ::diag("Compare $str->$lc");
 		# print "Compare $str->$lc\n";
 		if($str eq $lc) {
-			foreach my $column ('name', 'state_district') {
-				if((!defined($rc->{$column})) && exists($rc->{$column})) {
-					delete $rc->{$column};
-				}
-			}
+			# This looks pointless and I can't recall why I put it in
+			# foreach my $column ('name', 'state_district') {
+				# if((!defined($rc->{$column})) && exists($rc->{$column})) {
+					# delete $rc->{$column};
+				# }
+			# }
+			# ::diag("$location: linear search suceeded");
 			return $rc;
 		}
 		if($str =~ /, us$/) {
 			if("${str}a" eq $lc) {
 				return $rc;
 			}
+		} elsif($lc =~ /(.+), (England|UK)$/i) {
+			if($str eq "$1, gb") {
+				return $rc;
+			}
 		}
 	}
+	# ::diag("$location: linear search failed");
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 
@@ -201,11 +209,11 @@ sub geocode {
 			# Carp::croak($ap->report());
 			# ::diag('Address parse failed: ', $ap->report());
 		# } else {
-		if(!$ap->parse($l)) {
+		if($ap->parse($l) == 0) {
 			# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 			my %c = $ap->components();
 			# ::diag(Data::Dumper->new([\%c])->Dump());
-			my %addr = ( 'location' => $l );
+			my %addr = ('location' => $l);
 			my $street = $c{'street_name'};
 			if(my $type = $c{'street_type'}) {
 				if(my $a = Geo::Coder::Free::_abbreviate($type)) {

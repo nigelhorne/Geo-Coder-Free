@@ -27,7 +27,7 @@ install:
   - cmd: path C:\strawberry\perl\bin;C:\strawberry\perl\site\bin;C:\strawberry\c\bin;%PATH%
   # - cmd: cd C:\projects\%APPVEYOR_PROJECT_NAME%
   # Currently fails on http://apt.postgresql.org/pub/repos/apt bionic-pgdg Release
-  # - sh: sudo apt update -q -y
+  - sh: sudo apt update -q -y
   - sh: sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y --force-yes build-essential git libssl-dev perl
   - sh: sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
   - sh: export PATH=/home/appveyor/perl5/bin:$PATH

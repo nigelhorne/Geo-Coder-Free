@@ -39,12 +39,22 @@ jobs:
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https
           cpanm -ivn --installdeps .
       - name: Make Module
-        run: |
-          find . -name build.log | xargs cat
-          perl Makefile.PL
-          make
-      - name: Run Tests
-        run: prove -l -b t
         env:
           AUTHOR_TESTING: 1
           AUTOMATED_TESTING: 1
+        run: |
+          # find . -name build.log | xargs cat
+          perl Makefile.PL
+          make
+      - name: Run Tests
+        env:
+          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
+          # CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: prove -l -b t
+        # run: |
+        #   cover -test
+        #   cover -report codecov
+        #   curl -Os https://uploader.codecov.io/latest/macos/codecov
+        #   chmod +x codecov
+        #   ./codecov -t ${{ secrets.CODECOV_TOKEN }}
