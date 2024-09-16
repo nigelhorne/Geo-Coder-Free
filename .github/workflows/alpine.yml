@@ -41,6 +41,7 @@ jobs:
           cpanm -iqn LWP::UserAgent::Throttled Locale::CA Locale::Country Devel::Size
           cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info
           cpanm -iqn Text::xSV::Slurp Test::Carp Digest::CRC Test::Needs Array::Iterator
+          cpanm -iqfn CGI::IDS
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1

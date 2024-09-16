@@ -44,8 +44,9 @@ jobs:
           cpanm --skip-satisfied -vn LWP::UserAgent::Cached Data::Serializer
           cpanm --skip-satisfied -vn warnings::unused HTML::SocialMedia
           cpanm --skip-satisfied -vn Log::Any::Adapter::Log4perl Database::Abstraction
-          cpanm --skip-satisfied -vn Template::Filters Template::Plugin::EnvHash
+          cpanm --skip-satisfied -iqn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
+          cpanm --skip-satisfied -iqn Log::Dispatch::File
           cpanm -ivn --installdeps .
         env:
           AUTOMATED_TESTING: 1
