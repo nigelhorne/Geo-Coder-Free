@@ -35,8 +35,8 @@ jobs:
       - run:
           name: Install dependancies
           command: |
-            sudo cpanm -ivnf LWP::Simple::WithCache CGI::IDS
-            sudo cpanm -ivn --installdeps .
+            sudo cpanm -iqnf LWP::Simple::WithCache CGI::IDS
+            sudo cpanm -iqn --installdeps .
       - run:
           name: Make Module
           command: sudo chown -R circleci . && perl Makefile.PL && make
