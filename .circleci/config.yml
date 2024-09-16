@@ -34,9 +34,11 @@ jobs:
           command: sudo cpanm -iqn Test::Most Test::Needs
       - run:
           name: Install dependancies
+          environment:
+            AUTOMATED_TESTING: 1
           command: |
             sudo cpanm -iqnf LWP::Simple::WithCache CGI::IDS
-            sudo cpanm -iqn --installdeps .
+            sudo cpanm -ivn --installdeps . || cat /root/.cpan/work/*/build.log
       - run:
           name: Make Module
           command: sudo chown -R circleci . && perl Makefile.PL && make
