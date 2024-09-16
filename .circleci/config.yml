@@ -34,7 +34,7 @@ jobs:
           command: sudo cpanm -iqn Test::Most Test::Needs
       - run:
           name: Install dependancies
-          command: sudo cpanm -iqn --installdeps .
+          command: sudo cpanm -ivn --installdeps .
       - run:
           name: Make Module
           command: sudo chown -R circleci . && perl Makefile.PL && make
