@@ -22,7 +22,7 @@ jobs:
             sudo apt-get upgrade && \
             sudo apt-get install --assume-yes --quiet \
               --no-install-suggests --no-install-recommends \
-              perl cpanminus
+              perl cpanminus build-essential libaio-dev
       - run:
           name: Perl version
           command: perl --version
