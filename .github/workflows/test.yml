@@ -33,7 +33,7 @@ jobs:
       - run: perl -V
       - name: Install Dependencies
         run: |
-          cpanm -iqn ExtUtils::MakeMaker Test::Most Clone
+          cpanm -iqn ExtUtils::MakeMaker Test::Most Test::Needs Clone
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
           cpanm -iv DB_File
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https
