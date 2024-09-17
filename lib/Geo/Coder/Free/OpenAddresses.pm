@@ -24,7 +24,7 @@ use Digest::MD5;
 use Encode;
 use Storable;
 
-#  Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
+# Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file
 our %known_locations = (
 	'Newport Pagnell, Buckinghamshire, England' => {
@@ -692,7 +692,7 @@ sub geocode
 						}
 						$args{street} = uc($street);
 					}
-					warn "Fast lookup of Canadian location' $location' failed";
+					warn "Fast lookup of Canadian location '$location' failed";
 				} else {
 					if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
 						# Perhaps it just has the street's name?
@@ -959,7 +959,7 @@ To be done.
 
 =cut
 
-# At the moment this can't be supported as the DB only has an hash in it
+# At the moment this can't be supported as the DB only has a hash in it
 sub reverse_geocode {
 	Carp::croak(__PACKAGE__, ': Reverse lookup is not yet supported');
 }
