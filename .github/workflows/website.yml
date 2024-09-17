@@ -38,6 +38,7 @@ jobs:
       - name: Install Dependencies
         env:
           AUTOMATED_TESTING: 1
+          OPENADDR_HOME: /tmp
         run: |
           cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
           cpanm -ivnf LWP::Simple::WithCache CGI::IDS DB_File
@@ -53,6 +54,7 @@ jobs:
       - name: Run Tests
         env:
           AUTOMATED_TESTING: 1
+          OPENADDR_HOME: /tmp
         run: |
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi
           perl -c -Ilib -Mwarnings::unused cgi-bin/page.fcgi
