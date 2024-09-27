@@ -22,7 +22,7 @@ jobs:
           - macos-latest
           - ubuntu-latest
           - windows-latest
-        perl: ['5.38', '5.36', '5.34', '5.32', '5.30', '5.28', '5.22']
+        perl: ['5.40', '5.38', '5.36', '5.34', '5.32', '5.30', '5.28', '5.22']
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +32,8 @@ jobs:
           perl-version: ${{ matrix.perl }}
       - run: perl -V
       - name: Install Dependencies
+        env:
+          AUTOMATED_TESTING: 1
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most Test::Needs Clone
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
@@ -42,6 +44,8 @@ jobs:
         env:
           AUTHOR_TESTING: 1
           AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
+          NONINTERACTIVE_TESTING: 1
         run: |
           # find . -name build.log | xargs cat
           perl Makefile.PL
@@ -50,6 +54,8 @@ jobs:
         env:
           AUTHOR_TESTING: 1
           AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
+          NONINTERACTIVE_TESTING: 1
           # CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: prove -l -b t
         # run: |

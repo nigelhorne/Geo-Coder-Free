@@ -55,6 +55,7 @@ jobs:
         env:
           AUTOMATED_TESTING: 1
           OPENADDR_HOME: /tmp
+          ROOT_DIR: /var/www/geogode.nigelhorne.com
         run: |
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi
           perl -c -Ilib -Mwarnings::unused cgi-bin/page.fcgi

@@ -27,7 +27,7 @@ jobs:
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
           apk add musl-dev perl-canary-stability perl-file-slurp zlib-dev perl-dbd-csv
           apk add perl-chi perl-dbd-sqlite perl-text-csv perl-text-csv_xs perl-test-number-delta
-          apk add perl-db_file
+          apk add perl-db_file perl-test-describeme
           perl -V
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
