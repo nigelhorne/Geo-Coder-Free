@@ -1077,7 +1077,7 @@ BEGIN {
 
 exit(0) if($ENV{'AUTOMATED_TESTING'});
 
-if($^O ne 'solaris') {
+if(($^O ne 'solaris') && ($^O ne 'haiku')) {
 	eval {
 		require File::Open::NoCache::ReadOnly;
 		require IO::AIO;
