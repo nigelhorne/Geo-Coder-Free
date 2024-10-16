@@ -306,6 +306,15 @@ if($ENV{'AUTHOR_TESTING'}) {
 	$test_requires->{'Taint::Runtime'} = 0;
 }
 
+my $dist = {
+	COMPRESS => 'gzip -9f',
+	SUFFIX => 'gz'
+};
+
+if($^O eq 'darwin') {
+	$dist->{'TAR'} = 'gtar';
+}
+
 WriteMakefile(
 	NAME		=> 'Geo::Coder::Free',
 	AUTHOR		=> q{Nigel Horne <njh@bandsman.co.uk>},
@@ -343,8 +352,7 @@ WriteMakefile(
 		'Storable' => 0,
 		'Text::CSV' => 0,
 		'Text::xSV::Slurp' => 0,
-	},
-	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz' },
+	}, dist => $dist,
 	clean		=> { FILES => 'Geo-Coder-Free-*' },
 	EXE_FILES => [ 'bin/address_lookup' ],
 	# META_ADD => {

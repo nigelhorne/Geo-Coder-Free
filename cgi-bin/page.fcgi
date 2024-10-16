@@ -26,7 +26,7 @@ use CGI::Info;
 use CGI::Lingua;
 use Database::Abstraction;
 use File::Basename;
-# use CGI::Alert 'you@example.com';
+# use CGI::Alert $ENV{'SERVER_ADMIN'} || 'you@example.com';
 use FCGI;
 use FCGI::Buffer;
 use Log::Any::Adapter;

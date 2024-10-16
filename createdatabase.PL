@@ -908,6 +908,15 @@ my %known_places = (	# Places I've checked with my GPS
 			'COUNTRY' => 'US',
 			'POSTCODE' => 20176
 		}, {
+			'LAT' => 39.04071,
+			'LON' => -77.61682,
+			'STREET' => 'OATLANDS PLANTATION LN',
+			'CITY' => 'OATLANDS',
+			'COUNTY' => 'LOUDOUN',
+			'STATE' => 'VA',
+			'COUNTRY' => 'US',
+			'POSTCODE' => 20175
+		}, {
 			'LAT' => 39.136193,
 			'LON' => -77.693198,
 			'STREET' => 'PURCELLVILLE GATEWAY DR',
