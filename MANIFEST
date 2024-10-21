@@ -55,6 +55,7 @@ t/links.t
 t/local.t
 t/manifest.t
 t/maxmind.t
+t/modules-used.t
 t/namespaces.t
 t/no404s.t
 t/noopentickets.t
@@ -71,7 +72,6 @@ t/scantext.t
 t/snippets.t
 t/strict.t
 t/unused.t
-t/used.t
 t/vars.t
 t/version.t
 t/whosonfirst.t
