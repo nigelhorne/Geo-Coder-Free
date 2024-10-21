@@ -63,13 +63,13 @@ t/noplan.t
 t/openaddr.t
 t/osm.t
 t/pod-cm.t
+t/pod-snippets.t
 t/pod-spelling.t
 t/pod-synopsis.t
 t/pod.t
 t/port.t
 t/prereq.t
 t/scantext.t
-t/snippets.t
 t/strict.t
 t/unused.t
 t/vars.t

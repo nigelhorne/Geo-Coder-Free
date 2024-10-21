@@ -64,7 +64,7 @@ if($ENV{'HTTP_USER_AGENT'}) {
 
 Log::WarnDie->filter(\&filter);
 
-my $vwflog = File::Spec->catfile($info->logdir(), 'vwf.log');
+my $vwflog;	# Location of the vwf.log file, read in from the config file - default = logdir/vwf.log
 
 my $infocache;
 my $linguacache;
@@ -247,6 +247,7 @@ sub doit
 		syslog => $syslog,
 	});
 
+	$vwflog ||= ($config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log'));
 	if($vwflog && open(my $fout, '>>', $vwflog)) {
 		print $fout
 			'"', $info->domain_name(), '",',
