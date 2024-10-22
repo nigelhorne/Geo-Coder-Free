@@ -405,7 +405,7 @@ sub geocode {
 	}
 
 	# Finally try libpostal,
-	# which is good but uses a lot of memory and can take a very long time to load
+	# which is good but uses a lot of memory and can take a very long time to parse data
 	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
 		if(eval { require Geo::libpostal; } ) {
 			Geo::libpostal->import();
@@ -418,6 +418,7 @@ sub geocode {
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": libpostal_is_installed = $libpostal_is_installed ($location)");
 	# print(__PACKAGE__, ': ', __LINE__, ": libpostal_is_installed = $libpostal_is_installed ($location)\n");
 
+	# TODO: cache calls to this
 	if(($libpostal_is_installed == LIBPOSTAL_INSTALLED) && (my %addr = Geo::libpostal::parse_address($location))) {
 		if($addr{'house_number'} && !$addr{'number'}) {
 			$addr{'number'} = delete $addr{'house_number'};
