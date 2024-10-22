@@ -36,24 +36,25 @@ jobs:
           name: Install dependancies
           environment:
             AUTOMATED_TESTING: 1
+            NO_NETWORK_TESTING: 1
           command: |
             sudo cpanm -iqnf LWP::Simple::WithCache CGI::IDS
             sudo cpanm -ivn --installdeps . || cat /root/.cpan/work/*/build.log
       - run:
           name: Make Module
-          command: sudo chown -R circleci . && perl Makefile.PL && make
           environment:
             # PATH: ~/perl5/bin:/bin:/usr/bin
             AUTOMATED_TESTING: 1
-            AUTHOR_TESTING: 1
             NO_NETWORK_TESTING: 1
+            NONINTERACTIVE_TESTING: 1
+          command: sudo chown -R circleci . && perl Makefile.PL && make
       - run:
           name: Run tests
           environment:
             # PATH: ~/perl5/bin:/bin:/usr/bin
             AUTOMATED_TESTING: 1
             AUTHOR_TESTING: 1
-            NO_NETWORK_TESTING: 1
+            NONINTERACTIVE_TESTING: 1
           # command: echo 'replace me with real tests!' && false
           command: |
             make test

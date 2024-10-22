@@ -42,7 +42,6 @@ t/admin2.t
 t/bin.t
 t/cities.t
 t/comment-spelling.t
-t/coverage.t
 t/critic.t
 t/dr5hn.t
 t/eof.t
@@ -63,6 +62,7 @@ t/noplan.t
 t/openaddr.t
 t/osm.t
 t/pod-cm.t
+t/pod-coverage.t
 t/pod-snippets.t
 t/pod-spelling.t
 t/pod-synopsis.t
