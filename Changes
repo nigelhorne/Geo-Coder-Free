@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.37
+0.37	Wed Oct 23 10:09:54 EDT 2024
 	Allow new() to take HASH ref
 	Slight speed improvements in Local.pm
 	Support CircleCI
