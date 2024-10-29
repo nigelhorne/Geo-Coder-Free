@@ -146,9 +146,8 @@ sub geocode {
 
 	# Look for a quick match, we may get lucky
 	my $lc = lc($location);
-	if($lc =~ /(.+), usa$/) {
-		$lc = "$1, us";
-	}
+	$lc =~ s/,\susa$/, us/i;
+
 	foreach my $row(@{$self->{'data'}}) {
 		my $rc = Geo::Location::Point->new($row);
 		my $str = lc($rc->as_string());
@@ -166,14 +165,13 @@ sub geocode {
 			# ::diag("$location: linear search suceeded");
 			return $rc;
 		}
-		if($str =~ /, us$/) {
-			if("${str}a" eq $lc) {
-				return $rc;
-			}
-		} elsif($lc =~ /(.+), (England|UK)$/i) {
-			if($str eq "$1, gb") {
-				return $rc;
-			}
+
+		if(($str =~ /, us$/) && ("${str}a" eq $lc)) {
+			return $rc;
+		}
+
+		if(($lc =~ /(.+), (England|UK)$/i) && ($str eq "$1, gb")) {
+			return $rc;
 		}
 	}
 	# ::diag("$location: linear search failed");
@@ -469,11 +467,19 @@ sub geocode {
 		}
 	}
 	if($location =~ /^(.+?),\s*([\s\w]+),\s*([\s\w]+),\s*([\w\s]+)$/) {
-		my %addr;
-		$addr{'road'} = $1;
-		$addr{'city'} = $2;
-		$addr{'state'} = $3;
-		$addr{'country'} = $4;
+		# >= 5.14 could say:
+		# my %addr = (
+		#	road => $1,
+		#	city => $2,
+		#	state => $3 =~ s/\s+$//r,
+		#	country => $4 =~ s/\s+$//r
+		# );
+		my %addr = (
+			road => $1,
+			city => $2,
+			state => $3,
+			country => $4,
+		);
 		$addr{'state'} =~ s/\s$//g;
 		$addr{'country'} =~ s/\s$//g;
 		if($addr{'road'} =~ /([\w\s]+),*\s+(.+)/) {
