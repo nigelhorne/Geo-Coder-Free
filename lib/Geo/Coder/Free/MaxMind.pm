@@ -666,6 +666,8 @@ sub _prepare($$) {
 
 	if(my $region = $loc->{'Region'}) {
 		my $county;
+
+		# Check if region is already cached in admin2cache
 		while(my ($key, $value) = each %admin2cache) {
 			if($value eq $region) {
 				$county = $key;
@@ -675,9 +677,14 @@ sub _prepare($$) {
 		if($county) {
 			$loc->{'Region'} = $county;
 		} else {
+			# Initialize admin2 object if not already initialized
 			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or die "Can't open the admin2 database";
+
+			# Prepare and execute SQL query
+
 			my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($region) . "' LIMIT 1");
 			if(ref($row) && $row->{'name'}) {
+				# Cache the result for future calls and update the location's region
 				$admin2cache{$row->{'name'}} = $region;
 				$loc->{'Region'} = $row->{'name'};
 			}
