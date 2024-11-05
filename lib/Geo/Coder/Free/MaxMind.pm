@@ -24,6 +24,7 @@ use Locale::CA;
 use Locale::US;
 use CHI;
 use Locale::Country;
+use Scalar::Util;
 
 our %admin1cache;
 our %admin2cache;	# e.g. maps 'Kent' => 'P5'
@@ -107,6 +108,8 @@ The admin2.db is far from comprehensive, see Makefile.PL for some entries that a
 sub new
 {
 	my $class = shift;
+
+	# Handle hash or hashref arguments
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
 	if(!defined($class)) {
@@ -116,13 +119,17 @@ sub new
 
 		# FIXME: this only works when no arguments are given
 		$class = __PACKAGE__;
-	} elsif(ref($class)) {
-		# clone the given object
+	} elsif(Scalar::Util::blessed($class)) {
+		# If $class is an object, clone it with new arguments
 		return bless { %{$class}, %args }, ref($class);
 	}
 
 	my $directory = $args{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
 	$directory =~ s/\.pm$//;
+
+	if(!-d $directory) {
+		Carp::croak(ref($class), ": directory $directory doesn't exist");
+	}
 
 	Database::Abstraction::init({
 		cache_duration => '1 day',
@@ -131,6 +138,7 @@ sub new
 		cache => $args{cache} || CHI->new(driver => 'Memory', datastore => {}),
 	});
 
+	# Return the blessed object
 	return bless { }, $class;
 }
 
