@@ -42,6 +42,7 @@ t/admin2.t
 t/bin.t
 t/cities.t
 t/comment-spelling.t
+t/config.t
 t/critic.t
 t/dr5hn.t
 t/eof.t
