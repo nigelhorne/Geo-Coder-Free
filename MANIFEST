@@ -73,6 +73,7 @@ t/prereq.t
 t/scantext.t
 t/strict.t
 t/unused.t
+t/utils.t
 t/vars.t
 t/version.t
 t/whosonfirst.t
