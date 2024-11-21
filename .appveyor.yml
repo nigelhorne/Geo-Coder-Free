@@ -36,7 +36,7 @@ install:
   - cmd: set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: cpan App::cpanminus
   - sh: sudo apt-get install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
-  - cpanm -iqn LWP::Simple::WithCache
+  - cpanm -iqn LWP::Simple::WithCache Log::Any::Adapter::Log4perl
   - cpanm -iqnf DBIx::TableLoader
   - sh: cpanm -iqn Text::xSV::Slurp
   - cmd: cpanm -iqn Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO

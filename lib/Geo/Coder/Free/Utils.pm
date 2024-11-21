@@ -29,7 +29,7 @@ BEGIN {
 =head2 create_disc_cache
 
 Initialise a disc-based cache using the CHI module.
-Supports multiple cache drivers, including BerkeleyDB, DBI, and Redis
+Supports multiple cache drivers, including BerkeleyDB, DBI, and Redis.
 
 =cut
 
@@ -208,9 +208,9 @@ sub distance {
 	$dist = _acos($dist);
 	$dist = _rad2deg($dist);
 	$dist = $dist * 60 * 1.1515;
-	if ($unit eq "K") {
+	if ($unit eq 'K') {
 		$dist = $dist * 1.609344;	# number of kilometres in a mile
-	} elsif ($unit eq "N") {
+	} elsif ($unit eq 'N') {
 		$dist = $dist * 0.8684;
 	}
 	return ($dist);
