@@ -7,7 +7,7 @@ use Carp;
 use Test::Most tests => 19;
 
 # Load the package/module where 'new' is implemented
-BEGIN { use_ok('Geo::Coder::Free'); use_ok('Geo::coder::Free::Local') }
+BEGIN { use_ok('Geo::Coder::Free'); use_ok('Geo::Coder::Free::Local') }
 
 isa_ok(Geo::Coder::Free->new(), 'Geo::Coder::Free', 'Creating Geo::Coder::Free object');
 isa_ok(Geo::Coder::Free::new(), 'Geo::Coder::Free', 'Creating Geo::Coder::Free object');
