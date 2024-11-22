@@ -1,7 +1,10 @@
+#!/usr/bin/env perl
+
 use strict;
 use warnings;
 
-use Test::Most tests => 10;
+use Test::Most tests => 11;
+use Test::NoWarnings;
 use Error;
 use CHI;
 
