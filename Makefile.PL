@@ -329,6 +329,8 @@ WriteMakefile(
 	PREREQ_PM => {
 		'Carp' => 0,
 		# 'BerkeleyDB' => 0,
+		'Cwd' => 0,
+		'Data::Validate::URI' => 0,
 		'DB_File' => 0,
 		'DBI' => 0,
 		'Digest::MD5' => 0,

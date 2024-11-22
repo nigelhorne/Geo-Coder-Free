@@ -44,6 +44,7 @@ t/cities.t
 t/comment-spelling.t
 t/config.t
 t/critic.t
+t/display.t
 t/dr5hn.t
 t/eof.t
 t/eol.t
