@@ -6,7 +6,8 @@ use warnings;
 use Test::Most tests => 11;
 use Test::NoWarnings;
 use Error;
-use CHI;
+# use CHI::Driver::SharedMem;
+use CHI::Driver::Null;
 
 BEGIN { use_ok('Geo::Coder::Free::Utils') }
 
@@ -19,11 +20,14 @@ my $valid_disk_config = {
 };
 
 my $valid_memory_config = {
+	# memory_cache => {
+		# driver => 'SharedMem',
+		# shm_key => 98766789,
+		# max_size => 1024,
+		# shm_size => 16 * 1024,
+	# }
 	memory_cache => {
-		driver => 'SharedMem',
-		shm_key => 98766789,
-		max_size => 1024,
-		shm_size => 16 * 1024,
+		driver => 'Null',
 	}
 };
 
