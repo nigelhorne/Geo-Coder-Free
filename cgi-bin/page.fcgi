@@ -238,6 +238,8 @@ sub doit
 	}
 
 	$linguacache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Lingua');
+
+	# Language negotiation
 	my $lingua = CGI::Lingua->new({
 		supported => [ 'en-gb' ],
 		cache => $linguacache,
@@ -247,7 +249,7 @@ sub doit
 		syslog => $syslog,
 	});
 
-	$vwflog ||= ($config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log'));
+	$vwflog ||= $config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log');
 
 	my $warnings = '';
 	if(my $w = $info->warnings()) {
