@@ -41,7 +41,7 @@ jobs:
           cpanm -iqn ExtUtils::MakeMaker Test::Most Test::Needs Clone
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
           cpanm -iv DB_File
-          cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash
+          cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
           cpanm -ivn --installdeps .
       - name: Make Module
         env:
