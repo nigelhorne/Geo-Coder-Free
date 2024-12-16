@@ -125,19 +125,25 @@ $SIG{TERM} = \&sig_handler;
 $SIG{PIPE} = 'IGNORE';
 $ENV{'PATH'} = '/usr/local/bin:/bin:/usr/bin';	# For insecurity
 
-$SIG{__WARN__} = sub {
+# my ($stdin, $stdout, $stderr) = (IO::Handle->new(), IO::Handle->new(), IO::Handle->new());
+# https://stackoverflow.com/questions/14563686/how-do-i-get-errors-in-from-a-perl-script-running-fcgi-pm-to-appear-in-the-apach
+$SIG{__DIE__} = $SIG{__WARN__} = sub {
 	if(open(my $fout, '>>', File::Spec->catfile($tmpdir, "$script_name.stderr"))) {
-		print $fout @_;
+		print $fout $info->domain_name(), ": @_";
+	# } else {
+		# print $stderr @_;
 	}
 	Log::WarnDie->dispatcher(undef);
 	CORE::die @_
 };
 
+# my $request = FCGI::Request($stdin, $stdout, $stderr);
 my $request = FCGI::Request();
 
 # It would be really good to send 429 to search engines when there are more than, say, 5 requests being handled.
 # But I don't think that's possible with the FCGI module
 
+# Main request loop
 while($handling_request = ($request->Accept() >= 0)) {
 	unless($ENV{'REMOTE_ADDR'}) {
 		# debugging from the command line
