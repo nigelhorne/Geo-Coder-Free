@@ -405,15 +405,21 @@ sub choose
 	print "Status: 300 Multiple Choices\n",
 		"Content-type: text/plain\n";
 
-	my $path = $info->script_path();
-	if(defined($path)) {
+	$info->status(300);
+
+	# Print last modified date if path is defined
+	if(my $path = $info->script_path()) {
+		require HTTP::Date;
+		HTTP::Date->import();
+
 		my @statb = stat($path);
 		my $mtime = $statb[9];
-		print "Last-Modified: ", HTTP::Date::time2str($mtime), "\n";
+		print 'Last-Modified: ', HTTP::Date::time2str($mtime), "\n";
 	}
 
 	print "\n";
 
+	# Print available pages unless it's a HEAD request
 	unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 		print "/cgi-bin/page.fcgi?page=index\n",
 			"/cgi-bin/page.fcgi?page=query\n";
