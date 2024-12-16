@@ -292,9 +292,6 @@ my $test_requires = {
 	'Test::Number::Delta' => 0
 };
 
-if($^O eq 'MSWin32') {
-	$test_requires->{'CHI::Driver::SharedMem'};
-}
 if($ENV{'AUTHOR_TESTING'}) {
 	$test_requires->{'CGI::ACL'} = 0;
 	$test_requires->{'CGI::Carp'} = 0;
