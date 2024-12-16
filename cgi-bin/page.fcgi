@@ -24,6 +24,7 @@ use Log::Log4perl qw(:levels);	# Put first to cleanup last
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Info;
 use CGI::Lingua;
+use Class::Simple;
 use Database::Abstraction;
 use File::Basename;
 # use CGI::Alert $ENV{'SERVER_ADMIN'} || 'you@example.com';
