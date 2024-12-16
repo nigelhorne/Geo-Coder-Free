@@ -248,18 +248,14 @@ sub doit
 	});
 
 	$vwflog ||= ($config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log'));
-	if($vwflog && open(my $fout, '>>', $vwflog)) {
-		print $fout
-			'"', $info->domain_name(), '",',
-			'"', strftime('%F %T', localtime), '",',
-			'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
-			'"', $lingua->country(), '",',
-			'"', $info->browser_type(), '",',
-			'"', $lingua->language(), '",',
-			'"', $info->as_string(), "\"\n";
-		close($fout);
+
+	my $warnings = '';
+	if(my $w = $info->warnings()) {
+		my @warnings = map { $_->{'warning'} } @{$w};
+		$warnings = join(';', @warnings);
 	}
 
+	# Access control checks
 	if($ENV{'REMOTE_ADDR'} && $acl->all_denied(lingua => $lingua)) {
 		print "Status: 403 Forbidden\n",
 			"Content-type: text/plain\n",
@@ -269,6 +265,22 @@ sub doit
 			print "Access Denied\n";
 		}
 		$logger->info($ENV{'REMOTE_ADDR'}, ': access denied');
+		$info->status(403);
+		if($vwflog && open(my $fout, '>>', $vwflog)) {
+			print $fout
+				'"', $info->domain_name(), '",',
+				'"', strftime('%F %T', localtime), '",',
+				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
+				'"', $lingua->country(), '",',
+				'"', $info->browser_type(), '",',
+				'"', $lingua->language(), '",',
+				'403,',
+				'"",',
+				'"', $info->as_string(), '",',
+				'"', $warnings, '"',
+				"\n";
+			close($fout);
+		}
 		return;
 	}
 
@@ -304,33 +316,34 @@ sub doit
 		}
 	}
 
-	$geocoder ||= Geo::Coder::Free->new(
-		openaddr => $config->OPENADDR_HOME(),
-		cache => create_memory_cache(config => $config, logger => $logger, namespace => $script_name, root_dir => $cachedir)
-	);
-
 	my $display;
 	my $invalidpage;
+	my $log = Class::Simple->new();
+
 	$args = {
 		cachedir => $cachedir,
 		info => $info,
 		logger => $logger,
 		lingua => $lingua,
 		config => $config,
+		log => $log
 	};
 
+	# Display the requested page
 	eval {
 		my $page = $info->param('page');
 		$page =~ s/#.*$//;
-		# $display = Geo::Coder::Free::Display::$page->new($args);
 
-		if($page eq 'index') {
-			$display = Geo::Coder::Free::Display::index->new($args);
-		} elsif($page eq 'query') {
-			$display = Geo::Coder::Free::Display::query->new($args);
-		} else {
+		$display = do {
+			my $class = "Geo::Coder::Free::Display::$page";
+			eval { $class->new($args) };
+		};
+		if(!defined($display)) {
 			$logger->info("Unknown page $page");
 			$invalidpage = 1;
+		} elsif(!$display->can('as_string')) {
+			$logger->warn("Problem understanding $page");
+			undef $display;
 		}
 	};
 
@@ -342,18 +355,54 @@ sub doit
 
 	if(defined($display)) {
 		# Pass in handles to the databases
+		$geocoder ||= Geo::Coder::Free->new(
+			openaddr => $config->OPENADDR_HOME(),
+			cache => create_memory_cache(config => $config, logger => $logger, namespace => $script_name, root_dir => $cachedir)
+		);
+
 		print $display->as_string({
+			cachedir => $cachedir,
 			geocoder => $geocoder,
-			cachedir => $cachedir
 		});
+		if($vwflog && open(my $fout, '>>', $vwflog)) {
+			print $fout
+				'"', $info->domain_name(), '",',
+				'"', strftime('%F %T', localtime), '",',
+				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
+				'"', $lingua->country(), '",',
+				'"', $info->browser_type(), '",',
+				'"', $lingua->language(), '",',
+				$info->status(), ',',
+				'"', ($log->template() ? $log->template() : ''), '",',
+				'"', $info->as_string(), '",',
+				'"', $warnings, '"',
+				"\n";
+			close($fout);
+		}
 	} elsif($invalidpage) {
 		choose();
+		if($vwflog && open(my $fout, '>>', $vwflog)) {
+			print $fout
+				'"', $info->domain_name(), '",',
+				'"', strftime('%F %T', localtime), '",',
+				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
+				'"', $lingua->country(), '",',
+				'"', $info->browser_type(), '",',
+				'"', $lingua->language(), '",',
+				$info->status(), ',',
+				'"",',
+				'"', $info->as_string(), '",',
+				'"', $warnings, '"',
+				"\n";
+			close($fout);
+		}
 		return;
 	} else {
 		$logger->debug('disabling cache');
 		$fb->init(
 			cache => undef,
 		);
+		# Handle errors gracefully
 		if($error eq 'Unknown page to display') {
 			print "Status: 400 Bad Request\n",
 				"Content-type: text/plain\n",
@@ -362,6 +411,8 @@ sub doit
 			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 				print "I don't know what you want me to display.\n";
 			}
+			$info->status(400);
+			$log->status(400);
 		} elsif($error =~ /Can\'t locate .* in \@INC/) {
 			$logger->error($error);
 			print "Status: 500 Internal Server Error\n",
@@ -372,6 +423,8 @@ sub doit
 				print "Software error - contact the webmaster\n",
 					"$error\n";
 			}
+			$info->status(500);
+			$log->status(500);
 		} else {
 			# No permission to show this page
 			print "Status: 403 Forbidden\n",
@@ -381,6 +434,23 @@ sub doit
 			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 				print "Access Denied\n";
 			}
+			$info->status(403);
+			$log->status(403);
+		}
+		if($vwflog && open(my $fout, '>>', $vwflog)) {
+			print $fout
+				'"', $info->domain_name(), '",',
+				'"', strftime('%F %T', localtime), '",',
+				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
+				'"', $lingua->country(), '",',
+				'"', $info->browser_type(), '",',
+				'"', $lingua->language(), '",',
+				$info->status(), ',',
+				'"",',
+				'"', $info->as_string(), '",',
+				'"', $warnings, '"',
+				"\n";
+			close($fout);
 		}
 		throw Error::Simple($error ? $error : $info->as_string());
 	}

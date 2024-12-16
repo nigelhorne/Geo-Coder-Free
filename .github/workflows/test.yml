@@ -26,10 +26,13 @@ jobs:
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup perl
+      - name: Setup Perl
         uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: ${{ matrix.perl }}
+      - name: Install Ubuntu Packages
+        run: sudo apt-get install libdb-dev
+        if: matrix.os == 'ubuntu-latest'
       - run: perl -V
       - name: Install Dependencies
         env:
