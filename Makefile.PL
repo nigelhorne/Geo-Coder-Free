@@ -264,6 +264,7 @@ my $build_requires = {
 	'JSON::MaybeXS' => 0,
 	'LWP::UserAgent::Throttled' => 0,
 	'LWP::Protocol::https' => 0,
+	'Scalar::Util' => 0,
 	'Try::Tiny' => 0
 };
 

@@ -17,6 +17,7 @@ use Geo::Coder::Free::OpenAddresses;
 use List::MoreUtils;
 use Locale::US;
 use Carp;
+use Scalar::Util;
 
 =head1 NAME
 
@@ -88,16 +89,28 @@ but that can't be guaranteed to work.
 
 sub new {
 	my $class = shift;
-	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+
+	# Handle hash or hashref arguments
+	my %args;
+	if((@_ == 1) && (ref $_[0] eq 'HASH')) {
+		%args = %{$_[0]};
+	} elsif((@_ % 2) == 0) {
+		%args = @_;
+	} else {
+		carp(__PACKAGE__, ': Invalid arguments passed to new()');
+		return;
+	}
 
 	if(!defined($class)) {
-		# Using Geo::Coder::Free->new not Geo::Coder::Free::new
-		# carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
-		# return;
+		if((scalar keys %args) > 0) {
+			# Using Geo::Coder::Free->new not Geo::Coder::Free::new
+			carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+			return;
+		}
 
 		# FIXME: this only works when no arguments are given
 		$class = __PACKAGE__;
-	} elsif(ref($class)) {
+	} elsif(Scalar::Util::blessed($class)) {
 		# clone the given object
 		return bless { %{$class}, %args }, ref($class);
 	}
