@@ -49,7 +49,7 @@ jobs:
           cpanm --skip-satisfied -vn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -iqn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
-          cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo
+          cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo Class::Simple
           cpanm -ivn --installdeps .
       - name: Run Tests
         env:
