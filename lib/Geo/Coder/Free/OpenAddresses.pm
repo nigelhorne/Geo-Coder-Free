@@ -89,7 +89,7 @@ This process will take some time.
 
     $geocoder = Geo::Coder::Free::OpenAddresses->new(openaddr => $ENV{'OPENADDR_HOME'});
 
-Takes an optional parameter directory, which is the directory of the file
+Takes an optional parameter "openaddr", which is the directory of the file
 openaddresses.sql.
 
 Takes an optional parameter cache, which points to an object that understands get() and set() messages to store data in
@@ -104,11 +104,11 @@ sub new {
 	return unless($class);
 
 	if(my $openaddr = $param{'openaddr'}) {
-		Carp::croak("Can't find the directory $openaddr")
+		Carp::croak(__PACKAGE__, ": Can't find the directory $openaddr")
 			if((!-d $openaddr) || (!-r $openaddr));
 		return bless { openaddr => $openaddr, cache => $param{'cache'} }, $class;
 	}
-	Carp::croak(__PACKAGE__, ": usage: new(openaddr => '/path/to/openaddresses')");
+	Carp::croak(__PACKAGE__, ": Usage: new(openaddr => '/path/to/openaddresses')");
 }
 
 =head2 geocode
@@ -1013,13 +1013,19 @@ data from both sources.
 The database shouldn't be called $OPENADDR_HOME/openaddresses.sql,
 since the datbase now also includes data from WhosOnFirst.
 
+The name openaddresses.sql shouldn't be hardcoded,
+add support to "new" for the parameter "dbname".
+
+The argument "openaddr",
+would be less confusing if it were called "directory",
+
 =head1 SEE ALSO
 
 VWF, openaddresses.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2023 Nigel Horne.
+Copyright 2017-2025 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

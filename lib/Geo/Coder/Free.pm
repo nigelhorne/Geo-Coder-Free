@@ -3,6 +3,7 @@ package Geo::Coder::Free;
 # TODO: Don't have Maxmind as a separate database
 # TODO: Rename openaddresses.sql as geo_coder_free.sql
 # TODO: Consider Data::Dumper::Names instead of Data::Dumper
+# TODO: use the cache to store common queries
 
 use strict;
 use warnings;
@@ -56,7 +57,9 @@ sub _normalize($);
 
 =head1 DESCRIPTION
 
-Geo::Coder::Free provides an interface to free databases by acting as a front-end to
+Geo::Coder::Free provides an interface
+to translate addresses into latitude and longitude
+by using to free databases such as
 L<Geo::Coder::Free::MaxMind> and L<Geo::Coder::Free::OpenAddresses>.
 
 The cgi-bin directory contains a simple DIY Geo-Coding website.
@@ -67,6 +70,8 @@ The sample website is down at the moment while I look for a new host.
 When it's back up you will be able to use this to test it.
 
     curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
+
+Includes functionality for running the module via the command line for testing or ad-hoc geocoding tasks.
 
 =head1 METHODS
 
@@ -207,6 +212,12 @@ sub geocode {
 		%params = @_;
 	} else {
 		$params{'location'} = shift;
+	}
+
+	# Fail when the input is just a set of numbers
+	if($params{'location'} !~ /D/) {
+		Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $params{location}");
+		return;
 	}
 
 	if($self->{'openaddr'}) {
@@ -524,6 +535,8 @@ The MaxMind data only contains cities.
 The OpenAddresses data doesn't cover the globe.
 
 Can't parse and handle "London, England".
+
+It would be great to have a set-up wizard to create the database.
 
 The various scripts in NJH-Snippets ought to be in this module.
 
