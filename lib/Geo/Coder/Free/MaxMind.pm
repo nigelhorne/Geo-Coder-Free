@@ -191,6 +191,12 @@ sub geocode {
 	my $location = $params{location}
 		or Carp::croak('Usage: geocode(location => $location)');
 
+	# Fail when the input is just a set of numbers
+	if($location !~ /\D/) {
+		Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $location");
+		return;
+	}
+
 	if($location =~ /^(.+),\s*Washington\s*DC,(.+)$/) {
 		$location = "$1, Washington, DC, $2";
 	}
@@ -746,7 +752,7 @@ VWF, MaxMind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2023 Nigel Horne.
+Copyright 2017-2025 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

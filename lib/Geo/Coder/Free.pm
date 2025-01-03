@@ -215,7 +215,7 @@ sub geocode {
 	}
 
 	# Fail when the input is just a set of numbers
-	if($params{'location'} !~ /D/) {
+	if($params{'location'} !~ /\D/) {
 		Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $params{location}");
 		return;
 	}

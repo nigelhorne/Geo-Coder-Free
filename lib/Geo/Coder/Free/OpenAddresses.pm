@@ -243,6 +243,12 @@ sub geocode
 		$location = $1;
 	}
 
+	# Fail when the input is just a set of numbers
+	if($location !~ /\D/) {
+		Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $location");
+		return;
+	}
+
 	if($location =~ /^(.+),?\s*Washington\s*DC$/i) {
 		$location = "$1, Washington, DC, USA";
 	} elsif($location =~ /^(.*),?\s*Saint Louis, (Missouri|MO)(.*)$/) {
@@ -1011,7 +1017,7 @@ When I added the WhosOnFirst data I should have renamed this as it contains
 data from both sources.
 
 The database shouldn't be called $OPENADDR_HOME/openaddresses.sql,
-since the datbase now also includes data from WhosOnFirst.
+since the database now also includes data from WhosOnFirst.
 
 The name openaddresses.sql shouldn't be hardcoded,
 add support to "new" for the parameter "dbname".
