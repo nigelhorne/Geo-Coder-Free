@@ -137,7 +137,7 @@ sub new {
 		alternatives => $alternatives
 	};
 
-	if((!$args{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
+	if((!defined $args{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
 		$args{'openaddr'} = $ENV{'OPENADDR_HOME'};
 	}
 
@@ -215,9 +215,12 @@ sub geocode {
 	}
 
 	# Fail when the input is just a set of numbers
-	if($params{'location'} !~ /\D/) {
-		Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $params{location}");
-		return;
+	if(defined($params{'location'}) && ($params{'location'} !~ /\D/)) {
+		Carp::croak('Usage: ', __PACKAGE__, ": invalid location to geocode(), $params{location}") if(length($params{'location'}));
+		return undef;
+	} elsif(defined($params{'scantext'}) && ($params{'scantext'} !~ /\D/)) {
+		Carp::croak('Usage: ', __PACKAGE__, ": invalid scantext to geocode(), $params{scantext}") if(length($params{'scantext'}));
+		return undef;
 	}
 
 	if($self->{'openaddr'}) {
@@ -379,7 +382,8 @@ Does nothing, here for compatibility with other Geo-Coders
 
 =cut
 
-sub ua {
+sub ua
+{
 }
 
 =head2 run
@@ -473,26 +477,43 @@ This will take a long time and use a lot of disc space, be clear that this is wh
 In the bin directory there are some helper scripts to do this.
 You will need to tailor them to your set up, but that's not that hard as the
 scripts are trivial.
-1. mkdir $WHOSONFIRST_HOME, cd $WHOSONFIRST_HOME, run wof-clone from NJH-Snippets.
+
+=over 4
+
+=item 1
+
+C<mkdir $WHOSONFIRST_HOME; cd $WHOSONFIRST_HOME> run wof-clone from NJH-Snippets.
+
 This can take a long time because it contains lots of directories which filesystem drivers
 seem to take a long time to navigate (at least my EXT4 and ZFS systems do).
-2. Install L<https://github.com/dr5hn/countries-states-cities-database.git> into $DR5HN_HOME.
+
+=item 2
+
+Install L<https://github.com/dr5hn/countries-states-cities-database.git> into $DR5HN_HOME.
 This data contains cities only,
 so it's not used if OSM_HOME is set,
 since the latter is much more comprehensive.
 Also, only Australia, Canada and the US is imported, as the UK data is difficult to parse.
-3. Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
+
+=item 3
+
+Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
 Open Street Map and dr5hn databases.
 Check the values of OSM_HOME, OPENADDR_HOME,
 DR5HN_HOME and WHOSONFIRST_HOME within that script,
 you may wish to change them.
 The Makefile.PL file will download the MaxMind database for you, as that is not optional.
-4. Run bin/create_db - this creates the database used by G:C:F using the data you've just downloaded
+
+=item 4
+
+Run bin/create_db - this creates the database used by G:C:F using the data you've just downloaded
 The database is called openaddr.sql,
 even though it does include all of the above data.
 That's historical before I added the WhosOnFirst database.
 The names are a bit of a mess because of that.
 I should rename it to geo-coder-free.sql, even though it doesn't contain the Maxmind data.
+
+=back
 
 Now you're ready to run "make"
 (note that the download_databases script may have done that for you,
@@ -511,7 +532,7 @@ Unfortunately all of the on-line services have one problem or another - most eit
 Even my modest tree, just over 2000 people, reaches those limits.
 
 There are, however, a number of free databases that can be used, including MaxMind, GeoNames, OpenAddresses and WhosOnFirst.
-The objective of Geo::Coder::Free (L<https://github.com/nigelhorne/Geo-Coder-Free>)
+The objective of L<Geo::Coder::Free> (L<https://github.com/nigelhorne/Geo-Coder-Free>)
 is to create a database of those databases and to create a search engine either through a local copy of the database or through an on-line website.
 Both are in their early days, but I have examples which do surprisingly well.
 

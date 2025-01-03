@@ -2,6 +2,8 @@
 version: 1.0.{build}
 
 image:
+  - Visual Studio 2015
+  - Visual Studio 2017
   - Visual Studio 2019
   - ubuntu1804
   - Ubuntu
@@ -13,6 +15,8 @@ environment:
   DEBIAN_FRONTEND: noninteractive
   PERL_MM_USE_DEFAULT: 1
   NO_NETWORK_TESTING: 1
+  AUTHOR_TESTING: 1
+  NONINTERACTIVE_TESTING: 1
 
 platform: x64
 
@@ -28,19 +32,19 @@ install:
   # - cmd: cd C:\projects\%APPVEYOR_PROJECT_NAME%
   # Currently fails on http://apt.postgresql.org/pub/repos/apt bionic-pgdg Release
   - sh: sudo apt update -q -y
-  - sh: sudo DEBIAN_FRONTEND=noninteractive apt-get install -q -y --force-yes build-essential git libssl-dev perl
-  - sh: sudo apt-get install -y perl libio-aio-perl liblingua-en-nameparse-perl
+  - sh: sudo DEBIAN_FRONTEND=noninteractive apt install -q -y --force-yes build-essential git libssl-dev perl
+  - sh: sudo apt install -y perl libio-aio-perl liblingua-en-nameparse-perl
   - sh: export PATH=/home/appveyor/perl5/bin:$PATH
   - perl -V
   - cmd: mkdir %APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
   - cmd: cpan App::cpanminus
-  - sh: sudo apt-get install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
+  - sh: sudo apt install -y cpanminus libchi-perl libjson-perl libconfig-auto-perl libipc-system-simple-perl libautodie-perl libtext-csv-xs-perl liblog-log4perl-perl libdbd-sqlite3-perl libtext-csv-perl
   - cpanm -iqn LWP::Simple::WithCache Log::Any::Adapter::Log4perl
   - cpanm -iqnf DBIx::TableLoader
   - sh: cpanm -iqn Text::xSV::Slurp
   - cmd: cpanm -iqn Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO
-  - cpanm -iqn CGI::Lingua
+  - cpanm -iqn CGI::Lingua Template::Filters
   - cpanm -qin --skip-satisfied --installdeps .
   - cmd: cpanm -iqn CHI
   - cmd: cpanm -q --showdeps --with-develop --with-suggests . | findstr /v "^perl\>" | cpanm -qin --skip-satisfied
