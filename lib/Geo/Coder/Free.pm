@@ -230,7 +230,10 @@ sub geocode {
 				$scantext =~ s/[^\w']+/ /g;
 				my @a = List::MoreUtils::uniq(split(/\s/, $scantext));
 				my $iterator = Array::Iterator->new({ __array__ => \@a });
-				while(my $w = $iterator->get_next()) {
+				# TODO
+				# while(my $w = $iterator->get_next()) {
+				my $w;
+				if($w) {
 					next if(exists($common_words{lc($w)}));
 					if($w =~ /^[a-z]{2,}$/i) {
 						my $peek = $iterator->peek();
@@ -256,6 +259,8 @@ sub geocode {
 				}
 
 				foreach my $word(List::MoreUtils::uniq(split(/\s/, $scantext))) {
+					# Ignore numbers
+					next if($word !~ /\D/);
 					# FIXME:  There are a *lot* of false positives
 					next if(exists($common_words{lc($word)}));
 					if($word =~ /^[a-z]{2,}$/i) {

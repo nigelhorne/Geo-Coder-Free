@@ -245,9 +245,10 @@ sub geocode
 
 	# Fail when the input is just a set of numbers
 	if($location !~ /\D/) {
-		Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $location");
+		# Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $location");
 		return;
 	}
+	return if(length($location) <= 1);
 
 	if($location =~ /^(.+),?\s*Washington\s*DC$/i) {
 		$location = "$1, Washington, DC, USA";
