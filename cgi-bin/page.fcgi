@@ -371,6 +371,8 @@ sub doit
 
 		print $display->as_string({
 			cachedir => $cachedir,
+			databasedir => $database_dir,
+			database_dir => $database_dir,
 			geocoder => $geocoder,
 		});
 		if($vwflog && open(my $fout, '>>', $vwflog)) {
