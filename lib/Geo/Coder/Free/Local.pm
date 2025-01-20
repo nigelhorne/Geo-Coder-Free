@@ -105,6 +105,8 @@ sub new
 		$self->{index}{$key} = $row;
 	}
 
+	# TODO:  Perhaps the cache can be prepopulated, or stored in less volitile location?
+	# The cache attribute stores normalized location strings as keys and Geo::Location::Point objects as values
 	return $self;
 }
 
@@ -175,9 +177,20 @@ sub geocode {
 	my $lc = lc($location);
 	$lc =~ s/,\susa$/, us/i;
 
+	# Check the cache first
+	if(exists $self->{cache}{$lc}) {
+		# ::diag("Found $lc in the cache");
+		return $self->{cache}{$lc};
+	}
+
 	# Use the hash-based index for a quick lookup
 	if(exists $self->{index}{$lc}) {
-		return Geo::Location::Point->new($self->{index}{$lc});
+		my $rc = Geo::Location::Point->new($self->{index}{$lc});
+
+		# Store the result in the cache for future requests
+		$self->{cache}{$lc} = $rc;
+
+		return $rc;
 	}
 	# ::diag("$location: hash search failed");
 
@@ -286,10 +299,16 @@ sub geocode {
 			# ::diag(Data::Dumper->new([\%addr])->Dump());
 			# print Data::Dumper->new([\%addr])->Dump(), "\n";
 			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
+			        # Store the result in the cache for future requests
+				$self->{cache}{$lc} = $rc;
+
 				return $rc;
 			}
 			if($addr{'number'}) {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+					# Store the result in the cache for future requests
+					$self->{cache}{$lc} = $rc;
+
 					return $rc;
 				}
 			}
@@ -353,11 +372,19 @@ sub geocode {
 					if($href->{'number'}) {
 						if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 							$rc->{'country'} = 'US';
+
+							# Store the result in the cache for future requests
+							$self->{cache}{$lc} = $rc;
+
 							return $rc;
 						}
 					}
 					if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 						$rc->{'country'} = 'US';
+
+						# Store the result in the cache for future requests
+						$self->{cache}{$lc} = $rc;
+
 						return $rc;
 					}
 					# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
@@ -371,6 +398,10 @@ sub geocode {
 
 						if(my $rc = $self->_search(\%addr, ('name', 'city', 'state', 'country'))) {
 							$rc->{'country'} = 'US';
+
+							# Store the result in the cache for future requests
+							$self->{cache}{$lc} = $rc;
+
 							return $rc;
 						}
 					}
@@ -407,6 +438,10 @@ sub geocode {
 						if(my $rc = $self->_search(\%addr, ('name', 'number', 'road', 'city', 'state', 'country'))) {
 							# ::diag(Data::Dumper->new([$rc])->Dump());
 							$rc->{'country'} = 'US';
+
+							# Store the result in the cache for future requests
+							$self->{cache}{$lc} = $rc;
+
 							return $rc;
 						}
 					} else {
@@ -414,6 +449,10 @@ sub geocode {
 						if(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
 							# ::diag(Data::Dumper->new([$rc])->Dump());
 							$rc->{'country'} = 'US';
+
+							# Store the result in the cache for future requests
+							$self->{cache}{$lc} = $rc;
+
 							return $rc;
 						}
 					}
@@ -423,6 +462,10 @@ sub geocode {
 					if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 						# ::diag(Data::Dumper->new([$rc])->Dump());
 						$rc->{'country'} = 'US';
+
+						# Store the result in the cache for future requests
+						$self->{cache}{$lc} = $rc;
+
 						return $rc;
 					}
 				}
@@ -488,15 +531,27 @@ sub geocode {
 			if($addr{'state_district'}) {
 				$addr{'state_district'} =~ s/^(.+)\s+COUNTY/$1/i;
 				if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state_district', 'state', 'country'))) {
+
+					# Store the result in the cache for future requests
+					$self->{cache}{$lc} = $rc;
+
 					return $rc;
 				}
 			}
 			if(my $rc = $self->_search(\%addr, ('number', 'road', 'city', 'state', 'country'))) {
 				# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$rc])->Dump());
+
+				# Store the result in the cache for future requests
+				$self->{cache}{$lc} = $rc;
+
 				return $rc;
 			}
 			if($addr{'number'}) {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
+
+					# Store the result in the cache for future requests
+					$self->{cache}{$lc} = $rc;
+
 					return $rc;
 				}
 			}
@@ -527,9 +582,17 @@ sub geocode {
 			$addr{'road'} = $2;
 			# ::diag(__LINE__, ': ', Data::Dumper->new([\%addr])->Dump());
 			if(my $rc = $self->_search(\%addr, ('name', 'number', 'road', 'city', 'state', 'country'))) {
+
+				# Store the result in the cache for future requests
+				$self->{cache}{$lc} = $rc;
+
 				return $rc;
 			}
 		} elsif(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
+
+			# Store the result in the cache for future requests
+			$self->{cache}{$lc} = $rc;
+
 			return $rc;
 		}
 		if($addr{'name'} && !defined($addr{'number'})) {
@@ -537,6 +600,10 @@ sub geocode {
 			# ::diag(__LINE__, ': ', $addr{'name'});
 			if(my $rc = $self->_search(\%addr, ('name', 'road', 'city', 'state', 'country'))) {
 				# ::diag(__PACKAGE__, ': ', __LINE__);
+
+				# Store the result in the cache for future requests
+				$self->{cache}{$lc} = $rc;
+
 				return $rc;
 			}
 		}
@@ -552,12 +619,20 @@ sub geocode {
 			# ::diag(__LINE__, ": found alternative '$location'");
 			if(my $rc = $self->geocode(\%params)) {
 				# ::diag(__LINE__, ": $location");
+
+				# Store the result in the cache for future requests
+				$self->{cache}{$lc} = $rc;
+
 				return $rc;
 			}
 			if($location =~ /(.+), (England|UK)$/i) {
 				$params{'location'} = "$1, GB";
 				if(my $rc = $self->geocode(\%params)) {
 					# ::diag(__LINE__, ": $location");
+
+					# Store the result in the cache for future requests
+					$self->{cache}{$lc} = $rc;
+
 					return $rc;
 				}
 			}
