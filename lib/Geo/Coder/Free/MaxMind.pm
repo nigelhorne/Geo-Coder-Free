@@ -88,16 +88,16 @@ Here's the method to find the location of Sittingbourne, Kent, England:
 1) admin1.db contains admin areas such as counties, states and provinces
    A typical line is:
      US.MD	Maryland	Maryland	4361885
-   So a look up of 'Maryland' will get the concatenated code 'US.MD'
+   So a look-up of 'Maryland' will get the concatenated code 'US.MD'
    Note that GB has England, Scotland and Wales at this level, not the counties
      GB.ENG	England	England	6269131
-   So a look up of England will give the concatenated code of GB.ENG for use in admin2.db
+   So a look-up of England will give the concatenated code of GB.ENG for use in admin2.db
 2) admin2.db contains admin areas drilled down from the admin1 database such as US counties
    Note that GB has counties
    A typical line is:
     GB.ENG.G5	Kent	Kent	3333158
-   So a look up of 'Kent' with a concatenated code to start with 'GB.ENG' will code the region G5 for use in cities.sql
-3) cities.sql contains the latitude and longitude of the place we want, so a search for 'sittingbourne' in
+   So a look-up of 'Kent' with a concatenated code to start with 'GB.ENG' will code the region G5 for use in cities.sql
+3) cities.sql contains the latitude and longitude of the place we want, so a search for 'sittingbourne' in the
    region 'g5' will give
      gb,sittingbourne,Sittingbourne,G5,41148,51.333333,.75
 
@@ -135,11 +135,13 @@ sub new
 		cache_duration => '1 day',
 		%args,
 		directory => File::Spec->catfile($directory, 'databases'),
-		cache => $args{cache} || CHI->new(driver => 'Memory', datastore => {}),
+		cache => $args{cache} || CHI->new(driver => 'Memory', global => 1)
 	});
 
 	# Return the blessed object
-	return bless { }, $class;
+	return bless {
+		cache => $args{cache} || CHI->new(driver => 'Memory', global => 1),
+	}, $class;
 }
 
 =head2 geocode
@@ -214,6 +216,10 @@ sub geocode {
 
 	# ::diag(__LINE__, ": $location");
 	return unless(($location =~ /,/) || $params{'region'});	# Not well formed, or an attempt to find the location of an entire country
+
+	# Check cache first
+	my $cached_result = $self->{'cache'}->get($location);
+	return $cached_result if($cached_result);
 
 	my $county;
 	my $state;
@@ -587,10 +593,13 @@ sub geocode {
 
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
-		return Geo::Location::Point->new({
+		# Cache and return result
+		my $rc = Geo::Location::Point->new({
 			%{$city},
 			('database' => 'MaxMind', 'confidence' => $confidence)
 		});
+		$self->{cache}->set($location, $rc);
+		return $rc;
 	}
 	# return $city;
 	return;
@@ -742,7 +751,7 @@ and are inconsistent with the Geonames database.
 If you search for something like "Sheppy, Kent, England" in list context,
 it returns them all.
 That's a lot!
-It should limit to,
+It should be limited to,
 say 10 results (that number should be tuneable, and be a LIMIT in DB.pm),
 and as the correct spelling in Sheppey, arguably it should return nothing.
 
