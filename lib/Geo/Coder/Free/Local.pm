@@ -14,7 +14,9 @@ use Text::xSV::Slurp;
 =head1 NAME
 
 Geo::Coder::Free::Local -
-Provides an interface to locations that you know yourself.
+Provides an interface to locations that you know yourself,
+based on locally known data,
+thereby giving a way to geocode locations using self-curated data instead of relying on external APIs.
 For example, I have found locations by using GPS apps on a smartphone and by
 inspecting GeoTagged photographs using
 L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/geotag>
@@ -33,6 +35,7 @@ use constant	LIBPOSTAL_INSTALLED => 1;
 use constant	LIBPOSTAL_NOT_INSTALLED => -1;
 our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
 
+# Alternative mappings for ambiguous or inconsistent place names
 # See also lib/Geo/Coder/Free.pm
 our %alternatives = (
 	'ST LAWRENCE, THANET, KENT' => 'RAMSGATE, KENT',
@@ -55,6 +58,8 @@ Geo::Coder::Free::Local provides an interface to your own location data.
 =head1 METHODS
 
 =head2 new
+
+Initializes a geocoder object, loading the local data.
 
     $geocoder = Geo::Coder::Free::Local->new();
 
@@ -80,7 +85,7 @@ sub new
 	# TODO: since 'hoh' doesn't allow a CODEREF as a key,
 	#	I could build an hoh manually from this aoh,
 	#	it would make searching much quicker
-	return bless {
+	my $self = bless {
 		data => xsv_slurp(
 			shape => 'aoh',
 			text_csv => {
@@ -93,9 +98,31 @@ sub new
 			string => \join('', grep(!/^\s*(#|$)/, <DATA>))
 		)
 	}, $class;
+
+	# Build the hash-based index
+	foreach my $row (@{ $self->{data} }) {
+		my $key = lc(Geo::Location::Point->new($row)->as_string());
+		$self->{index}{$key} = $row;
+	}
+
+	return $self;
+}
+
+# Helper function to normalize location strings
+sub _normalize_location {
+    my $location = shift;
+    $location = lc($location);                 # Convert to lowercase
+    $location =~ s/^\s+|\s+$//g;               # Trim leading and trailing whitespace
+    $location =~ s/\s+/ /g;                    # Collapse multiple spaces
+    return $location;
 }
 
 =head2 geocode
+
+Performs the geocoding operation by matching an input location against the local data and attempting different strategies for parsing and resolving the address.
+
+Handles parsing of addresses based on location-specific rules, e.g., U.S., U.K., or Canada.
+Uses various parsers for country-specific address normalization.
 
     $location = $geocoder->geocode(location => $location);
 
@@ -148,33 +175,42 @@ sub geocode {
 	my $lc = lc($location);
 	$lc =~ s/,\susa$/, us/i;
 
-	foreach my $row(@{$self->{'data'}}) {
-		my $rc = Geo::Location::Point->new($row);
-		my $str = lc($rc->as_string());
-
-		# ::diag("Compare $str->$lc") if(($location =~ /MINSTER CEME/i) && ($str =~ /MINSTER CEME/i));
-		# ::diag("Compare $str->$lc");
-		# print "Compare $str->$lc\n";
-		if($str eq $lc) {
-			# This looks pointless and I can't recall why I put it in
-			# foreach my $column ('name', 'state_district') {
-				# if((!defined($rc->{$column})) && exists($rc->{$column})) {
-					# delete $rc->{$column};
-				# }
-			# }
-			# ::diag("$location: linear search suceeded");
-			return $rc;
-		}
-
-		if(($str =~ /, us$/) && ("${str}a" eq $lc)) {
-			return $rc;
-		}
-
-		if(($lc =~ /(.+), (England|UK)$/i) && ($str eq "$1, gb")) {
-			return $rc;
-		}
+	# Use the hash-based index for a quick lookup
+	if(exists $self->{index}{$lc}) {
+		return Geo::Location::Point->new($self->{index}{$lc});
 	}
-	# ::diag("$location: linear search failed");
+	# ::diag("$location: hash search failed");
+
+	if(0) {
+		# Old linear search mode, now replaced by the hash-based index
+		foreach my $row(@{$self->{'data'}}) {
+			my $rc = Geo::Location::Point->new($row);
+			my $str = lc($rc->as_string());
+
+			# ::diag("Compare $str->$lc") if(($location =~ /MINSTER CEME/i) && ($str =~ /MINSTER CEME/i));
+			# ::diag("Compare $str->$lc");
+			# print "Compare $str->$lc\n";
+			if($str eq $lc) {
+				# This looks pointless and I can't recall why I put it in
+				# foreach my $column ('name', 'state_district') {
+					# if((!defined($rc->{$column})) && exists($rc->{$column})) {
+						# delete $rc->{$column};
+					# }
+				# }
+				# ::diag("$location: linear search suceeded");
+				return $rc;
+			}
+
+			if(($str =~ /, us$/) && ("${str}a" eq $lc)) {
+				return $rc;
+			}
+
+			if(($lc =~ /(.+), (England|UK)$/i) && ($str eq "$1, gb")) {
+				return $rc;
+			}
+		}
+		# ::diag("$location: linear search failed");
+	}
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 
@@ -529,6 +565,8 @@ sub geocode {
 	}
 	return;
 }
+
+# Match parsed address components against the locally loaded dataset.
 
 # $data is a hashref to data such as returned by Geo::libpostal::parse_address
 # @columns is the key names to use in $data
