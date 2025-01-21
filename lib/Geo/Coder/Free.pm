@@ -12,6 +12,7 @@ use warnings;
 
 use Array::Iterator;
 use Config::Auto;
+use Data::Dumper;
 use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
@@ -275,7 +276,13 @@ sub geocode {
 							@matches = $self->{'maxmind'}->geocode({ location => $word, region => $region });
 						}
 						foreach my $match(@matches) {
-							$match->{'location'} = "$word, " . uc($region);
+							if(ref($match) eq 'HASH') {
+								$match->{'location'} = "$word, " . uc($region);
+							} elsif(ref($match) eq 'ARRAY') {
+								warn __PACKAGE__, ': TODO: handle array: ', Data::Dumper->new([$match])->Dump();
+							} else {
+								die __PACKAGE__, ': TODO: handle ', ref($match), ': ', Data::Dumper->new([$match])->Dump();
+							}
 						}
 						$self->{'scantext'}->{$key} = \@matches;
 						@rc = (@rc, @matches);
