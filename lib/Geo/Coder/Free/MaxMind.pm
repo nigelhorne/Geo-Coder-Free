@@ -595,6 +595,7 @@ sub geocode {
 	if(defined($city) && defined($city->{'Latitude'})) {
 		# Cache and return result
 		delete $city->{'Region'} if(defined($city->{'Region'}) && ($city->{'Region'} =~ /^[A-Z]\d$/));	# E.g. Region = G5
+		delete $city->{'Population'} if(defined($city->{'Population'}) && (length($city->{'Population'}) == 0));
 		my $rc = Geo::Location::Point->new({
 			%{$city},
 			('database' => 'MaxMind', 'confidence' => $confidence)

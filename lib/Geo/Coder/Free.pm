@@ -174,6 +174,7 @@ my %common_words = (
 	'at' => 1,
 	'be' => 1,
 	'by' => 1,
+	'how' => 1,
 	'she' => 1,
 	'of' => 1,
 	'for' => 1,
