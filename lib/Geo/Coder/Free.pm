@@ -281,7 +281,7 @@ sub geocode {
 							} elsif(ref($match) eq 'ARRAY') {
 								warn __PACKAGE__, ': TODO: handle array: ', Data::Dumper->new([$match])->Dump();
 							} else {
-								die __PACKAGE__, ': TODO: handle ', ref($match), ': ', Data::Dumper->new([$match])->Dump();
+								warn __PACKAGE__, ': TODO: handle ', ref($match), ': ', Data::Dumper->new([$match])->Dump();
 							}
 						}
 						$self->{'scantext'}->{$key} = \@matches;

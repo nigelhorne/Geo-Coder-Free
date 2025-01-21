@@ -594,6 +594,7 @@ sub geocode {
 	# ::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
 		# Cache and return result
+		delete $city->{'Region'} if(defined($city->{'Region'}) && ($city->{'Region'} =~ /^[A-Z]\d$/));	# E.g. Region = G5
 		my $rc = Geo::Location::Point->new({
 			%{$city},
 			('database' => 'MaxMind', 'confidence' => $confidence)
