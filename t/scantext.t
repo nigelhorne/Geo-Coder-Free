@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 use Data::Dumper;
-use Test::Most tests => 21;
+use Test::Most tests => 22;
 use Test::Number::Delta;
 use Test::Carp;
 use Test::Deep;
@@ -111,6 +111,11 @@ SCANTEXT: {
 			ok($found{'NOBLESVILLE'});
 			# ok($found{'INDIANAPOLIS'});
 
+			@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'gb');
+			ok(ref($locations[0]) eq '');
+			# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+			diag(Data::Dumper->new([\@locations])->Dump());
+
 			eval 'use Test::Memory::Cycle';
 			if($@) {
 				skip('Test::Memory::Cycle required to check for cicular memory references', 1);
@@ -119,10 +124,10 @@ SCANTEXT: {
 			}
 		} elsif(!defined($ENV{'AUTHOR_TESTING'})) {
 			diag('Author tests not required for installation');
-			skip('Author tests not required for installation', 20);
+			skip('Author tests not required for installation', 21);
 		} else {
 			diag('Set OPENADDR_HOME to enable openaddresses.io testing');
-			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 20);
+			skip('Set OPENADDR_HOME to enable openaddresses.io testing', 21);
 		}
 	}
 }

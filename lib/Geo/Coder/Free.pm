@@ -180,6 +180,7 @@ my %common_words = (
 	'pm' => 1,
 	'in' => 1,
 	'an' => 1,
+	'more' => 1,
 	'to' => 1,
 	'road' => 1,
 	'is' => 1,
@@ -272,6 +273,9 @@ sub geocode {
 						} else {
 							# ::diag("$key: MISS");
 							@matches = $self->{'maxmind'}->geocode({ location => $word, region => $region });
+						}
+						foreach my $match(@matches) {
+							$match->{'location'} = "$word, " . uc($region);
 						}
 						$self->{'scantext'}->{$key} = \@matches;
 						@rc = (@rc, @matches);
