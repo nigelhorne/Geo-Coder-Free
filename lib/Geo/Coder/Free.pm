@@ -27,11 +27,11 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.37
+Version 0.38
 
 =cut
 
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 
 our $alternatives;
 our $abbreviations;
@@ -707,7 +707,7 @@ L<http://search.cpan.org/dist/Geo-Coder-Free/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2024 Nigel Horne.
+Copyright 2017-2025 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
