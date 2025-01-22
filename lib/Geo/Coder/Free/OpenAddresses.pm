@@ -122,6 +122,8 @@ sub new {
     # @locations = $geocoder->geocode('Portland, USA');
     # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
 
+    @locations = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US', ignore_words => [ 'foo', 'bar' ]);
+
 When looking for a house number in a street, if that address isn't found but that
 street is found, a place in the street is given.
 So "106 Wells Street, Fort Wayne, Allen, Indiana, USA" isn't found, a match for
@@ -147,6 +149,11 @@ sub geocode
 		$param{location} = shift;
 	}
 
+	my %ignore_words;
+	if($param{'ignore_words'}) {
+		%ignore_words = map { lc($_) => 1 } @{$param{'ignore_words'}};
+	}
+
 	if(my $scantext = $param{'scantext'}) {
 		return if(length($scantext) < 6);
 		# FIXME:  wow this is inefficient
@@ -157,6 +164,10 @@ sub geocode
 		my @rc;
 		while($offset < $count) {
 			if(length($words[$offset]) < 2) {
+				$offset++;
+				next;
+			}
+			if(exists($ignore_words{lc($words[$offset])})) {
 				$offset++;
 				next;
 			}

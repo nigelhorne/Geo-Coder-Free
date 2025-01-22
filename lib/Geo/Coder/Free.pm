@@ -166,8 +166,11 @@ sub new {
     # Note that this yields many false positives and isn't useable yet
     my @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US');
 
+    @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US', ignore_words => [ 'foo', 'bar' ]);
+
 =cut
 
+# List of words that scantext should ignore
 my %common_words = (
 	'the' => 1,
 	'and' => 1,
@@ -230,6 +233,28 @@ sub geocode {
 		if(wantarray) {
 			my @rc = $self->{'openaddr'}->geocode(\%params);
 			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
+				my %ignore_words;
+				if($params{'ignore_words'}) {
+					%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
+				}
+				# ::diag(Data::Dumper->new([\%ignore_words])->Dump());
+				$region = uc($region);
+				if($region eq 'US') {
+					my @candidates = _find_us_addresses($scantext);
+					if(scalar(@candidates)) {
+						if(wantarray) {
+							my @us;
+							foreach my $candidate(@candidates) {
+								my @res = $self->{'maxmind'}->geocode("$candidate, USA");
+								push @us, @res;
+							}
+							return @us if(scalar(@us));
+						}
+						if(my $rc = $self->{'maxmind'}->geocode($candidates[0] . ', USA')) {
+							return $rc;
+						}
+					}
+				}
 				$scantext =~ s/[^\w']+/ /g;
 				my @a = List::MoreUtils::uniq(split(/\s/, $scantext));
 				my $iterator = Array::Iterator->new({ __array__ => \@a });
@@ -238,6 +263,7 @@ sub geocode {
 				my $w;
 				if($w) {
 					next if(exists($common_words{lc($w)}));
+					next if(exists($ignore_words{lc($w)}));
 					if($w =~ /^[a-z]{2,}$/i) {
 						my $peek = $iterator->peek();
 						last if(!defined($peek));
@@ -266,29 +292,42 @@ sub geocode {
 					next if($word !~ /\D/);
 					# FIXME:  There are a *lot* of false positives
 					next if(exists($common_words{lc($word)}));
+					next if(exists($ignore_words{lc($word)}));
 					if($word =~ /^[a-z]{2,}$/i) {
 						my $key = "$word/$region";
 						my @matches;
-						if($self->{'scantext'}->{$key}) {
-							# ::diag("$key: HIT");
-							@matches = @{$self->{'scantext'}->{$key}};
+						if(my $hits = $self->{'scantext'}->{$key}) {
+							# ::diag("$key: HIT: ", Data::Dumper->new([$hits])->Dump());
+							@matches = @{$hits} if(scalar(@{$hits}));
 						} else {
 							# ::diag("$key: MISS");
 							@matches = $self->{'maxmind'}->geocode({ location => $word, region => $region });
 						}
+						# ::diag(__LINE__, Data::Dumper->new([\@matches])->Dump());
+						my @m;
 						foreach my $match(@matches) {
 							if(ref($match) eq 'HASH') {
-								$match->{'location'} = "$word, " . uc($region);
+								$match->{'location'} = "$word, $region";
+								push @m, $match;
 							} elsif(ref($match) eq 'ARRAY') {
 								warn __PACKAGE__, ': TODO: handle array: ', Data::Dumper->new([$match])->Dump();
 							} else {
-								warn __PACKAGE__, ': TODO: handle ', ref($match), ': ', Data::Dumper->new([$match])->Dump();
+								push @m, {
+									confidence => $match->confidence(),
+									location => $match->as_string(),
+									latitude => $match->lat(),
+									longitude => $match->long(),
+									lat => $match->lat(),
+									long => $match->long(),
+									database => $match->database(),
+									country => $match->country(),
+									city => $match->city()
+								}
 							}
 						}
-						$self->{'scantext'}->{$key} = \@matches;
-						@rc = (@rc, @matches);
+						$self->{'scantext'}->{$key} = \@m;
+						@rc = (@rc, @m);
 					}
-
 				}
 			}
 			return @rc if(scalar(@rc) && $rc[0]);
@@ -336,6 +375,34 @@ sub geocode {
 	}
 }
 
+# Function to find all possible US addresses in a string
+sub _find_us_addresses {
+	my ($text) = @_;
+	my @addresses;
+
+	# Regular expression to match U.S.-style addresses
+	my $address_regex = qr/
+		\b                 # Word boundary
+		(\d{1,5})          # Street number: 1 to 5 digits
+		\s+                # Space
+		([A-Za-z0-9\s]+?)  # Street name (alphanumeric, allows spaces)
+		\s+                # Space
+		(Street|St\.?|Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?) # Street type
+		(,\s+[A-Za-z\s]+)? # Optional city name
+		\s*                # Optional spaces
+		(,\s*[A-Z]{2})?    # Optional state abbreviation
+		\s*                # Optional spaces
+		(\d{5}(-\d{4})?)?  # Optional ZIP code
+		\b                 # Word boundary
+	/x;
+
+	# Find all matches
+	while ($text =~ /$address_regex/g) {
+		push @addresses, $&;	# Capture the full match
+	}
+
+	return @addresses;
+}
 =head2 reverse_geocode
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
