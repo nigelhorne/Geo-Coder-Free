@@ -242,16 +242,61 @@ sub geocode {
 				$region = uc($region);
 				if($region eq 'US') {
 					my @candidates = _find_us_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
 					if(scalar(@candidates)) {
 						if(wantarray) {
 							my @us;
 							foreach my $candidate(@candidates) {
-								my @res = $self->{'maxmind'}->geocode("$candidate, USA");
-								push @us, @res;
+								# ::diag(__LINE__, ": $candidate");
+								next if(exists($ignore_words{lc($candidate)}));
+								my @res = grep defined, (
+									$self->{'openaddr'}->geocode("$candidate, USA"),
+									# $self->{'maxmind'}->geocode("$candidate, USA")
+								);
+								push @us, @res if(scalar(@res));
 							}
 							return @us if(scalar(@us));
+						} elsif(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', USA')) {
+							return $rc;
 						}
-						if(my $rc = $self->{'maxmind'}->geocode($candidates[0] . ', USA')) {
+					}
+				} elsif($region eq 'CA') {
+					my @candidates = _find_ca_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						if(wantarray) {
+							my @ca;
+							foreach my $candidate(@candidates) {
+								# ::diag(__LINE__, ": $candidate");
+								next if(exists($ignore_words{lc($candidate)}));
+								my @res = grep defined, (
+									$self->{'openaddr'}->geocode("$candidate, Canada"),
+									# $self->{'maxmind'}->geocode("$candidate, Canada")
+								);
+								push @ca, @res if(scalar(@res));
+							}
+							return @ca if(scalar(@ca));
+						} elsif(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', Canada')) {
+							return $rc;
+						}
+					}
+				} elsif($region eq 'GB') {
+					my @candidates = _find_gb_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						if(wantarray) {
+							my @gb;
+							foreach my $candidate(@candidates) {
+								# ::diag(__LINE__, ": $candidate");
+								next if(exists($ignore_words{lc($candidate)}));
+								my @res = grep defined, (
+									$self->{'openaddr'}->geocode("$candidate, GB"),
+									# $self->{'maxmind'}->geocode("$candidate, GB")
+								);
+								push @gb, @res if(scalar(@res));
+							}
+							return @gb if(scalar(@gb));
+						} elsif(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', GB')) {
 							return $rc;
 						}
 					}
@@ -378,23 +423,25 @@ sub geocode {
 
 # Function to find all possible US addresses in a string
 sub _find_us_addresses {
-	my ($text) = @_;
+	my $text = shift;
 	my @addresses;
 
 	# Regular expression to match U.S.-style addresses
 	my $address_regex = qr/
-		\b                 # Word boundary
-		(\d{1,5})          # Street number: 1 to 5 digits
-		\s+                # Space
-		([A-Za-z0-9\s]+?)  # Street name (alphanumeric, allows spaces)
-		\s+                # Space
-		(Street|St\.?|Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?) # Street type
-		(,\s+[A-Za-z\s]+)? # Optional city name
-		\s*                # Optional spaces
-		(,\s*[A-Z]{2})?    # Optional state abbreviation
-		\s*                # Optional spaces
-		(\d{5}(-\d{4})?)?  # Optional ZIP code
-		\b                 # Word boundary
+	        \b                    # Word boundary
+		(\d{1,5})	# Street number: 1 to 5 digits
+		\s+	# Space
+		([A-Za-z0-9\s]+?)	# Street name (alphanumeric, allows spaces)
+		\s+	# Space
+		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?) # Street type
+		(\s+[A-Za-z]{2})?	# Optional directional suffix (NW, NE, etc.)
+		,\s*	# Comma and optional spaces
+		([A-Za-z\s]+)	# City name
+		,\s*	# Comma and optional spaces
+		([A-Z]{2})	# State abbreviation
+		\s*	# Optional spaces
+		(\d{5}(-\d{4})?)?	# Optional ZIP code
+		\b	# Word boundary
 	/x;
 
 	# Find all matches
@@ -404,6 +451,69 @@ sub _find_us_addresses {
 
 	return @addresses;
 }
+
+# Function to find all possible British addresses in a string
+sub _find_gb_addresses {
+	my $text = shift;
+	my @addresses;
+
+	# Regular expression to match British-style addresses
+	my $address_regex = qr/
+		\b                                     # Word boundary
+		(\d{1,5}|\w[\w\s'-]+)	# House number or name (e.g., "123", "The White House")
+		\s+                                      # Space
+		([A-Za-z0-9\s'-]+)                       # Street name (alphanumeric with spaces, hyphens, or apostrophes)
+		\s*,?\s*                                 # Optional comma and spaces
+		([A-Za-z\s'-]+)                          # Locality or district name (optional, but typically a valid name)
+		\s*,?\s*                                 # Optional comma and spaces
+		([A-Za-z\s'-]+)                          # Town or city name
+		\s*,?\s*                                 # Optional comma and spaces
+		([A-Za-z\s'-]+)                         # County name
+		# \s*,?\s*                                 # Optional comma and spaces
+		# ([A-Z]{1,2}[0-9R][0-9A-Z]?\s[0-9][ABD-HJLNP-UW-Z]{2}),	# Optional postcode (e.g., "SW1A 1AA", "EC1A 1BB")
+		\b                                       # Word boundary
+	/x;
+
+	# Find all matches
+	while ($text =~ /$address_regex/g) {
+		my $address = $&;
+		$address =~ s/[,\s]+$//;
+		push @addresses, $address;	# Capture the full match
+	}
+
+	return @addresses;
+}
+
+# Function to find all possible Canadian addresses in a string
+sub _find_ca_addresses {
+	my $text = shift;
+	my @addresses;
+
+	# Regular expression to match Canadian-style addresses
+	my $address_regex = qr/
+		\b                                # Word boundary
+		(\d{1,5})                         # Street number: 1 to 5 digits
+		\s+                               # Space
+		([A-Za-z0-9\s]+?)                 # Street name (alphanumeric, allows spaces)
+		\s+                               # Space
+		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?|Circle|Crescent|Cres\.?) # Street type
+		\s*,\s*                           # Comma and optional spaces
+		([A-Za-z\s]+)                     # City name (allows multi-word names)
+		\s*,\s*                           # Comma and optional spaces
+		([A-Z]{2})                        # Province abbreviation (e.g., ON, QC, BC)
+		\s*,?\s*                          # Optional comma and spaces
+		([A-Z]\d[A-Z]\s?\d[A-Z]\d)?	# Optional Canadian postal code (e.g., A1A 1A1)
+		\b                                # Word boundary
+	/x;
+
+	# Find all matches
+	while ($text =~ /$address_regex/g) {
+		push @addresses, $&; # Capture the full match
+	}
+
+	return @addresses;
+}
+
 =head2 reverse_geocode
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');

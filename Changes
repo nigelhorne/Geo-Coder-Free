@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.39
+	Improve US address parser to include NW as in "Pennsylvania Ave. NW"
+
 0.38	Wed Jan 22 08:37:22 EST 2025
 	Latest as_string return code and Utils.pm from VWF
 	Added t/30-basics, t/config.t, t/utils.t and t/display.t

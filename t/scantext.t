@@ -111,21 +111,36 @@ SCANTEXT: {
 			ok($found{'NOBLESVILLE'});
 			# ok($found{'INDIANAPOLIS'});
 
-			@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'gb');
+			@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'GB');
 			cmp_ok(scalar(@locations), '==', 1, 'Found one match for Horne in GB');
 			diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
 			cmp_ok(lc($locations[0]->{'city'}), 'eq', 'horne', 'There is a place near Gatwick called Horne');
 
-			@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'gb', ignore_words => [ 'horne' ]);
+			@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'GB', ignore_words => [ 'horne' ]);
 			# cmp_ok(scalar(@locations), '==', 0, 'ignore_words are ignored');
 			cmp_ok($locations[0], 'eq', '', 'Empty string');	# FIXME: should be undef
 			diag(__LINE__, ': ', Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
 
 			@locations = $geo_coder->geocode({
-				scantext => 'Send it to 123 Main Street, Springfield, IL 62704 or to 456 Elm St., Denver, CO. Other options: 789 Pine Blvd, Austin, TX.',
-				region => 'us'
+				scantext => 'Send it to 1600 Pennsylvania Ave. NW, Washington, DC 20500 or to 456 Elm St., Denver, CO. Other options: 789 Pine Blvd, Austin, TX.',
+				region => 'US'
 			});
-			diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+			# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+			diag(Data::Dumper->new([\@locations])->Dump());
+
+			@locations = $geo_coder->geocode({
+				scantext => 'Send it to 123 Main Street, Toronto, ON, M5J 2N1 or 456 Elm St., Vancouver, BC, V6B 3H6. Another example is 789 Pine Ave, Montreal, QC, H2X 1Y4.',
+				region => 'CA'
+			});
+			# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+			diag(Data::Dumper->new([\@locations])->Dump());
+
+			@locations = $geo_coder->geocode({
+				scantext => 'Send it to 10 Downing Street, Westminster, London, SW1A 2AA or Flat 3, 221B Baker Street, Marylebone, London, NW1 6XE. Another example is The Shard, 32 London Bridge St, London SE1 9SG.',
+				region => 'GB'
+			});
+			# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+			diag(Data::Dumper->new([\@locations])->Dump());
 
 			eval 'use Test::Memory::Cycle';
 			if($@) {
