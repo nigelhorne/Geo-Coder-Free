@@ -166,7 +166,7 @@ sub new {
     # Note that this yields many false positives and isn't useable yet
     my @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US');
 
-    @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US', ignore_words => [ 'foo', 'bar' ]);
+    @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'GB', ignore_words => [ 'foo', 'bar' ]);
 
 =cut
 
