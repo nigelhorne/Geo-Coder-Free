@@ -233,72 +233,60 @@ sub geocode {
 	if($self->{'openaddr'}) {
 		if(wantarray) {
 			my @rc = $self->{'openaddr'}->geocode(\%params);
+			my %ignore_words;
+			if($params{'ignore_words'}) {
+				%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
+			}
 			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
-				my %ignore_words;
-				if($params{'ignore_words'}) {
-					%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
-				}
 				# ::diag(Data::Dumper->new([\%ignore_words])->Dump());
 				$region = uc($region);
 				if($region eq 'US') {
 					my @candidates = _find_us_addresses($scantext);
 					# ::diag(Data::Dumper->new([\@candidates])->Dump());
 					if(scalar(@candidates)) {
-						if(wantarray) {
-							my @us;
-							foreach my $candidate(@candidates) {
-								# ::diag(__LINE__, ": $candidate");
-								next if(exists($ignore_words{lc($candidate)}));
-								my @res = grep defined, (
-									$self->{'openaddr'}->geocode("$candidate, USA"),
-									# $self->{'maxmind'}->geocode("$candidate, USA")
-								);
-								push @us, @res if(scalar(@res));
-							}
-							return @us if(scalar(@us));
-						} elsif(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', USA')) {
-							return $rc;
+						my @us;
+						foreach my $candidate(@candidates) {
+							# ::diag(__LINE__, ": $candidate");
+							next if(exists($ignore_words{lc($candidate)}));
+							my @res = grep defined, (
+								$self->{'openaddr'}->geocode("$candidate, USA"),
+								# $self->{'maxmind'}->geocode("$candidate, USA")
+							);
+							push @us, @res if(scalar(@res));
 						}
+						return @us if(scalar(@us));
 					}
 				} elsif($region eq 'CA') {
 					my @candidates = _find_ca_addresses($scantext);
 					# ::diag(Data::Dumper->new([\@candidates])->Dump());
 					if(scalar(@candidates)) {
-						if(wantarray) {
-							my @ca;
-							foreach my $candidate(@candidates) {
-								# ::diag(__LINE__, ": $candidate");
-								next if(exists($ignore_words{lc($candidate)}));
-								my @res = grep defined, (
-									$self->{'openaddr'}->geocode("$candidate, Canada"),
-									# $self->{'maxmind'}->geocode("$candidate, Canada")
-								);
-								push @ca, @res if(scalar(@res));
-							}
-							return @ca if(scalar(@ca));
-						} elsif(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', Canada')) {
-							return $rc;
+						my @ca;
+						foreach my $candidate(@candidates) {
+							# ::diag(__LINE__, ": $candidate");
+							next if(exists($ignore_words{lc($candidate)}));
+							my @res = grep defined, (
+								$self->{'openaddr'}->geocode("$candidate, Canada"),
+								# $self->{'maxmind'}->geocode("$candidate, Canada")
+							);
+							push @ca, @res if(scalar(@res));
 						}
+						return @ca if(scalar(@ca));
 					}
 				} elsif($region eq 'GB') {
 					my @candidates = _find_gb_addresses($scantext);
 					# ::diag(Data::Dumper->new([\@candidates])->Dump());
 					if(scalar(@candidates)) {
-						if(wantarray) {
-							my @gb;
-							foreach my $candidate(@candidates) {
-								# ::diag(__LINE__, ": $candidate");
-								next if(exists($ignore_words{lc($candidate)}));
-								my @res = grep defined, (
-									$self->{'openaddr'}->geocode("$candidate, GB"),
-									# $self->{'maxmind'}->geocode("$candidate, GB")
-								);
-								push @gb, @res if(scalar(@res));
-							}
-							return @gb if(scalar(@gb));
-						} elsif(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', GB')) {
-							return $rc;
+						my @gb;
+						foreach my $candidate(@candidates) {
+							# ::diag(__LINE__, ": $candidate");
+							next if(exists($ignore_words{lc($candidate)}));
+							my @res = grep defined, (
+								$self->{'openaddr'}->geocode("$candidate, GB"),
+								# $self->{'maxmind'}->geocode("$candidate, GB")
+							);
+							push @gb, @res if(scalar(@res));
 						}
+						return @gb if(scalar(@gb));
 					}
 				}
 				$scantext =~ s/[^\w']+/ /g;
@@ -377,8 +365,38 @@ sub geocode {
 				}
 			}
 			return @rc if(scalar(@rc) && $rc[0]);
-		} elsif(my $rc = $self->{'openaddr'}->geocode(\%params)) {
-			return $rc;
+		} else {	# !wantarray
+			if(my $rc = $self->{'openaddr'}->geocode(\%params)) {
+				return $rc;
+			}
+			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
+				$region = uc($region);
+				if($region eq 'US') {
+					my @candidates = _find_us_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						if(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', USA')) {
+							return $rc;
+						}
+					}
+				} elsif($region eq 'CA') {
+					my @candidates = _find_ca_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						if(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', Canada')) {
+							return $rc;
+						}
+					}
+				} elsif($region eq 'GB') {
+					my @candidates = _find_gb_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						if(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', UK')) {
+							return $rc;
+						}
+					}
+				}
+			}
 		}
 		if((!$params{'scantext'}) && (my $alternatives = $self->{'alternatives'})) {
 			# Try some alternatives, would be nice to read this from somewhere on line
