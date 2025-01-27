@@ -3,6 +3,10 @@ package main;
 # VWF is licensed under GPL2.0 for personal use only
 # njh@bandsman.co.uk
 
+=head1 NAME
+
+Geo::Coder::Free::Utils - Random subroutines for Geo::Coder::Free
+
 =head1 VERSION
 
 Version 0.38

@@ -7,7 +7,7 @@ Revision history for Geo-Coder-Free
 	Latest as_string return code and Utils.pm from VWF
 	Added t/30-basics, t/config.t, t/utils.t and t/display.t
 	geocode(): croak when input is just a set of numbers
-	Local: Replace linear search wish a hash search
+	Local: Replace linear search with a hash search
 	Local: Create a cache
 	Maxmind: Create a cache
 	scantext: set the location field to the string that was matched
