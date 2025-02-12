@@ -38,7 +38,7 @@ jobs:
             AUTOMATED_TESTING: 1
             NO_NETWORK_TESTING: 1
           command: |
-            sudo cpanm -iqnf LWP::Simple::WithCache CGI::IDS
+            sudo cpanm -iqnf LWP::Simple::WithCache CGI::IDS Log::Any::Adapter Template::Filters
             sudo cpanm -ivn --installdeps . || cat /root/.cpan/work/*/build.log
       - run:
           name: Make Module
