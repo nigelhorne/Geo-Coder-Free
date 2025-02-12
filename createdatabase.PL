@@ -43,7 +43,7 @@
 #	cd $OSM_HOME && /usr/bin/wget https://download.geofabrik.de/europe-latest.osm.bz2
 # Note that this can take a day to load in just AU, CA, GB, US
 
-# You can look up a WOF place by https://spelunker.whosonfirst.org/id/$locality_id
+# You can look up a WOF place at https://spelunker.whosonfirst.org/id/$locality_id
 #
 # Try:
 #	sqlite3 whosonfirst-data-latest.db
