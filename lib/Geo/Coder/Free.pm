@@ -253,12 +253,14 @@ sub geocode {
 			my @rc;
 			my $region = $params{'region'};
 			foreach my $place (@places) {
+				my $location = $region ? "$place, $region" : $place;
 				my @res = grep defined, (
-					$self->{'openaddr'}->geocode($region ? "$place, $region" : $place),
-					# $self->{'maxmind'}->geocode($region ? "$place, $region" : $place)
+					$self->{'openaddr'}->geocode($location),
+					# $self->{'maxmind'}->geocode($location)
 				);
 				foreach my $entry(@res) {
-					$entry->{'location'} = $region ? "$place, $region" : $place;
+					$entry->{'location'} = $location;
+					$entry->{'text'} = $s;
 				}
 				if(scalar(@res) && !wantarray) {
 					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
