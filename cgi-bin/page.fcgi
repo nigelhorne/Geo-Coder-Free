@@ -67,8 +67,8 @@ Log::WarnDie->filter(\&filter);
 
 my $vwflog;	# Location of the vwf.log file, read in from the config file - default = logdir/vwf.log
 
-my $infocache;
-my $linguacache;
+my $info_cache;
+my $lingua_cache;
 my $buffercache;
 my $geocoder;
 
@@ -211,6 +211,12 @@ $logger->info("Shutting down");
 if($buffercache) {
 	$buffercache->purge();
 }
+if($info_cache) {
+	$info_cache->purge();
+}
+if($lingua_cache) {
+	$lingua_cache->purge();
+}
 CHI->stats->flush();
 Log::WarnDie->dispatcher(undef);
 exit(0);
@@ -222,10 +228,10 @@ sub doit
 	$logger->debug('In doit - domain is ', $info->domain_name());
 
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
-	$infocache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Info');
+	$info_cache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Info');
 
 	my $options = {
-		cache => $infocache,
+		cache => $info_cache,
 		logger => $logger
 	};
 
@@ -244,12 +250,12 @@ sub doit
 		return;
 	}
 
-	$linguacache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Lingua');
+	$lingua_cache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Lingua');
 
 	# Language negotiation
 	my $lingua = CGI::Lingua->new({
 		supported => [ 'en-gb' ],
-		cache => $linguacache,
+		cache => $lingua_cache,
 		info => $info,
 		logger => $logger,
 		debug => $params{'debug'},
@@ -505,6 +511,27 @@ sub choose
 		print "/cgi-bin/page.fcgi?page=index\n",
 			"/cgi-bin/page.fcgi?page=query\n";
 	}
+}
+
+# Is this client trying to attack us?
+sub blacklist
+{
+	if(my $remote = $ENV{'REMOTE_ADDR'}) {
+		if($blacklisted_ip{$remote}) {
+			$info->status(301);
+			return 1;
+		}
+
+		my $info = shift;
+		if(my $string = $info->as_string()) {
+			if(($string =~ /SELECT.+AND.+/) || ($string =~ /ORDER BY /) || ($string =~ / OR NOT /) || ($string =~ / AND \d+=\d+/) || ($string =~ /THEN.+ELSE.+END/) || ($string =~ /.+AND.+SELECT.+/) || ($string =~ /\sAND\s.+\sAND\s/) || ($string =~ /AND\sCASE\sWHEN/)) {
+				$blacklisted_ip{$remote} = 1;
+				$info->status(301);
+				return 1;
+			}
+		}
+	}
+	return 0;
 }
 
 # False positives we don't need in the logs
