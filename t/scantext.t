@@ -60,13 +60,13 @@ SCANTEXT: {
 			# }
 
 			diag(Data::Dumper->new([$location])->Dump()) if($ENV{'TEST_VERBOSE'});
-			next unless($location->{'location'} eq 'NEWARK, DE, USA');
+			next unless($location->{'location'} =~ /Newark, DE/);
 			$found++;
 			cmp_deeply($location,
 				methods('lat' => num(39.68, 1e-2), 'long' => num(-75.75, 1e-2)));
 			ok(defined($location->{'confidence'}));
 		}
-		ok($found == 1);
+		cmp_ok($found, '==', 1);
 
 		my $s = 'From the Indianapolis Star, 25/4/2013:  "75, Indianapolis, died Apr. 21, 2013. Services: 1 p.m. Apr. 26 in Forest Lawn Funeral Home, Greenwood, with visitation from 11 a.m.".  Obituary from Forest Lawn Funeral Home:  "Sharlene C. Cloud, 75, of Indianapolis, passed away April 21, 2013. She was born May 21, 1937 in Noblesville, IN to Virgil and Josephine (Beaver) Day. She is survived by her mother; two sons, Christopher and Thomas Cloud; daughter, Marsha Cloud; three sisters, Mary Kirby, Sharon Lowery, and Doris Lyng; two grandchildren, Allison and Jamie Cloud. Funeral Services will be Friday at 1:00 pm at Forest Lawn Funeral Home, Greenwood, IN, with visitation from 11:00am till time of service Friday at the funeral home."';
 		@locations = $geo_coder->geocode({ scantext => $s, region => 'US' });
@@ -118,35 +118,33 @@ SCANTEXT: {
 		# ok($found{'INDIANAPOLIS'});
 
 		@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'GB');
-		cmp_ok(scalar(@locations), '==', 1, 'Found one match for Horne in GB');
-		diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
-		cmp_ok(lc($locations[0]->{'city'}), 'eq', 'horne', 'There is a place near Gatwick called Horne');
+		# Should not find the place near Gatwick called Horne
+		cmp_ok(scalar(@locations), '==', 0, 'Did not find one match for Horne in GB');
+		# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
+		# cmp_ok(lc($locations[0]->{'city'}), 'eq', 'horne', 'There is a place near Gatwick called Horne');
 
 		@locations = $geo_coder->geocode(scantext => 'Nigel Horne was here', region => 'GB', ignore_words => [ 'horne' ]);
-		# cmp_ok(scalar(@locations), '==', 0, 'ignore_words are ignored');
-		cmp_ok($locations[0], 'eq', '', 'Empty string');	# FIXME: should be undef
+		cmp_ok(scalar(@locations), '==', 0, 'ignore_words are ignored');
+		# cmp_ok($locations[0], 'eq', '', 'Empty string');	# FIXME: should be undef
 		diag(__LINE__, ': ', Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
 
 		@locations = $geo_coder->geocode({
 			scantext => 'Send it to 1600 Pennsylvania Ave. NW, Washington, DC 20500 or to 456 Elm St., Denver, CO. Other options: 789 Pine Blvd, Austin, TX.',
 			region => 'US'
 		});
-		# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
-		diag(Data::Dumper->new([\@locations])->Dump());
+		diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
 
 		@locations = $geo_coder->geocode({
 			scantext => 'Send it to 123 Main Street, Toronto, ON, M5J 2N1 or 456 Elm St., Vancouver, BC, V6B 3H6. Another example is 789 Pine Ave, Montreal, QC, H2X 1Y4.',
 			region => 'CA'
 		});
-		# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
-		diag(Data::Dumper->new([\@locations])->Dump());
+		diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
 
 		@locations = $geo_coder->geocode({
 			scantext => 'Send it to 10 Downing Street, Westminster, London, SW1A 2AA or Flat 3, 221B Baker Street, Marylebone, London, NW1 6XE. Another example is The Shard, 32 London Bridge St, London SE1 9SG.',
 			region => 'GB'
 		});
-		# diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
-		diag(Data::Dumper->new([\@locations])->Dump());
+		diag(Data::Dumper->new([\@locations])->Dump()) if($ENV{'TEST_VERBOSE'});
 
 		eval 'use Test::Memory::Cycle';
 		if($@) {

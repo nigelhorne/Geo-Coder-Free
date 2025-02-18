@@ -3,7 +3,7 @@ Revision history for Geo-Coder-Free
 0.39
 	Improve US address parser to include NW as in "Pennsylvania Ave. NW"
 	Handle arrays that are only one element in size
-	Start to refactor scantext, using a complex regex
+	Refactor scantext, using a complex regex and other technologies
 
 0.38	Wed Jan 22 08:37:22 EST 2025
 	Latest as_string return code and Utils.pm from VWF

@@ -315,6 +315,13 @@ sub geocode {
 
 			# Decide if it's worth continuing to search
 			my $found = 0;
+			if(!defined($addr{'country'})) {
+				if($l =~ /(United States|USA|US)$/i) {
+					$addr{'country'} = 'US';
+				} else {
+					die "TODO: extract country from $l";
+				}
+			}
 			foreach my $row(@{$self->{'data'}}) {
 				if((uc($row->{'state'}) eq uc($addr{'state'})) &&
 				   (uc($row->{'country'}) eq uc($addr{'country'}))) {

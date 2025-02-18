@@ -14,10 +14,9 @@ use Array::Iterator;
 use Config::Auto;
 use Data::Dumper;
 use Geo::Coder::Abbreviations;
+use Geo::Coder::Free::Local;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
-# use Lingua::EN::NamedEntity;
-use List::MoreUtils;
 use Locale::US;
 use Carp;
 use Scalar::Util;
@@ -182,9 +181,10 @@ my %common_words = (
 	'how' => 1,
 	'over' => 1,
 	'she' => 1,
-	'of' => 1,
 	'for' => 1,
+	'of' => 1,
 	'on' => 1,
+	'or' => 1,
 	'pm' => 1,
 	'in' => 1,
 	'an' => 1,
@@ -234,25 +234,25 @@ sub geocode {
 	}
 
 	if($self->{'openaddr'}) {
-		if(my $s = $params{'scantext'}) {
-			# Regular expression to match different formats of places
-			# This rediculous regex is from Chatgpt
-			#	OpenAI. (2025). ChatGPT [Large language model]. https://chatgpt.com
+		if(my $scantext = $params{'scantext'}) {
+			my @matches = grep defined, (
+				$self->{'openaddr'}->geocode($scantext)
+			);
+			if(scalar(@matches)) {
+				# ::diag(__LINE__, Data::Dumper->Dump([\@matches]));
+				return @matches;
+			}
+			my $region = $params{'region'};
 
-			# FIXME: Doesn't find the place in this "She was born May 21, 1937 in Noblesville, IN.";
-			my @matches = $s =~ /\b(?:\d+\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\.?),\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:,\s*[A-Z]{2,})*)\b/g;
-
-			my @places;
-			foreach my $match (@matches) {
-				push @places, $match if(defined $match && $match ne '');
+			my %ignore_words = %common_words;
+			if($params{'ignore_words'}) {
+				%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
 			}
 
-			# ::diag($s);
-			# ::diag(join(';', @places)) if(scalar(@places));
-			
 			my @rc;
-			my $region = $params{'region'};
-			foreach my $place (@places) {
+			@matches = _find_word_triplets($scantext, \%ignore_words);
+
+			foreach my $place (@matches) {
 				my $location = $region ? "$place, $region" : $place;
 				my @res = grep defined, (
 					$self->{'openaddr'}->geocode($location),
@@ -260,7 +260,8 @@ sub geocode {
 				);
 				foreach my $entry(@res) {
 					$entry->{'location'} = $location;
-					$entry->{'text'} = $s;
+					$entry->{'text'} = $scantext;
+					$entry->{'confidence'} = 0.7;
 				}
 				if(scalar(@res) && !wantarray) {
 					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
@@ -272,68 +273,50 @@ sub geocode {
 				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
 				return @rc;
 			}
-			# my @entities = extract_entities($s);
-			# if(scalar(@entities)) {
-				# my $region = $params{'region'};
-				# foreach my $entity(@entities) {
-					# if($entity->{'class'} eq 'place') {
-						# my $place = $entity->{'entity'};
-						# my @res = grep defined, (
-							# $self->{'openaddr'}->geocode($region ? "$place, $region" : $place),
-							# # $self->{'maxmind'}->geocode($region ? "$place, $region" : $place)
-						# );
-						# ::diag($place);
-						# ::diag($region);
-						# if(scalar(@res)) {
-							# ::diag($s);
-							# ::diag(Data::Dumper->new([\@res])->Dump());
-						# }
-					# }
-				# }
-			# }
-		}
-		if(wantarray) {
-			my @rc = $self->{'openaddr'}->geocode(\%params);
-			my %ignore_words;
-			if($params{'ignore_words'}) {
-				%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
+
+			# Regular expression to match different formats of places
+			# This rediculous regex is from Chatgpt
+			#	OpenAI. (2025). ChatGPT [Large language model]. https://chatgpt.com
+
+			# FIXME: Doesn't find the place in this "She was born May 21, 1937 in Noblesville, IN.";
+			@matches = $scantext =~ /\b(?:\d+\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\.?),\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:,\s*[A-Z]{2,})*)\b/g;
+
+			my @places;
+			foreach my $match (@matches) {
+				push @places, $match if(defined $match && $match ne '');
 			}
-			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
-				# ::diag(Data::Dumper->new([\%ignore_words])->Dump());
-				$region = uc($region);
-				if($region eq 'US') {
-					my @candidates = _find_us_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						my @us;
-						foreach my $candidate(@candidates) {
-							# ::diag(__LINE__, ": $candidate");
-							next if(exists($ignore_words{lc($candidate)}));
-							my @res = grep defined, (
-								$self->{'openaddr'}->geocode("$candidate, USA"),
-								# $self->{'maxmind'}->geocode("$candidate, USA")
-							);
-							push @us, @res if(scalar(@res));
-						}
-						return @us if(scalar(@us));
-					}
-				} elsif($region eq 'CA') {
-					my @candidates = _find_ca_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						my @ca;
-						foreach my $candidate(@candidates) {
-							# ::diag(__LINE__, ": $candidate");
-							next if(exists($ignore_words{lc($candidate)}));
-							my @res = grep defined, (
-								$self->{'openaddr'}->geocode("$candidate, Canada"),
-								# $self->{'maxmind'}->geocode("$candidate, Canada")
-							);
-							push @ca, @res if(scalar(@res));
-						}
-						return @ca if(scalar(@ca));
-					}
-				} elsif($region eq 'GB') {
+
+			# ::diag($scantext);
+			# ::diag(join(';', @places)) if(scalar(@places));
+
+			foreach my $place (@places) {
+				my $location = $region ? "$place, $region" : $place;
+				my @res = grep defined, (
+					$self->{'openaddr'}->geocode($location),
+					# $self->{'maxmind'}->geocode($location)
+				);
+				foreach my $entry(@res) {
+					$entry->{'location'} = $location;
+					$entry->{'text'} = $scantext;
+					$entry->{'confidence'} = 0.7;
+				}
+				if(scalar(@res) && !wantarray) {
+					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
+					return $res[0];
+				}
+				push @rc, @res;
+			}
+			if(scalar(@rc)) {
+				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
+				return @rc;
+			}
+
+			if($region) {
+				my %ignore_words = %common_words;
+				if($params{'ignore_words'}) {
+					%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
+				}
+				if($region eq 'GB') {
 					my @candidates = _find_gb_addresses($scantext);
 					# ::diag(Data::Dumper->new([\@candidates])->Dump());
 					if(scalar(@candidates)) {
@@ -349,120 +332,58 @@ sub geocode {
 						}
 						return @gb if(scalar(@gb));
 					}
-				}
-				$scantext =~ s/[^\w']+/ /g;
-				my @a = List::MoreUtils::uniq(split(/\s/, $scantext));
-				my $iterator = Array::Iterator->new({ __array__ => \@a });
-				# TODO
-				# while(my $w = $iterator->get_next()) {
-				my $w;
-				if($w) {
-					next if(exists($common_words{lc($w)}));
-					next if(exists($ignore_words{lc($w)}));
-					if($w =~ /^[a-z]{2,}$/i) {
-						my $peek = $iterator->peek();
-						last if(!defined($peek));
-						my $offset;
-						if(exists($common_words{lc($peek)})) {
-							$peek = $iterator->peek(2);
-							last if(!defined($peek));
-							$offset = 3;
-						} else {
-							$offset = 2;
+				} elsif($region eq 'US') {
+					my @candidates = _find_us_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						my @us;
+						foreach my $candidate(@candidates) {
+							# ::diag(__LINE__, ": $candidate");
+							next if(exists($ignore_words{lc($candidate)}));
+							my @res = grep defined, (
+								$self->{'openaddr'}->geocode("$candidate, US"),
+								# $self->{'maxmind'}->geocode("$candidate, US")
+							);
+							push @us, @res if(scalar(@res));
 						}
-						my $s;
-						if((length($peek) == 2) && (Locale::US->new()->{code2state}{uc($peek)})) {
-							$s = "$w $peek US";
-						} else {
-							my $peekpeek = $iterator->peek($offset);
-							last if(!defined($peekpeek));
-							$s = "$w $peek $peekpeek";
-						}
-						# ::diag($s);
+						return @us if(scalar(@us));
 					}
-				}
-
-				foreach my $word(List::MoreUtils::uniq(split(/\s/, $scantext))) {
-					# Ignore numbers
-					next if($word !~ /\D/);
-					# FIXME:  There are a *lot* of false positives
-					next if(exists($common_words{lc($word)}));
-					next if(exists($ignore_words{lc($word)}));
-					if($word =~ /^[a-z]{2,}$/i) {
-						my $key = "$word/$region";
-						my @matches;
-						if(my $hits = $self->{'scantext'}->{$key}) {
-							# ::diag("$key: HIT: ", Data::Dumper->new([$hits])->Dump());
-							@matches = @{$hits} if(scalar(@{$hits}));
-						} else {
-							# ::diag("$key: MISS");
-							@matches = $self->{'maxmind'}->geocode({ location => $word, region => $region });
+				} elsif($region eq 'Canada') {
+					my @candidates = _find_ca_addresses($scantext);
+					# ::diag(Data::Dumper->new([\@candidates])->Dump());
+					if(scalar(@candidates)) {
+						my @ca;
+						foreach my $candidate(@candidates) {
+							# ::diag(__LINE__, ": $candidate");
+							next if(exists($ignore_words{lc($candidate)}));
+							my @res = grep defined, (
+								$self->{'openaddr'}->geocode("$candidate, Canada"),
+								# $self->{'maxmind'}->geocode("$candidate, Canada")
+							);
+							push @ca, @res if(scalar(@res));
 						}
-						# ::diag(__LINE__, Data::Dumper->new([\@matches])->Dump());
-						my @m;
-						foreach my $match(@matches) {
-							if(ref($match) eq 'HASH') {
-								$match->{'location'} = "$word, $region";
-								push @m, $match;
-							} elsif(ref($match) eq 'ARRAY') {
-								if(scalar(@{$match}) == 1) {
-									my $item = @{$match}[0];
-									$item->{'location'} = "$word, $region";
-									push @m, $item;
-								} else {
-									warn __PACKAGE__, ': TODO: handle array: ', Data::Dumper->new([$match])->Dump();
-								}
-							} else {
-								push @m, {
-									confidence => $match->confidence(),
-									location => $match->as_string(),
-									latitude => $match->lat(),
-									longitude => $match->long(),
-									lat => $match->lat(),
-									long => $match->long(),
-									database => $match->database(),
-									country => $match->country(),
-									city => $match->city()
-								}
-							}
-						}
-						$self->{'scantext'}->{$key} = \@m;
-						@rc = (@rc, @m);
+						return @ca if(scalar(@ca));
 					}
 				}
 			}
+			return;
+		}
+		if(wantarray) {
+			my @rc = $self->{'openaddr'}->geocode(\%params);
+			if(scalar(@rc)) {
+				return @rc if(scalar(@rc) && $rc[0]);
+			}
+			$self->{'local'} ||= Geo::Coder::Free::Local->new();
+			@rc = $self->{'local'}->geocode(\%params);
+
 			return @rc if(scalar(@rc) && $rc[0]);
 		} else {	# !wantarray
 			if(my $rc = $self->{'openaddr'}->geocode(\%params)) {
 				return $rc;
 			}
-			if((my $scantext = $params{'scantext'}) && (my $region = $params{'region'})) {
-				$region = uc($region);
-				if($region eq 'US') {
-					my @candidates = _find_us_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						if(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', USA')) {
-							return $rc;
-						}
-					}
-				} elsif($region eq 'CA') {
-					my @candidates = _find_ca_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						if(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', Canada')) {
-							return $rc;
-						}
-					}
-				} elsif($region eq 'GB') {
-					my @candidates = _find_gb_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						if(my $rc = $self->{'openaddr'}->geocode($candidates[0] . ', UK')) {
-							return $rc;
-						}
-					}
-				}
+			$self->{'local'} ||= Geo::Coder::Free::Local->new();
+			if(my $rc = $self->{'local'}->geocode(\%params)) {
+				return $rc;
 			}
 		}
 		if((!$params{'scantext'}) && (my $alternatives = $self->{'alternatives'})) {
@@ -493,7 +414,7 @@ sub geocode {
 		}
 	}
 
-	# FIXME:  scantext only works if OPENADDR_HOME is set
+	# FIXME: scantext only works if OPENADDR_HOME is set
 	if($params{'location'}) {
 		if(wantarray) {
 			my @rc = $self->{'maxmind'}->geocode(\%params);
@@ -506,6 +427,31 @@ sub geocode {
 	}
 }
 
+# Find all sets of 3 consecutive words in a string
+# Example usage
+# my $input_string = "apple, banana orange,grape, melon";
+# my @result = find_word_triplets($input_string);
+# print join("\n", @result), "\n";
+sub _find_word_triplets
+{
+	my ($text, $remove_words) = @_;
+
+	# Normalize spaces and commas
+	$text =~ s/[,]+/ /g;	# Replace commas with spaces
+	$text =~ s/\s+/ /g;	# Normalize multiple spaces
+	$text =~ s/^\s+|\s+$//g; # Trim leading/trailing spaces
+
+	# my @words = split /\s+/, $text;
+	my @words = grep { !/^\d+$/ && !$remove_words->{$_} } split /\s+/, $text; # Remove numeric words and unwanted words
+	my @triplets;
+
+	for my $i (0 .. $#words - 2) {
+		push @triplets, "$words[$i], $words[$i+1], $words[$i+2]";
+	}
+
+	return @triplets;
+}
+
 # Function to find all possible US addresses in a string
 sub _find_us_addresses {
 	my $text = shift;
@@ -513,7 +459,7 @@ sub _find_us_addresses {
 
 	# Regular expression to match U.S.-style addresses
 	my $address_regex = qr/
-	        \b                    # Word boundary
+		\b                    # Word boundary
 		(\d{1,5})	# Street number: 1 to 5 digits
 		\s+	# Space
 		([A-Za-z0-9\s]+?)	# Street name (alphanumeric, allows spaces)
@@ -828,9 +774,6 @@ The source code for that site is included in the G:C:F distribution.
 =head1 BUGS
 
 Some lookups fail at the moments, if you find one please file a bug report.
-
-Doesn't include results from
-L<Geo::Coder::Free::Local>.
 
 The MaxMind data only contains cities.
 The OpenAddresses data doesn't cover the globe.
