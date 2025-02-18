@@ -43,7 +43,7 @@ jobs:
           cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info
           cpanm -iqn Test::DescribeMe Data::Validate::URI Log::Any::Adapter::Log4perl
           cpanm -iqn Text::xSV::Slurp Test::Carp Digest::CRC Test::Needs Array::Iterator
-          cpanm -iqfn CGI::IDS Template::Filters
+          cpanm -iqfn CGI::IDS Template::Filters Template::Plugin::EnvHash
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
