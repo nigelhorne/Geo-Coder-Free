@@ -172,6 +172,7 @@ sub new {
 
 # List of words that scantext should ignore
 my %common_words = (
+	'a' => 1,
 	'the' => 1,
 	'and' => 1,
 	'at' => 1,
@@ -179,6 +180,7 @@ my %common_words = (
 	'by' => 1,
 	'cross' => 1,
 	'how' => 1,
+	'i' => 1,
 	'over' => 1,
 	'she' => 1,
 	'for' => 1,
@@ -193,7 +195,8 @@ my %common_words = (
 	'to' => 1,
 	'road' => 1,
 	'is' => 1,
-	'was' => 1
+	'was' => 1,
+	'with' => 1,
 );
 
 sub geocode {
@@ -235,8 +238,12 @@ sub geocode {
 
 	if($self->{'openaddr'}) {
 		if(my $scantext = $params{'scantext'}) {
+			return if($self->{'scantext_misses'}{$scantext});
+			$self->{'local'} ||= Geo::Coder::Free::Local->new();
 			my @matches = grep defined, (
-				$self->{'openaddr'}->geocode($scantext)
+				$self->{'local'}->geocode($scantext),
+				$self->{'openaddr'}->geocode($scantext),
+				$self->{'maxmind'}->geocode($scantext)
 			);
 			if(scalar(@matches)) {
 				# ::diag(__LINE__, Data::Dumper->Dump([\@matches]));
@@ -244,16 +251,47 @@ sub geocode {
 			}
 			my $region = $params{'region'};
 
-			my %ignore_words = %common_words;
+			my %ignore_words;
 			if($params{'ignore_words'}) {
 				%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
 			}
+
+			%ignore_words = (%ignore_words, %common_words);
 
 			my @rc;
 			@matches = _find_word_triplets($scantext, \%ignore_words);
 
 			foreach my $place (@matches) {
 				my $location = $region ? "$place, $region" : $place;
+				next if($self->{'scantext_misses'}{$location});
+				my @res = grep defined, (
+					$self->{'openaddr'}->geocode($location),
+					# $self->{'maxmind'}->geocode($location)
+				);
+				foreach my $entry(@res) {
+					$entry->{'location'} = $location;
+					$entry->{'text'} = $scantext;
+					$entry->{'confidence'} = 0.8;
+				}
+				if(scalar(@res) && !wantarray) {
+					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
+					return $res[0];
+				}
+				if(scalar(@res)) {
+					push @rc, @res;
+				} else {
+					$self->{'scantext_misses'}{$location} = 1;
+				}
+			}
+			if(scalar(@rc)) {
+				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
+				return @rc;
+			}
+			@matches = _find_word_duplets($scantext, \%ignore_words);
+
+			foreach my $place (@matches) {
+				my $location = $region ? "$place, $region" : $place;
+				next if($self->{'scantext_misses'}{$location});
 				my @res = grep defined, (
 					$self->{'openaddr'}->geocode($location),
 					# $self->{'maxmind'}->geocode($location)
@@ -267,7 +305,11 @@ sub geocode {
 					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
 					return $res[0];
 				}
-				push @rc, @res;
+				if(scalar(@res)) {
+					push @rc, @res;
+				} else {
+					$self->{'scantext_misses'}{$location} = 1;
+				}
 			}
 			if(scalar(@rc)) {
 				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
@@ -291,6 +333,7 @@ sub geocode {
 
 			foreach my $place (@places) {
 				my $location = $region ? "$place, $region" : $place;
+				next if($self->{'scantext_misses'}{$location});
 				my @res = grep defined, (
 					$self->{'openaddr'}->geocode($location),
 					# $self->{'maxmind'}->geocode($location)
@@ -304,7 +347,11 @@ sub geocode {
 					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
 					return $res[0];
 				}
-				push @rc, @res;
+				if(scalar(@res)) {
+					push @rc, @res;
+				} else {
+					$self->{'scantext_misses'}{$location} = 1;
+				}
 			}
 			if(scalar(@rc)) {
 				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
@@ -312,10 +359,6 @@ sub geocode {
 			}
 
 			if($region) {
-				my %ignore_words = %common_words;
-				if($params{'ignore_words'}) {
-					%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
-				}
 				if($region eq 'GB') {
 					my @candidates = _find_gb_addresses($scantext);
 					# ::diag(Data::Dumper->new([\@candidates])->Dump());
@@ -366,6 +409,7 @@ sub geocode {
 					}
 				}
 			}
+			$self->{'scantext_misses'}{$scantext} = 1;
 			return;
 		}
 		if(wantarray) {
@@ -442,7 +486,7 @@ sub _find_word_triplets
 	$text =~ s/^\s+|\s+$//g; # Trim leading/trailing spaces
 
 	# my @words = split /\s+/, $text;
-	my @words = grep { !/^\d+$/ && !$remove_words->{$_} } split /\s+/, $text; # Remove numeric words and unwanted words
+	my @words = grep { !/^\d+$/ && !$remove_words->{lc($_)} } split /\s+/, $text; # Remove numeric words and unwanted words
 	my @triplets;
 
 	for my $i (0 .. $#words - 2) {
@@ -450,6 +494,27 @@ sub _find_word_triplets
 	}
 
 	return @triplets;
+}
+
+# Find all sets of 2 consecutive words in a string
+sub _find_word_duplets
+{
+	my ($text, $remove_words) = @_;
+
+	# Normalize spaces and commas
+	$text =~ s/[,]+/ /g;	# Replace commas with spaces
+	$text =~ s/\s+/ /g;	# Normalize multiple spaces
+	$text =~ s/^\s+|\s+$//g; # Trim leading/trailing spaces
+
+	# my @words = split /\s+/, $text;
+	my @words = grep { !/^\d+$/ && !$remove_words->{$_} } split /\s+/, $text; # Remove numeric words and unwanted words
+	my @duplets;
+
+	for my $i (0 .. $#words - 1) {
+		push @duplets, "$words[$i], $words[$i+1]";
+	}
+
+	return @duplets;
 }
 
 # Function to find all possible US addresses in a string
