@@ -16,6 +16,7 @@ use Data::Dumper;
 use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
+# use Lingua::EN::NamedEntity;
 use List::MoreUtils;
 use Locale::US;
 use Carp;
@@ -233,6 +234,62 @@ sub geocode {
 	}
 
 	if($self->{'openaddr'}) {
+		if(my $s = $params{'scantext'}) {
+			# Regular expression to match different formats of places
+			# This rediculous regex is from Chatgpt
+			#	OpenAI. (2025). ChatGPT [Large language model]. https://chatgpt.com
+
+			# FIXME: Doesn't find the place in this "She was born May 21, 1937 in Noblesville, IN.";
+			my @matches = $s =~ /\b(?:\d+\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\.?),\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:,\s*[A-Z]{2,})*)\b/g;
+
+			my @places;
+			foreach my $match (@matches) {
+				push @places, $match if(defined $match && $match ne '');
+			}
+
+			# ::diag($s);
+			# ::diag(join(';', @places)) if(scalar(@places));
+			
+			my @rc;
+			my $region = $params{'region'};
+			foreach my $place (@places) {
+				my @res = grep defined, (
+					$self->{'openaddr'}->geocode($region ? "$place, $region" : $place),
+					# $self->{'maxmind'}->geocode($region ? "$place, $region" : $place)
+				);
+				foreach my $entry(@res) {
+					$entry->{'location'} = $region ? "$place, $region" : $place;
+				}
+				if(scalar(@res) && !wantarray) {
+					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
+					return $res[0];
+				}
+				push @rc, @res;
+			}
+			if(scalar(@rc)) {
+				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
+				return @rc;
+			}
+			# my @entities = extract_entities($s);
+			# if(scalar(@entities)) {
+				# my $region = $params{'region'};
+				# foreach my $entity(@entities) {
+					# if($entity->{'class'} eq 'place') {
+						# my $place = $entity->{'entity'};
+						# my @res = grep defined, (
+							# $self->{'openaddr'}->geocode($region ? "$place, $region" : $place),
+							# # $self->{'maxmind'}->geocode($region ? "$place, $region" : $place)
+						# );
+						# ::diag($place);
+						# ::diag($region);
+						# if(scalar(@res)) {
+							# ::diag($s);
+							# ::diag(Data::Dumper->new([\@res])->Dump());
+						# }
+					# }
+				# }
+			# }
+		}
 		if(wantarray) {
 			my @rc = $self->{'openaddr'}->geocode(\%params);
 			my %ignore_words;
