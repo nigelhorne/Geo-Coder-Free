@@ -173,28 +173,29 @@ sub new {
 # List of words that scantext should ignore
 my %common_words = (
 	'a' => 1,
-	'the' => 1,
+	'an' => 1,
+	'age' => 1,
 	'and' => 1,
 	'at' => 1,
 	'be' => 1,
 	'by' => 1,
 	'cross' => 1,
+	'for' => 1,
 	'how' => 1,
 	'i' => 1,
-	'over' => 1,
-	'she' => 1,
-	'for' => 1,
+	'in' => 1,
+	'is' => 1,
+	'more' => 1,
 	'of' => 1,
 	'on' => 1,
 	'or' => 1,
+	'over' => 1,
 	'pm' => 1,
-	'in' => 1,
-	'an' => 1,
-	'more' => 1,
+	'road' => 1,
+	'she' => 1,
 	'side' => 1,
 	'to' => 1,
-	'road' => 1,
-	'is' => 1,
+	'the' => 1,
 	'was' => 1,
 	'with' => 1,
 );
@@ -469,6 +470,7 @@ sub geocode {
 	if(!$params{'scantext'}) {
 		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 	}
+	return;
 }
 
 # Find all sets of 3 consecutive words in a string
