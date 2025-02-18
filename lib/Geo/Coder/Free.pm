@@ -346,7 +346,13 @@ sub geocode {
 								$match->{'location'} = "$word, $region";
 								push @m, $match;
 							} elsif(ref($match) eq 'ARRAY') {
-								warn __PACKAGE__, ': TODO: handle array: ', Data::Dumper->new([$match])->Dump();
+								if(scalar(@{$match}) == 1) {
+									my $item = @{$match}[0];
+									$item->{'location'} = "$word, $region";
+									push @m, $item;
+								} else {
+									warn __PACKAGE__, ': TODO: handle array: ', Data::Dumper->new([$match])->Dump();
+								}
 							} else {
 								push @m, {
 									confidence => $match->confidence(),
