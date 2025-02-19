@@ -1,4 +1,4 @@
-package main;
+package Geo::Coder::Free::Utils;
 
 # VWF is licensed under GPL2.0 for personal use only
 # njh@bandsman.co.uk
@@ -17,6 +17,10 @@ our $VERSION = '0.38';
 
 use strict;
 use warnings;
+
+use Exporter qw(import);
+
+our @EXPORT = qw(create_disc_cache create_memory_cache distance);
 
 use CHI;
 use Data::Dumper;

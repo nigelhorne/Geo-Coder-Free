@@ -39,6 +39,7 @@ use HTTP::Date;
 # FIXME: Gives Insecure dependency in require while running with -T switch in Module/Runtime.pm
 # use Taint::Runtime qw($TAINT taint_env);
 use POSIX qw(strftime);
+use Readonly;
 use autodie qw(:all);
 
 # use lib '/usr/lib';	# This needs to point to the Geo::Coder::Free directory lives,
@@ -102,8 +103,12 @@ if($@) {
 my $requestcount = 0;
 my $handling_request = 0;
 my $exit_requested = 0;
+my %blacklisted_ip;
 
 # CHI->stats->enable();
+
+my $rate_limit_cache;	# Rate limit clients by IP address
+Readonly my @rate_limit_trusted_ips => ('127.0.0.1', '192.168.1.1');
 
 my $acl = CGI::ACL->new()->deny_country(country => ['RU', 'CN'])->allow_ip('131.161.0.0/16')->allow_ip('127.0.0.1');
 
