@@ -10,7 +10,6 @@ use warnings;
 
 # use lib '.';
 
-use Array::Iterator;
 use Config::Auto;
 use Data::Dumper;
 use Geo::Coder::Abbreviations;
