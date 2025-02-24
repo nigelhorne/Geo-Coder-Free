@@ -3808,9 +3808,7 @@ sub extract_osm_home
 	$is_in =~ s/Yorkshire, UK/Yorkshire, GB/;
 	$is_in =~ s/\.UK$/, GB/;
 	$is_in =~ s/, Europe$//;
-	$is_in =~ s/United States of America.*/US/;
-	$is_in =~ s/United States$/US/;
-	$is_in =~ s/USA$/US/;
+	$is_in =~ s/United States of America.*|United States$|USA$/US/;
 	$is_in =~ s/(\w)? USA$/$1, US/;
 	$is_in =~ s/(.+),\sOntario Canada$/$1, Ontario, Canada/;	# name/place/is_in = Brookville/undef/Halton, Ontario Canada
 
@@ -4779,10 +4777,10 @@ sub country
 	return 'Australia' if $file =~ /australia/;
 
 	# Ensure the state argument is provided if needed
-	die "State argument is missing" if not defined $state;
+	die 'State argument is missing' if(!defined($state));
 
 	# Handle European cases with specific state codes
-	if ($file =~ /europe/) {
+	if($file =~ /europe/) {
 		my %valid_states = map { $_ => 1 } ('Georgia', 'GA', 'DE', 'VI');
 		return $state if $valid_states{$state} || $valid_states{uc($state)};
 	}
