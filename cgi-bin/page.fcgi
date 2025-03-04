@@ -18,11 +18,17 @@ use strict;
 use warnings;
 # use diagnostics;
 
+BEGIN {
+	# Sanitize environment variables
+	delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
+	$ENV{'PATH'} = '/usr/local/bin:/bin:/usr/bin';	# For insecurity
+}
+
 no lib '.';
 
 use Log::Log4perl qw(:levels);	# Put first to cleanup last
 use CGI::Carp qw(fatalsToBrowser);
-use CGI::Info;
+use CGI::Info 0.94;	# Gets all messages
 use CGI::Lingua;
 use Class::Simple;
 use Database::Abstraction;
@@ -30,6 +36,7 @@ use File::Basename;
 # use CGI::Alert $ENV{'SERVER_ADMIN'} || 'you@example.com';
 use FCGI;
 use FCGI::Buffer;
+use File::HomeDir;
 use Log::Any::Adapter;
 use Error qw(:try);
 use File::Spec;
@@ -45,13 +52,22 @@ use autodie qw(:all);
 # use lib '/usr/lib';	# This needs to point to the Geo::Coder::Free directory lives,
 			# i.e. the contents of the lib directory in the
 			# distribution
-use lib '../lib';
+# use lib '../lib';
+use lib CGI::Info::script_dir() . '/../lib';
+use lib File::HomeDir->my_home() . '/lib/perl5';
 
 use Geo::Coder::Free;
 use Geo::Coder::Free::Config;
+use Geo::Coder::Free::Utils;
 
 # $TAINT = 1;
 # taint_env();
+
+# Set rate limit parameters
+Readonly my $MAX_REQUESTS => 100;	# Max requests allowed
+Readonly my $TIME_WINDOW => 10 * 60;	# Time window in seconds (10 minutes)
+
+sub vwflog($$$$$$);	# Ensure all arguments are given
 
 my $info = CGI::Info->new();
 my @suffixlist = ('.pl', '.fcgi');
@@ -549,4 +565,72 @@ sub filter
 	return 0 if $_[0] =~ /Can't locate (Net\/OAuth\/V1_0A\/ProtectedResourceRequest\.pm|auto\/NetAddr\/IP\/InetBase\/AF_INET6\.al) in |
 		   S_IFFIFO is not a valid Fcntl macro at /x;
 	return 1;
+}
+
+# Put something to vwf.log
+sub vwflog($$$$$$)
+{
+	my ($vwflog, $info, $lingua, $syslog, $message, $log) = @_;
+
+	my $template;
+	if($log) {
+		$template = $log->template();
+	}
+	if(!defined($template)) {
+		$template = '';
+	}
+	$message ||= '';
+
+	if(!-r $vwflog) {
+		# First run - put in the heading row
+		open(my $fout, '>', $vwflog);
+		print $fout '"domain_name","time","IP","country","type","language","http_code","template","args","messages","error"',
+			"\n";
+		close $fout;
+	}
+
+	my $warnings = join('; ',
+		grep defined, map { (($_->{'level'} eq 'warn') || ($_->{'level'} eq 'notice')) ? $_->{'message'} : undef } @{$info->messages()}
+	);
+	$warnings ||= '';
+
+	if(open(my $fout, '>>', $vwflog)) {
+		print $fout
+			'"', $info->domain_name(), '",',
+			'"', strftime('%F %T', localtime), '",',
+			'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
+			'"', $lingua->country(), '",',
+			'"', $info->browser_type(), '",',
+			'"', $lingua->language(), '",',
+			$info->status(), ',',
+			'"', $template, '",',
+			'"', $info->as_string(raw => 1), '",',
+			'"', $warnings, '",',
+			'"', $message, '"',
+			"\n";
+		close($fout);
+	}
+
+	if($syslog) {
+		require Sys::Syslog;
+
+		Sys::Syslog->import();
+		if(ref($syslog) eq 'HASH') {
+			Sys::Syslog::setlogsock($syslog);
+		}
+		openlog($script_name, 'cons,pid', 'user');
+		syslog('info|local0', '%s %s %s %s %s %d %s %s %s %s',
+			$info->domain_name() || '',
+			$ENV{REMOTE_ADDR} || '',
+			$lingua->country() || '',
+			$info->browser_type() || '',
+			$lingua->language() || '',
+			$info->status() || '',
+			$template || '',
+			$info->as_string(raw => 1) || '',
+			$warnings,
+			$message
+		);
+		closelog();
+	}
 }
