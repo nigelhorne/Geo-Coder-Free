@@ -101,6 +101,7 @@ use Geo::Coder::Free::Display::query;
 
 # use Geo::Coder::Free::DB::Maxmind;
 use Geo::Coder::Free::DB::openaddresses;
+use Geo::Coder::Free::DB::vwf_log;
 
 my $config = Geo::Coder::Free::Config->new({ logger => $logger, info => $info });
 die 'Set OPENADDR_HOME' if(!$config->OPENADDR_HOME());
@@ -114,6 +115,9 @@ if($@) {
 	Log::WarnDie->dispatcher(undef);
 	die $@;
 }
+
+# FIXME - support $config->vwflog();
+my $vwf_log = Geo::Coder::Free::DB::vwf_log->new({ directory => $info->logdir(), filename => 'vwf.log', no_entry => 1 });
 
 # http://www.fastcgi.com/docs/faq.html#PerlSignals
 my $requestcount = 0;
@@ -145,7 +149,6 @@ sub sig_handler {
 $SIG{USR1} = \&sig_handler;
 $SIG{TERM} = \&sig_handler;
 $SIG{PIPE} = 'IGNORE';
-$ENV{'PATH'} = '/usr/local/bin:/bin:/usr/bin';	# For insecurity
 
 # my ($stdin, $stdout, $stderr) = (IO::Handle->new(), IO::Handle->new(), IO::Handle->new());
 # https://stackoverflow.com/questions/14563686/how-do-i-get-errors-in-from-a-perl-script-running-fcgi-pm-to-appear-in-the-apach
@@ -162,9 +165,6 @@ $SIG{__DIE__} = $SIG{__WARN__} = sub {
 # my $request = FCGI::Request($stdin, $stdout, $stderr);
 my $request = FCGI::Request();
 
-# It would be really good to send 429 to search engines when there are more than, say, 5 requests being handled.
-# But I don't think that's possible with the FCGI module
-
 # Main request loop
 while($handling_request = ($request->Accept() >= 0)) {
 	unless($ENV{'REMOTE_ADDR'}) {
@@ -179,8 +179,9 @@ while($handling_request = ($request->Accept() >= 0)) {
 		Log::Any::Adapter->set('Stdout', log_level => 'trace');
 		$logger = Log::Any->get_logger(category => $script_name);
 		Log::WarnDie->dispatcher($logger);
-		$openaddresses->set_logger($logger);
 		$info->set_logger($logger);
+		$openaddresses->set_logger($logger);
+		$vwf_log->set_logger($logger);
 		$Error::Debug = 1;
 		# CHI->stats->enable();
 		try {
@@ -197,8 +198,9 @@ while($handling_request = ($request->Accept() >= 0)) {
 	Log::Any::Adapter->set( { category => $script_name }, 'Log4perl');
 	$logger = Log::Any->get_logger(category => $script_name);
 	$logger->info("Request $requestcount: ", $ENV{'REMOTE_ADDR'});
-	$openaddresses->set_logger($logger);
 	$info->set_logger($logger);
+	$openaddresses->set_logger($logger);
+	$vwf_log->set_logger($logger);
 
 	my $start = [Time::HiRes::gettimeofday()];
 
@@ -228,9 +230,13 @@ while($handling_request = ($request->Accept() >= 0)) {
 	}
 }
 
-$logger->info("Shutting down");
+# Clean up resources before shutdown
+$logger->info('Shutting down');
 if($buffercache) {
 	$buffercache->purge();
+}
+if($rate_limit_cache) {
+	$rate_limit_cache->purge();
 }
 if($info_cache) {
 	$info_cache->purge();
@@ -242,6 +248,7 @@ CHI->stats->flush();
 Log::WarnDie->dispatcher(undef);
 exit(0);
 
+# Create and send response to the client for each request
 sub doit
 {
 	CGI::Info->reset();
@@ -249,6 +256,8 @@ sub doit
 	$logger->debug('In doit - domain is ', $info->domain_name());
 
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+
+	$config ||= Geo::Coder::Free::Config->new({ logger => $logger, info => $info, debug => $params{'debug'} });
 	$info_cache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Info');
 
 	my $options = {
@@ -265,12 +274,6 @@ sub doit
 	}
 	$info = CGI::Info->new($options);
 
-	if(!defined($info->param('page'))) {
-		$logger->info('No page given in ', $info->as_string());
-		choose();
-		return;
-	}
-
 	$lingua_cache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'CGI::Lingua');
 
 	# Language negotiation
@@ -283,44 +286,74 @@ sub doit
 		syslog => $syslog,
 	});
 
-	$vwflog ||= $config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log');
+	# Configure cache for rate limiting (change to create_disc_cache for persistence)
+	$rate_limit_cache ||= create_memory_cache(config => $config, logger => $logger, namespace => 'rate_limit');
 
-	my $warnings = '';
-	if(my $w = $info->warnings()) {
-		my @warnings = map { $_->{'warning'} } @{$w};
-		$warnings = join(';', @warnings);
+	# Get client IP
+	my $client_ip = $ENV{'REMOTE_ADDR'} || 'unknown';
+
+	# Check and increment request count
+	my $request_count = $rate_limit_cache->get($script_name . ':rate_limit:' . $client_ip) || 0;
+
+	# TODO: update the vwf_log variable to point here
+	$vwflog ||= $config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log');
+	my $log = Class::Simple->new();
+
+	# Rate limit by IP
+	unless(grep { $_ eq $client_ip } @rate_limit_trusted_ips) {	# Bypass rate limiting
+		if($request_count >= $MAX_REQUESTS) {
+			# Block request: Too many requests
+			print "Status: 429 Too Many Requests\n",
+				"Content-type: text/plain\n",
+				"Pragma: no-cache\n\n";
+
+			$logger->warn("Too many requests from $client_ip");
+			# TODO: Work out how to add the "Retry-After" header, setting to $TIME_WINDOW
+			$info->status(429);
+
+			vwflog($vwflog, $info, $lingua, $syslog, 'Too many requests', $log);
+			return;
+		}
 	}
 
-	# Access control checks
-	if($ENV{'REMOTE_ADDR'} && $acl->all_denied(lingua => $lingua)) {
-		print "Status: 403 Forbidden\n",
-			"Content-type: text/plain\n",
-			"Pragma: no-cache\n\n";
+	# Increment request count
+	$rate_limit_cache->set($script_name . ':rate_limit:' . $client_ip, $request_count + 1, $TIME_WINDOW);
 
-		unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-			print "Access Denied\n";
-		}
-		$logger->info($ENV{'REMOTE_ADDR'}, ': access denied');
-		$info->status(403);
-		if($vwflog && open(my $fout, '>>', $vwflog)) {
-			print $fout
-				'"', $info->domain_name(), '",',
-				'"', strftime('%F %T', localtime), '",',
-				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
-				'"', $lingua->country(), '",',
-				'"', $info->browser_type(), '",',
-				'"', $lingua->language(), '",',
-				'403,',
-				'"",',
-				'"', $info->as_string(), '",',
-				'"', $warnings, '"',
-				"\n";
-			close($fout);
-		}
+	if(!defined($info->param('page'))) {
+		$logger->info('No page given in ', $info->as_string());
+		choose();
 		return;
 	}
 
+	# Access control checks
+	if(my $remote_addr = $ENV{'REMOTE_ADDR'}) {
+		my $reason;
+		if($acl->all_denied(lingua => $lingua)) {
+			$reason = 'Denied by CGI::ACL';
+		} elsif(blacklisted($info)) {
+			$reason = 'Blacklisted for attempting to break in';
+		}
+		if($reason) {
+			# Client has been blocked
+			print "Status: 403 Forbidden\n",
+				"Content-type: text/plain\n",
+				"Pragma: no-cache\n\n";
+
+			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
+				print "Access Denied\n";
+			}
+			$logger->info("$remote_addr: access denied: $reason");
+			$info->status(403);
+			vwflog($vwflog, $info, $lingua, $syslog, $reason, $log);
+			return;
+		}
+	}
+
 	my $args = {
+		generate_etag => 1,
+		generate_last_modified => 1,
+		compress_content => 1,
+		generate_304 => 1,
 		info => $info,
 		optimise_content => 1,
 		logger => $logger,
@@ -354,7 +387,6 @@ sub doit
 
 	my $display;
 	my $invalidpage;
-	my $log = Class::Simple->new();
 
 	$args = {
 		cachedir => $cachedir,
@@ -369,17 +401,50 @@ sub doit
 	eval {
 		my $page = $info->param('page');
 		$page =~ s/#.*$//;
-
-		$display = do {
-			my $class = "Geo::Coder::Free::Display::$page";
-			eval { $class->new($args) };
-		};
-		if(!defined($display)) {
-			$logger->info("Unknown page $page");
+		$page =~ s/\\//g;	# I don't know what you're trying to escape or why, but I'm not going to let you
+		if($page =~ /\//) {
+			# Block "page=/etc/passwd" and "page=http://www.google.com"
+			$logger->info("Blocking '/' in $page");
+			$info->status(403);
+			$log->status(403);
 			$invalidpage = 1;
-		} elsif(!$display->can('as_string')) {
-			$logger->warn("Problem understanding $page");
-			undef $display;
+		} else {
+			# Remove all non alphanumeric characters in the name of the page to be loaded
+			$page =~ s/\W//;
+			my $display_module = "Geo::Coder::Free::Display::$page";
+
+			# TODO: consider creating a whitelist of valid modules
+			$logger->debug("doit(): Loading module $display_module from @INC");
+			eval "require $display_module";
+			if($@) {
+				$logger->debug("Failed to load module $display_module: $@");
+				$logger->info("Unknown page $page");
+				$invalidpage = 1;
+				if($info->status() == 200) {
+					$info->status(404);
+				}
+			} else {
+				$display_module->import();
+				# use Class::Inspector;
+				# my $methods = Class::Inspector->methods($display_module);
+				# print "$display_module exports ", join(', ', @{$methods}), "\n";
+				$display = do {
+					eval { $display_module->new($args) };
+				};
+				if(!defined($display)) {
+					if($@) {
+						$logger->warn("$display_module->new(): $@");
+					}
+					$logger->info("Unknown page $page");
+					$invalidpage = 1;
+					if($info->status() == 200) {
+						$info->status(404);
+					}
+				} elsif(!$display->can('as_string')) {
+					$logger->warn("Problem understanding $page");
+					undef $display;
+				}
+			}
 		}
 	};
 
@@ -398,42 +463,16 @@ sub doit
 
 		print $display->as_string({
 			cachedir => $cachedir,
+			config => $config,
 			databasedir => $database_dir,
 			database_dir => $database_dir,
 			geocoder => $geocoder,
+			vwf_log => $vwf_log,
 		});
-		if($vwflog && open(my $fout, '>>', $vwflog)) {
-			print $fout
-				'"', $info->domain_name(), '",',
-				'"', strftime('%F %T', localtime), '",',
-				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
-				'"', $lingua->country(), '",',
-				'"', $info->browser_type(), '",',
-				'"', $lingua->language(), '",',
-				$info->status(), ',',
-				'"', ($log->template() ? $log->template() : ''), '",',
-				'"', $info->as_string(), '",',
-				'"', $warnings, '"',
-				"\n";
-			close($fout);
-		}
+		vwflog($vwflog, $info, $lingua, $syslog, '', $log);
 	} elsif($invalidpage) {
 		choose();
-		if($vwflog && open(my $fout, '>>', $vwflog)) {
-			print $fout
-				'"', $info->domain_name(), '",',
-				'"', strftime('%F %T', localtime), '",',
-				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
-				'"', $lingua->country(), '",',
-				'"', $info->browser_type(), '",',
-				'"', $lingua->language(), '",',
-				$info->status(), ',',
-				'"",',
-				'"', $info->as_string(), '",',
-				'"', $warnings, '"',
-				"\n";
-			close($fout);
-		}
+		vwflog($vwflog, $info, $lingua, $syslog, 'Unknown page', $log);
 		return;
 	} else {
 		$logger->debug('disabling cache');
@@ -458,8 +497,7 @@ sub doit
 				"Pragma: no-cache\n\n";
 
 			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-				print "Software error - contact the webmaster\n",
-					"$error\n";
+				print "Software error - contact the webmaster\n";
 			}
 			$info->status(500);
 			$log->status(500);
@@ -475,21 +513,7 @@ sub doit
 			$info->status(403);
 			$log->status(403);
 		}
-		if($vwflog && open(my $fout, '>>', $vwflog)) {
-			print $fout
-				'"', $info->domain_name(), '",',
-				'"', strftime('%F %T', localtime), '",',
-				'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
-				'"', $lingua->country(), '",',
-				'"', $info->browser_type(), '",',
-				'"', $lingua->language(), '",',
-				$info->status(), ',',
-				'"",',
-				'"', $info->as_string(), '",',
-				'"', $warnings, '"',
-				"\n";
-			close($fout);
-		}
+		vwflog($vwflog, $info, $lingua, $syslog, 'Access denied', $log);
 		throw Error::Simple($error ? $error : $info->as_string());
 	}
 }
@@ -530,12 +554,13 @@ sub choose
 	# Print available pages unless it's a HEAD request
 	unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 		print "/cgi-bin/page.fcgi?page=index\n",
-			"/cgi-bin/page.fcgi?page=query\n";
+			"/cgi-bin/page.fcgi?page=query\n",
+			"/cgi-bin/page.fcgi?page=meta_data\n";
 	}
 }
 
 # Is this client trying to attack us?
-sub blacklist
+sub blacklisted
 {
 	if(my $remote = $ENV{'REMOTE_ADDR'}) {
 		if($blacklisted_ip{$remote}) {
