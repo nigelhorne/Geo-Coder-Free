@@ -49,10 +49,10 @@ jobs:
           cpanm --skip-satisfied -vn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -iqn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
-          cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo Class::Simple
+          cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo Class::Simple Parallel::ForkManager
           cpanm -ivn --installdeps .
       - name: Install files
-        run: mkdir /var/www/geocode.nigelhorne.com && cp -r templates /var/www/geocode.nigelhorne.com
+        run: mkdir -p /var/www/geocode.nigelhorne.com && cp -r templates /var/www/geocode.nigelhorne.com
       - name: Run Tests
         env:
           AUTOMATED_TESTING: 1
