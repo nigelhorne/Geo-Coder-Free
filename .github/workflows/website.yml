@@ -51,11 +51,13 @@ jobs:
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
           cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo Class::Simple
           cpanm -ivn --installdeps .
+      - name: Install files
+        run: mkdir /var/www/geocode.nigelhorne.com && cp -r templates /var/www/geocode.nigelhorne.com
       - name: Run Tests
         env:
           AUTOMATED_TESTING: 1
           OPENADDR_HOME: /tmp
-          ROOT_DIR: /var/www/geogode.nigelhorne.com
+          ROOT_DIR: /var/www/geocode.nigelhorne.com
         run: |
           pwd
           perl -c -Ilib -MO=Lint cgi-bin/page.fcgi
