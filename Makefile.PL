@@ -26,6 +26,7 @@ BEGIN {
 		if($reporter =~ /smoker/i) {
 			warn 'AUTOMATED_TESTING added for you' if(!defined($ENV{'AUTOMATED_TESTING'}));
 			$ENV{'AUTOMATED_TESTING'} = 1;
+			$ENV{'NO_NETWORK_TESTING'} = 1;
 		}
 	}
 
@@ -47,6 +48,7 @@ if(defined($ENV{'GITHUB_ACTION'}) || defined($ENV{'CIRCLECI'}) || defined($ENV{'
 	# Prevent downloading and installing stuff
 	warn 'AUTOMATED_TESTING added for you' if(!defined($ENV{'AUTOMATED_TESTING'}));
 	$ENV{'AUTOMATED_TESTING'} = 1;
+	$ENV{'NO_NETWORK_TESTING'} = 1;
 }
 
 foreach my $module(@needfull) {

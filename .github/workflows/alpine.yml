@@ -48,6 +48,7 @@ jobs:
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
       - name: Make module
         run: |
           # find ~ -name config.log | xargs cat
@@ -57,9 +58,11 @@ jobs:
           make
         env:
           AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
       - name: Run Tests
         run: |
           cd $GITHUB_WORKSPACE
           make test AUTOMATED_TESTING=1
         env:
           AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
