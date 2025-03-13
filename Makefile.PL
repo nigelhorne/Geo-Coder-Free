@@ -5,6 +5,7 @@
 use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
+use Parallel::ForkManager;
 
 my @needfull;
 
@@ -145,6 +146,8 @@ if(!$ENV{'NO_NETWORK_TESTING'}) {
 	}
 }
 
+my $pm = Parallel::ForkManager->new(10);
+
 foreach my $url(keys %urls) {
 	my $file = $urls{$url};
 	my $use_mirror = 0;
@@ -159,6 +162,8 @@ foreach my $url(keys %urls) {
 			$use_mirror = 1;
 		}
 	}
+
+	$pm->start() and next;
 
 	if($use_mirror) {
 		print "Downloading $url to $file if a newer version is available\n";
@@ -194,9 +199,12 @@ foreach my $url(keys %urls) {
 		}
 	}
 	die $file if(!-r $file);
+	$pm->finish();
 }
 
 my $zip = 'downloads/allCountries.zip';
+
+$pm->wait_all_children();
 
 if((!(-r 'downloads/allCountries.txt')) && (-r $zip)) {
 	print "Inflating $zip\n";
