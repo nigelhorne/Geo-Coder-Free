@@ -71,6 +71,7 @@ use DBI;
 use File::Copy;
 use File::Slurp;
 use Geo::Coder::Abbreviations;
+use Geo::Hash;
 use JSON::MaybeXS;
 use LWP::UserAgent::Throttled;
 use Locale::AU;	# TODO: use Locale::Geocode
@@ -1285,10 +1286,12 @@ if($dbh) {
 	# $dbh->do('CREATE TABLE cities(sequence INTEGER, city VARCHAR, county VARCHAR, state VARCHAR NOT NULL, country CHAR(2) NOT NULL)');
 	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 	if(MAX_INSERT_COUNT == 1) {
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL)');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, geohash VARCHAR(10))');
 	} else {
 		# Add the keys later for performance
-		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+		# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+		$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), geohash VARCHAR(10))');
 	}
 	# $dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, lat DECIMAL, lon DECIMAL, name VARCHAR, number VARCHAR, street VARCHAR, city INTEGER, FOREIGN KEY (city) REFERENCES cities(sequence))');
 	# $dbh->prepare('CREATE TABLE tree(lat DECIMAL, lon DECIMAL, md5 CHAR(16) NOT NULL, parent CHAR(16))')->execute();
@@ -3390,6 +3393,7 @@ sub flush_queue
 	# my @columns = ('LAT','LON','NAME','NUMBER','STREET');
 
 	my $query;
+	my $geo_hash = Geo::Hash->new();
 
 	while(my($md5, $row) = each(%queued_commits)) {
 	# foreach my $md5(keys %queued_commits) {
@@ -3448,14 +3452,16 @@ sub flush_queue
 					# # GRANT DELETE ON geo_coder_free.openaddresses TO 'njh'@'localhost';
 					# $query = 'REPLACE INTO openaddresses(LAT, LON, MD5) VALUES (';
 				# } else {
-					$query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
+					# $query = 'INSERT INTO openaddresses(LAT, LON, MD5) VALUES (';
+					$query = 'INSERT INTO openaddresses(geohash, md5) VALUES (';
 				# }
 			} else {
 				$query .= ',(';
 			}
 
 			$md5 =~ s/'/''/g;
-			$query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+			# $query .= $row->{'LAT'} . ',' . $row->{'LON'} . ",'$md5')";
+			$query .= "'" . $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10) . "','$md5')";
 		}
 
 		# my $key = city_key($row->{'CITY'}, $row->{'COUNTY'}, $state, $country);

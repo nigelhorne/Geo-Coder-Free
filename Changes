@@ -5,6 +5,7 @@ Revision history for Geo-Coder-Free
 	Handle arrays that are only one element in size
 	Refactor scantext, using a complex regex and other technologies
 	Latest upstream changes from VWF
+	Use Geo::Hash, reduces SQLite file size by over 10%
 
 0.38	Wed Jan 22 08:37:22 EST 2025
 	Latest as_string return code and Utils.pm from VWF
