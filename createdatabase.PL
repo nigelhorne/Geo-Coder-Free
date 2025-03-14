@@ -1769,7 +1769,14 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		# Don't combine these statements - it creates CPANEL usage errors
 		# which I need to investigate
 		my $data = File::Slurp::read_file($geojson_file);
-		my $properties = $j->decode($data)->{'properties'};
+		my $properties;
+		eval {
+			$properties = $j->decode($data)->{'properties'};
+		};
+		if($@ || !defined($properties)) {
+			warn "$geojson_file: $@";
+			next;
+		}
 		# print 'processing ', $properties->{'wof:id'}, "\n";
 
 		next if(exists($properties->{'wof:superseded_by'}) && scalar(@{$properties->{'wof:superseded_by'}}));
