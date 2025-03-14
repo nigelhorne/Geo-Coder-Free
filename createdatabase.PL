@@ -3778,7 +3778,11 @@ sub get_wof {
 				$call_details[2], "\n\t";
 			# die "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, "\n"
 		}
-		print STDERR "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, "\n";
+		if($filename) {
+			print STDERR "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, ": $filename: $!\n";
+		} else {
+			print STDERR "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, "\n";
+		}
 		return
 	}
 	print "get_wof: look at $filename\n" if(DEBUG&DEBUG_GET_WOF);
