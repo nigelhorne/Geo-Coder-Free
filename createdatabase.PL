@@ -113,7 +113,7 @@ use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_WOF => 0x2000;	# Test - and only import, the WHOSONFIRST_HOME data
 use	constant	DEBUG_ALL => 0xFFFF;
-use	constant	DEBUG => DEBUG_OFF;
+use	constant	DEBUG => DEBUG_GET_WOF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
@@ -3765,11 +3765,13 @@ sub get_wof {
 		die "Can't parse $id";
 	}
 
-	# Do a glob expansion on the string, useful if it's something like
-	#	$ENV{'WHOSONFIRST_HOME'} . "/*/data/286/455/973/286455973.geojson"
-	# Because of the layout of WOF (lots of small directories), this can be slow on EXT4, would be nice to find a better way
-	my @filelist = <"$filename">;
-	$filename = $filelist[0];
+	if($repo eq '*') {
+		# Do a glob expansion on the string, useful if it's something like
+		#	$ENV{'WHOSONFIRST_HOME'} . "/*/data/286/455/973/286455973.geojson"
+		# Because of the layout of WOF (lots of small directories), this can be slow on EXT4, would be nice to find a better way
+		my @filelist = <"$filename">;
+		$filename = $filelist[0];
+	}
 	if((!$filename) || (! -r $filename)) {
 		# Probably shouldn't die here
 		if(DEBUG&DEBUG_GET_WOF) {
@@ -3780,7 +3782,7 @@ sub get_wof {
 			my @call_details = caller(0);
 			print STDERR "\tcalled from line ",
 				$call_details[2], "\n\t";
-			# die "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, "\n"
+			die "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, "\n"
 		}
 		if($filename) {
 			print STDERR "$geojson_file: can't find $id file for ", $properties->{'wof:name'}, ": $filename: $!\n";
