@@ -3757,6 +3757,7 @@ sub get_wof {
 	} else {
 		$repo = '*';
 	}
+	print "Repo = $repo\n" if(DEBUG&DEBUG_GET_WOF);
 	if($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) {
 		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$repo/data/$1/$2/$3/$4/$id.geojson";
 	} elsif($id =~ /(\d{3})(\d{3})(\d+)/) {
@@ -3769,6 +3770,7 @@ sub get_wof {
 		# Do a glob expansion on the string, useful if it's something like
 		#	$ENV{'WHOSONFIRST_HOME'} . "/*/data/286/455/973/286455973.geojson"
 		# Because of the layout of WOF (lots of small directories), this can be slow on EXT4, would be nice to find a better way
+		print "Glob expand $filename\n" if(DEBUG&DEBUG_GET_WOF);
 		my @filelist = <"$filename">;
 		$filename = $filelist[0];
 	}
