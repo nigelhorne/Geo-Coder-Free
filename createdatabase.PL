@@ -3760,8 +3760,18 @@ sub get_wof {
 	print "Repo = $repo\n" if(DEBUG&DEBUG_GET_WOF);
 	if($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) {
 		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$repo/data/$1/$2/$3/$4/$id.geojson";
+		if(($repo ne '*') && (!-e $filename)) {
+			print "Forcing glob to a different repo\n" if(DEBUG&DEBUG_GET_WOF);
+			$repo = '*';
+			$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$4/$id.geojson";
+		}
 	} elsif($id =~ /(\d{3})(\d{3})(\d+)/) {
 		$filename = $ENV{'WHOSONFIRST_HOME'} . "/$repo/data/$1/$2/$3/$id.geojson";
+		if(($repo ne '*') && (!-e $filename)) {
+			print "Forcing glob to a different repo\n" if(DEBUG&DEBUG_GET_WOF);
+			$repo = '*';
+			$filename = $ENV{'WHOSONFIRST_HOME'} . "/*/data/$1/$2/$3/$id.geojson";
+		}
 	} else {
 		die "Can't parse $id";
 	}
