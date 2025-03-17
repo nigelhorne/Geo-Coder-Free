@@ -143,7 +143,7 @@ sub create_memory_cache {
 		# return CHI->new(driver => 'Memcached', servers => [ '127.0.0.1:11211' ], namespace => $args->{'namespace'});
 		# return CHI->new(driver => 'File', root_dir => '/tmp/cache', namespace => $args->{'namespace'});
 		# return CHI->new(driver => 'SharedMem', max_size => 1024, shm_size => 16 * 1024, shm_key => 98766789, namespace => $args->{'namespace'});
-		return CHI->new(driver => 'Memory', datastore => {});
+		return CHI->new(driver => 'Memory', global => 1);
 	}
 	if($logger) {
 		$logger->debug('memory cache via ', $config->{memory_cache}->{driver}, ', namespace: ', $args->{'namespace'});
@@ -186,7 +186,9 @@ sub create_memory_cache {
 		if(my $max_size = ($args->{'max_size'} || $config->{'memory_cache'}->{'max_size'})) {
 			$chi_args{'max_size'} = $max_size;
 		}
-	} elsif(($driver ne 'Null') && ($driver ne 'Memory')) {
+	} elsif($driver eq 'Memory') {
+		$chi_args{'global'} = $config->{'memory_cache'}->{'global'} || 0;
+	} elsif($driver ne 'Null') {
 		$chi_args{'root_dir'} = $ENV{'root_dir'} || $args->{'root_dir'} || $config->{memory_cache}->{root_dir} || $config->{'root_dir'};
 		throw Error::Simple('root_dir is not optional') unless($chi_args{'root_dir'});
 		if($logger) {
