@@ -113,7 +113,7 @@ use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_WOF => 0x2000;	# Test - and only import, the WHOSONFIRST_HOME data
 use	constant	DEBUG_ALL => 0xFFFF;
-use	constant	DEBUG => DEBUG_GET_WOF;
+use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
 # use	constant	MAX_INSERT_COUNT => 1;	# Maximum number of CSV rows to insert in a single statement
