@@ -3878,7 +3878,7 @@ sub extract_osm_home
 
 	if(DEBUG&DEBUG_OSM) {
 		if($name) {
-			print "$name";
+			print $name;
 		}
 		if($place) {
 			print "/$place/$is_in";
