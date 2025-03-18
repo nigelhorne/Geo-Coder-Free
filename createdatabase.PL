@@ -1423,7 +1423,7 @@ if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename) &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
    (my $all_countries = File::Open::NoCache::ReadOnly->new($filename)) &&
-   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF))) &&
+   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF))) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
@@ -1579,7 +1579,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	# next unless($csv_file =~ /us\/ne\/dawes/);
 	# next unless($csv_file =~ /us\/in\//);
 
-	next if(DEBUG&(DEBUG_OSM|DEBUG_WOF));
+	next if(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF));
 
 	# Handle https://github.com/openaddresses/openaddresses/issues/3928
 	# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -2060,7 +2060,7 @@ if($dbh) {
 	$dbh->commit();
 }
 
-if(!(DEBUG&(DEBUG_OSM|DEBUG_WOF))) {
+if(!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF))) {
 	foreach my $country(@whosonfirst_only_countries) {
 		# Import this country's hand curated data
 
