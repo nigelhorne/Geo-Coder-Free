@@ -73,6 +73,7 @@ use File::Slurp;
 use Geo::Coder::Abbreviations;
 use Geo::Hash;
 use JSON::MaybeXS;
+use LWP::ConnCache;
 use LWP::UserAgent::Throttled;
 use Locale::AU;	# TODO: use Locale::Geocode
 use Locale::CA;
@@ -1411,7 +1412,9 @@ if((!(DEBUG&(DEBUG_KNOWN_PLACES|DEBUG_WOF|DEBUG_OSM))) && (-r $filename)) {
 my $current_state;
 my $current_country;
 # my %whosonfirst;
+
 my $ua = LWP::UserAgent::Throttled->new(keep_alive => 1);
+$ua->conn_cache(LWP::ConnCache->new());
 $ua->throttle({ 'api.zippopotam.us' => 1 });
 $ua->env_proxy(1);
 

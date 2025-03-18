@@ -276,6 +276,7 @@ my $build_requires = {
 	'Geo::Location::Point' => 0.02,
 	'IPC::System::Simple' => 0,
 	'JSON::MaybeXS' => 0,
+	'LWP::ConnCache' => 0,
 	'LWP::UserAgent::Throttled' => 0,
 	'LWP::Protocol::https' => 0,
 	'Scalar::Util' => 0,
