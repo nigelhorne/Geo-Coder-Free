@@ -16,21 +16,30 @@ Version 0.38
 
 # DESCRIPTION
 
-Geo::Coder::Free provides an interface
-to translate addresses into latitude and longitude
-by using to free databases such as
-[Geo::Coder::Free::MaxMind](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AMaxMind) and [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AOpenAddresses).
+`Geo::Coder::Free` translates addresses into latitude and longitude coordinates using free databases such as
+[https://spelunker.whosonfirst.org/](https://spelunker.whosonfirst.org/),
+[https://maxmind.com](https://maxmind.com),
+[https://github.com/dr5hn/countries-states-cities-database](https://github.com/dr5hn/countries-states-cities-database),
+[https://openaddresses.io/](https://openaddresses.io/), and
+[https://openstreetmap.org](https://openstreetmap.org).
+The module is designed to be flexible,
+importing the data into a local `SQLite` database,
+and supports both command-line and programmatic usage.
+The module includes methods for geocoding (translating addresses to coordinates) and reverse geocoding (translating coordinates to addresses),
+though the latter is not fully implemented.
+It also provides utilities for handling common address formats and abbreviations,
+and it includes a sample CGI script for a web-based geocoding service.
+The module is intended for use in applications requiring geocoding without relying on paid or rate-limited online services,
+and it supports customization through environment variables and optional database downloads.
 
 The cgi-bin directory contains a simple DIY Geo-Coding website.
 
     cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
 
-The sample website is down at the moment while I look for a new host.
+The sample website is currently down while I look for a new host.
 When it's back up you will be able to use this to test it.
 
     curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
-
-Includes functionality for running the module via the command line for testing or ad-hoc geocoding tasks.
 
 # SYNOPSIS
 
@@ -100,7 +109,8 @@ You can also run this module from the command line:
 
 # GETTING STARTED
 
-Before running "make", but after running "perl Makefile.PL", run these instructions.
+To download, import and setup the local database,
+before running "make", but after running "perl Makefile.PL", run these instructions.
 
 Optionally set the environment variable OPENADDR\_HOME to point to an empty directory and download the data from [http://results.openaddresses.io](http://results.openaddresses.io) into that directory; and
 optionally set the environment variable WHOSONFIRST\_HOME to point to an empty directory and download the data using [https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-clone](https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-clone).
