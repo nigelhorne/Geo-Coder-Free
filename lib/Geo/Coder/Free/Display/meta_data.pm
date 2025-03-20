@@ -3,6 +3,14 @@ package Geo::Coder::Free::Display::meta_data;
 use strict;
 use warnings;
 
+=head1 VERSION
+
+Version 0.39
+
+=cut
+
+our $VERSION = '0.39';
+
 # Display the meta-data page - the internal status of the server and VWF system
 
 use Geo::Coder::Free::Display;

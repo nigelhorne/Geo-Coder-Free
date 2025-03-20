@@ -55,7 +55,6 @@
 # TODO: perhaps use a layered approach to the database schema
 # TODO: import https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/countries%2Bstates%2Bcities.json
 # TODO: as the database is a simple key/value pair, perhaps CDB will be better
-# TODO: investigate Geo::Hash to store in the database
 
 use 5.010;
 use strict;

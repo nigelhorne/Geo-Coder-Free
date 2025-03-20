@@ -1,15 +1,26 @@
 package Geo::Coder::Free::DB::vwf_log;
 
-# Open /tmp/vwf.log as a database
-# Standard CSV file, with no header line
-
 use strict;
 use warnings;
+
+=head1 NAME
+
+Geo::Coder::Free::DB::vwf_log - Driver for /tmp/vwf.log
+
+=head1 VERSION
+
+Version 0.39
+
+=cut
+
+our $VERSION = '0.39';
 
 use Database::Abstraction;
 use DBD::CSV;
 
 our @ISA = ('Database::Abstraction');
+
+# Standard CSV file, with no header line
 
 # Doesn't ignore lines starting with '#' as it's not treated like a CSV file
 sub _open {

@@ -9,11 +9,11 @@ Geo::Coder::Free::Utils - Random subroutines for Geo::Coder::Free
 
 =head1 VERSION
 
-Version 0.38
+Version 0.39
 
 =cut
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 use strict;
 use warnings;

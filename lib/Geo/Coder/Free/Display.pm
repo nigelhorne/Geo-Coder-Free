@@ -5,11 +5,11 @@ package Geo::Coder::Free::Display;
 
 =head1 VERSION
 
-Version 0.38
+Version 0.39
 
 =cut
 
-our $VERSION = '0.38';
+our $VERSION = '0.39';
 
 use strict;
 use warnings;
