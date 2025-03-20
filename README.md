@@ -12,19 +12,19 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 # VERSION
 
-Version 0.38
+Version 0.39
 
 # DESCRIPTION
 
-`Geo::Coder::Free` translates addresses into latitude and longitude coordinates using free databases such as
+`Geo::Coder::Free` translates addresses into latitude and longitude coordinates using a local `SQLite` database built from free databases such as
 [https://spelunker.whosonfirst.org/](https://spelunker.whosonfirst.org/),
 [https://maxmind.com](https://maxmind.com),
 [https://github.com/dr5hn/countries-states-cities-database](https://github.com/dr5hn/countries-states-cities-database),
 [https://openaddresses.io/](https://openaddresses.io/), and
 [https://openstreetmap.org](https://openstreetmap.org).
 The module is designed to be flexible,
-importing the data into a local `SQLite` database,
-and supports both command-line and programmatic usage.
+importing the data into the database,
+and supporting both command-line and programmatic usage.
 The module includes methods for geocoding (translating addresses to coordinates) and reverse geocoding (translating coordinates to addresses),
 though the latter is not fully implemented.
 It also provides utilities for handling common address formats and abbreviations,

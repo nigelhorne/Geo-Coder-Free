@@ -40,15 +40,15 @@ sub _normalize($);
 
 =head1 DESCRIPTION
 
-C<Geo::Coder::Free> translates addresses into latitude and longitude coordinates using free databases such as
+C<Geo::Coder::Free> translates addresses into latitude and longitude coordinates using a local C<SQLite> database built from free databases such as
 L<https://spelunker.whosonfirst.org/>,
 L<https://maxmind.com>,
 L<https://github.com/dr5hn/countries-states-cities-database>,
 L<https://openaddresses.io/>, and
 L<https://openstreetmap.org>.
 The module is designed to be flexible,
-importing the data into a local C<SQLite> database,
-and supports both command-line and programmatic usage.
+importing the data into the database,
+and supporting both command-line and programmatic usage.
 The module includes methods for geocoding (translating addresses to coordinates) and reverse geocoding (translating coordinates to addresses),
 though the latter is not fully implemented.
 It also provides utilities for handling common address formats and abbreviations,
