@@ -14,23 +14,6 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 Version 0.38
 
-# SYNOPSIS
-
-    use Geo::Coder::Free;
-
-    my $geo_coder = Geo::Coder::Free->new();
-    my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
-
-    print 'Latitude: ', $location->lat(), "\n";
-    print 'Longitude: ', $location->long(), "\n";
-
-    # Use a local download of http://results.openaddresses.io/ and https://www.whosonfirst.org/
-    my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
-    $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
-
-    print 'Latitude: ', $location->lat(), "\n";
-    print 'Longitude: ', $location->long(), "\n";
-
 # DESCRIPTION
 
 Geo::Coder::Free provides an interface
@@ -48,6 +31,23 @@ When it's back up you will be able to use this to test it.
     curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
 
 Includes functionality for running the module via the command line for testing or ad-hoc geocoding tasks.
+
+# SYNOPSIS
+
+    use Geo::Coder::Free;
+
+    my $geo_coder = Geo::Coder::Free->new();
+    my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
+
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
+
+    # Use a local download of http://results.openaddresses.io/ and https://www.whosonfirst.org/
+    my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
+    $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
 
 # METHODS
 
@@ -185,9 +185,6 @@ The source code for that site is included in the G:C:F distribution.
 
 Some lookups fail at the moments, if you find one please file a bug report.
 
-Doesn't include results from
-[Geo::Coder::Free::Local](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3ALocal).
-
 The MaxMind data only contains cities.
 The OpenAddresses data doesn't cover the globe.
 
@@ -221,6 +218,8 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 # SUPPORT
+
+This module is provided as-is without any warranty.
 
 You can find documentation for this module with the perldoc command.
 

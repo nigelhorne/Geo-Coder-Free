@@ -38,23 +38,6 @@ our $abbreviations;
 sub _abbreviate($);
 sub _normalize($);
 
-=head1 SYNOPSIS
-
-    use Geo::Coder::Free;
-
-    my $geo_coder = Geo::Coder::Free->new();
-    my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
-
-    print 'Latitude: ', $location->lat(), "\n";
-    print 'Longitude: ', $location->long(), "\n";
-
-    # Use a local download of http://results.openaddresses.io/ and https://www.whosonfirst.org/
-    my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
-    $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
-
-    print 'Latitude: ', $location->lat(), "\n";
-    print 'Longitude: ', $location->long(), "\n";
-
 =head1 DESCRIPTION
 
 Geo::Coder::Free provides an interface
@@ -72,6 +55,23 @@ When it's back up you will be able to use this to test it.
     curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
 
 Includes functionality for running the module via the command line for testing or ad-hoc geocoding tasks.
+
+=head1 SYNOPSIS
+
+    use Geo::Coder::Free;
+
+    my $geo_coder = Geo::Coder::Free->new();
+    my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
+
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
+
+    # Use a local download of http://results.openaddresses.io/ and https://www.whosonfirst.org/
+    my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
+    $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+
+    print 'Latitude: ', $location->lat(), "\n";
+    print 'Longitude: ', $location->long(), "\n";
 
 =head1 METHODS
 
@@ -874,6 +874,8 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =head1 SUPPORT
+
+This module is provided as-is without any warranty.
 
 You can find documentation for this module with the perldoc command.
 
