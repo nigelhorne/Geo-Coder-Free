@@ -151,7 +151,7 @@ sub new {
 	}
 
 	if($args{'openaddr'}) {
-		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(%args);
+		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new('id' => 'md5', %args);
 	}
 	if(my $cache = $args{'cache'}) {
 		$rc->{'cache'} = $cache;

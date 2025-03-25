@@ -954,8 +954,10 @@ sub _get {
 	}
 	my $openaddr_db = $self->{openaddr_db} ||
 		Geo::Coder::Free::DB::openaddresses->new(
+			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {}),
 			directory => $self->{openaddr},
-			cache => $self->{cache} || CHI->new(driver => 'Memory', datastore => {})
+			id => 'md5',
+			no_entry => 1,
 		);
 	$self->{openaddr_db} = $openaddr_db;
 	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);

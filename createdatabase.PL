@@ -1257,7 +1257,7 @@ if($ENV{'REDIS_SERVER'}) {
 		# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
 	# $DB_HASH->{'cachesize'} = 64 * 1024 * 1024;
 
-	print "Building Berkeley database $db_file\n";
+	print "Building Berkeley database $db_file\n" if(DEBUG);
 
 	$berkeley_db = DB_File::HASHINFO->new();
 	$berkeley_db->{'cachesize'} = 65536;
@@ -3452,7 +3452,8 @@ sub flush_queue
 			$mongodb->insert_one({ md5 => $row });
 		}
 		if($berkeley_db) {
-			$berkeley_db->put($md5, $row->{'LAT'} . ',' . $row->{'LON'});
+			# $berkeley_db->put($md5, $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10));
+			$db_tie{$md5} = $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10);
 		}
 		if($dbh) {
 			if(!defined($query)) {
