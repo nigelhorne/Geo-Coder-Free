@@ -1257,14 +1257,16 @@ if($ENV{'REDIS_SERVER'}) {
 		# or die "Cannot open file $db_file: $! $BerkeleyDB::Error";
 	# $DB_HASH->{'cachesize'} = 64 * 1024 * 1024;
 
+	print "Building Berkeley database $db_file\n";
+
 	$berkeley_db = DB_File::HASHINFO->new();
 	$berkeley_db->{'cachesize'} = 65536;
 	$berkeley_db = tie %db_tie, 'DB_File', $db_file, O_RDWR|O_CREAT, 0644, $berkeley_db
 		or die "Cannot open file $db_file: $!";
 
 	# See the DB_File example "Key is a C int"
-	$berkeley_db->filter_fetch_key(sub { $_ = unpack('i', $_) } );
-	$berkeley_db->filter_store_key(sub { $_ = pack('i', $_) } );
+	# $berkeley_db->filter_fetch_key(sub { $_ = unpack('i', $_) } );
+	# $berkeley_db->filter_store_key(sub { $_ = pack('i', $_) } );
 } elsif(defined($sqlite_file)) {
 	# SQLite
 	if($dbh = DBI->connect("dbi:SQLite:dbname=$sqlite_file", undef, undef, { RaiseError => 1, AutoCommit => 0, synchronous => 0, locking_mode => 'EXCLUSIVE' })) {
@@ -1306,7 +1308,7 @@ my $abbr = Geo::Coder::Abbreviations->new();
 # my %digests_added;
 
 my $filename = 'lib/Geo/Coder/Free/OpenAddresses/databases/states.txt';
-if((!(DEBUG&(DEBUG_KNOWN_PLACES|DEBUG_WOF|DEBUG_OSM))) && (-r $filename)) {
+if(((!(DEBUG&(DEBUG_KNOWN_PLACES|DEBUG_WOF|DEBUG_OSM))) && (-r $filename)) || $force_flag) {
 	# Import US states and counties from https://github.com/openaddresses/openaddresses/tree/master/us-data
 	$| = 1;
 	printf "%-70s\r", $filename;
@@ -1420,7 +1422,7 @@ $ua->env_proxy(1);
 $filename = 'downloads/allCountries.txt';
 
 # Import the Maxmind databases
-if((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename) &&
+if(($force_flag || ((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename))) &&
    # open(my $fin, '<', 'lib/Geo/Coder/Free/GeoNames/databases/allCountries.txt') &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
@@ -1581,7 +1583,7 @@ foreach my $csv_file (create_tree($oa, 1)) {
 	# next unless($csv_file =~ /us\/ne\/dawes/);
 	# next unless($csv_file =~ /us\/in\//);
 
-	next if(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF));
+	next if((DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF)) && !$force_flag);
 
 	# Handle https://github.com/openaddresses/openaddresses/issues/3928
 	# TODO: It would be better to merge airdrie.csv and city_of_airdrie.csv
@@ -1741,7 +1743,7 @@ undef %state_parent_md5s;
 my %l1_cache;
 my $l2_cache;
 
-print STDERR __LINE__, ' >>>>', Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
+print STDERR __LINE__, ': >>>>', Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 
 # my $wof_global_dbh;
 if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
@@ -2622,7 +2624,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 
 	flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
 	$inserts = 0;
-} elsif((!(DEBUG&DEBUG_WOF)) && (my $dr5hn = $ENV{'DR5HN_HOME'})) {
+} elsif(($force_flag || !(DEBUG&DEBUG_WOF)) && (my $dr5hn = $ENV{'DR5HN_HOME'})) {
 	# my @files = (
 		# 'cities',
 		# 'countries+states+cities',
@@ -2716,7 +2718,7 @@ undef %global_md5s;
 undef %state_md5s;
 undef %state_parent_md5s;
 
-if(MAX_INSERT_COUNT > 1) {
+if((MAX_INSERT_COUNT > 1) && $sqlite_file) {
 	local $| = 1;
 	printf "%-70s\r", 'creating indicies';
 	print "\n" if(DEBUG);
@@ -2926,6 +2928,7 @@ sub import
 		} elsif((!defined($county)) &&
 			($file !~ /^WHOSONFIRST\-DATA/i)
 			&& ($file !~ /countrywide/)
+			&& ($file !~ /countries\+states\+cities/i)	# $DR5HN
 			&& ($file !~ /^\d+\.GEOJSON$/i)) {
 			$county = $file;
 			$county =~ s/\.csv$//;
@@ -3160,7 +3163,7 @@ sub import
 			$columns{$c} = $row->{$c} if(defined($row->{$c}));
 		}
 
-		die __LINE__, ': ', Data::Dumper->new([$row])->Dump() if((DEBUG&DEBUG_DATA_VALIDATE) && ($columns{'NUMBER'} !~ /^\d/));
+		die __LINE__, ': ', Data::Dumper->new([$row])->Dump() if((DEBUG&DEBUG_DATA_VALIDATE) && $columns{'NUMBER'} && ($columns{'NUMBER'} !~ /^\d/));
 		# Can't compare '== 0' because of house numbers such as '43A'
 		delete($columns{'NUMBER'}) if(defined($columns{'NUMBER'}) && ($columns{'NUMBER'} eq '0'));
 
