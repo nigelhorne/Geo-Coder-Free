@@ -963,26 +963,26 @@ sub _get {
 			no_entry => 1,
 		);
 	$self->{openaddr_db} = $openaddr_db;
-	my $rc = $openaddr_db->fetchrow_hashref(md5 => $digest);
-	if($rc && defined($rc->{'geohash'})) {
+	if(my $geohash = $openaddr_db->geohash(md5 => $digest)) {
+		$geohash = { geohash => $geohash };
+
 		$self->{'geo_hash'} ||= Geo::Hash->new();
-		($rc->{'latitude'}, $rc->{'longitude'}) = $self->{'geo_hash'}->decode($rc->{'geohash'});
-	}
-	if($rc && defined($rc->{'lat'})) {
-		$rc->{'latitude'} = delete $rc->{'lat'};
-		$rc->{'longitude'} = delete $rc->{'lon'};
-	}
-	if($rc && defined($rc->{'latitude'})) {
-		# if(my $city = $rc->{'city'}) {
-			# if(my $rc2 = $openaddr_db->fetchrow_hashref(sequence => $city, table => 'cities')) {
-				# $rc = { %$rc, %$rc2 };
+		($geohash->{'latitude'}, $geohash->{'longitude'}) = $self->{'geo_hash'}->decode($geohash->{'geohash'});
+
+		# if($geohash && defined($geohash->{'lat'})) {
+			# $geohash->{'latitude'} = delete $geohash->{'lat'};
+			# $geohash->{'longitude'} = delete $geohash->{'lon'};
+		# }
+		# if(my $city = $geohash->{'city'}) {
+			# if(my $geohash2 = $openaddr_db->fetchrow_hashref(sequence => $city, table => 'cities')) {
+				# $geohash = { %$geohash, %$geohash2 };
 			# }
 		# }
-		# ::diag(Data::Dumper->new([\$rc])->Dump());
-		$rc = Geo::Location::Point->new({
-			'lat' => $rc->{'latitude'},
-			'long' => $rc->{'longitude'},
-			'lng' => $rc->{'longitude'},
+		# ::diag(Data::Dumper->new([\$geohash])->Dump());
+		my $rc = Geo::Location::Point->new({
+			'lat' => $geohash->{'latitude'},
+			'long' => $geohash->{'longitude'},
+			'lng' => $geohash->{'longitude'},
 			'location' => $location,
 			'database' => 'OpenAddresses'
 		});

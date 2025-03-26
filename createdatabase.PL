@@ -1167,10 +1167,10 @@ $Data::Dumper::Sortkeys = 1;
 # TODO: only Australian, US and Canadian data is supported at the moment
 
 # TODO Make the database choice configurable
-my $sqlite_file = "$oa/openaddresses.sql";
-# my $sqlite_file;
-# my $db_file = "$oa/openaddresses.db";
-my $db_file;
+# my $sqlite_file = "$oa/openaddresses.sql";
+my $sqlite_file;
+my $db_file = "$oa/openaddresses.db";
+# my $db_file;
 
 if($sqlite_file && $db_file) {
 	die 'Choose only one database driver';
@@ -2724,7 +2724,7 @@ undef %global_md5s;
 undef %state_md5s;
 undef %state_parent_md5s;
 
-if((MAX_INSERT_COUNT > 1) && $sqlite_file) {
+if((MAX_INSERT_COUNT > 1) && $dbh) {
 	local $| = 1;
 	printf "%-70s\r", 'creating indicies';
 	print "\n" if(DEBUG);
@@ -3040,6 +3040,7 @@ sub import
 		$city =~ s/^CITY\s+OF\s+//i;
 		$city =~ s/^THE\s+CITY\s+OF\s+//i;
 		$city =~ s/^TOWNSHIP\s+OF\s+//;
+		$city =~ s/^BOROUGH\s+OF\s+//;
 		$city =~ s/^URBAN\s+//;
 		$city =~ s/\(HISTORICAL\)//;
 		$city =~ s/\s\s+/ /g;
@@ -3461,6 +3462,7 @@ sub flush_queue
 		if($mongodb) {
 			$mongodb->insert_one({ md5 => $row });
 		}
+		# die Data::Dumper->new([$row])->Dump() if(exists($db_tie{$md5}));
 		if($berkeley_db) {
 			# $berkeley_db->put($md5, $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10));
 			$db_tie{$md5} = $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10);

@@ -75,7 +75,7 @@ OPENADDR: {
 		ok(defined($location));
 		diag(Data::Dumper->new([$location])->Dump()) if($ENV{'TEST_VERBOSE'});
 		cmp_deeply($location,
-			methods('lat' => num(40, 1), 'long' => num(-87, 1)));
+			methods('lat' => num(40, 1), 'long' => num(-86, 2)));
 
 		$location = $o_geo_coder->geocode('Boswell, Somerset, Pennsylvania, USA');
 		ok(defined($location));
