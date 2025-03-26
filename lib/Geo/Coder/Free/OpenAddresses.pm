@@ -133,6 +133,9 @@ Arguably that's incorrect, but it is the behaviour I want.
 If "exact" is not given,
 it will go on to look just for the town if the street isn't found.
 
+The word "county" is removed from US county searches,
+that either C<Leesburg, Loudoun County, Virginia, US> or C<Leesburg, Loudoun, Virginia, US> will work.
+
 =cut
 
 sub geocode
