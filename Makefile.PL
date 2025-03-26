@@ -283,7 +283,7 @@ my $build_requires = {
 	'Try::Tiny' => 0
 };
 
-if(($^O ne 'solaris') && ($^O ne 'haiku')) {
+if(($^O ne 'solaris') && ($^O ne 'haiku') && ($^O ne 'MSWin32')) {
 	$build_requires->{'File::Open::NoCache::ReadOnly'} = 0.02;
 	$build_requires->{'IO::AIO'} = 0;
 }

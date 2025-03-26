@@ -1108,7 +1108,7 @@ if(defined($ARGV[0]) && ($ARGV[0] eq '-f')) {
 	exit(0);
 }
 
-if(($^O ne 'solaris') && ($^O ne 'haiku')) {
+if(($^O ne 'solaris') && ($^O ne 'haiku') && ($^O ne 'MSWin32')) {
 	eval {
 		require File::Open::NoCache::ReadOnly;
 		require IO::AIO;
