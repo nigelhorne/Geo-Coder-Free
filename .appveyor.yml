@@ -42,7 +42,7 @@ install:
   - cpanm -iqn LWP::Simple::WithCache Log::Any::Adapter::Log4perl
   - cpanm -iqnf DBIx::TableLoader
   - sh: cpanm -iqn Text::xSV::Slurp
-  - cmd: cpanm -iqn Log::Log4perl CGI::IDS Data::Throttler File::Open::NoCache::ReadOnly IO::AIO
+  - cmd: cpanm -iqn Log::Log4perl CGI::IDS Data::Throttler
   - cpanm -iqn CGI::Lingua Template::Filters
   - cpanm -qin --skip-satisfied --installdeps .
   - cmd: cpanm -iqn CHI
