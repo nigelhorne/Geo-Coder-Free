@@ -112,7 +112,8 @@ use	constant	DEBUG_INSERT => 0x400;
 use	constant	DEBUG_KNOWN_PLACES => 0x800;	# Only import the known_places hash
 use	constant	DEBUG_OSM => 0x1000;	# Test - and only import, the OSM_HOME data
 use	constant	DEBUG_WOF => 0x2000;	# Test - and only import, the WHOSONFIRST_HOME data
-use	constant	DEBUG_ALL => 0xFFFF;
+use	constant	DEBUG_DR5HN => 0x4000;
+use	constant	DEBUG_ALL => 0xFFFF;	# Test - and only import, the DR5HN data
 use	constant	DEBUG => DEBUG_OFF;
 
 use	constant	MAX_INSERT_COUNT => 250;	# Maximum number of CSV rows to insert in a single statement
@@ -1427,7 +1428,7 @@ if(($force_flag || ((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename))) &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
    (my $all_countries = File::Open::NoCache::ReadOnly->new($filename)) &&
-   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF))) &&
+   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF|DEBUG_DR5HN))) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
@@ -2663,6 +2664,11 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
 					};
+					if(($city->{'name'} =~ /County$/) && ($country->{'name'} eq 'US')) {
+						$row->{'COUNTY'} = $city->{'name'};
+					} else {
+						$row->{'CITY'} = $city->{'name'};
+					}
 					$inserts += import(row => $row, file => $filename, ua => $ua, dbh => $dbh, redis => $redis, mongodb => $mongodb, berkeley_db => $berkeley_db);
 					# print Data::Dumper->new([$row])->Dump();
 					if($inserts >= MAX_INSERT_COUNT) {
@@ -2734,7 +2740,7 @@ if((MAX_INSERT_COUNT > 1) && $sqlite_file) {
 }
 
 $| = 1;
-printf "%-70s\r", 'committing';
+printf "%-70s\r", 'Committing';
 print "\n" if(DEBUG);
 $| = 0;
 if($dbh) {
@@ -2917,7 +2923,7 @@ sub import
 			$city =~ s/(.+)[_\s]district.csv$/$1/;
 			$city =~ tr/_/ /;
 			die "BUG: $file: couldn't extract city name" if(length($city) == 0);
-		} elsif(!defined($city)) {
+		} elsif((!defined($city)) && ($file !~ /countries\+states\+cities/i)) {
 			$city = $file;
 			$city =~ s/\Q$oa\E\/?//i;
 			$city =~ s/\.csv$//;
@@ -3081,6 +3087,10 @@ sub import
 		if(($row->{'DISTRICT'} ne $state) && ($row->{'DISTRICT'} !~ /^\d+$/)) {
 			$county = $row->{'DISTRICT'};
 		}
+	}
+	if(defined($city) && (!defined($county)) && ($city =~ /\s+County$/)) {
+		$county = $city;
+		undef $city;
 	}
 	if($county) {
 		if($city) {
