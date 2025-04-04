@@ -964,30 +964,19 @@ sub _get {
 		);
 	$self->{openaddr_db} = $openaddr_db;
 	if(my $geohash = $openaddr_db->geohash(md5 => $digest)) {
-		$geohash = { geohash => $geohash };
-
 		$self->{'geo_hash'} ||= Geo::Hash->new();
-		($geohash->{'latitude'}, $geohash->{'longitude'}) = $self->{'geo_hash'}->decode($geohash->{'geohash'});
+		my ($latitude, $longitude) = $self->{'geo_hash'}->decode($geohash);
 
-		# if($geohash && defined($geohash->{'lat'})) {
-			# $geohash->{'latitude'} = delete $geohash->{'lat'};
-			# $geohash->{'longitude'} = delete $geohash->{'lon'};
-		# }
-		# if(my $city = $geohash->{'city'}) {
-			# if(my $geohash2 = $openaddr_db->fetchrow_hashref(sequence => $city, table => 'cities')) {
-				# $geohash = { %$geohash, %$geohash2 };
-			# }
-		# }
-		# ::diag(Data::Dumper->new([\$geohash])->Dump());
 		my $rc = Geo::Location::Point->new({
-			'lat' => $geohash->{'latitude'},
-			'long' => $geohash->{'longitude'},
-			'lng' => $geohash->{'longitude'},
+			'lat' => $latitude,
+			'long' => $longitude,
+			'lng' => $longitude,
 			'location' => $location,
 			'database' => 'OpenAddresses'
 		});
+
 		if(my $cache = $self->{'cache'}) {
-			$cache->set($digest, Storable::freeze($rc), '1 week');
+			$cache->set($digest, Storable::freeze($rc), '1 month');
 		}
 
 		return $rc;
