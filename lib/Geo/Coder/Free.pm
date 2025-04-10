@@ -202,6 +202,7 @@ my %common_words = (
 	'road' => 1,
 	'she' => 1,
 	'side' => 1,
+	'some' => 1,
 	'to' => 1,
 	'the' => 1,
 	'was' => 1,
