@@ -149,10 +149,13 @@ if(!$ENV{'NO_NETWORK_TESTING'}) {
 
 my $pm;
 if(scalar(keys(%urls)) > 1) {
-	require Parallel::ForkManager;
-	Parallel::ForkManager->import();
+	if(eval { require Parallel::ForkManager; }) {
+		Parallel::ForkManager->import();
 
-	$pm = Parallel::ForkManager->new(10);
+		$pm = Parallel::ForkManager->new(10);
+	} else {
+		print "Consider installing Parallel::Forkmanager to speed up downloads\n";
+	}
 }
 
 foreach my $url(keys %urls) {
