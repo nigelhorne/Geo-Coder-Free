@@ -373,6 +373,7 @@ WriteMakefile(
 		'Module::Info' => 0,
 		'File::Spec' => 0,
 		'CHI' => 0,
+		'Params::Get' => 0,
 		'Scalar::Util' => 0,
 		'Storable' => 0,
 		'Text::CSV' => 0,

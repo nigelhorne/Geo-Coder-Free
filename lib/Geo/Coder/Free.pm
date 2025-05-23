@@ -18,6 +18,7 @@ use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use Locale::US;
 use Carp;
+use Params::Get;
 use Scalar::Util;
 
 =head1 NAME
@@ -105,18 +106,10 @@ sub new {
 	my $class = shift;
 
 	# Handle hash or hashref arguments
-	my %args;
-	if((@_ == 1) && (ref $_[0] eq 'HASH')) {
-		%args = %{$_[0]};
-	} elsif((@_ % 2) == 0) {
-		%args = @_;
-	} else {
-		carp(__PACKAGE__, ': Invalid arguments passed to new()');
-		return;
-	}
+	my $params = Params::Get::get_params(undef, \@_) || {};
 
 	if(!defined($class)) {
-		if((scalar keys %args) > 0) {
+		if((scalar keys %{$params}) > 0) {
 			# Using Geo::Coder::Free->new not Geo::Coder::Free::new
 			carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
 			return;
@@ -126,7 +119,7 @@ sub new {
 		$class = __PACKAGE__;
 	} elsif(Scalar::Util::blessed($class)) {
 		# clone the given object
-		return bless { %{$class}, %args }, ref($class);
+		return bless { %{$class}, %{$params} }, ref($class);
 	}
 
 	if(!$alternatives) {
@@ -141,19 +134,19 @@ sub new {
 		}
 	}
 	my $rc = {
-		%args,
-		maxmind => Geo::Coder::Free::MaxMind->new(%args),
+		%{$params},
+		maxmind => Geo::Coder::Free::MaxMind->new($params),
 		alternatives => $alternatives
 	};
 
-	if((!defined $args{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
-		$args{'openaddr'} = $ENV{'OPENADDR_HOME'};
+	if((!defined $params->{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
+		$params->{'openaddr'} = $ENV{'OPENADDR_HOME'};
 	}
 
-	if($args{'openaddr'}) {
-		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new('id' => 'md5', %args);
+	if($params->{'openaddr'}) {
+		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new('id' => 'md5', %{$params});
 	}
-	if(my $cache = $args{'cache'}) {
+	if(my $cache = $params->{'cache'}) {
 		$rc->{'cache'} = $cache;
 	}
 
