@@ -686,8 +686,8 @@ sub vwflog($$$$$$)
 		if(ref($syslog) eq 'HASH') {
 			Sys::Syslog::setlogsock($syslog);
 		}
-		openlog($script_name, 'cons,pid', 'user');
-		syslog('info|local0', '%s %s %s %s %s %d %s %s %s %s',
+		Sys::Syslog::openlog($script_name, 'cons,pid', 'user');
+		Sys::Syslog::syslog('info|local0', '%s %s %s %s %s %d %s %s %s %s',
 			$info->domain_name() || '',
 			$ENV{REMOTE_ADDR} || '',
 			$lingua->country() || '',
@@ -699,6 +699,6 @@ sub vwflog($$$$$$)
 			$warnings,
 			$message
 		);
-		closelog();
+		Sys::Syslog::closelog();
 	}
 }
