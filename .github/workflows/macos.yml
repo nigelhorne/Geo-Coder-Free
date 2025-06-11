@@ -2,6 +2,8 @@
 # See https://github.com/actions/virtual-environments
 
 name: Test Code on OS/X
+permissions:
+  contents: read
 on:
   push:
     branches:
