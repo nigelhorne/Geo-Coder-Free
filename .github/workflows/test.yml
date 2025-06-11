@@ -3,6 +3,8 @@
 # https://github.com/marketplace/actions/setup-perl-environment
 
 name: Test Code
+permissions:
+  contents: read
 on:
   push:
     branches:
