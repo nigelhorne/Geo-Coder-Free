@@ -10,6 +10,7 @@ use warnings;
 
 # use lib '.';
 
+use Carp;
 use Config::Auto;
 use Data::Dumper;
 use Geo::Coder::Abbreviations;
@@ -17,7 +18,7 @@ use Geo::Coder::Free::Local;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use Locale::US;
-use Carp;
+use Object::Configure;
 use Params::Get;
 use Scalar::Util;
 
@@ -133,6 +134,7 @@ sub new {
 			$alternatives->{$key} = join(', ', @{$value});
 		}
 	}
+	$params = Object::Configure::configure($class, $params);
 	my $rc = {
 		%{$params},
 		maxmind => Geo::Coder::Free::MaxMind->new($params),

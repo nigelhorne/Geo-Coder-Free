@@ -9,6 +9,8 @@ use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
 use Locale::CA;
 use Locale::US;
+use Object::Configure;
+use Params::Get;
 use Text::xSV::Slurp;
 
 =head1 NAME
@@ -68,7 +70,7 @@ Initializes a geocoder object, loading the local data.
 sub new
 {
 	my $class = shift;
-	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+	my $params = Params::Get::get_params(undef, \@_) || {};
 
 	if(!defined($class)) {
 		# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
@@ -79,8 +81,10 @@ sub new
 		$class = __PACKAGE__;
 	} elsif(ref($class)) {
 		# clone the given object
-		return bless { %{$class}, %args }, ref($class);
+		return bless { %{$class}, %{$params} }, ref($class);
 	}
+
+	$params = Object::Configure::configure($class, $params);
 
 	# TODO: since 'hoh' doesn't allow a CODEREF as a key,
 	#	I could build an hoh manually from this aoh,
@@ -96,7 +100,8 @@ sub new
 				escape_char => '\\',
 			},
 			string => \join('', grep(!/^\s*(#|$)/, <DATA>))
-		)
+		),
+		%{$params}
 	}, $class;
 
 	# Build the hash-based index
