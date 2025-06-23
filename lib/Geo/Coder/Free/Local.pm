@@ -112,11 +112,12 @@ sub new
 
 # Helper function to normalize location strings
 sub _normalize_location {
-    my $location = shift;
-    $location = lc($location);                 # Convert to lowercase
-    $location =~ s/^\s+|\s+$//g;               # Trim leading and trailing whitespace
-    $location =~ s/\s+/ /g;                    # Collapse multiple spaces
-    return $location;
+	my $location = shift;
+
+	$location = lc($location);                 # Convert to lowercase
+	$location =~ s/^\s+|\s+$//g;               # Trim leading and trailing whitespace
+	$location =~ s/\s+/ /g;                    # Collapse multiple spaces
+	return $location;
 }
 
 =head2 geocode
