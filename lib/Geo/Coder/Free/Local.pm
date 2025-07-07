@@ -191,12 +191,8 @@ sub geocode {
 
 	# Use the hash-based index for a quick lookup
 	if(exists $self->{index}{$lc}) {
-		my $rc = Geo::Location::Point->new($self->{index}{$lc});
-
 		# Store the result in the cache for future requests
-		$self->{cache}{$lc} = $rc;
-
-		return $rc;
+		return $self->{cache}{$lc} = $self->{index}{$lc};	# Geo::Location::Point object
 	}
 	# ::diag("$location: hash search failed");
 
@@ -774,7 +770,7 @@ sub reverse_geocode {
 			if(_equal($row->{'latitude'}, $latitude, 4) &&
 			   _equal($row->{'longitude'}, $longitude, 4)) {
 				# ::diag('match');
-				my $location = uc(Geo::Location::Point->new($row)->as_string());
+				my $location = uc($row->as_string());	# Geo::Location::Point object
 				if(wantarray) {
 					push @rc, $location;
 					while(my($left, $right) = each %alternatives) {
