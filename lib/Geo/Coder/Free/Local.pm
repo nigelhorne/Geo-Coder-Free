@@ -3,7 +3,7 @@ package Geo::Coder::Free::Local;
 use strict;
 use warnings;
 
-use Geo::Location::Point;
+use Geo::Location::Point 0.14;
 use Geo::Coder::Free;
 use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
