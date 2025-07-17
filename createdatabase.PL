@@ -1168,10 +1168,10 @@ $Data::Dumper::Sortkeys = 1;
 # TODO: only Australian, US and Canadian data is supported at the moment
 
 # TODO Make the database choice configurable
-my $sqlite_file = "$oa/openaddresses.sql";
-# my $sqlite_file;
-# my $db_file = "$oa/openaddresses.db";
-my $db_file;
+# my $sqlite_file = "$oa/openaddresses.sql";
+my $sqlite_file;
+my $db_file = "$oa/openaddresses.db";
+# my $db_file;
 
 if($sqlite_file && $db_file) {
 	die 'Choose only one database driver';
