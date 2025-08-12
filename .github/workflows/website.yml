@@ -30,7 +30,7 @@ jobs:
       image: perl:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: update
         run: apt update && apt-get -y upgrade
       - name: install packages
