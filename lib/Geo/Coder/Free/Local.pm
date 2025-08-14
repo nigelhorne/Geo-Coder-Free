@@ -490,6 +490,15 @@ sub geocode {
 		return;
 	}
 
+	require Geo::Address::Parser;
+	Geo::Address::Parser->import();
+
+	my $addr_parser = Geo::Address::Parser->new(country => 'UK');
+	if(my $fields = $addr_parser->parse($location)) {
+		use Data::Dumper;
+		die __PACKAGE__, ": TODO: '$location': ", Data::Dumper->new([$fields])->Dump();
+	}
+
 	# Finally try libpostal,
 	# which is good but uses a lot of memory and can take a very long time to parse data
 	if($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
