@@ -846,6 +846,19 @@ sub geocode
 		}
 	}
 
+	if($country) {
+		require Geo::Address::Parser;
+		Geo::Address::Parser->import();
+
+		if($country eq 'US') {
+			my $addr_parser = Geo::Address::Parser->new(country => 'US');
+			if(my $fields = $addr_parser->parse($location)) {
+				use Data::Dumper;
+				die __PACKAGE__, 'TODO: ', Data::Dumper->new([$fields]);
+			}
+		}
+	}
+
 	# Finally try libpostal,
 	# which is good but uses a lot of memory
 	# ::diag("try libpostal on $location");
