@@ -847,14 +847,17 @@ sub geocode
 	}
 
 	if($country) {
-		require Geo::Address::Parser;
-		Geo::Address::Parser->import();
+		require Geo::Address::Parser && Geo::Address::Parser->import() unless Geo::Address::Parser->can('parse');
 
 		if($country eq 'US') {
 			my $addr_parser = Geo::Address::Parser->new(country => 'US');
 			if(my $fields = $addr_parser->parse($location)) {
-				use Data::Dumper;
-				die __PACKAGE__, ": TODO: '$location': ", Data::Dumper->new([$fields])->Dump();
+				for my $key (keys %{$fields}) {
+					delete $fields->{$key} unless defined $fields->{$key};
+				}
+				if(my $rc = $self->_search($fields, keys %{$fields})) {
+					return $rc;
+				}
 			}
 		}
 	}

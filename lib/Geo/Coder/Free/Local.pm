@@ -490,13 +490,21 @@ sub geocode {
 		return;
 	}
 
-	require Geo::Address::Parser;
-	Geo::Address::Parser->import();
+	require Geo::Address::Parser && Geo::Address::Parser->import() unless Geo::Address::Parser->can('parse');
 
 	my $addr_parser = Geo::Address::Parser->new(country => 'UK');
 	if(my $fields = $addr_parser->parse($location)) {
-		use Data::Dumper;
-		die __PACKAGE__, ": TODO: '$location': ", Data::Dumper->new([$fields])->Dump();
+		for my $key (keys %{$fields}) {
+			delete $fields->{$key} unless defined $fields->{$key};
+		}
+		if(my $rc = $self->_search($fields, keys %{$fields})) {
+			$rc->{'country'} = 'UK';
+
+			# Store the result in the cache for future requests
+			$self->{cache}{$lc} = $rc;
+
+			return $rc;
+		}
 	}
 
 	# Finally try libpostal,

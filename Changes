@@ -1,5 +1,8 @@
 Revision history for Geo-Coder-Free
 
+0.42
+	Try Geo::Address::Parser before libpostal() as that uses less memory
+
 0.41	Mon Jul  7 13:45:41 EDT 2025
 	Use Object::Configure
 	Attempt improvement on EXT4
