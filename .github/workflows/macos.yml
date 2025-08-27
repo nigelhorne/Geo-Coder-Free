@@ -34,7 +34,7 @@ jobs:
           cpanm -iqn --skip-satisfied File::Spec ExtUtils::MakeMaker Devel::Cover::Report::Codecov Test::Harness
           cpanm -iqf --skip-satisfied LWP::Simple::WithCache
           cpanm -iqn --skip-satisfied Test::Pod::Spelling::CommonMistakes
-          cpanm -iqn --skip-satisfied Test::Portability::Files Test::Carp
+          cpanm -iqn --skip-satisfied Test::Portability::Files Test::Carp Template::Filters
           cpanm -iqn --skip-satisfied Test::Pod::Coverage XML::LibXML::Reader Log::Any::Adapter::Log4perl
           cpanm -ifn CGI::IDS
           cpanm -ivn --skip-satisfied --installdeps --notest .
