@@ -327,7 +327,8 @@ sub doit
 
 	# Rate limit by IP
 	unless(grep { $_ eq $client_ip } @rate_limit_trusted_ips) {	# Bypass rate limiting
-		if($request_count >= $MAX_REQUESTS) {
+		my $max_requests = $config->{'security'}->{'rate_limiting'}->{'max_requests'} || $MAX_REQUESTS;
+		if($request_count >= $max_requests) {
 			# Block request: Too many requests
 			print "Status: 429 Too Many Requests\n",
 				"Content-type: text/plain\n",
@@ -338,12 +339,14 @@ sub doit
 			$info->status(429);
 
 			vwflog($vwflog, $info, $lingua, $syslog, 'Too many requests', $log);
+			sleep(1);
 			return;
 		}
 	}
 
 	# Increment request count
-	$rate_limit_cache->set("$script_name:rate_limit:$client_ip", $request_count + 1, $TIME_WINDOW);
+	my $time_window = $config->{'security'}->{'rate_limiting'}->{'time_window'} || $TIME_WINDOW;
+	$rate_limit_cache->set("$script_name:rate_limit:$client_ip", $request_count + 1, $time_window);
 
 	if(!defined($info->param('page'))) {
 		$logger->info('No page given in ', $info->as_string());

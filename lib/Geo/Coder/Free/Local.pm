@@ -163,9 +163,9 @@ sub geocode {
 			return(__PACKAGE__->new()->geocode(@_));
 		} elsif(!defined($self)) {
 			# Geo::Coder::Free->geocode()
-			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location)');
 		} elsif($self eq __PACKAGE__) {
-			Carp::croak("Usage: $self", '::geocode(location => $location|scantext => $text)');
+			Carp::croak("Usage: $self", '::geocode(location => $location)');
 		}
 		return(__PACKAGE__->new()->geocode($self));
 	} elsif(ref($self) eq 'HASH') {
@@ -174,7 +174,7 @@ sub geocode {
 		%params = %{$_[0]};
 	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
 	} elsif(ref($_[0])) {
-		Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
+		Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location)');
 	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
 		%params = @_;
 	} else {
