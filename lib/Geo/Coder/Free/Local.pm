@@ -903,9 +903,9 @@ sub _find_geographic_centres
 		}
 
 		# Only include locations with valid coordinates
-		if ($location{latitude} && $location{longitude} &&
-			$location{latitude} =~ /^-?\d+\.?\d*$/ &&
-			$location{longitude} =~ /^-?\d+\.?\d*$/) {
+		if($location{latitude} && $location{longitude} &&
+		   ($location{latitude} =~ /^-?\d+\.?\d*$/) &&
+		   ($location{longitude} =~ /^-?\d+\.?\d*$/)) {
 			push @locations, \%location;
 		}
 	}
@@ -984,8 +984,8 @@ sub _calculate_centre
 	}
 
 	# Round to 6 decimal places
-	my $centre_lat = sprintf("%.6f", $total_lat / $count);
-	my $centre_lon = sprintf("%.6f", $total_lon / $count);-
+	my $centre_lat = sprintf('%.6f', $total_lat / $count);
+	my $centre_lon = sprintf('%.6f', $total_lon / $count);
 
 	return ($centre_lat, $centre_lon);
 }
