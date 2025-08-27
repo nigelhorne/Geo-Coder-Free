@@ -862,6 +862,9 @@ sub _find_geographic_centres
 	# Parse CSV data into array of hashes
 	# my @lines = split /\n/, $csv_data;
 	my @lines = @{$csv_data};
+
+	return if(scalar(@lines) == 0);
+
 	my $header = shift @lines;
 
 	# Remove quotes from header and split
