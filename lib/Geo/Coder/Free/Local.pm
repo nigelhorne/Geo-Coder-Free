@@ -86,6 +86,8 @@ sub new
 
 	$params = Object::Configure::configure($class, $params);
 
+	my @data = <DATA>;
+
 	# TODO: since 'hoh' doesn't allow a CODEREF as a key,
 	#	I could build an hoh manually from this aoh,
 	#	it would make searching much quicker
@@ -99,15 +101,23 @@ sub new
 				binary => 1,
 				escape_char => '\\',
 			},
-			string => \join('', grep(!/^\s*(#|$)/, <DATA>))
+			string => \join('', grep(!/^\s*(#|$)/, @data))
 		),
 		%{$params}
 	}, $class;
 
+	# Process the data to find geographic centres of location clusters.
+	# This will identify groups with 3+ locations in the same city/state/country,
+	#	thus adding towns/cities to the local database
+	my $towns = _find_geographic_centres(\@data);
+	foreach my $town (@{$towns}) {
+		push @{$self->{data}}, $town;
+	}
+
 	# Build the hash-based index
-	foreach my $row (@{ $self->{data} }) {
+	foreach my $row (@{$self->{data} }) {
 		my $key = lc(Geo::Location::Point->new($row)->as_string());
-		$self->{index}{$key} = $row;
+		$self->{'index'}{$key} = $row;
 	}
 
 	# TODO:  Perhaps the cache can be prepopulated, or stored in less volitile location?
@@ -826,6 +836,155 @@ Does nothing, here for compatibility with other geocoders
 =cut
 
 sub ua {
+}
+
+# find_geographic_centres($csv_data)
+#
+# Helper function that processes CSV geographic data to find centres of location clusters.
+# Takes a string containing CSV data with headers and analyzes it to find groups of
+# 3 or more locations in the same city/state/country combination. For each qualifying
+# group, it calculates the geographic centre and prints the results.
+#
+# Parameters:
+#   $csv_data - String containing complete CSV data including header row
+#
+# Processing steps:
+#   1. Parses CSV header to get field names
+#   2. Parses each data row into location hash objects
+#   3. Validates that coordinates are numeric
+#   4. Groups locations by city/state/country key
+#   5. For groups with 3+ locations, calculates and prints centre coordinates
+#
+sub _find_geographic_centres
+{
+	my $csv_data = $_[0];
+
+	# Parse CSV data into array of hashes
+	# my @lines = split /\n/, $csv_data;
+	my @lines = @{$csv_data};
+	my $header = shift @lines;
+
+	# Remove quotes from header and split
+	$header =~ s/"//g;
+	chomp $header;
+	my @fields = split /,/, $header;
+
+	my @locations = ();
+
+	# Parse each data line
+	foreach my $line (@lines) {
+		next if $line =~ /^\s*$/;	# Skip empty lines
+		chomp $line;
+
+		# Simple CSV parsing - handles quoted fields
+		my @values = ();
+		my $current_field = '';
+		my $in_quotes = 0;
+
+		for my $char (split //, $line) {
+			if ($char eq '"') {
+				$in_quotes = !$in_quotes;
+			} elsif ($char eq ',' && !$in_quotes) {
+				push @values, $current_field;
+				$current_field = '';
+			} else {
+				$current_field .= $char;
+			}
+		}
+		push @values, $current_field;	# Don't forget the last field
+
+		# Create location hash
+		my %location = ();
+		for my $i (0..$#fields) {
+			$location{$fields[$i]} = $values[$i] || '';
+		}
+
+		# Only include locations with valid coordinates
+		if ($location{latitude} && $location{longitude} &&
+			$location{latitude} =~ /^-?\d+\.?\d*$/ &&
+			$location{longitude} =~ /^-?\d+\.?\d*$/) {
+			push @locations, \%location;
+		}
+	}
+
+	# Group locations by city, state, country
+	my %groups = ();
+
+	foreach my $loc (@locations) {
+		my $key = join('|', $loc->{city}, $loc->{state}, $loc->{country});
+		push @{$groups{$key}}, $loc;
+	}
+
+	my $rc;
+
+	# Process groups with 3 or more locations
+	foreach my $group_key (keys %groups) {
+		my $locations_ref = $groups{$group_key};
+
+		if (@$locations_ref >= 3) {
+			my ($city, $state, $country) = split /\|/, $group_key;
+
+			# Calculate geographic centre
+			my ($centre_lat, $centre_lon) = _calculate_centre($locations_ref);
+
+			# printf("Center of %d locations in %s, %s, %s: %.6f, %.6f\n",
+				 # scalar(@$locations_ref), $city, $state, $country,
+				 # $centre_lat, $centre_lon);
+
+			push @{$rc}, {
+				'city' => $city,
+				'state' => $state,
+				'country' => $country,
+				'lat' => $centre_lat,
+				'latitude' => $centre_lat,
+				'longitude' => $centre_lon,
+				'long' => $centre_lon,
+				'lng' => $centre_lon
+			};
+		}
+	}
+
+	return $rc;
+}
+
+# _calculate_centre($locations_ref)
+#
+# Helper funcation that calculates the geographic centre (centroid) of a group of locations using
+# the arithmetic mean method to 6 decimal places. This works well for small geographic areas but
+# may be less accurate for locations spread over large distances due to
+# Earth's curvature.
+#
+# Parameters:
+#   $locations_ref - Reference to array of location hash objects, each containing
+#                   latitude and longitude fields
+#
+# Returns:
+#   ($centre_lat, $centre_lon) - Two-element list containing the calculated
+#                               centre coordinates as decimal degrees
+#
+# Algorithm:
+#   - Sums all latitude values and divides by count
+#   - Sums all longitude values and divides by count
+#   - Returns the arithmetic mean of both coordinates
+sub _calculate_centre
+{
+	my $locations_ref = $_[0];
+
+	my $total_lat = 0;
+	my $total_lon = 0;
+	my $count = 0;
+
+	foreach my $loc (@$locations_ref) {
+		$total_lat += $loc->{latitude};
+		$total_lon += $loc->{longitude};
+		$count++;
+	}
+
+	# Round to 6 decimal places
+	my $centre_lat = sprintf("%.6f", $total_lat / $count);
+	my $centre_lon = sprintf("%.6f", $total_lon / $count);-
+
+	return ($centre_lat, $centre_lon);
 }
 
 =head1 AUTHOR
