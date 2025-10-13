@@ -3,6 +3,7 @@ package Geo::Coder::Free::Local;
 use strict;
 use warnings;
 
+use Carp;
 use Geo::Location::Point 0.14;
 use Geo::Coder::Free;
 use Geo::StreetAddress::US;
@@ -120,7 +121,7 @@ sub new
 		$self->{'index'}{$key} = $row;
 	}
 
-	# TODO:  Perhaps the cache can be prepopulated, or stored in less volitile location?
+	# TODO:  Perhaps the cache can be prepopulated, or stored in a less volatile location?
 	# The cache attribute stores normalized location strings as keys and Geo::Location::Point objects as values
 	return $self;
 }
@@ -129,9 +130,9 @@ sub new
 sub _normalize_location {
 	my $location = shift;
 
-	$location = lc($location);                 # Convert to lowercase
-	$location =~ s/^\s+|\s+$//g;               # Trim leading and trailing whitespace
-	$location =~ s/\s+/ /g;                    # Collapse multiple spaces
+	$location = lc($location);	# Convert to lowercase
+	$location =~ s/^\s+|\s+$//g;	# Trim leading and trailing whitespace
+	$location =~ s/\s+/ /g;	# Collapse multiple spaces
 	return $location;
 }
 
@@ -157,7 +158,7 @@ sub geocode {
 	my $self = shift;
 	my %params;
 
-	# Try hard to support whatever API that the user wants to use
+	# Try hard to support whatever API the user wants to use
 	if(!ref($self)) {
 		if(scalar(@_)) {
 			return(__PACKAGE__->new()->geocode(@_));
@@ -859,7 +860,7 @@ sub _find_geographic_centres
 {
 	my $csv_data = $_[0];
 
-	# Parse CSV data into array of hashes
+	# Parse CSV data into an array of hashes
 	# my @lines = split /\n/, $csv_data;
 	my @lines = @{$csv_data};
 
@@ -1009,14 +1010,14 @@ they should be read in from somewhere else to make it easier for non-authors to 
 Copyright 2020-2024 Nigel Horne.
 
 The program code is released under the following licence: GPL2 for personal use on a single computer.
-All other users (including Commercial, Charity, Educational, Government)
+All other users (including Commercial, Charity, Educational, and Government)
 must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
 
 =cut
 
 1;
 
-# Ensure you use abbreviations, e.g. RD not ROAD
+# Ensure you use abbreviations, e.g., RD not ROAD
 __DATA__
 "name","number","road","city","state_district","state","country","latitude","longitude"
 "ST ANDREWS CHURCH",,"CHURCH HILL","EARLS COLNE",,"ESSEX","GB",51.926793,0.70408
