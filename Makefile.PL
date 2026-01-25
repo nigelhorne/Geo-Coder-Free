@@ -154,7 +154,7 @@ if(scalar(keys(%urls)) > 1) {
 
 		$pm = Parallel::ForkManager->new(10);
 	} else {
-		print "Consider installing Parallel::Forkmanager to speed up downloads\n";
+		print "Consider installing Parallel::ForkManager to speed up downloads\n";
 	}
 }
 
