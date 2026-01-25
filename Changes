@@ -3,6 +3,7 @@ Revision history for Geo-Coder-Free
 0.42
 	Try Geo::Address::Parser before libpostal() as that uses less memory
 	Local: Added _find_geographic_centres to add towns to the database where more than 3 places are known
+	Improve handling of Australian states
 
 0.41	Mon Jul  7 13:45:41 EDT 2025
 	Use Object::Configure

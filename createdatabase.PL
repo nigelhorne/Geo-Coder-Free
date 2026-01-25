@@ -2670,7 +2670,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 				foreach my $city(@{$state->{'cities'}}) {
 					my $row = {
 						'COUNTRY' => $country->{'name'},
-						'STATE' => $state->{'state_code'},
+						'STATE' => $state->{'state_code'} || $state->{iso2} || $state->{'name'},
 						'CITY' => $city->{'name'},
 						'LAT' => $city->{'latitude'},
 						'LON' => $city->{'longitude'},
@@ -3150,7 +3150,7 @@ sub import
 	}
 	if(($city && ($city !~ /^\s+$/)) || $county || $state) {
 		if(!defined($state)) {
-			if(($country eq 'AU') && ($file =~ /\/au\/(...)\/.+.csv$/)) {
+			if((($country eq 'Australia') || ($country eq 'AU')) && ($file =~ /\/au\/(...)\/.+.csv$/)) {
 				$state = uc($1);
 			} elsif(my $region = $row->{'REGION'}) {
 				delete $row->{'REGION'};
@@ -3158,7 +3158,7 @@ sub import
 			}
 
 			if(!defined($state)) {
-				print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+				print "\n", __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 				my $i = 0;
 				while(my @call_details = caller($i++)) {
 					print STDERR "\tCalled at line ", $call_details[2], "\n";
