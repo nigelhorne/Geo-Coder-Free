@@ -2,9 +2,14 @@
 
 use strict;
 use warnings;
+
+use Test::Needs 'HTML::SocialMedia', 'Log::Any::Adapter::Log4perl';
+
 use Cwd;
 use Test::Most tests => 8;
 use Data::Validate::URI;
+
+use lib 'lib';
 
 BEGIN { use_ok('Geo::Coder::Free::Display') }
 
