@@ -2,8 +2,8 @@
 
 use strict;
 
+use Test::Needs { 'Test::Script' => 1.12, 'CGI::Carp' => 0 };
 use Test::Most tests => 28;
-use Test::Needs { 'Test::Script' => 1.12 };
 
 BIN: {
 	SKIP: {
