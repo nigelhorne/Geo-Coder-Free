@@ -532,6 +532,9 @@ sub geocode
 						}
 					}
 				} elsif(my $href = Geo::StreetAddress::US->parse_address("$city, $state")) {
+				# warn __LINE__;
+				# use Data::Dumper;
+				# warn Dumper($href);
 					# Well formed, simple street address in the US
 					# ::diag(Data::Dumper->new([\$href])->Dump());
 					$state = $href->{'state'};
@@ -545,7 +548,9 @@ sub geocode
 					}
 					# Unabbreviated - look up both, helps with fallback to Maxmind
 					my $fullstreet = $href->{'street'};
+				# warn __LINE__;
 					if($street = $fullstreet) {
+				# warn __LINE__;
 						$fullstreet .= ' ' . $href->{'type'};
 						if(my $type = Geo::Coder::Free::_abbreviate($href->{'type'})) {
 							$street .= " $type";
@@ -556,6 +561,7 @@ sub geocode
 						}
 					}
 					if($street) {
+				# warn __LINE__;
 						if(my $prefix = $href->{prefix}) {
 							$street = "$prefix $street";
 							$fullstreet = "$prefix $fullstreet";
@@ -572,15 +578,23 @@ sub geocode
 							}
 						}
 						# ::diag("$street$city$state", 'US');
+						# warn("$street$city$state", 'US');
+						if($rc = $self->_get("$street$city$state", 'US')) {
+							$rc->{'country'} = 'US';
+							return $rc;
+						}
+						$street =~ s/\s+//g;
 						if($rc = $self->_get("$street$city$state", 'US')) {
 							$rc->{'country'} = 'US';
 							return $rc;
 						}
 						# ::diag("$fullstreet$city$state", 'US');
+						# warn("$fullstreet$city$state", 'US');
 						if($rc = $self->_get("$fullstreet$city$state", 'US')) {
 							$rc->{'country'} = 'US';
 							return $rc;
 						}
+						$fullstreet =~ s/\s+//g;
 					}
 					warn "Fast lookup of US location '$location' failed";
 				} else {
