@@ -2,7 +2,10 @@
 
 use strict;
 
-use Test::Needs { 'Test::Script' => 1.12, 'CGI::Carp' => 0 };
+use Test::Needs {
+	'Test::Script' => 1.12, 'CGI::Carp' => 0, 'FCGI' => 0, 'FCGI::Buffer' => 0, 'Log::WarnDie' => 0,
+	'CGI::ACL' => 0
+};
 use Test::Most tests => 28;
 
 BIN: {
