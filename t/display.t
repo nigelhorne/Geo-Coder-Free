@@ -28,7 +28,7 @@ local %ENV = (
 
 # Create an instance of the module
 my $display = Geo::Coder::Free::Display->new(
-	config => { root_dir => Cwd::getcwd() }
+	config => { root_dir => Cwd::getcwd(), memory_cache => { driver => 'Null' } }
 );
 
 # Test object creation
