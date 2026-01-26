@@ -165,13 +165,16 @@ $SIG{PIPE} = 'IGNORE';
 # my ($stdin, $stdout, $stderr) = (IO::Handle->new(), IO::Handle->new(), IO::Handle->new());
 # https://stackoverflow.com/questions/14563686/how-do-i-get-errors-in-from-a-perl-script-running-fcgi-pm-to-appear-in-the-apach
 $SIG{__DIE__} = $SIG{__WARN__} = sub {
-	if(open(my $fout, '>>', File::Spec->catfile($tmpdir, "$script_name.stderr"))) {
-		print $fout $info->domain_name(), ": @_";
-	# } else {
-		# print $stderr @_;
-	}
+	my $msg = join '', @_;
 	Log::WarnDie->dispatcher(undef);
-	CORE::die @_
+	if(open(my $fout, '>>', File::Spec->catfile($tmpdir, "$script_name.stderr"))) {
+		print $fout $info->domain_name(), ": $msg";
+		close $fout;
+	# } else {
+		# print $stderr $msg;
+	}
+	$logger->fatal($msg) if($logger);
+	CORE::die $msg;
 };
 
 # my $request = FCGI::Request($stdin, $stdout, $stderr);
@@ -447,7 +450,7 @@ sub doit
 
 			# TODO: consider creating a whitelist of valid modules
 			$logger->debug("doit(): Loading module $display_module from @INC");
-			eval "require $display_module";
+			eval "require $display_module; 1" && $display_module->import() unless $display_module->can('new');
 			if($@) {
 				$logger->debug("Failed to load module $display_module: $@");
 				$logger->info("Unknown page $page");
@@ -456,7 +459,6 @@ sub doit
 					$info->status(404);
 				}
 			} else {
-				$display_module->import();
 				# use Class::Inspector;
 				# my $methods = Class::Inspector->methods($display_module);
 				# print "$display_module exports ", join(', ', @{$methods}), "\n";
