@@ -1242,8 +1242,8 @@ if($ENV{'REDIS_SERVER'}) {
 	# FIXME: ask for user name and password
 	my ($user, $password) = split(/:/, $ENV{'MARIADB_USER'});
 	$dbh = DBI->connect("dbi:MariaDB:host=$e;database=geo_coder_free",
-		$user,
-		$password,
+			$user,
+			$password,
 		{ RaiseError => 1, AutoCommit => 0 }
 	);
 	$| = 1;
@@ -1439,7 +1439,7 @@ if(($force_flag || ((!(DEBUG&DEBUG_KNOWN_PLACES)) && (-r $filename))) &&
    # open(my $fin1, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db') &&
    # open(my $fin2, '<', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
    (my $all_countries = File::Open::NoCache::ReadOnly->new($filename)) &&
-   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF|DEBUG_DR5HN))) &&
+   (!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF|DEBUG_DR5HN|DEBUG_KNOWN_PLACES))) &&
    (my $admin1 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin1.db')) &&
    (my $admin2 = File::Open::NoCache::ReadOnly->new('lib/Geo/Coder/Free/MaxMind/databases/admin2.db'))) {
 	my $fin = $all_countries->fd();
@@ -1704,12 +1704,15 @@ foreach my $csv_file (create_tree($oa, 1)) {
 }
 
 # Import the hand curated data
-foreach my $file(keys %known_places) {
+# 404BRINDLEYPLACESWLEESBURGLOUDOUNVAUS => I2I4//UDI4r48iNI
+# 404BRINDLEYPLACESWLEESBURGVAUS => nyi+l225MKEpfFi4
+foreach my $file(sort keys %known_places) {
+	print __LINE__, ": known place dealing with $file:\n\t" if(DEBUG&DEBUG_KNOWN_PLACES);
 	my @components = split(/\//, $file);
-	my $country = $components[0];
-	my $state = $components[1];
+	my $country = uc($components[0]);
+	my $state = uc($components[1]) if($components[1]);
 	foreach my $row(@{$known_places{$file}}) {
-		print __LINE__, ": known place:\n\t", Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_KNOWN_PLACES);
+		print "\t", __LINE__, ": known place:\n\t\t", Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_KNOWN_PLACES);
 		# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
 		$row->{'COUNTRY'} ||= $country;
 		$row->{'STATE'} ||= $state;
@@ -1730,6 +1733,10 @@ foreach my $file(keys %known_places) {
 			# global NCBIBETHESDAMDUS => aQ1pIla9rwruGeg0
 			print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
 		}
+		if($row->{'COUNTRY'} eq 'US') {
+			delete local $row->{'COUNTY'};
+			$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, 1, %{$row});
+		}
 	}
 	if($inserts >= MAX_INSERT_COUNT) {
 		flush_queue($dbh, $redis, $mongodb, $berkeley_db);
@@ -1744,16 +1751,13 @@ if(BUILDMODE eq 'ONE') {
 	undef $oa;
 }
 
-if($dbh) {
-	$dbh->commit();
-}
+flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
 
 # print "Debug exit\n" if(DEBUG&DEBUG_ALL);
 # $dbh->disconnect();
 # $wof_global_dbh->disconnect();
 # exit(0);
 
-flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in last state
 # undef %digests_added;
 undef %state_md5s;
 undef %state_parent_md5s;
@@ -2712,6 +2716,7 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 	}
 }
 
+flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 
 # undef %digests_added;
 # $| = 1;
@@ -3485,6 +3490,7 @@ sub flush_queue
 		if($berkeley_db) {
 			# $berkeley_db->put($md5, $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10));
 			$db_tie{$md5} = $geo_hash->encode($row->{'LAT'}, $row->{'LON'}, 10);
+			# print "stash $md5 in berkeley DB\n";
 		}
 		if($dbh) {
 			if(!defined($query)) {
@@ -3700,9 +3706,12 @@ sub create_md5
 	# $digests_added{$digest} = 1;
 
 	my $rc;
+	$digest =~ s/^\s+//;
+	$digest =~ s/,\s*//g;
 	$digest =~ tr/ž/z/;	# Remove wide characters
 	$digest =~ s/\N{U+017E}/z/g;
 	$digest =~ s/\xc5\xbe/z/g;
+	$digest =~ s/\s+//g;
 	if(length($digest) <= 16) {
 		$rc = $digest;
 	} else {

@@ -241,7 +241,7 @@ sub geocode {
 	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', $location);
 
 	my $ap;
-	if(($location =~ /USA$/) || ($location =~ /United States$/)) {
+	if(($location =~ /USA?$/) || ($location =~ /United States$/)) {
 		$ap = $self->{'ap'}->{'us'} // Lingua::EN::AddressParse->new(country => 'US', auto_clean => 1, force_case => 1, force_post_code => 0);
 		$self->{'ap'}->{'us'} = $ap;
 	} elsif($location =~ /(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) {
@@ -350,7 +350,7 @@ sub geocode {
 		}
 	}
 
-	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+	if($location =~ /^(.+?)[,\s]+(United States|USA|USA?)$/i) {
 		# Try Geo::StreetAddress::US, which is rather buggy
 
 		my $l = $1;
@@ -700,12 +700,12 @@ sub _search
 
 		foreach my $column(@columns) {
 			if(defined($data->{$column})) {
-				# ::diag("$column: ", $row->{$column}, '/', $data->{$column});
-				# print "$column: ", $row->{$column}, '/', $data->{$column}, "\n";
 				if(!defined($row->{$column})) {
 					$match = 0;
 					last;
 				}
+				# ::diag("$column: ", $row->{$column}, '/', $data->{$column});
+				# print "$column: ", $row->{$column}, '/', $data->{$column}, "\n";
 				if(uc($row->{$column}) ne uc($data->{$column})) {
 					$match = 0;
 					last;
@@ -1034,7 +1034,7 @@ __DATA__
 "TOBY CARVERY",,"NEW HAINE RD","RAMSGATE",,"KENT","GB",51.357510,1.388894
 "",,"WESTCLIFF PROMENADE","RAMSGATE",,"KENT","GB",51.32711,1.406806
 "TOWER OF LONDON",35,"TOWER HILL","LONDON",,"LONDON","GB",51.5082675,-0.0754225
-"",5350,"CHILLUM PLACE NE","WASHINGTON",,"DC","US",38.955403,-76.996241
+"",5350,"CHILLUM PL NE","WASHINGTON",,"DC","US",38.955403,-76.996241
 "WALTER E. WASHINGTON CONVENTION CENTER",801,"MT VERNON PL NW","WASHINGTON","","DC","US",38.904022,-77.023113
 "",7,"JORDAN MILL COURT","WHITE HALL","BALTIMORE","MD","US",39.6852333333333,-76.6071166666667
 "ALL SAINTS EPISCOPAL CHURCH",203,"E CHATSWORTH RD","REISTERSTOWN","BALTIMORE","MD","US",39.467270,-76.823947
@@ -1076,7 +1076,7 @@ __DATA__
 "",9411,"WARREN ST","SILVER SPRING","MONTGOMERY","MD","US",39.010447,-77.048548
 "SILVER DINER",12276,"ROCKVILLE PK","ROCKVILLE","MONTGOMERY","MD","US",39.05798753,-77.12165374
 "",1605,"VIERS MILL RD","ROCKVILLE","MONTGOMERY","MD","US",39.07669788,-77.12306436
-"",1406,"LANGBROOK PLACE","ROCKVILLE","MONTGOMERY","MD","US",39.075583,-77.123833
+"",1406,"LANGBROOK PL","ROCKVILLE","MONTGOMERY","MD","US",39.075583,-77.123833
 "",2225,"FOREST GLEN RD","SILVER SPRING","MONTGOMERY","MD","US",39.015394,-77.048357
 "BP",2601,"FOREST GLEN RD","SILVER SPRING","MONTGOMERY","MD","US",39.0147541,-77.05466857
 "OMEGA STUDIOS",12412,,"ROCKVILLE","MONTGOMERY","MD","US",39.06412645,-77.11252263
@@ -1102,7 +1102,7 @@ __DATA__
 "",14900,"CONFERENCE CENTER DR","CHANTILLY","FAIRFAX","VA","US",38.873934,-77.461939
 "THE PURE PASTY COMPANY",128C,"MAPLE AVE W","VIENNA","FAIRFAX","VA","US",44.40662476,-68.59610059
 "DIRT FARM BREWERY",18701,"FOGGY BOTTOM RD","BLUEMONT","LOUDON","VA","US",39.099655,-77.836975
-"",404,"BRINDLEY PLACE SW","LEESBURG","LOUDOUN","VA","US",39.092207,-77.591987
+"",404,"BRINDLEY PL SW","LEESBURG","LOUDOUN","VA","US",39.092207,-77.591987
 "",818,"FERNDALE TERRACE NE","LEESBURG","LOUDOUN","VA","US",39.124843,-77.535445
 "",,"OATLANDS PLANTATION LN","OATLANDS","LOUDOUN","VA","US",39.04071,-77.61682
 "",,"PURCELLVILLE GATEWAY DR","PURCELLVILLE","LOUDOUN","VA","US",39.136193,-77.693198

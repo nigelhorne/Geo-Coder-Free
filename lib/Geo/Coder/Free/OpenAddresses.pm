@@ -312,6 +312,10 @@ sub geocode
 	if($location !~ /,/) {
 		if($location =~ /^(.+?)\s+(United States|USA|US)$/i) {
 			my $l = $1;
+			if(my $rc = $self->_get($l, 'US')) {
+				$rc->{'country'} = 'US';
+				return $rc;
+			}
 			$l =~ s/\s+//g;
 			if(my $rc = $self->_get($l, 'US')) {
 				$rc->{'country'} = 'US';
@@ -961,6 +965,7 @@ sub _get {
 	$location =~ tr/ž/z/;	# Remove wide characters
 	$location =~ s/\xc5\xbe/z/g;
 	$location =~ s/\N{U+017E}/z/g;
+	$location =~ s/\s+//g;
 
 	# ::diag(__PACKAGE__, ': ', __LINE__, ": _get: $location");
 	my $digest;
@@ -969,7 +974,12 @@ sub _get {
 	} else {
 		$digest = substr Digest::MD5::md5_base64(uc($location)), 0, 16;
 	}
+
 	# print __PACKAGE__, ': ', __LINE__, ': ', uc($location), " = $digest\n";
+	# my @call_details = caller(0);
+	# print "\t", ' called from line ', $call_details[2], "\n";
+	# @call_details = caller(1);
+	# print "\t", ' called from line ', $call_details[2], "\n";
 
 	if(defined($unknown_locations{$digest})) {
 		return;
