@@ -1610,7 +1610,9 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		my $state;
 		my $file;
 
-		next unless($openaddresses_countries{lc($country)});
+		unless(DEBUG&DEBUG_KNOWN_PLACES) {
+			next unless($openaddresses_countries{lc($country)});
+		}
 
 		if($components[1] =~ /\.csv$/) {
 			$file = $components[1];
@@ -1649,36 +1651,6 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		my $fin = $fh->fd();
 
 		aio_readahead($fin, 0, AIO_READAHEAD_SIZE) if($^O ne 'solaris');
-
-		# Import this state's hand curated data
-		if(my $k = $known_places{$f}) {
-			print __LINE__, ": known place ($f):\n\t", Data::Dumper->new([$k])->Dump() if(DEBUG&DEBUG_KNOWN_PLACES);
-			foreach my $row(@{$k}) {
-				$inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
-				if(defined($row->{'STREET'}) && ($row->{'STREET'} =~ /MEDLARS DR/i) && (DEBUG&DEBUG_KNOWN_PLACES)) {
-					# 'CITY' => 'BETHESDA',
-					# 'COUNTRY' => 'US',
-					# 'COUNTY' => 'MONTGOMERY',
-					# 'LAT' => '38.99516556',
-					# 'LON' => '-77.09943963',
-					# 'NAME' => 'NCBI',
-					# 'POSTCODE' => 20894,
-					# 'STATE' => 'MD',
-					# 'STREET' => 'MEDLARS DR'
-					# global NCBIMEDLARS DRBETHESDAMONTGOMERYMDUS => RFa5+GhoBmCb91M8
-					# global NCBIMEDLARS DRBETHESDAMDUS => tMt972yoDCKkdE5u
-					# global MEDLARS DRBETHESDAMDUS => KZCIB0nblX/Etlnx
-					# global NCBIBETHESDAMDUS => aQ1pIla9rwruGeg0
-					print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
-				}
-			}
-			if($inserts >= MAX_INSERT_COUNT) {
-				flush_queue($dbh, $redis, $mongodb, $berkeley_db);
-				$inserts = 0;
-			}
-		}
-
-		next if(DEBUG&DEBUG_KNOWN_PLACES);
 
 		my $offset = AIO_READAHEAD_SIZE;
 
@@ -1727,6 +1699,40 @@ foreach my $csv_file (create_tree($oa, 1)) {
 		$fh->close();
 
 		flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in current state
+		$inserts = 0;
+	}
+}
+
+# Import the hand curated data
+foreach my $file(keys %known_places) {
+	my @components = split(/\//, $file);
+	my $country = $components[0];
+	my $state = $components[1];
+	foreach my $row(@{$known_places{$file}}) {
+		print __LINE__, ": known place:\n\t", Data::Dumper->new([$row])->Dump() if(DEBUG&DEBUG_KNOWN_PLACES);
+		# $inserts += import(row => $row, file => $file, ua => $ua, dbh => $dbh, berkeley_db => $berkeley_db, redis => $redis, mongodb => $mongodb, global => 1);
+		$row->{'COUNTRY'} ||= $country;
+		$row->{'STATE'} ||= $state;
+		$inserts += insert($dbh, $redis, $mongodb, $berkeley_db, 1, %{$row});
+		if(defined($row->{'STREET'}) && ($row->{'STREET'} =~ /MEDLARS DR/i) && (DEBUG&DEBUG_KNOWN_PLACES)) {
+			# 'CITY' => 'BETHESDA',
+			# 'COUNTRY' => 'US',
+			# 'COUNTY' => 'MONTGOMERY',
+			# 'LAT' => '38.99516556',
+			# 'LON' => '-77.09943963',
+			# 'NAME' => 'NCBI',
+			# 'POSTCODE' => 20894,
+			# 'STATE' => 'MD',
+			# 'STREET' => 'MEDLARS DR'
+			# global NCBIMEDLARS DRBETHESDAMONTGOMERYMDUS => RFa5+GhoBmCb91M8
+			# global NCBIMEDLARS DRBETHESDAMDUS => tMt972yoDCKkdE5u
+			# global MEDLARS DRBETHESDAMDUS => KZCIB0nblX/Etlnx
+			# global NCBIBETHESDAMDUS => aQ1pIla9rwruGeg0
+			print __LINE__, ': ', Data::Dumper->new([$row])->Dump();
+		}
+	}
+	if($inserts >= MAX_INSERT_COUNT) {
+		flush_queue($dbh, $redis, $mongodb, $berkeley_db);
 		$inserts = 0;
 	}
 }
@@ -2076,12 +2082,14 @@ if($dbh) {
 	$dbh->commit();
 }
 
-if(!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF))) {
+# if(!(DEBUG&(DEBUG_OSM|DEBUG_WOF|DEBUG_GET_WOF))) {
+# TODO: Already done above, so check if this is now needed
+if(0) {
 	foreach my $country(@whosonfirst_only_countries) {
 		# Import this country's hand curated data
 
 		$| = 1;
-		printf "%-70s\r", "Known place $country";
+		printf "%-70s\r", "WOF: Known place $country";
 		print "\n" if(DEBUG);
 		$| = 0;
 

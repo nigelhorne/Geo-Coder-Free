@@ -58,5 +58,5 @@ sub mock_template {
 {
 	no warnings 'redefine';
 	*Geo::Coder::Free::Display::html = \&mock_template;
+	like($display->as_string({}), qr/Test Page/, 'HTML generation overriding html()');
 }
-like($display->as_string({}), qr/Test Page/, 'HTML generation overriding html()');
