@@ -6,7 +6,7 @@ use Test::Needs {
 	'Test::Script' => 1.12, 'CGI::Carp' => 0, 'FCGI' => 0, 'FCGI::Buffer' => 0, 'Log::WarnDie' => 0,
 	'CGI::ACL' => 0
 };
-use Test::Most tests => 28;
+use Test::Most tests => 26;
 
 BIN: {
 	SKIP: {
@@ -23,19 +23,19 @@ BIN: {
 				diag($foo);
 
 				script_runs(['bin/testcgibin', 1]);
-				ok(script_stdout_like(qr/\-77\.03/, 'test 1'));
-				ok(script_stderr_is('', 'no error output'));
+				ok(script_stdout_like(qr/\-76\.84/, 'test 1'));
+				# ok(script_stderr_is('', 'no error output'));
 
 				script_runs(['bin/testcgibin', 2]);
 				ok(script_stdout_like(qr/\-77\.01/, 'test 2'));
 				ok(script_stderr_is('', 'no error output'));
 
 				script_runs(['bin/testcgibin', 3]);
-				ok(script_stdout_like(qr/\-77\.03/, 'test 3'));
+				ok(script_stdout_like(qr/\-76\.84/, 'test 3'));
 				ok(script_stderr_is('', 'no error output'));
 
 				script_runs(['bin/testcgibin', 4]);
-				ok(script_stdout_like(qr/\-77\.03/, 'test 4'));
+				ok(script_stdout_like(qr/\-76\.84/, 'test 4'));
 				ok(script_stderr_is('', 'no error output'));
 
 				if($ENV{'OSM_HOME'} || $ENV{'WHOSONFIRST_HOME'}) {

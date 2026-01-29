@@ -130,43 +130,48 @@ sub new
 			}
 		}
 
-		# Connection throttling system
-		require Data::Throttler;
+		if($ENV{'REMOTE_ADDR'}) {
+			# Connection throttling system
+			require Data::Throttler;
 
-		my $db_file = $config->{'throttle'}->{'file'} // File::Spec->catdir($info->tmpdir(), 'throttle');
-		eval {	# Handle YAML Errors
-			my %options = (
-				max_items => $config->{'throttle'}->{'max_items'} // 30,	# Allow 30 requests
-				interval => $config->{'throttle'}->{'interval'} // 90,	# Per 90 second window
-				backend => 'YAML',
-				backend_options => {
-					db_file => $db_file
-				}
-			);
-
-			if(my $throttler = Data::Throttler->new(%options)) {
-				# Block if over the limit
-				if(!$throttler->try_push(key => $ENV{'REMOTE_ADDR'})) {
-					$info->status(429);	# Too many requests
-					sleep(1);	# Slow down attackers
-					if($params->{'logger'}) {
-						$params->{'logger'}->warn("$ENV{REMOTE_ADDR} connexion throttled");
+			my $db_file = $config->{'throttle'}->{'file'} // File::Spec->catdir($info->tmpdir(), 'throttle');
+			eval {	# Handle YAML Errors
+				my %options = (
+					max_items => $config->{'throttle'}->{'max_items'} // 30,	# Allow 30 requests
+					interval => $config->{'throttle'}->{'interval'} // 90,	# Per 90 second window
+					backend => 'YAML',
+					backend_options => {
+						db_file => $db_file
 					}
-					return;
-				}
-			}
-		};
-		if($@) {
-			if($params->{'logger'}) {
-				$params->{'logger'}->warn("Removing unparsable YAML file $db_file");
-			}
-			unlink($db_file);
-		}
+				);
 
-		# Country based blocking
-		if(my $lingua = $params->{lingua}) {
-			if($blacklist{uc($lingua->country())}) {
-				die "$ENV{REMOTE_ADDR} is from a blacklisted country ", $lingua->country();
+				if(my $throttler = Data::Throttler->new(%options)) {
+					# Block if over the limit
+					if(!$throttler->try_push(key => $ENV{'REMOTE_ADDR'})) {
+						$info->status(429);	# Too many requests
+						sleep(1);	# Slow down attackers
+						if($params->{'logger'}) {
+							$params->{'logger'}->info("$ENV{REMOTE_ADDR} connexion throttled");
+						}
+						return;
+					}
+				}
+			};
+			if($@) {
+				if($params->{'logger'}) {
+					$params->{'logger'}->notice("Removing unparsable YAML file $db_file: $@");
+				}
+				unlink($db_file);
+			}
+
+			# Country based blocking
+			if(my $lingua = $params->{lingua}) {
+				if($blacklist{uc($lingua->country())}) {
+					if($params->{'logger'}) {
+						$params->{'logger'}->warn("$ENV{REMOTE_ADDR} is from a blacklisted country " . $lingua->country());
+					}
+					die "$ENV{REMOTE_ADDR} is from a blacklisted country ", $lingua->country();
+				}
 			}
 		}
 	}
