@@ -45,7 +45,7 @@ jobs:
           cpanm -iqn File::pfopen CGI::Info Geo::Location::Point Module::Info
           cpanm -iqn Test::DescribeMe Data::Validate::URI Log::Any::Adapter::Log4perl
           cpanm -iqn Text::xSV::Slurp Test::Carp Digest::CRC Test::Needs Array::Iterator
-          cpanm -iqn Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
+          cpanm -iqn Template::Filters Template::Plugin::EnvHash HTML::SocialMedia Template::Plugin::JSON
           cpanm -iqfn CGI::IDS
           cpanm -iqn --installdeps .
         env:

@@ -52,7 +52,7 @@ BIN: {
 				}
 			} else {
 				diag('Author tests not required for installation');
-				skip('Author tests not required for installation', 26);
+				skip('Author tests not required for installation', 24);
 			}
 		}
 	}
