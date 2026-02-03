@@ -48,9 +48,10 @@ jobs:
       # Install module dependencies (from cpanfile or manually)
       - name: Install dependencies
         run: |
-          cpanm --notest --verbose --installdeps .
+          cpanm --notest --installdeps .
           cpanm -iqn Test::Most Devel::Cover Devel::Cover::Report::Html POSIX File::Glob File::Slurp File::stat Readonly
           cpanm -iqn IPC::System::Simple WWW::RT::CPAN
+          cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
         timeout-minutes: 10
 
       # Optional: run Perl::Critic static checks
