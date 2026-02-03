@@ -264,6 +264,7 @@ if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 # For bin/create_sqlite
 my $build_requires = {
 	'App::csv2sqlite' => 0,
+	'DB_File' => 0,
 	'CHI' => 0,
 	'CHI::Driver::RawMemory' => 0,
 	'Cwd' => 0,

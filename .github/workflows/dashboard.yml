@@ -39,10 +39,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -y upgrade
+          sudo apt install libdb-dev build-essential
         if: runner.os == 'Linux'
 
       - name: Upgrade Toolchain
-        run: cpanm ExtUtils::MakeMaker Module::Build
+        run: cpanm -iqn ExtUtils::MakeMaker Module::Build
 
       # Install module dependencies (from cpanfile or manually)
       - name: Install dependencies
