@@ -46,7 +46,7 @@ jobs:
         run: |
           cpanm --notest --installdeps .
           cpanm -iqn ExtUtils::MakeMaker Test::Most Devel::Cover Devel::Cover::Report::Html POSIX File::Glob File::Slurp File::stat Readonly
-          cpanm -iqn IPC::System::Simple WWW::RT::CPAN;
+          cpanm -iqn IPC::System::Simple WWW::RT::CPAN
 
       # Optional: run Perl::Critic static checks
       # - name: Run Perl::Critic
@@ -58,6 +58,7 @@ jobs:
         env:
           AUTOMATED_TESTING: 1
           NO_NETWORK_TESTING: 1
+          NONINTERACTIVE_TESTING: 1
         run: |
           prove -l -b -v t
 
