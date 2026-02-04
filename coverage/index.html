@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>Geo::Coder::Free Coverage Report</title>
+	<style>
+		body { font-family: sans-serif; }
+		table { border-collapse: collapse; width: 100%; }
+		th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+		th { background-color: #f2f2f2; }
+		.low { background-color: #fdd; }
+		.med { background-color: #ffd; }
+		.high { background-color: #dfd; }
+		.badges img { margin-right: 10px; }
+		.disabled-icon {
+			opacity: 0.4;
+			cursor: default;
+		}
+		.icon-link {
+			text-decoration: none;
+		}
+		.icon-link:hover {
+			opacity: 0.7;
+			cursor: pointer;
+		}
+		.coverage-badge {
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-weight: bold;
+			color: white;
+			font-size: 0.9em;
+		}
+		.badge-good { background-color: #4CAF50; }
+		.badge-warn { background-color: #FFC107; }
+		.badge-bad { background-color: #F44336; }
+		.summary-row {
+			font-weight: bold;
+			background-color: #f0f0f0;
+		}
+		td.positive { color: green; font-weight: bold; }
+		td.negative { color: red; font-weight: bold; }
+		td.neutral { color: gray; }
+		/* Show cursor points on the headers to show that they are clickable */
+		th { background-color: #f2f2f2; cursor: pointer; }
+		th.sortable {
+			cursor: pointer;
+			user-select: none;
+			white-space: nowrap;
+		}
+		th .arrow {
+			color: #aaa;	/* dimmed for inactive */
+			font-weight: normal;
+		}
+		th .arrow.active {
+			color: #000;	/* dark for active */
+			font-weight: bold;
+		}
+		.sparkline {
+			display: inline-block;
+			vertical-align: middle;
+		}
+		tr.cpan-fail td {
+			background-color: #fdd;
+		}
+		tr.cpan-unknown td {
+			background-color: #eee;
+			color: #666;
+		}
+		tr.cpan-na td {
+			background-color: #f77f50;
+			color: #666;
+		}
+		.new-failure {
+			background: #c00;
+			color: #fff;
+			font-weight: bold;
+			padding: 2px 6px;
+			border-radius: 4px;
+			font-size: 0.85em;
+		}
+		.notice {
+			padding: 8px 12px;
+			margin: 10px 0;
+			border-radius: 4px;
+			font-size: 0.95em;
+		}
+		.notice strong {
+			font-weight: bold;
+		}
+		.notice.perl-version-cliff {
+			background-color: #fff3cd; /* soft amber */
+			border: 1px solid #ffeeba;
+			color: #856404;
+		}
+		.notice.perl-version-cliff a {
+			color: #533f03;
+			text-decoration: underline;
+		}
+		.notice.perl-version-cliff a:hover {
+			text-decoration: none;
+		}
+		.notice.locale-cliff {
+			border-left: 4px solid #d97706;
+			background: #fffbeb;
+			padding: 0.5em 1em;
+		}
+		.notice.rt-issues {
+			background: #fff6e5;
+			border-left: 4px solid #d9822b;
+		}
+		table.root-causes {
+			border-collapse: collapse;
+			width: 100%;
+			margin-bottom: 1.5em;
+		}
+		table.root-causes th,
+		table.root-causes td {
+			border: 1px solid #ccc;
+			padding: 8px;
+			vertical-align: top;
+		}
+		table.root-causes tr.high {
+			background-color: #dfd;
+		}
+		table.root-causes tr.med {
+			background-color: #ffd;
+		}
+		table.root-causes tr.low {
+			background-color: #fdd;
+		}
+	</style>
+</head>
+<body>
+<div class="badges">
+	<a href="https://github.com/nigelhorne/Geo-Coder-Free">
+		<img src="https://img.shields.io/github/stars/nigelhorne/Geo-Coder-Free?style=social" alt="GitHub stars">
+	</a>
+	<img src="https://img.shields.io/badge/coverage-21%25-red" alt="Coverage badge">
+</div>
+<h1>Geo::Coder::Free</h1><h2>Coverage Report</h2>
+<table data-sort-col="0" data-sort-order="asc">
+<!-- Make the column headers clickable -->
+<thead>
+<tr>
+	<th class="sortable" onclick="sortTable(this, 0)"><span class="label">File</span> <span class="arrow active">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 1)"><span class="label">Stmt</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 2)"><span class="label">Branch</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 3)"><span class="label">Cond</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 4)"><span class="label">Sub</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 5)"><span class="label">Total</span> <span class="arrow">&#x25B2;</span></th>
+	<th class="sortable" onclick="sortTable(this, 6)"><span class="label">&Delta;</span> <span class="arrow">&#x25B2;</span></th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>33.9</td><td>23.6</td><td>27.4</td><td>72.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">32.2%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-Config-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/Config.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/Config.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>78.0</td><td>45.3</td><td>29.6</td><td>100.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">62.6%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/DB/MaxMind/admin.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/DB/MaxMind/admin.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>81.8</td><td>0.0</td><td>0.0</td><td>75.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">80.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin1-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/DB/MaxMind/admin1.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/DB/MaxMind/admin1.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/DB/MaxMind/admin2.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/DB/MaxMind/admin2.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-cities-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/DB/MaxMind/cities.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/DB/MaxMind/cities.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>81.8</td><td>0.0</td><td>0.0</td><td>75.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">80.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-OpenAddr-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/DB/OpenAddr.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/DB/OpenAddr.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>81.8</td><td>0.0</td><td>0.0</td><td>75.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">80.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-openaddresses-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/DB/openaddresses.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/DB/openaddresses.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-Local-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/Local.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/Local.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>76.0</td><td>54.8</td><td>47.6</td><td>91.7</td><td><span class="coverage-badge badge-bad" title="Needs improvement">66.3%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-MaxMind-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/MaxMind.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/MaxMind.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>19.9</td><td>5.7</td><td>4.7</td><td>84.2</td><td><span class="coverage-badge badge-bad" title="Needs improvement">14.8%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-OpenAddresses-pm.html" title="View coverage line by line" target="_blank">blib/lib/Geo/Coder/Free/OpenAddresses.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/blib/lib/Geo/Coder/Free/OpenAddresses.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>13.4</td><td>1.0</td><td>2.8</td><td>83.3</td><td><span class="coverage-badge badge-bad" title="Needs improvement">10.0%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="createdatabase.PL.html" title="View coverage line by line" target="_blank">createdatabase.PL</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/createdatabase.PL" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>9.2</td><td>0.2</td><td>0.1</td><td>75.3</td><td><span class="coverage-badge badge-bad" title="Needs improvement">5.5%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="lib-Geo-Coder-Free-Display-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Display.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/lib/Geo/Coder/Free/Display.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>76.1</td><td>41.5</td><td>38.6</td><td>97.2</td><td><span class="coverage-badge badge-bad" title="Needs improvement">63.7%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="low"><td><a href="lib-Geo-Coder-Free-Utils-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Utils.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/4ddb46c3231b22c9a0d917702c9bce16c352b448/lib/Geo/Coder/Free/Utils.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points=""></canvas></td><td>58.7</td><td>37.1</td><td>10.0</td><td>100.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">51.5%</span></td><td class="neutral" title="No previous data">&#9679;</td></tr>
+<tr class="summary-row nosort"><td colspan="2"><strong>Summary</strong></td><td colspan="2">14 files</td><td colspan="3">Avg: 60%, Low: 8</td></tr>
+<tr class="low nosort"><td><strong>Total</strong></td><td>29.2</td><td>12.7</td><td>6.8</td><td>84.7</td><td colspan="2"><strong>22.0</strong></td></tr>
+</tbody></table>
+<canvas id="coverageTrend" width="600" height="300"></canvas>
+<!-- Zoom controls for the trend chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Add chartjs-plugin-zoom (required for wheel/pinch/drag zoom & pan) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.1.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script>
+function linearRegression(data) {
+	const xs = data.map(p => new Date(p.x).getTime());
+	const ys = data.map(p => p.y);
+	const n = xs.length;
+
+	const sumX = xs.reduce((a, b) => a + b, 0);
+	const sumY = ys.reduce((a, b) => a + b, 0);
+	const sumXY = xs.reduce((acc, val, i) => acc + val * ys[i], 0);
+	const sumX2 = xs.reduce((acc, val) => acc + val * val, 0);
+
+	if (n < 2 || (n * sumX2 - sumX * sumX) === 0) {
+		return [];
+	}
+	const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+	const intercept = (sumY - slope * sumX) / n;
+
+	return xs.map(x => ({
+		x: new Date(x).toISOString(),
+		y: slope * x + intercept
+	}));
+}
+
+const dataPoints = [  ];
+
+const regressionPoints = linearRegression(dataPoints);
+// Try to register the zoom plugin (handles different UMD builds)
+(function registerZoomPlugin(){
+	try {
+		const candidates = ['chartjsPluginZoom','ChartZoom','zoomPlugin','chartjs_plugin_zoom','ChartjsPluginZoom','chartjsPluginZoom'];
+		for (const name of candidates) {
+			if (window[name]) {
+				try { Chart.register(window[name]); console.log('Registered zoom plugin:', name); return; } catch(e) { console.warn('zoom register failed for', name, e); }
+			}
+		}
+		// Some CDN builds auto-register the plugin; if nothing found that's OK (feature disabled).
+	} catch(e) {
+		console.warn('registerZoomPlugin error', e);
+	}
+})();
+const ctx = document.getElementById('coverageTrend').getContext('2d');
+const chart = new Chart(ctx, {
+	type: 'line',
+	data: {
+		datasets: [{
+			label: 'Total Coverage (%)',
+			data: dataPoints,
+			borderColor: 'green',
+			backgroundColor: 'rgba(0,128,0,0.1)',
+			pointRadius: 5,
+			pointHoverRadius: 7,
+			pointStyle: 'circle',
+			fill: false,
+			tension: 0.3,
+			pointBackgroundColor: function(context) {
+				return context.raw.pointBackgroundColor || 'gray';
+			}
+		}, {
+			label: 'Regression Line',
+			data: regressionPoints,
+			borderColor: 'blue',
+			borderDash: [5, 5],
+			pointRadius: 0,
+			fill: false,
+			tension: 0.0
+		}]
+	}, options: {
+		scales: {
+			x: {
+				type: 'time',
+				time: {
+					tooltipFormat: 'MMM d, yyyy HH:mm:ss',
+					unit: 'day'
+				},
+				title: { display: true, text: 'Commit Date' }
+			},
+			y: { beginAtZero: true, max: 100, title: { display: true, text: 'Coverage (%)' } }
+		}, plugins: {
+			legend: {
+				display: true,
+				position: 'top', // You can also use 'bottom', 'left', or 'right'
+				labels: {
+					boxWidth: 12,
+					padding: 10,
+					font: {
+						size: 12,
+						weight: 'bold'
+					}
+				}
+			}, tooltip: {
+				callbacks: {
+					label: function(context) {
+						const raw = context.raw;
+						const coverage = raw.y.toFixed(1);
+						const delta = raw.delta?.toFixed(1) ?? '0.0';
+						const sign = delta > 0 ? '+' : delta < 0 ? '-' : '±';
+						// const baseLine = `${raw.label}: ${coverage}% (${sign}${Math.abs(delta)}%)`;
+						const baseLine = `${coverage}% (${sign}${Math.abs(delta)}%)`;
+						const commentLine = raw.comment ? raw.comment : null;
+						return commentLine ? [baseLine, commentLine] : [baseLine];
+					}
+				}
+			} , zoom: {	// Enable zoom & pan on the x-axis for the trend chart
+				pan: {
+					enabled: true,
+					mode: 'x'
+				}, zoom: {
+					wheel: {
+						enabled: true
+					}, pinch: {
+						enabled: true
+					}, mode: 'x'
+				}
+			}
+		}, onClick: (e) => {
+			const points = chart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+			if (points.length) {
+				const url = chart.data.datasets[0].data[points[0].index].url;
+				window.open(url, '_blank');
+			}
+		}
+	}
+});
+
+document.getElementById('toggleTrend').addEventListener('change', function(e) {
+	const show = e.target.checked;
+	const trendDataset = chart.data.datasets.find(ds => ds.label === 'Regression Line');
+	trendDataset.hidden = !show;
+	chart.update();
+});
+
+// Reset Zoom button handler (calls plugin API if available)
+const resetBtn = document.getElementById('resetZoomBtn');
+if (resetBtn) {
+	resetBtn.addEventListener('click', function() {
+		try {
+			if (chart && typeof chart.resetZoom === 'function') {
+				chart.resetZoom();
+			} else {
+				console.warn('resetZoom not available; zoom plugin may not be registered.');
+			}
+		} catch (e) {
+			console.warn('resetZoom call failed', e);
+		}
+	});
+}
+
+function sortTable(th, colIndex) {
+	const table = th.closest("table");
+	if (!table || !table.tBodies.length) return;
+
+	const tbody = table.tBodies[0];
+	const rows = Array.from(tbody.rows);
+
+	const prevCol = table.getAttribute("data-sort-col");
+	const prevOrder = table.getAttribute("data-sort-order") || "desc";
+	const asc = (prevCol != colIndex) ? true : (prevOrder === "desc");
+
+	const isNumeric = colIndex === 0; // Date column
+
+	const normalRows = rows.filter(r => !r.classList.contains("nosort"));
+	const fixedRows = rows.filter(r => r.classList.contains("nosort"));
+
+	normalRows.sort((a, b) => {
+		let x = a.cells[colIndex]?.innerText.trim() || "";
+		let y = b.cells[colIndex]?.innerText.trim() || "";
+
+		if (isNumeric) {
+			x = Date.parse(x) || 0;
+			y = Date.parse(y) || 0;
+		} else {
+			x = x.toLowerCase();
+			y = y.toLowerCase();
+		}
+
+		if (x < y) return asc ? -1 : 1;
+		if (x > y) return asc ? 1 : -1;
+		return 0;
+	});
+
+	normalRows.forEach(r => tbody.appendChild(r));
+	fixedRows.forEach(r => tbody.appendChild(r));
+
+	// Update arrows
+	const headers = table.tHead.rows[0].cells;
+	for (let i = 0; i < headers.length; i++) {
+		const arrow = headers[i].querySelector(".arrow");
+		if (!arrow) continue;
+
+		if (i === colIndex) {
+			arrow.textContent = asc ? "▲" : "▼";
+			arrow.classList.add("active");
+		} else {
+			arrow.textContent = "▲";
+			arrow.classList.remove("active");
+		}
+	}
+
+	table.setAttribute("data-sort-col", colIndex);
+	table.setAttribute("data-sort-order", asc ? "asc" : "desc");
+}
+
+
+// Initial display.
+// The table has been set up sorted in ascending order on the filename; reflect that in the GUI
+document.addEventListener("DOMContentLoaded", () => {
+	const table = document.querySelector("table");
+	if (!table) return;
+
+	const headers = table.tHead.rows[0].cells;
+	for (let i = 0; i < headers.length; i++) {
+		const arrow = headers[i].querySelector(".arrow");
+		if (!arrow) continue;
+
+		if (i === 0) {
+			arrow.textContent = "▲";
+			arrow.classList.add("active");
+		} else {
+			arrow.textContent = "▲";
+			arrow.classList.remove("active");
+		}
+	}
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+	document.querySelectorAll("canvas.sparkline").forEach(canvas => {
+		const raw = canvas.getAttribute("data-points");
+		if (!raw) return;
+		const points = raw.split(",").map(v => parseFloat(v));
+
+		new Chart(canvas.getContext("2d"), {
+			type: 'line',
+			data: {
+				labels: points.map((_, i) => i+1),
+				datasets: [{
+					data: points,
+					borderColor: points.length > 1 && points[points.length-1] >= points[0] ? "green" : "red",
+					borderWidth: 1,
+					fill: false,
+					tension: 0.3,
+					pointRadius: 0
+				}]
+			}, options: {
+				responsive: false,
+				maintainAspectRatio: false,
+				elements: { line: { borderJoinStyle: 'round' } },
+				plugins: {
+					legend: { display: false },
+					tooltip: { enabled: false },
+					zoom: {	// Enable zoom and pan
+						pan: {
+							enabled: true,
+							mode: 'x',
+						}, zoom: {
+							wheel: {
+								enabled: true,
+							},
+							pinch: {
+								enabled: true
+							},
+							mode: 'x',
+						}
+					}
+				}, scales: { x: { display: false }, y: { display: false } }
+			}
+		});
+	});
+});
+
+function refresh(){
+	window.location.reload("Refresh")
+}
+</script>
+
+<p><center>Use mouse wheel or pinch to zoom; drag to pan</center></p>
+<p>No issues active on <a href="https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free">RT</a></p>
+<h2>CPAN Testers Failures for Geo-Coder-Free 0.41</h2>
+<h3>Failure Summary</h3>
+<ul>
+<li><b>Perl 5.42.x</b>: 1 failures</li>
+<li><b>darwin</b>: 1 failures</li>
+<li><b>5.40 / linux</b>: 1 failures</li>
+</ul>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+	const toggleFail = document.getElementById('toggleFail');
+	const toggleUnknown = document.getElementById('toggleUnknown');
+	const toggleNA = document.getElementById('toggleNA');
+	const toggleNew = document.getElementById('toggleNew');
+
+	function update() {
+		document.querySelectorAll('tr').forEach(row => {
+			// Skip header rows
+			if (row.querySelector('th')) return;
+
+			// Determine row status
+			const isFail = row.classList.contains('cpan-fail');
+			const isUnknown = row.classList.contains('cpan-unknown');
+			const isNA = row.classList.contains('cpan-na');
+			const isNew = !!row.querySelector('.new-failure');
+
+			// Decide whether to show the row
+			let show = true;
+
+			if (toggleFail && !toggleFail.checked && isFail) show = false;
+			if (toggleUnknown && !toggleUnknown.checked && isUnknown) show = false;
+			if (toggleNA && !toggleNA.checked && isNA) show = false;
+			if (toggleNew && toggleNew.checked && !isNew) show = false;
+
+			row.style.display = show ? '' : 'none';
+		});
+	}
+
+	[toggleFail, toggleUnknown, toggleNA, toggleNew].forEach(cb => {
+		if (cb) cb.addEventListener('change', update);
+	});
+
+	update();
+});
+document.addEventListener("DOMContentLoaded", () => {
+	const th = document.querySelector("table.sortable-table th");
+	if (th) sortTable(th, 0);
+});
+</script>
+
+<p><em>Showing one failure per OS/Perl combination.</em></p>
+<div style="margin-bottom: 0.5em;">
+	<label>
+		<input type="checkbox" id="toggleFail" checked>
+		FAIL
+	</label>
+	<label style="margin-left: 1em;">
+		<input type="checkbox" id="toggleUnknown">
+		UNKNOWN
+	</label>
+	<label style="margin-left: 1em;">
+		<input type="checkbox" id="toggleNA">
+		NA
+	</label>
+	<label style="margin-left: 1em;">
+	<label style="margin-left: 1em;">
+		<input type="checkbox" id="toggleNew">
+		NEW only
+	</label>
+</div>
+
+<table class="sortable-table" data-sort-col="0" data-sort-order="asc">
+<thead>
+<tr>
+	<th class="sortable" onclick="sortTable(this, 0)">
+		<span class="label">Date</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 1)">
+		<span class="label">OS</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 2)">
+		<span class="label">Perl</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 3)">
+		<span class="label">Reporter</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th class="sortable" onclick="sortTable(this, 4)" title="Marks failures that did not occur in the previous release. The same OS, Perl version, architecture, and platform were passing before.">
+		<span class="label">New</span> <span class="arrow">&#x25B2;</span>
+	</th>
+	<th>Report</th>
+</tr>
+</thead>
+<tbody>
+
+<tr class="cpan-fail"><td>2026-01-25T15:15:00Z</td><td>darwin</td><td>5.42.0</td><td>Nigel Horne</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/ba543394-fa00-11f0-935d-cdcafe25706f" target="_blank">View</a></td></tr>
+<tr class="cpan-unknown"><td>2025-09-03T13:53:00Z</td><td>linux</td><td>5.40.0</td><td>Nigel Horne</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/631104a8-88cd-11f0-9fcf-8ef31b31bb8b" target="_blank">View</a></td></tr>
+<tr class="cpan-unknown"><td>2025-10-05T17:37:00Z</td><td>cygwin</td><td>5.34.3</td><td>Nigel Horne</td><td></td>
+				<td><a href="https://www.cpantesters.org/cpan/report/43d4cd9f-6c1b-1014-88ff-fa55ff2d9732" target="_blank">View</a></td></tr>
+</tbody></table>
+<footer>
+	<p>Project: <a href="https://github.com/nigelhorne/Geo-Coder-Free">Geo-Coder-Free</a></p>
+	<p><em>Last updated: 2026-02-04 16:56:00 - <a href="https://github.com/nigelhorne/Geo-Coder-Free/commit/4ddb46c3231b22c9a0d917702c9bce16c352b448">commit <code>4ddb46c</code></a></em></p>
+</footer>
+
+</body>
+</html>
