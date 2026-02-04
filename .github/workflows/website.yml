@@ -47,7 +47,7 @@ jobs:
           cpanm -ivn CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -ivfn Data::Throttler CGI::ACL B::Lint
           cpanm --skip-satisfied -vn LWP::UserAgent::Cached Data::Serializer
-          cpanm --skip-satisfied -vn warnings::unused HTML::SocialMedia
+          cpanm --skip-satisfied -vn warnings::unused HTML::SocialMedia Carp::Always
           cpanm --skip-satisfied -vn Log::Any::Adapter::Log4perl Database::Abstraction
           cpanm --skip-satisfied -iqn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
