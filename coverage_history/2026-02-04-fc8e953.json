@@ -1,0 +1,1094 @@
+{
+   "runs" : [
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226878.87496,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226878.87464,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226879.05288,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226879.05268,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226879.23235,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226879.23202,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226879.40913,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226879.40882,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226879.58607,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226879.58589,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226879.7643,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226879.76408,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226879.93993,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226879.93975,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226880.11666,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226880.11647,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226880.33672,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226880.30954,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226880.85354,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "createdatabase.PL",
+         "start" : 1770226880.85219,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226881.75928,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226881.75884,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226904.7547,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226881.96887,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226882.129,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "-e",
+         "start" : 1770226882.12892,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226882.75958,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/00-load.t",
+         "start" : 1770226882.38659,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226884.12775,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/10-new.t",
+         "start" : 1770226884.00472,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226885.42243,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/30-basics.t",
+         "start" : 1770226885.34973,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226886.34007,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/admin1.t",
+         "start" : 1770226886.33799,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226886.77765,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/admin2.t",
+         "start" : 1770226886.77595,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226887.03231,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/bin.t",
+         "start" : 1770226887.03228,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226887.40422,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/cities.t",
+         "start" : 1770226887.40203,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226887.70031,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/comment-spelling.t",
+         "start" : 1770226887.70013,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226888.1174,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/config.t",
+         "start" : 1770226888.07138,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226888.43683,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/critic.t",
+         "start" : 1770226888.43663,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226890.15564,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/display.t",
+         "start" : 1770226889.22981,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226891.18825,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/dr5hn.t",
+         "start" : 1770226891.18604,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226891.96246,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/eof.t",
+         "start" : 1770226891.96228,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226892.2127,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/eol.t",
+         "start" : 1770226892.21252,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226892.46265,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/fixme.t",
+         "start" : 1770226892.46247,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226892.71163,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/gv.t",
+         "start" : 1770226892.71143,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226892.96249,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/kwalitee.t",
+         "start" : 1770226892.96231,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226893.2125,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/links.t",
+         "start" : 1770226893.21231,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226895.04899,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/local.t",
+         "start" : 1770226893.86116,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226895.85907,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/manifest.t",
+         "start" : 1770226895.85888,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226896.10141,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/maxmind.t",
+         "start" : 1770226896.10121,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226896.35651,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/modules-used.t",
+         "start" : 1770226896.35631,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226896.61058,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/namespaces.t",
+         "start" : 1770226896.61039,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226896.86107,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/no404s.t",
+         "start" : 1770226896.8609,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226897.10983,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/noopentickets.t",
+         "start" : 1770226897.10965,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226897.36095,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/noplan.t",
+         "start" : 1770226897.36076,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226897.62068,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/openaddr.t",
+         "start" : 1770226897.62049,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226898.27462,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/osm.t",
+         "start" : 1770226898.2728,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226899.05146,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/pod-cm.t",
+         "start" : 1770226899.05126,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226899.30143,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/pod-coverage.t",
+         "start" : 1770226899.30125,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226899.5538,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/pod-snippets.t",
+         "start" : 1770226899.55361,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226899.80461,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/pod-spelling.t",
+         "start" : 1770226899.80441,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226900.05548,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/pod-synopsis.t",
+         "start" : 1770226900.05528,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226900.31109,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/pod.t",
+         "start" : 1770226900.31087,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226900.58805,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/port.t",
+         "start" : 1770226900.58785,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226900.84641,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/prereq.t",
+         "start" : 1770226900.84621,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226901.49595,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/scantext.t",
+         "start" : 1770226901.49465,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226902.2877,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/strict.t",
+         "start" : 1770226902.28752,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226902.53954,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/unused.t",
+         "start" : 1770226902.53936,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226902.95628,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/utils.t",
+         "start" : 1770226902.93236,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226903.27778,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/vars.t",
+         "start" : 1770226903.2776,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226903.52865,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/version.t",
+         "start" : 1770226903.52847,
+         "version" : "0.41"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "Provides a Geo-Coding functionality using free databases",
+         "dir" : "/home/runner/work/Geo-Coder-Free/Geo-Coder-Free",
+         "finish" : 1770226904.18002,
+         "name" : "Geo-Coder-Free",
+         "perl" : "5.40.3",
+         "run" : "t/whosonfirst.t",
+         "start" : 1770226904.17513,
+         "version" : "0.41"
+      }
+   ],
+   "summary" : {
+      "Total" : {
+         "branch" : {
+            "covered" : 325,
+            "error" : 2229,
+            "percentage" : 12.7251370399374,
+            "total" : 2554,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 108,
+            "error" : 1483,
+            "percentage" : 6.78818353236957,
+            "total" : 1591,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 23,
+            "error" : 5,
+            "percentage" : 82.1428571428571,
+            "total" : 28
+         },
+         "statement" : {
+            "covered" : 1213,
+            "error" : 2935,
+            "percentage" : 29.2430086788814,
+            "total" : 4148
+         },
+         "subroutine" : {
+            "covered" : 216,
+            "error" : 39,
+            "percentage" : 84.7058823529412,
+            "total" : 255
+         },
+         "total" : {
+            "covered" : 1885,
+            "error" : 6691,
+            "percentage" : 21.9799440298507,
+            "total" : 8576,
+            "uncoverable" : 0
+         }
+      },
+      "blib/lib/Geo/Coder/Free.pm" : {
+         "branch" : {
+            "covered" : 43,
+            "error" : 139,
+            "percentage" : 23.6263736263736,
+            "total" : 182,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 17,
+            "error" : 45,
+            "percentage" : 27.4193548387097,
+            "total" : 62,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 5,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 5
+         },
+         "statement" : {
+            "covered" : 106,
+            "error" : 207,
+            "percentage" : 33.8658146964856,
+            "total" : 313
+         },
+         "subroutine" : {
+            "covered" : 18,
+            "error" : 7,
+            "percentage" : 72,
+            "total" : 25
+         },
+         "total" : {
+            "covered" : 189,
+            "error" : 398,
+            "percentage" : 32.1976149914821,
+            "total" : 587,
+            "uncoverable" : 0
+         }
+      },
+      "blib/lib/Geo/Coder/Free/Config.pm" : {
+         "branch" : {
+            "covered" : 29,
+            "error" : 35,
+            "percentage" : 45.3125,
+            "total" : 64,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 8,
+            "error" : 19,
+            "percentage" : 29.6296296296296,
+            "total" : 27,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 1,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 1
+         },
+         "statement" : {
+            "covered" : 78,
+            "error" : 22,
+            "percentage" : 78,
+            "total" : 100
+         },
+         "subroutine" : {
+            "covered" : 11,
+            "percentage" : 100,
+            "total" : 11
+         },
+         "total" : {
+            "covered" : 127,
+            "error" : 76,
+            "percentage" : 62.5615763546798,
+            "total" : 203,
+            "uncoverable" : 0
+         }
+      },
+      "blib/lib/Geo/Coder/Free/DB/MaxMind/admin.pm" : {
+         "statement" : {
+            "covered" : 9,
+            "error" : 2,
+            "percentage" : 81.8181818181818,
+            "total" : 11
+         },
+         "subroutine" : {
+            "covered" : 3,
+            "error" : 1,
+            "percentage" : 75,
+            "total" : 4
+         },
+         "total" : {
+            "covered" : 12,
+            "error" : 3,
+            "percentage" : 80,
+            "total" : 15
+         }
+      },
+      "blib/lib/Geo/Coder/Free/DB/MaxMind/admin1.pm" : {
+         "statement" : {
+            "covered" : 9,
+            "percentage" : 100,
+            "total" : 9
+         },
+         "subroutine" : {
+            "covered" : 3,
+            "percentage" : 100,
+            "total" : 3
+         },
+         "total" : {
+            "covered" : 12,
+            "percentage" : 100,
+            "total" : 12
+         }
+      },
+      "blib/lib/Geo/Coder/Free/DB/MaxMind/admin2.pm" : {
+         "statement" : {
+            "covered" : 9,
+            "percentage" : 100,
+            "total" : 9
+         },
+         "subroutine" : {
+            "covered" : 3,
+            "percentage" : 100,
+            "total" : 3
+         },
+         "total" : {
+            "covered" : 12,
+            "percentage" : 100,
+            "total" : 12
+         }
+      },
+      "blib/lib/Geo/Coder/Free/DB/MaxMind/cities.pm" : {
+         "statement" : {
+            "covered" : 9,
+            "error" : 2,
+            "percentage" : 81.8181818181818,
+            "total" : 11
+         },
+         "subroutine" : {
+            "covered" : 3,
+            "error" : 1,
+            "percentage" : 75,
+            "total" : 4
+         },
+         "total" : {
+            "covered" : 12,
+            "error" : 3,
+            "percentage" : 80,
+            "total" : 15
+         }
+      },
+      "blib/lib/Geo/Coder/Free/DB/OpenAddr.pm" : {
+         "statement" : {
+            "covered" : 9,
+            "error" : 2,
+            "percentage" : 81.8181818181818,
+            "total" : 11
+         },
+         "subroutine" : {
+            "covered" : 3,
+            "error" : 1,
+            "percentage" : 75,
+            "total" : 4
+         },
+         "total" : {
+            "covered" : 12,
+            "error" : 3,
+            "percentage" : 80,
+            "total" : 15
+         }
+      },
+      "blib/lib/Geo/Coder/Free/DB/openaddresses.pm" : {
+         "statement" : {
+            "covered" : 9,
+            "percentage" : 100,
+            "total" : 9
+         },
+         "subroutine" : {
+            "covered" : 3,
+            "percentage" : 100,
+            "total" : 3
+         },
+         "total" : {
+            "covered" : 12,
+            "percentage" : 100,
+            "total" : 12
+         }
+      },
+      "blib/lib/Geo/Coder/Free/Local.pm" : {
+         "branch" : {
+            "covered" : 136,
+            "error" : 112,
+            "percentage" : 54.8387096774194,
+            "total" : 248,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 49,
+            "error" : 54,
+            "percentage" : 47.5728155339806,
+            "total" : 103,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 4,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 4
+         },
+         "statement" : {
+            "covered" : 319,
+            "error" : 101,
+            "percentage" : 75.9523809523809,
+            "total" : 420
+         },
+         "subroutine" : {
+            "covered" : 22,
+            "error" : 2,
+            "percentage" : 91.6666666666667,
+            "total" : 24
+         },
+         "total" : {
+            "covered" : 530,
+            "error" : 269,
+            "percentage" : 66.3329161451815,
+            "total" : 799,
+            "uncoverable" : 0
+         }
+      },
+      "blib/lib/Geo/Coder/Free/MaxMind.pm" : {
+         "branch" : {
+            "covered" : 12,
+            "error" : 200,
+            "percentage" : 5.66037735849056,
+            "total" : 212,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 6,
+            "error" : 123,
+            "percentage" : 4.65116279069767,
+            "total" : 129,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 4,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 4
+         },
+         "statement" : {
+            "covered" : 61,
+            "error" : 245,
+            "percentage" : 19.9346405228758,
+            "total" : 306
+         },
+         "subroutine" : {
+            "covered" : 16,
+            "error" : 3,
+            "percentage" : 84.2105263157895,
+            "total" : 19
+         },
+         "total" : {
+            "covered" : 99,
+            "error" : 571,
+            "percentage" : 14.7761194029851,
+            "total" : 670,
+            "uncoverable" : 0
+         }
+      },
+      "blib/lib/Geo/Coder/Free/OpenAddresses.pm" : {
+         "branch" : {
+            "covered" : 4,
+            "error" : 414,
+            "percentage" : 0.956937799043061,
+            "total" : 418,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 3,
+            "error" : 105,
+            "percentage" : 2.77777777777777,
+            "total" : 108,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 4,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 4
+         },
+         "statement" : {
+            "covered" : 78,
+            "error" : 505,
+            "percentage" : 13.3790737564322,
+            "total" : 583
+         },
+         "subroutine" : {
+            "covered" : 25,
+            "error" : 5,
+            "percentage" : 83.3333333333333,
+            "total" : 30
+         },
+         "total" : {
+            "covered" : 114,
+            "error" : 1029,
+            "percentage" : 9.9737532808399,
+            "total" : 1143,
+            "uncoverable" : 0
+         }
+      },
+      "createdatabase.PL" : {
+         "branch" : {
+            "covered" : 2,
+            "error" : 1182,
+            "percentage" : 0.168918918918919,
+            "total" : 1184,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 1,
+            "error" : 1084,
+            "percentage" : 0.0921658986175089,
+            "total" : 1085,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 173,
+            "error" : 1712,
+            "percentage" : 9.17771883289124,
+            "total" : 1885
+         },
+         "subroutine" : {
+            "covered" : 55,
+            "error" : 18,
+            "percentage" : 75.3424657534247,
+            "total" : 73
+         },
+         "total" : {
+            "covered" : 231,
+            "error" : 3996,
+            "percentage" : 5.46486870120653,
+            "total" : 4227,
+            "uncoverable" : 0
+         }
+      },
+      "lib/Geo/Coder/Free/Display.pm" : {
+         "branch" : {
+            "covered" : 73,
+            "error" : 103,
+            "percentage" : 41.4772727272727,
+            "total" : 176,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 22,
+            "error" : 35,
+            "percentage" : 38.5964912280702,
+            "total" : 57,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 2,
+            "error" : 5,
+            "percentage" : 28.5714285714286,
+            "total" : 7
+         },
+         "statement" : {
+            "covered" : 270,
+            "error" : 85,
+            "percentage" : 76.056338028169,
+            "total" : 355
+         },
+         "subroutine" : {
+            "covered" : 35,
+            "error" : 1,
+            "percentage" : 97.2222222222222,
+            "total" : 36
+         },
+         "total" : {
+            "covered" : 402,
+            "error" : 229,
+            "percentage" : 63.7083993660856,
+            "total" : 631,
+            "uncoverable" : 0
+         }
+      },
+      "lib/Geo/Coder/Free/Utils.pm" : {
+         "branch" : {
+            "covered" : 26,
+            "error" : 44,
+            "percentage" : 37.1428571428571,
+            "total" : 70,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 2,
+            "error" : 18,
+            "percentage" : 10,
+            "total" : 20,
+            "uncoverable" : 0
+         },
+         "pod" : {
+            "covered" : 3,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 3
+         },
+         "statement" : {
+            "covered" : 74,
+            "error" : 52,
+            "percentage" : 58.7301587301587,
+            "total" : 126
+         },
+         "subroutine" : {
+            "covered" : 16,
+            "percentage" : 100,
+            "total" : 16
+         },
+         "total" : {
+            "covered" : 121,
+            "error" : 114,
+            "percentage" : 51.4893617021277,
+            "total" : 235,
+            "uncoverable" : 0
+         }
+      }
+   }
+}
