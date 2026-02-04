@@ -68,7 +68,7 @@ sub new
 	my $params = Params::Get::get_params(undef, @_);
 
 	if(!defined($class)) {
-		# Using VWF::Display->new(), not VWF::Display::new()
+		# Using Geo::Coder::Free::Display->new(), not Geo::Coder::Free::Display::new()
 		# carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
 		# return;
 
@@ -81,7 +81,10 @@ sub new
 
 	if(defined($ENV{'HTTP_REFERER'})) {
 		# Protect against Shellshocker
-		require 'Data::Validate::URI' && Data::Validate::URI->import() unless Data::Validate::URI->can('new');
+		unless(Data::Validate::URI->can('new')) {
+			require Data::Validate::URI;
+			Data::Validate::URI->import();
+		}
 
 		unless(Data::Validate::URI->new()->is_uri($ENV{'HTTP_REFERER'})) {
 			return;	# Block invalid referrers
