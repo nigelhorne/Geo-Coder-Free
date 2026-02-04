@@ -126,16 +126,6 @@ sub new
 	return $self;
 }
 
-# Helper function to normalize location strings
-sub _normalize_location {
-	my $location = shift;
-
-	$location = lc($location);	# Convert to lowercase
-	$location =~ s/^\s+|\s+$//g;	# Trim leading and trailing whitespace
-	$location =~ s/\s+/ /g;	# Collapse multiple spaces
-	return $location;
-}
-
 =head2 geocode
 
 Performs the geocoding operation by matching an input location against the local data and attempting different strategies for parsing and resolving the address.

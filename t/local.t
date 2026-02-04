@@ -69,7 +69,7 @@ LOCAL: {
 	);
 
 	check($geo_coder,
-		'E Chatsworth Road, Reisterstown, Maryland, USA',
+		'E Chatsworth Road, Reisterstown, Maryland, United States',
 		39.467270,
 		-76.823947,
 		'All Saints Episcopal Church, 203 E Chatsworth Rd, Reisterstown, Baltimore, MD, USA',
