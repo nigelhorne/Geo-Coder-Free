@@ -1,14 +1,3 @@
-Geo-Coder-Free
-==============
-
-[![Actions States](https://img.shields.io/github/actions/workflow/status/nigelhorne/geo-coder-free/test.yml?branch=master)](https://github.com/nigelhorne/Geo-Coder-Free/actions)
-[![Appveyor status](https://ci.appveyor.com/api/projects/status/8nk00o0rietskf29/branch/master?svg=true)](https://ci.appveyor.com/project/nigelhorne/geo-coder-free-4onbr/branch/master)
-[![Coveralls Status](https://coveralls.io/repos/github/nigelhorne/Geo-Coder-Free/badge.svg?branch=master)](https://coveralls.io/github/nigelhorne/Geo-Coder-Free?branch=master)
-[![CPAN](https://img.shields.io/cpan/v/Geo-Coder-Free.svg)](http://search.cpan.org/~nhorne/Geo-Coder-Free/)
-[![Kritika Analysis Status](https://kritika.io/users/nigelhorne/repos/4097424524111879/heads/master/status.svg)](https://kritika.io/users/nigelhorne/repos/4097424524111879/heads/master/)
-[![Kwalitee](https://cpants.cpanauthors.org/dist/Geo-Coder-Free.png)](http://cpants.cpanauthors.org/dist/Geo-Coder-Free)
-[![Travis Status](https://travis-ci.org/nigelhorne/Geo-Coder-Free.svg?branch=master)](https://travis-ci.org/nigelhorne/Geo-Coder-Free)
-
 # NAME
 
 Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
@@ -209,6 +198,8 @@ The various scripts in NJH-Snippets ought to be in this module.
 
 # SEE ALSO
 
+- [Test Dashboard](https://nigelhorne.github.io/Geo-Coder-Free/coverage/)
+
 [https://openaddresses.io/](https://openaddresses.io/),
 [https://www.maxmind.com/en/home](https://www.maxmind.com/en/home),
 [https://www.geonames.org/](https://www.geonames.org/),
@@ -225,7 +216,7 @@ See [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo%3A%3ACoder%3A
 
 # AUTHOR
 
-Nigel Horne, `<njh@bandsman.co.uk>`
+Nigel Horne, `<njh@nigelhorne.com>`
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -266,7 +257,7 @@ You can also look for information at:
 
 # LICENSE AND COPYRIGHT
 
-Copyright 2017-2025 Nigel Horne.
+Copyright 2017-2026 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

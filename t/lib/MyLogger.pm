@@ -19,7 +19,7 @@ sub warn {
 	debug(@_);
 }
 
-sub warn {
+sub error {
 	error(@_);
 }
 

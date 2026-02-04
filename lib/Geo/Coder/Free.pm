@@ -858,6 +858,12 @@ The various scripts in NJH-Snippets ought to be in this module.
 
 =head1 SEE ALSO
 
+=over 4
+
+=item * L<Test Dashboard|https://nigelhorne.github.io/Geo-Coder-Free/coverage/>
+
+=back
+
 L<https://openaddresses.io/>,
 L<https://www.maxmind.com/en/home>,
 L<https://www.geonames.org/>,
@@ -874,7 +880,7 @@ L<http://results.openaddresses.io/>.
 
 =head1 AUTHOR
 
-Nigel Horne, C<< <njh@bandsman.co.uk> >>
+Nigel Horne, C<< <njh@nigelhorne.com> >>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -919,7 +925,7 @@ L<http://search.cpan.org/dist/Geo-Coder-Free/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2025 Nigel Horne.
+Copyright 2017-2026 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)
