@@ -50,7 +50,7 @@ jobs:
         run: |
           cpanm --configure-timeout=600 --notest --verbose --installdeps .
           cpanm -iqn Test::Most Devel::Cover Devel::Cover::Report::Html POSIX File::Glob File::Slurp File::stat Readonly
-          cpanm -iqn IPC::System::Simple WWW::RT::CPAN
+          cpanm -iqn IPC::System::Simple WWW::RT::CPAN IPC::Run3
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
           cpanm --iqn --skip-satisfied Template::Plugin::JSON
         timeout-minutes: 10
