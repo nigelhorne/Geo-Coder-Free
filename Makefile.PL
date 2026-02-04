@@ -407,18 +407,23 @@ WriteMakefile(
 			# }
 		# }
 	# },
-	META_MERGE		=> {
+	META_MERGE => {	# https://perldoc.perl.org/CPAN::Meta::Spec
 		'meta-spec' => { version => 2 },
 		resources => {
+			homepage => 'https://geocode.nigelhorne.com',
 			repository => {
+				repository => 'https://github.com/nigelhorne/Geo-Coder-Free',
 				type => 'git',
 				url => 'git://github.com/nigelhorne/Geo-Coder-Free.git',
 				web => 'https://github.com/nigelhorne/Geo-Coder-Free',
+				# license => 'http://dev.perl.org/licenses/',
 			}, bugtracker => {
-				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
-				web => 'https://github.com/nigelhorne/Geo-Coder-Free/issues',
+				web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
+				url => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Geo-Coder-Free',
+				# web => 'https://github.com/nigelhorne/Geo-Coder-Free/issues',
+				# url => 'https://github.com/nigelhorne/Geo-Coder-Free/issues',
 				mailto => 'bug-Geo-Coder-Free@rt.cpan.org'
-			}, homepage => 'https://geocode.nigelhorne.com'
+			}
 		},
 	},
 	# PL_FILES => (defined($ENV{'AUTOMATED_TESTING'}) ? {} : {'bin/create_db.PL' => 'bin/create_db'}),
