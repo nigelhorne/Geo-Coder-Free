@@ -41,6 +41,6 @@ jobs:
             sudo cpanm -ifn CGI::IDS File::Slurp Template::Filters
             curl -L https://cpanmin.us | sudo perl - --notest --installdeps --with-configure --with-develop --verbose .
             sudo chown -R runner:runner .
-            AUTOMATED_TESTING=1 AUTHOR_TESTING=1 perl Makefile.PL
+            AUTOMATED_TESTING=1 perl Makefile.PL
             AUTOMATED_TESTING=1 make
-            AUTOMATED_TESTING=1 AUTHOR_TESTING=1 prove -wlmb t
+            AUTOMATED_TESTING=1 prove -wlmb t
