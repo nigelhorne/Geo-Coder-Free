@@ -8,6 +8,7 @@ Revision history for Geo-Coder-Free
 	Don't put spaces in digest, helps to find known_places match
 	Added test dashboard
 	Updated from upstream VWF
+	Openstreetmap now uses PBF files
 
 0.41	Mon Jul  7 13:45:41 EDT 2025
 	Use Object::Configure

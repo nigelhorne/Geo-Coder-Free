@@ -797,6 +797,8 @@ Also, only Australia, Canada and the US is imported, as the UK data is difficult
 
 Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
 Open Street Map and dr5hn databases.
+Open Street Map now uses PBF files,
+so you will need to C<apt instsall osmium_tool> first.
 Check the values of OSM_HOME, OPENADDR_HOME,
 DR5HN_HOME and WHOSONFIRST_HOME within that script,
 you may wish to change them.
