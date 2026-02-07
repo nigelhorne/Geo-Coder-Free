@@ -6,20 +6,20 @@ use warnings;
 use Test::Needs 'HTML::SocialMedia', 'Log::Any::Adapter::Log4perl', 'Template::Plugin::JSON';
 
 use Cwd;
-use Test::Most tests => 8;
+use Test::Most tests => 7;
 use Data::Validate::URI;
 
 use lib 'lib';
 
-BEGIN { use_ok('Geo::Coder::Free::Display') }
+use Geo::Coder::Free::Display;
 
 # Simulate environment variables
 local %ENV = (
-	HTTP_REFERER  => 'http://example.com',
-	REMOTE_ADDR   => '127.0.0.1',
-	CONFIG_DIR    => undef,
+	HTTP_REFERER => 'http://example.com',
+	REMOTE_ADDR => '127.0.0.1',
+	CONFIG_DIR => undef,
 	DOCUMENT_ROOT => '/var/www',
-	HOME          => '/home/user',
+	HOME => '/home/user',
 	GATEWAY_INTERFACE => 'CGI/1.1',
 	REQUEST_METHOD => 'GET',
 	QUERY_STRING => 'foo=bar&baz=qux',
