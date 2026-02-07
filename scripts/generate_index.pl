@@ -22,10 +22,21 @@ use URI::Escape qw(uri_escape);
 use version;
 use WWW::RT::CPAN;
 
+my ($github_user, $github_repo);
+
+if (my $repo = $ENV{GITHUB_REPOSITORY}) {
+	($github_user, $github_repo) = split m{/}, $repo, 2;
+} else {
+	die 'What repo are you?';
+}
+
+my $package_name = $github_repo;
+$package_name =~ s/\-/::/g;
+
 Readonly my %config => (
 	github_user => 'nigelhorne',
-	github_repo => 'Geo-Coder-Free',
-	package_name => 'Geo::Coder::Free',
+	github_repo => $github_repo,
+	package_name => $package_name,
 	low_threshold => 70,
 	med_threshold => 90,
 	max_points => 10,	# Only display the last 10 commits in the coverage trend graph
@@ -804,7 +815,7 @@ push @html, '<p><center>Use mouse wheel or pinch to zoom; drag to pan</center></
 # -------------------------------
 # CPAN Testers failing reports table
 # -------------------------------
-my $dist_name = $config{github_repo};	# e.g., Geo-Coder-Free
+my $dist_name = $config{github_repo};
 my $cpan_api = "https://api.cpantesters.org/v3/summary/" . uri_escape($dist_name);
 
 my $http = HTTP::Tiny->new(agent => 'cpan-coverage-html/1.0', timeout => 15);
@@ -1826,4 +1837,3 @@ sub make_key
 
 	return lc(join '|', $r->{osname} // '', $r->{perl} // '', $r->{arch} // '', $r->{platform} // '' );
 }
-

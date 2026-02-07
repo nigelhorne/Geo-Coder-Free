@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::Needs 'HTML::SocialMedia', 'Log::Any::Adapter::Log4perl';
+use Test::Needs 'HTML::SocialMedia', 'Log::Any::Adapter::Log4perl', 'Template::Plugin::JSON';
 
 use Cwd;
 use Test::Most tests => 8;
