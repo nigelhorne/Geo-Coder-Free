@@ -20,7 +20,7 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free/Local.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">55.6%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">55.2%</td></tr>
 </table>
 <div><br/></div>
 <table>
@@ -90,7 +90,7 @@ https://pjcj.net
 <tr><td class="h"><a id="L486">486</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($location =~ /.+,.+,.*England$/ and not $location =~ /.+,.+,.+,.*England$/)</td></tr>
 <tr><td class="h"><a id="L494">494</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless &quot;Geo::Address::Parser&quot;-&gt;can(&quot;parse&quot;)</td></tr>
 <tr><td class="h"><a id="L497">497</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (my $fields = $addr_parser-&gt;parse($location))</td></tr>
-<tr><td class="h"><a id="L499">499</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $fields-&gt;{$key}</td></tr>
+<tr><td class="h"><a id="L499">499</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless defined $fields-&gt;{$key}</td></tr>
 <tr><td class="h"><a id="L501">501</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $rc = $self-&gt;_search($fields, keys %{$fields;}))</td></tr>
 <tr><td class="h"><a id="L513">513</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($libpostal_is_installed == 0)</td></tr>
 <tr><td class="h"><a id="L514">514</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (eval {
