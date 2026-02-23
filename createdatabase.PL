@@ -2826,7 +2826,7 @@ sub create_tree_from_git {
 	$| = 0;
 
 	foreach my $dir(<"$where/*/.git">) {
-		my($d1, $d2) = fileparse($dir);	# File::BaseName
+		my($d1, $d2) = fileparse($dir);	# File::Basename
 		chdir $d2;
 		# Some call the main branch master, some call it main
 		# So use HEAD
