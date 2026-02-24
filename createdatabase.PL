@@ -61,6 +61,7 @@ use strict;
 use warnings;
 # use autodie qw(:all);
 use autodie;	# Don't want system() to die, we catch failures
+use Cache::LRU;
 use Cwd;
 use Data::Dumper;
 # use BerkeleyDB;
@@ -1762,7 +1763,7 @@ flush_queue($dbh, $redis, $mongodb, $berkeley_db);	# Check for hanging dups in l
 undef %state_md5s;
 undef %state_parent_md5s;
 
-my %l1_cache;
+my $l1_cache = Cache::LRU->new(size => 1_000);
 my $l2_cache;
 
 print STDERR __LINE__, ': >>>>', Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
@@ -1772,6 +1773,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	my %address_parsers;
 	my $j = JSON::MaybeXS->new()->utf8();
 	my $string = '';
+	my $region_name;
 
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
@@ -1883,7 +1885,6 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 
 		if(!defined($state)) {
 			my $region_id;
-			my $region_name;
 			my @hierarchy = @{$properties->{'wof:hierarchy'}};
 			if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
 				if(defined($region_id) && ($region == $region_id)) {
@@ -2069,9 +2070,8 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		}
 	}
 
-	%l1_cache = ();
+	undef $l1_cache;
 	$l2_cache->clear();
-	undef %l1_cache;
 	undef $l2_cache;
 
 	if(BUILDMODE eq 'ONE') {
@@ -3767,22 +3767,16 @@ sub get_wof {
 	my ($properties, $id, $geojson_file) = @_;
 
 	return if($id < 0);
-	if($l1_cache{$id}) {
+	if(my $rc = $l1_cache->get($id)) {
 		# my @call_details = caller(0);
-		# print "get_wof: stored $l1_cache{$id} at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
-		return $l1_cache{$id};
+		# print "get_wof: stored $rc at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
+		return $rc;
 	}
-	if(scalar(keys %l1_cache) >= 100) {
-		# TODO: LRU
-		print "get_wof: emptying l1_cache\n" if(DEBUG&DEBUG_GET_WOF);
-		%l1_cache = ();
-	}
-
 	if(defined($l2_cache)) {
 		if(my $name = $l2_cache->get($id)) {
 			my @call_details = caller(0);
 			print "get_wof: cached $name at line ", $call_details[2], "\n" if(DEBUG&DEBUG_GET_WOF);
-			$l1_cache{$id} = $name;
+			$l1_cache->set($id => $name);
 			return $name;
 		}
 	} else {
@@ -3872,11 +3866,11 @@ sub get_wof {
 			my $country = uc($properties->{'wof:country'});
 			if(($country eq 'US') || ($country eq 'CA') || ($country eq 'AU')) {
 				print "\t", $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
-				return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, '1 minute');
+				return $l1_cache->set($id, $l2_cache->set($id, $properties->{'wof:abbreviation'} // $properties->{'wof:shortcode'} // $properties->{'wof:name'}, '1 minute'));;
 			}
 		}
 		print "\tname: ", $properties->{'wof:name'}, "\n" if(DEBUG&DEBUG_GET_WOF);
-		return $l1_cache{$id} = $l2_cache->set($id, $properties->{'wof:name'}, '1 minute');
+		return $l1_cache->set($id, $l2_cache->set($id, $properties->{'wof:name'}, '1 minute'));
 	# }
 }
 
