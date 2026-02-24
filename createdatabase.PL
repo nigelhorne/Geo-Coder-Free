@@ -1773,6 +1773,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	my %address_parsers;
 	my $j = JSON::MaybeXS->new()->utf8();
 	my $string = '';
+	my $region_id;
 	my $region_name;
 
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
@@ -1884,7 +1885,6 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		}
 
 		if(!defined($state)) {
-			my $region_id;
 			my @hierarchy = @{$properties->{'wof:hierarchy'}};
 			if(scalar(@hierarchy) && (my $region = $hierarchy[0]->{'region_id'})) {
 				if(defined($region_id) && ($region == $region_id)) {
