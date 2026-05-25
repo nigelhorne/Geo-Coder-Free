@@ -3,7 +3,7 @@ Revision history for Geo-Coder-Free
 0.42
 	Try Geo::Address::Parser before libpostal() as that uses less memory
 	createdatabase.PL - borough parent lookup now uses locality_id from hierarchy to skip intermediate boroughs
-	createdatabase.PL - File::Find glob fallback now guards against symlink cycles using inode tracking
+	createdatabase.PL - File::Find glob fallback replaced with a pre-built ID->path index, eliminating per-miss tree scans
 	Local: Added _find_geographic_centres to add towns to the database where more than 3 places are known
 	Improve handling of Australian states
 	Ensure known_places are all loaded

@@ -1765,6 +1765,7 @@ undef %state_parent_md5s;
 
 my $l1_cache = Cache::LRU->new(size => 1_000);
 my $l2_cache;
+my %wof_index;
 
 print STDERR __LINE__, ': >>>>', Devel::Size::total_size(\%queued_commits), "\n" if(DEBUG&DEBUG_SIZE);
 
@@ -1775,6 +1776,14 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	my $string = '';
 	my $region_id;
 	my $region_name;
+
+	# Build a one-time ID->path index so get_wof() can do a hash lookup
+	# instead of a full File::Find scan on every cache miss.
+	print "Indexing WhosonFirst files in $whosonfirst (this may take a few minutes)\n";
+	find({ wanted => sub {
+			if(/^(\d+)\.geojson$/) { $wof_index{$1} = $File::Find::name }
+		}, follow => 0, no_chdir => 1 }, $whosonfirst);
+	print 'Indexed ', scalar(keys %wof_index), " WhosonFirst files\n";
 
 	# Find all of the .geojson files in $WHOSONFIRST_HOME
 	foreach my $geojson_file (create_tree_from_git($whosonfirst, 0)) {
@@ -3822,31 +3831,10 @@ sub get_wof {
 	}
 
 	if($repo eq '*') {
-		# Do a glob expansion on the string, useful if it's something like
-		#	$ENV{'WHOSONFIRST_HOME'} . "/*/data/286/455/973/286455973.geojson"
-		print "Glob expand $filename\n" if(DEBUG&DEBUG_GET_WOF);
-
-		# Because of the layout of WOF (lots of small directories), this can be slow on EXT4, it would be nice to find a better way
-		# my @filelist = <"$filename">;
-		# $filename = $filelist[0];
-
-		# File::Find
-		my %_seen_inodes;
-		find({
-			wanted => sub {
-				my $inode = (stat($File::Find::name))[1];
-				if($inode && $_seen_inodes{$inode}++) {
-					$File::Find::prune = 1;
-					return;
-				}
-				return unless $_ =~ qr/$id.geojson$/;
-				$filename = $File::Find::name;
-				$File::Find::prune = 1;	# stop descending further
-			},
-			follow => 0,
-			no_chdir => 1,
-		}, $ENV{'WHOSONFIRST_HOME'});
-		print "Found: $filename\n" if(DEBUG & DEBUG_GET_WOF);
+		print "Index lookup for $id\n" if(DEBUG&DEBUG_GET_WOF);
+		$filename = $wof_index{$id};
+		die if(!$filename);
+		print "Found: $filename\n" if(DEBUG&DEBUG_GET_WOF);
 	}
 	if((!$filename) || (! -r $filename)) {
 		# Probably shouldn't die here
