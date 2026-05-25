@@ -1931,11 +1931,16 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 		if(($placetype eq 'locality') || ($placetype eq 'neighbourhood') || ($placetype eq 'borough')) {
 			$city = $properties->{'wof:name'};
 			if(($placetype eq 'borough') && (my $parent = $properties->{'wof:parent_id'})) {
-				if($parent = get_wof($properties, $parent, $geojson_file)) {
-					$city = "$city, $parent";
-				# } else {
-					# Most likely the parent is in a different database
-					# die "Can't determine the parent for $city in ", $properties->{'wof:id'}, "->$parent";
+				# Prefer the hierarchy's locality_id to jump directly past any
+				# intermediate boroughs to the containing city.
+				my $parent_name;
+				my @hier = @{$properties->{'wof:hierarchy'}};
+				if(scalar(@hier) && (my $locality = $hier[0]->{'locality_id'})) {
+					$parent_name = get_wof($properties, $locality, $geojson_file);
+				}
+				$parent_name //= get_wof($properties, $parent, $geojson_file);
+				if($parent_name) {
+					$city = "$city, $parent_name";
 				}
 			}
 			die "Can't determine the city" if(!defined($city));
@@ -3826,12 +3831,19 @@ sub get_wof {
 		# $filename = $filelist[0];
 
 		# File::Find
+		my %_seen_inodes;
 		find({
 			wanted => sub {
+				my $inode = (stat($File::Find::name))[1];
+				if($inode && $_seen_inodes{$inode}++) {
+					$File::Find::prune = 1;
+					return;
+				}
 				return unless $_ =~ qr/$id.geojson$/;
 				$filename = $File::Find::name;
 				$File::Find::prune = 1;	# stop descending further
 			},
+			follow => 0,
 			no_chdir => 1,
 		}, $ENV{'WHOSONFIRST_HOME'});
 		print "Found: $filename\n" if(DEBUG & DEBUG_GET_WOF);
