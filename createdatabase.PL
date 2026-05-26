@@ -1781,7 +1781,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	# instead of a full File::Find scan on every cache miss.
 	print "Indexing WhosonFirst files in $whosonfirst (this may take a few minutes)\n";
 	find({ wanted => sub {
-			if(/^(\d+)\.geojson$/) { $wof_index{$1} = $File::Find::name }
+			if($File::Find::name =~ /(\d+)\.geojson$/) { $wof_index{$1} = $File::Find::name }
 		}, follow => 0, no_chdir => 1 }, $whosonfirst);
 	print 'Indexed ', scalar(keys %wof_index), " WhosonFirst files\n";
 
