@@ -34,6 +34,7 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
+CLAUDE.md
 
 # Local files
 lib/Geo/Coder/Free/MaxMind/databases/admin1.db
