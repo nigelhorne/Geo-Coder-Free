@@ -3833,8 +3833,7 @@ sub get_wof {
 	if($repo eq '*') {
 		print "Index lookup for $id\n" if(DEBUG&DEBUG_GET_WOF);
 		$filename = $wof_index{$id};
-		die "WhosonFirst ID $id not found in index - is WHOSONFIRST_HOME complete?" if(!$filename);
-		print "Found: $filename\n" if(DEBUG&DEBUG_GET_WOF);
+		print "Found: $filename\n" if(DEBUG&DEBUG_GET_WOF && $filename);
 	}
 	if((!$filename) || (! -r $filename)) {
 		# Probably shouldn't die here
