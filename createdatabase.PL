@@ -2162,6 +2162,7 @@ if((!(DEBUG&DEBUG_WOF)) && (my $osm = $ENV{'OSM_HOME'})) {
 		my $place;
 		my $country;
 
+		eval {
 		while($reader->read()) {
 			# These constants are not exported by default :-(
 			# print $reader->document->toString(1);
@@ -2656,6 +2657,10 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 			} else {
 				warn 'Unknown reader type ', $reader->nodeType(), ' in ', $reader->document->toString(1), "\n"
 			}
+		}
+		}; # end eval
+		if($@) {
+			print STDERR "XML parse error in $filename, skipping: $@\n";
 		}
 		close $pin;
 	}
