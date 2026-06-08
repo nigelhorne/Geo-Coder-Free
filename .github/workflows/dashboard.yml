@@ -1,5 +1,5 @@
 ---
-# Create https://nigelhorne.github.io/Geo-Coder-Free/coverage/
+# Create test dashboard on GitHub Pages, e.g. https://nigelhorne.github.io/$module_name/coverage/
 name: Test Dashboard
 
 permissions:
@@ -10,6 +10,10 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_run:
+    workflows: ["Mutation Testing"]
+    types: [completed]
+    branches: [main, master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,6 +22,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         perl: ["5.40"]
@@ -28,31 +33,47 @@ jobs:
           fetch-depth: 0
 
       # Install Perl via perlbrew
-      - name: Setup Perl
-        uses: shogo82148/actions-setup-perl@v1
+      - name: Setup Perl environment
+        uses: shogo82148/actions-setup-perl@v1.41.1
         with:
           perl-version: ${{ matrix.perl }}
           # install cpanminus
           # cpanm-options: --notest
 
-      - name: Update Ubuntu Packages
-        run: |
-          sudo apt-get update
-          sudo apt-get -y upgrade
-          sudo apt install libdb-dev build-essential
-        if: runner.os == 'Linux'
+      # - name: Update Ubuntu Packages
+      # Failing on GitHub Actions at the moment
+      # run: |
+      #   sudo apt-get update
+      #   sudo apt-get -y upgrade
+      # if: runner.os == 'Linux'
 
-      - name: Upgrade Toolchain
-        run: cpanm -iqn ExtUtils::MakeMaker Module::Build
+      # - name: Upgrade Toolchain
+      #   run: |
+      #   run: cpanm -iqn --skip-satisfied ExtUtils::MakeMaker Module::Build
 
       # Install module dependencies (from cpanfile or manually)
       - name: Install dependencies
         run: |
-          cpanm --configure-timeout=600 --notest --verbose --installdeps .
-          cpanm -iqn Test::Most Devel::Cover Devel::Cover::Report::Html POSIX File::Glob File::Slurp File::stat Readonly
-          cpanm -iqn IPC::System::Simple WWW::RT::CPAN IPC::Run3
-          cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
-          cpanm --iqn --skip-satisfied Template::Plugin::JSON
+          cpanm --skip-satisfied --notest --installdeps .
+          cpanm -iqn --skip-satisfied \
+              Test::Most \
+              Test::Mockingbird \
+              'Devel::Cover@1.51' \
+              Devel::Cover::Report::Html \
+              File::Slurp \
+              Readonly \
+              IPC::Run3 \
+              IPC::System::Simple \
+              WWW::RT::CPAN \
+              BSD::Resource \
+              HTML::Entities \
+              URI::Escape \
+              JSON::MaybeXS \
+              PPI \
+              App::Prove \
+              File::Copy::Recursive \
+              Test::LectroTest::Compat
+          cpanm -iqn Data::Random::String::Matches Data::Random::Structure Data::Random Data::Random::String
         timeout-minutes: 10
 
       # Optional: run Perl::Critic static checks
@@ -61,71 +82,90 @@ jobs:
       #     cpanm Perl::Critic
       #     perlcritic --verbose 5 lib || true
 
-      - name: Run tests manually
-        env:
-          AUTOMATED_TESTING: 1
-          NO_NETWORK_TESTING: 1
-          NONINTERACTIVE_TESTING: 1
+      - name: Set snapshot variables
         run: |
-          prove -l -b -v t
+          echo "SNAPSHOT_TIMESTAMP=$(date +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "SNAPSHOT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      # Run the tests with Devel::Cover for coverage
-      - name: Run tests with coverage
-        env:
-          PERL5LIB: ${{ github.workspace }}/local/lib/perl5
-          COVER_VERBOSE: 1
-          AUTOMATED_TESTING: 1
-          NO_NETWORK_TESTING: 1
-          NONINTERACTIVE_TESTING: 1
-        working-directory: ${{ github.workspace }}
-        run: |
-          perl Makefile.PL
-          cover -test
+      - name: Add local bin to PATH
+        run: echo "$(pwd)/local/bin" >> $GITHUB_PATH
 
-      # Generate HTML coverage report
-      - name: Generate HTML report
+      - name: Install App::Test::Generator
         run: |
-          mkdir -p cover_html
-          cover -report html -outputdir cover_html
-      # working-directory: ${{ github.workspace }}
-
-      - name: Check for HTML report
-        run: |
-          if [ ! -f cover_html/coverage.html ]; then
-            echo "HTML report not found. Skipping deployment."
-            exit 1
+          if [ "${{ github.repository }}" = "nigelhorne/App-Test-Generator" ]; then
+            echo "Running on ATG itself — using repo version"
+            perl Makefile.PL && make install
+          else
+            cpanm -iqn App::Test::Generator@0.38
           fi
 
-      - name: Rename coverage.html to index.html
+      - name: Generate dashboard
+        env:
+          AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
+          NONINTERACTIVE_TESTING: 1
         run: |
-          mv cover_html/coverage.html cover_html/index.html
+          if [ "${{ github.repository }}" = "nigelhorne/App-Test-Generator" ]; then
+            bin/generate-test-dashboard
+          else
+            generate-test-dashboard
+          fi
 
-      - name: Generate custom coverage index
+      - name: Save updated mutation results
         run: |
-          mkdir -p cover_db
-          # cover -dump > cover_db/cover.json
-          cover -report json -outputdir cover_db
-          perl scripts/generate_index.pl
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+          git add mutation.json
+          if git diff --cached --quiet; then
+            echo "No mutation.json changes to commit"
+          else
+            git commit -m "Update mutation results (${SNAPSHOT_TIMESTAMP} ${SNAPSHOT_SHA})"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
 
-      - name: Archive coverage snapshot
+      - name: Add new coverage snapshot to archive
         run: |
           mkdir -p coverage_history
           TIMESTAMP=$(date +%Y-%m-%d)
           SHA=$(git rev-parse --short HEAD)
-          cp cover_db/cover.json "coverage_history/${TIMESTAMP}-${SHA}.json"
-          # Remove older history
-          # ls -t coverage_history/*.json | tail -n +31 | xargs rm -f
+          cp cover_html/cover.json "coverage_history/${TIMESTAMP}-${SHA}.json"
+          echo "SNAPSHOT_TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
+          echo "SNAPSHOT_SHA=${SHA}" >> $GITHUB_ENV
+          find cover_db cover_html coverage -print
 
-      - name: Commit coverage snapshot
+      - name: Save coverage snapshot archive
         run: |
           git config user.name "GitHub Actions"
           git config user.email "github-actions@github.com"
           git add coverage_history/
-          git commit -m "Add coverage snapshot for $TIMESTAMP ($SHA)" || echo "No changes to commit"
+          git commit -m "Add coverage snapshot for ${SNAPSHOT_TIMESTAMP} (${SNAPSHOT_SHA})" || echo "No changes to commit"
           git push origin HEAD:${{ github.ref_name }}
 
+      - name: Save generated mutant test stubs
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+          # Stage any new mutant stub files in t/ and t/conf/.
+          # These are generated by --generate_mutant_tests,
+          # --generate_test=mutant and --generate_fuzz.
+          # We use --intent-to-add via 'git add -N' first so that
+          # new untracked files are included in 'git diff --stat'.
+          git add xt/mutant_*.t xt/conf/mutant_*.yml 2>/dev/null || true
+          # Force add any untracked files matching the pattern
+          find xt -name 'mutant_*.t' -o -name 'mutant_*.yml' | xargs git add 2>/dev/null || true
+          # Only commit if there is actually something staged —
+          # the '|| true' prevents the step failing on a clean run
+          # where no new stubs were generated
+          if git diff --cached --quiet; then
+            echo "No new mutant stubs to commit"
+          else
+            git diff --cached --stat
+            git commit -m "Add generated mutant test stubs (${SNAPSHOT_TIMESTAMP} ${SNAPSHOT_SHA})"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
       # Deploy HTML report to GitHub Pages
-      - name: Publish coverage report
+      - name: Publish test dashboard
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -134,3 +174,4 @@ jobs:
           user_name: github-actions
           user_email: github-actions@github.com
           keep_files: true
+          enable_jekyll: false   # adds .nojekyll automatically, it adds nothing in prebuilt pages

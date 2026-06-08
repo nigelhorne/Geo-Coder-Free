@@ -1781,7 +1781,7 @@ if(my $whosonfirst = $ENV{'WHOSONFIRST_HOME'}) {
 	# instead of a full File::Find scan on every cache miss.
 	print "Indexing WhosonFirst files in $whosonfirst (this may take a few minutes)\n";
 	find({ wanted => sub {
-			if($File::Find::name =~ /(\d+)\.geojson$/) { $wof_index{$1} = $File::Find::name }
+			if(-f $File::Find::name && $File::Find::name =~ /(\d+)\.geojson$/) { $wof_index{$1} = $File::Find::name }
 		}, follow => 0, no_chdir => 1 }, $whosonfirst);
 	print 'Indexed ', scalar(keys %wof_index), " WhosonFirst files\n";
 
@@ -2150,8 +2150,6 @@ if((!(DEBUG&DEBUG_WOF)) && (my $osm = $ENV{'OSM_HOME'})) {
 
 		# TODO: check for the presence of bzcat
 		open(my $pin, '-|', "bzcat $filename");
-		my $reader = XML::LibXML::Reader->new(FD => $pin)
-			or die "cannot read $filename";
 
 		my $in_node;
 		my $key;
@@ -2161,8 +2159,11 @@ if((!(DEBUG&DEBUG_WOF)) && (my $osm = $ENV{'OSM_HOME'})) {
 		my $lon;
 		my $place;
 		my $country;
+		$inserts = 0;
 
 		eval {
+		my $reader = XML::LibXML::Reader->new(FD => $pin)
+			or die "cannot read $filename";
 		while($reader->read()) {
 			# These constants are not exported by default :-(
 			# print $reader->document->toString(1);
@@ -2655,12 +2656,13 @@ print __LINE__, ": add_record = $add_record (city/state/country = $city/$state/$
 					$lon = $reader->getAttribute('lon');
 				}
 			} else {
-				warn 'Unknown reader type ', $reader->nodeType(), ' in ', $reader->document->toString(1), "\n"
+				warn 'Unknown reader type ', $reader->nodeType(), ' in ', $reader->name(), "\n"
 			}
 		}
 		}; # end eval
-		if($@) {
-			print STDERR "XML parse error in $filename, skipping: $@\n";
+		if(my $err = $@) {
+			die $err unless ref($err) && $err->isa('XML::LibXML::Error');
+			print STDERR "XML parse error in $filename, skipping: $err\n";
 		}
 		close $pin;
 	}
@@ -3838,7 +3840,7 @@ sub get_wof {
 	if($repo eq '*') {
 		print "Index lookup for $id\n" if(DEBUG&DEBUG_GET_WOF);
 		$filename = $wof_index{$id};
-		print "Found: $filename\n" if(DEBUG&DEBUG_GET_WOF && $filename);
+		print "Found: $filename\n" if((DEBUG & DEBUG_GET_WOF) && $filename);
 	}
 	if((!$filename) || (! -r $filename)) {
 		# Probably shouldn't die here

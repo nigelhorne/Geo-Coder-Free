@@ -1,0 +1,79 @@
+---
+
+name: Mutation Testing
+permissions:
+  contents: write
+
+# on: [push, pull_request]
+on:
+  schedule:
+    - cron: '12 23 26 * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mutate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: shogo82148/actions-setup-perl@v1
+
+      - run: cpanm --skip-satisfied --installdeps .
+      - run: prove -l t/
+
+      - run: echo "$(pwd)/local/bin" >> $GITHUB_PATH
+
+      - run: |
+          perl Makefile.PL
+          make install
+
+      - name: Find last code commit
+        run: |
+          BASE=$(git log --oneline | grep -v "^.\{8\} \(Add generated mutant\|Add coverage snapshot\|Update mutation results\)" | head -1 | awk '{print $1}')
+          echo "MUTATION_BASE_SHA=$BASE" >> $GITHUB_ENV
+          echo "Base commit for mutation diff: $BASE"
+          git diff --name-only "${BASE}^" HEAD
+
+      - name: Install App::Test::Generator
+        run: |
+          if [ "${{ github.repository }}" != "nigelhorne/App-Test-Generator" ]; then
+            cpanm -iqn Data::Random::Structure Data::Random::String::Matches Data::Random::String Data::Random
+            cpanm -iqn App::Test::Generator@0.38
+          fi
+
+      - name: Generate the mutants
+        env:
+          AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
+          NONINTERACTIVE_TESTING: 1
+        run: |
+          if [ "${{ github.repository }}" = "nigelhorne/App-Test-Generator" ]; then
+            MUTATE_CMD="perl -Ilib -Iblib/lib bin/test-generator-mutate"
+          else
+            ATG_CMD=$(which test-generator-mutate) || { echo "test-generator-mutate not found — did App::Test::Generator install correctly?"; exit 1; }
+            MUTATE_CMD="perl -Ilib -Iblib/lib $ATG_CMD"
+          fi
+          $MUTATE_CMD \
+            --lib lib \
+            --tests t \
+            --json mutation.json \
+            --mutation_level fast
+
+      - name: Commit mutation results
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+          git add mutation.json
+          if git diff --cached --quiet; then
+            echo "No mutation.json changes to commit"
+          else
+            git commit -m "Update mutation results ($(date +%Y-%m-%d) $(git rev-parse --short HEAD))"
+            git push
+          fi
