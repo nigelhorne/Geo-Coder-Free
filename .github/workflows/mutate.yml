@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 350
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: shogo82148/actions-setup-perl@v1
