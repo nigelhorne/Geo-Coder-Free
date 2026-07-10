@@ -29,7 +29,7 @@ jobs:
         perl: ["5.40"]
     steps:
       # Checkout repository
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
 
@@ -98,7 +98,7 @@ jobs:
             perl Makefile.PL && make install
           else
             echo "Install ATG"
-            cpanm -iqn App::Test::Generator@0.41
+            cpanm -iqn App::Test::Generator@0.42
           fi
 
       - name: Generate dashboard
