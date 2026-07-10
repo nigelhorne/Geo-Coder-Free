@@ -1,5 +1,5 @@
 ---
-
+# Run a mutation test.  They can take a long time so only run then on demand or every month, not on each commit
 name: Mutation Testing
 permissions:
   contents: write
@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 350
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: shogo82148/actions-setup-perl@v1
@@ -30,22 +30,29 @@ jobs:
 
       - run: echo "$(pwd)/local/bin" >> $GITHUB_PATH
 
-      - run: |
-          perl Makefile.PL
-          make install
+      - run: perl Makefile.PL && make
 
       - name: Find last code commit
         run: |
-          BASE=$(git log --oneline | grep -v "^.\{8\} \(Add generated mutant\|Add coverage snapshot\|Update mutation results\)" | head -1 | awk '{print $1}')
+          BASE=$(git log --oneline | grep -v "^\S\+ \(Add generated mutant\|Add coverage snapshot\|Update mutation results\)" | head -1 | awk '{print $1}')
+          if [ -z "$BASE" ]; then
+            echo "::warning::Could not determine a base commit from git log; test-generator-mutate will fall back to HEAD~1"
+          fi
           echo "MUTATION_BASE_SHA=$BASE" >> $GITHUB_ENV
           echo "Base commit for mutation diff: $BASE"
-          git diff --name-only "${BASE}^" HEAD
+          if [ -z "$BASE" ]; then
+            echo "No code commit found outside bot-generated commits; skipping diff"
+          elif git rev-parse "${BASE}^" >/dev/null 2>&1; then
+            git diff --name-only "${BASE}^" HEAD
+          else
+            echo "Base commit is the root commit, no parent to diff against"
+          fi
 
       - name: Install App::Test::Generator
         run: |
           if [ "${{ github.repository }}" != "nigelhorne/App-Test-Generator" ]; then
             cpanm -iqn Data::Random::Structure Data::Random::String::Matches Data::Random::String Data::Random
-            cpanm -iqn App::Test::Generator@0.38
+            cpanm -iqn App::Test::Generator@0.41
           fi
 
       - name: Generate the mutants
@@ -54,26 +61,49 @@ jobs:
           NO_NETWORK_TESTING: 1
           NONINTERACTIVE_TESTING: 1
         run: |
+          if [ -n "$MUTATION_BASE_SHA" ]; then
+            BASE_SHA_FLAG="--base_sha $MUTATION_BASE_SHA"
+          else
+            BASE_SHA_FLAG=""
+          fi
           if [ "${{ github.repository }}" = "nigelhorne/App-Test-Generator" ]; then
             MUTATE_CMD="perl -Ilib -Iblib/lib bin/test-generator-mutate"
+            $MUTATE_CMD \
+              --lib lib \
+              --tests t \
+              --json mutation.json \
+              --changed_only \
+              $BASE_SHA_FLAG \
+              --mutation_level fast \
+              --exclude lib/Devel \
+              --exclude lib/App/Test/Generator/Sample
           else
             ATG_CMD=$(which test-generator-mutate) || { echo "test-generator-mutate not found — did App::Test::Generator install correctly?"; exit 1; }
             MUTATE_CMD="perl -Ilib -Iblib/lib $ATG_CMD"
+            if [ -n "$MUTATION_BASE_SHA" ]; then
+              BASE_SHA_FLAG="--base_sha $MUTATION_BASE_SHA"
+            else
+              BASE_SHA_FLAG=""
+            fi
+            # shellcheck disable=SC2086
+            $MUTATE_CMD \
+              --lib lib \
+              --tests t \
+              --json mutation.json \
+              --changed_only \
+              $BASE_SHA_FLAG \
+              --mutation_level fast
           fi
-          $MUTATE_CMD \
-            --lib lib \
-            --tests t \
-            --json mutation.json \
-            --mutation_level fast
 
       - name: Commit mutation results
         run: |
+          git add mutation.json
           git config user.name "GitHub Actions"
           git config user.email "github-actions@github.com"
-          git add mutation.json
           if git diff --cached --quiet; then
-            echo "No mutation.json changes to commit"
+            echo "No changes to commit"
           else
             git commit -m "Update mutation results ($(date +%Y-%m-%d) $(git rev-parse --short HEAD))"
-            git push
+            git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           fi

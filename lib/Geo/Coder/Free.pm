@@ -28,11 +28,11 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 =head1 VERSION
 
-Version 0.41
+Version 0.42
 
 =cut
 
-our $VERSION = '0.41';
+our $VERSION = '0.42';
 
 our $alternatives;
 our $abbreviations;
@@ -929,9 +929,9 @@ L<http://search.cpan.org/dist/Geo-Coder-Free/>
 
 Copyright 2017-2026 Nigel Horne.
 
-The program code is released under the following licence: GPL for personal use on a single computer.
-All other users (including Commercial, Charity, Educational, Government)
-must apply in writing for a licence for use from Nigel Horne at `<njh at nigelhorne.com>`.
+Usage is subject to the GPL2 licence terms.
+If you use it,
+please let me know.
 
 This product uses GeoLite2 data created by MaxMind, available from
 L<https://www.maxmind.com/en/home>. See their website for licensing information.

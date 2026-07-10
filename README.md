@@ -4,7 +4,7 @@ Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
 
 # VERSION
 
-Version 0.41
+Version 0.42
 
 # DESCRIPTION
 
@@ -142,6 +142,8 @@ since the latter is much more comprehensive.
 Also, only Australia, Canada and the US is imported, as the UK data is difficult to parse.
 3. Run bin/download\_databases - this will download the WhosOnFirst, Openaddr,
 Open Street Map and dr5hn databases.
+Open Street Map now uses PBF files,
+so you will need to `apt instsall osmium_tool` first.
 Check the values of OSM\_HOME, OPENADDR\_HOME,
 DR5HN\_HOME and WHOSONFIRST\_HOME within that script,
 you may wish to change them.
@@ -259,9 +261,9 @@ You can also look for information at:
 
 Copyright 2017-2026 Nigel Horne.
 
-The program code is released under the following licence: GPL for personal use on a single computer.
-All other users (including Commercial, Charity, Educational, Government)
-must apply in writing for a licence for use from Nigel Horne at \`&lt;njh at nigelhorne.com>\`.
+Usage is subject to the GPL2 licence terms.
+If you use it,
+please let me know.
 
 This product uses GeoLite2 data created by MaxMind, available from
 [https://www.maxmind.com/en/home](https://www.maxmind.com/en/home). See their website for licensing information.

@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.42
+0.42	Fri Jul 10 11:48:02 EDT 2026
 	Try Geo::Address::Parser before libpostal() as that uses less memory
 	createdatabase.PL - borough parent lookup now uses locality_id from hierarchy to skip intermediate boroughs
 	createdatabase.PL - File::Find glob fallback replaced with a pre-built ID->path index, eliminating per-miss tree scans
