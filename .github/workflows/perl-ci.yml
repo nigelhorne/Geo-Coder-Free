@@ -40,7 +40,7 @@ jobs:
       NO_NETWORK_TESTING: 1
       NONINTERACTIVE_TESTING: 1
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Perl
         uses: shogo82148/actions-setup-perl@v1
