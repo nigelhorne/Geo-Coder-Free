@@ -59,6 +59,10 @@ jobs:
 
       # Install module dependencies (from cpanfile or manually)
       - name: Install dependencies
+        env:
+          AUTOMATED_TESTING: 1
+          NO_NETWORK_TESTING: 1
+          NONINTERACTIVE_TESTING: 1
         run: |
           cpanm --skip-satisfied --notest --installdeps .
           cpanm -iqn --skip-satisfied \
