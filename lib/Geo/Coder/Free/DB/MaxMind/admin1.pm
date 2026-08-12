@@ -2,6 +2,7 @@ package Geo::Coder::Free::DB::MaxMind::admin1;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 =head1 NAME
 
@@ -21,8 +22,7 @@ our $VERSION = '0.42';
 #	US.MD	Maryland	Maryland	4361885
 # So a look up of 'Maryland' will get the code 'US.MD'
 
+use parent -norequire, 'Geo::Coder::Free::DB::MaxMind::admin';
 use Geo::Coder::Free::DB::MaxMind::admin;
-
-our @ISA = ('Geo::Coder::Free::DB::MaxMind::admin');
 
 1;

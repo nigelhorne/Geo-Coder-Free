@@ -2,6 +2,7 @@ package Geo::Coder::Free::DB::vwf_log;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 =head1 NAME
 
@@ -15,19 +16,22 @@ Version 0.42
 
 our $VERSION = '0.42';
 
-use Database::Abstraction;
+use parent 'Database::Abstraction';
 use DBD::CSV;
-
-our @ISA = ('Database::Abstraction');
+use Params::Get;
 
 # Standard CSV file, with no header line
 
 # Doesn't ignore lines starting with '#' as it's not treated like a CSV file
 sub _open {
 	my $self = shift;
-	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+	my $args = Params::Get::get_params(undef, @_);
 
-	return $self->SUPER::_open(sep_char => ',', column_names => ['domain_name', 'time', 'IP', 'country', 'type', 'language', 'http_code', 'template', 'args', 'warnings', 'error'], %args);
+	return $self->SUPER::_open(
+		sep_char     => ',',
+		column_names => ['domain_name', 'time', 'IP', 'country', 'type', 'language', 'http_code', 'template', 'args', 'warnings', 'error'],
+		%{$args}
+	);
 }
 
 1;

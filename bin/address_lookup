@@ -6,6 +6,7 @@
 use warnings;
 use strict;
 use autodie qw(:all);
+use Carp;
 
 use FindBin qw($Bin);
 use Getopt::Std;
@@ -14,7 +15,7 @@ use Geo::Coder::Free;
 use Geo::Coder::Free::Local;
 
 if(scalar(@ARGV) == 0) {
-	die "Usage: $0 location";
+	Carp::croak "Usage: $0 location";
 }
 
 my %opts;

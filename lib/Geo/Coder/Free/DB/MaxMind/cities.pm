@@ -2,6 +2,7 @@ package Geo::Coder::Free::DB::MaxMind::cities;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 =head1 NAME
 
@@ -15,9 +16,7 @@ Version 0.42
 
 our $VERSION = '0.42';
 
-use Database::Abstraction;
-
-our @ISA = ('Database::Abstraction');
+use parent 'Database::Abstraction';
 
 sub _open {
 	my $self = shift;

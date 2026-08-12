@@ -2,6 +2,7 @@ package Geo::Coder::Free::DB::MaxMind::admin2;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 =head1 NAME
 
@@ -22,8 +23,7 @@ our $VERSION = '0.42';
 # So a look up of 'Sittingbourne' with a Region set to 'G5' in the cities database will give:
 #	gb,sittingbourne,Sittingbourne,G5,41148,51.333333,.75
 
+use parent -norequire, 'Geo::Coder::Free::DB::MaxMind::admin';
 use Geo::Coder::Free::DB::MaxMind::admin;
-
-our @ISA = ('Geo::Coder::Free::DB::MaxMind::admin');
 
 1;

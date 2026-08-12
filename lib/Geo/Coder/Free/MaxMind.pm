@@ -12,6 +12,7 @@ package Geo::Coder::Free::MaxMind;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 use Geo::Coder::Free::DB::MaxMind::admin1;
 use Geo::Coder::Free::DB::MaxMind::admin2;
@@ -20,6 +21,7 @@ use Geo::Location::Point;
 use Module::Info;
 use Carp;
 use File::Spec;
+use Params::Get;
 use Locale::CA;
 use Locale::US;
 use CHI;
@@ -29,7 +31,7 @@ use Scalar::Util;
 our %admin1cache;
 our %admin2cache;	# e.g. maps 'Kent' => 'P5'
 
-sub _prepare($$);
+sub _prepare;
 
 # Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know
 # FIXME: Should be in a configuration file

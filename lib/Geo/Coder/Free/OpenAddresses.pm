@@ -4,6 +4,7 @@ package Geo::Coder::Free::OpenAddresses;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 use Geo::Coder::Free;	# for _abbreviate
 use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
@@ -23,6 +24,7 @@ use Locale::Country;
 use Geo::StreetAddress::US;
 use Digest::MD5;
 use Encode;
+use Params::Get;
 use Storable;
 
 # Some locations aren't found because of inconsistencies in the way things are stored - these are some values I know

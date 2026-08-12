@@ -34,7 +34,6 @@ our @EXPORT = qw(create_disc_cache create_memory_cache distance);
 use CHI;
 use Data::Dumper;
 use DBI;
-use Error::Simple;
 use Module::Runtime qw(require_module);	# Safe dynamic loading; avoids string eval
 use Params::Get 0.13;
 use Try::Tiny;
@@ -135,7 +134,7 @@ sub create_memory_cache {
 
 sub _create_cache($cache_type, $args) {
 	my $config = $args->{'config'};
-	throw Error::Simple('config is not optional') unless($config);
+	croak('config is not optional') unless $config;
 
 	_validate_cache_config($config, $cache_type);
 
@@ -170,7 +169,7 @@ sub _create_cache($cache_type, $args) {
 	} catch {
 		my $error = "Failed to create $cache_type cache with driver $driver: $_";
 		$logger->error($error) if $logger;
-		throw Error::Simple($error);
+		croak($error);
 	};
 
 	return $cache;

@@ -2,6 +2,7 @@ package Geo::Coder::Free::Local;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 use Carp;
 use Geo::Location::Point 0.14;
@@ -151,16 +152,16 @@ sub geocode {
 	# Try hard to support whatever API the user wants to use
 	if(!ref($self)) {
 		if(scalar(@_)) {
-			return(__PACKAGE__->new()->geocode(@_));
+			return __PACKAGE__->new()->geocode(@_);
 		} elsif(!defined($self)) {
 			# Geo::Coder::Free->geocode()
 			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location)');
 		} elsif($self eq __PACKAGE__) {
 			Carp::croak("Usage: $self", '::geocode(location => $location)');
 		}
-		return(__PACKAGE__->new()->geocode($self));
+		return __PACKAGE__->new()->geocode($self);
 	} elsif(ref($self) eq 'HASH') {
-		return(__PACKAGE__->new()->geocode($self));
+		return __PACKAGE__->new()->geocode($self);
 	} elsif(ref($_[0]) eq 'HASH') {
 		%params = %{$_[0]};
 	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
@@ -322,7 +323,7 @@ sub geocode {
 				if($l =~ /(United States|USA|US)$/i) {
 					$addr{'country'} = 'US';
 				} else {
-					die "TODO: extract country from $l";
+					Carp::croak("TODO: extract country from $l");
 				}
 			}
 			foreach my $row(@{$self->{'data'}}) {
