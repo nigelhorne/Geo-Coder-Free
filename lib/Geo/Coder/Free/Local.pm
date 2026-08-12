@@ -436,7 +436,7 @@ sub geocode {
 	}
 
 	# Simple "Town, County, England" — no further sub-parsers will help
-	if (($location =~ /.+,.+,.*England$/) && ($location !~ /.+,.+,.+,.*England$/)) {
+	if (($location =~ /[^,]+,[^,]+,.*England$/) && ($location !~ /[^,]+,[^,]+,[^,]+,.*England$/)) {
 		return;
 	}
 

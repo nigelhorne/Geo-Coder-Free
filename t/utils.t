@@ -36,7 +36,8 @@ my $invalid_config = {};
 # Test create_disc_cache
 sub test_create_disc_cache {
 	# Valid configuration
-	my $disk_cache = eval { create_disc_cache({ config => $valid_disk_config, namespace => 'test_disk' }) };
+	my $disk_cache = eval { create_disc_cache({ config => $valid_disk_config, namespace => 'test_disk' }); 1 };
+	diag($@) if(defined($@));
 	ok($disk_cache, 'Disk cache created successfully');
 
 	# Invalid configuration

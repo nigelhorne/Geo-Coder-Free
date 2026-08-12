@@ -221,19 +221,24 @@ subtest 'M3: scantext path never reaches alternatives table' => sub {
 # -----------------------------------------------------------------------
 
 subtest 'M8: maxmind fallback — scalar and list context both work' => sub {
-	plan tests => 2;
+	if(!defined($ENV{NO_NETWORK_TESTING})) {
+		plan tests => 3;
 
-	my $geo = Geo::Coder::Free->new();
+		my $geo = new_ok('Geo::Coder::Free');
 
-	my $scalar_result;
-	lives_ok {
-		$scalar_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
-	} 'geocode in scalar context does not die (M8 context propagation intact)';
+		my $scalar_result;
+		lives_ok {
+			$scalar_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
+		} 'geocode in scalar context does not die (M8 context propagation intact)';
 
-	my @list_result;
-	lives_ok {
-		@list_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
-	} 'geocode in list context does not die (M8 context propagation intact)';
+		my @list_result;
+		lives_ok {
+			@list_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
+		} 'geocode in list context does not die (M8 context propagation intact)';
+	} else {
+		plan tests => 1;
+		pass('Needs network testing');
+	}
 };
 
 done_testing();

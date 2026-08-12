@@ -643,12 +643,12 @@ sub _find_us_addresses {
 	my $text = shift;
 	my @addresses;
 	my $re = qr/
-		\b (\d{1,5}) \s+
-		([A-Za-z0-9\s]+?) \s+
-		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?)
-		(\s+[A-Za-z]{2})? ,\s*
-		([A-Za-z\s]+) ,\s*
-		([A-Z]{2}) \s* (\d{5}(-\d{4})?)? \b
+		\b \d{1,5} \s+                                      # house number
+		(?:[A-Za-z0-9]+(?:\s+[A-Za-z0-9]+){0,6}) \s+       # street name: 1–7 words (bounded)
+		(?:Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?)
+		(?:\s+[A-Za-z]{2})? ,\s*
+		(?:[A-Za-z]+(?:\s+[A-Za-z]+){0,3}) ,\s*            # city: 1–4 words
+		[A-Z]{2} \s* (?:\d{5}(?:-\d{4})?)? \b              # state + optional zip
 	/x;
 	while ($text =~ /$re/g) {
 		push @addresses, $&;
@@ -663,12 +663,24 @@ sub _find_us_addresses {
 sub _find_gb_addresses {
 	my $text = shift;
 	my @addresses;
+	# ReDoS fix: the former pattern used \s*,?\s* between all parts and
+	# [A-Za-z\s'-]+ groups — with commas optional, the engine must try all
+	# possible splits of a long string among 5 overlapping space-containing
+	# groups, causing exponential backtracking.  Making commas mandatory
+	# eliminates the ambiguity entirely: UK postal addresses always have commas.
+	# All groups are non-capturing (only $& is used).
 	my $re = qr/
-		\b (\d{1,5}|\w[\w\s'-]+) \s+
-		([A-Za-z0-9\s'-]+) \s*,?\s*
-		([A-Za-z\s'-]+)    \s*,?\s*
-		([A-Za-z\s'-]+)    \s*,?\s*
-		([A-Za-z\s'-]+)    \b
+		\b
+		(?:\d{1,5} | [\w'-]+)                   # house number or single-word name
+		\s+
+		(?:[\w'-]+(?:\s+[\w'-]+){0,5})           # street name (up to 6 words)
+		\s*,\s*                                   # COMMA REQUIRED — kills the ambiguity
+		(?:[\w'-]+(?:\s+[\w'-]+){0,3})           # town (up to 4 words)
+		\s*,\s*                                   # COMMA REQUIRED
+		(?:[\w'-]+(?:\s+[\w'-]+){0,3})           # county (up to 4 words)
+		\s*,\s*                                   # COMMA REQUIRED
+		(?:[\w'-]+(?:\s+[\w'-]+){0,2})           # country (up to 3 words)
+		\b
 	/x;
 	while ($text =~ /$re/g) {
 		(my $addr = $&) =~ s/[,\s]+$//;
@@ -685,12 +697,13 @@ sub _find_ca_addresses {
 	my $text = shift;
 	my @addresses;
 	my $re = qr/
-		\b (\d{1,5}) \s+
-		([A-Za-z0-9\s]+?) \s+
-		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?|Circle|Crescent|Cres\.?)
-		\s*,\s* ([A-Za-z\s]+) \s*,\s*
-		([A-Z]{2}) \s*,?\s*
-		([A-Z]\d[A-Z]\s?\d[A-Z]\d)? \b
+		\b \d{1,5} \s+                                         # house number
+		(?:[A-Za-z0-9]+(?:\s+[A-Za-z0-9]+){0,6}) \s+          # street name: 1–7 words (bounded)
+		(?:Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?|Circle|Crescent|Cres\.?)
+		\s*,\s*
+		(?:[A-Za-z]+(?:\s+[A-Za-z]+){0,3}) \s*,\s*            # city: 1–4 words
+		[A-Z]{2} \s*,?\s*
+		(?:[A-Z]\d[A-Z]\s?\d[A-Z]\d)? \b                      # optional postal code
 	/x;
 	while ($text =~ /$re/g) {
 		push @addresses, $&;
@@ -708,16 +721,23 @@ sub _normalize {
 	my $street = uc(shift);
 	$abbreviations ||= Geo::Coder::Abbreviations->new();
 
-	if ($street =~ /(.+)\s+(.+)\s+(.+)/) {
+	# ReDoS fix: the former /(.+)\s+(.+)\s+(.+)/ was O(N³) because all three
+	# greedy .+ groups can match spaces, forcing the engine to try every possible
+	# three-way split.  Splitting on whitespace is O(N) and semantically identical:
+	# we want to abbreviate the second-to-last word (embedded street type) or the
+	# last word (trailing street type).
+	my @words = split /\s+/, $street;
+	if (@words >= 3) {
 		my $a;
-		if (lc($2) ne 'cross' && ($a = $abbreviations->abbreviate($2))) {
-			$street = "$1 $a $3";
-		} elsif ($a = $abbreviations->abbreviate($3)) {
-			$street = "$1 $2 $a";
+		if (lc($words[-2]) ne 'cross' && ($a = $abbreviations->abbreviate($words[-2]))) {
+			$words[-2] = $a;
+		} elsif ($a = $abbreviations->abbreviate($words[-1])) {
+			$words[-1] = $a;
 		}
-	} elsif ($street =~ /(.+)\s(.+)$/) {
-		if (my $a = $abbreviations->abbreviate($2)) {
-			$street = "$1 $a";
+		$street = join ' ', @words;
+	} elsif (@words == 2) {
+		if (my $a = $abbreviations->abbreviate($words[-1])) {
+			$street = "$words[0] $a";
 		}
 	}
 	$street =~ s/^0+//;	# "04th St" → "4th St"

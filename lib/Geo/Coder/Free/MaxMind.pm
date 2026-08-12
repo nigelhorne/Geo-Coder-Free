@@ -318,7 +318,7 @@ sub geocode {
 					$country_code = $concatenated_codes;
 					my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
 					foreach my $admin1(@admin1s) {
-						if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
+						if($admin1->{'concatenated_codes'} =~ /^\Q$concatenated_codes\E\./i) {
 							$concatenated_codes = $admin1->{'concatenated_codes'};
 							last;
 						}
@@ -453,7 +453,7 @@ sub geocode {
 			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
 				# ::diag(__LINE__, Data::Dumper->new([$admin1])->Dump());
-				if($admin1->{'concatenated_codes'} =~ /^$concatenated_codes\./i) {
+				if($admin1->{'concatenated_codes'} =~ /^\Q$concatenated_codes\E\./i) {
 					$region = $admin1->{'concatenated_codes'};
 					if(scalar(@admin1s) == 1) {
 						$admin1cache{$county} = $region;
@@ -483,9 +483,7 @@ sub geocode {
 		}
 	}
 	if($region) {
-		if($region =~ /^.+\.(.+)$/) {
-			$region = $1;
-		}
+		$region =~ s/^.*\.//;    # keep only the rightmost dot-delimited component
 		$options->{'Region'} = $region;
 		if($country_code) {
 			$options->{'Country'} = lc($country_code);
@@ -593,9 +591,7 @@ sub geocode {
 	if(!defined($city)) {
 		# ::diag(__LINE__, ': ', scalar(@regions));
 		foreach $region(@regions) {
-			if($region =~ /^.+\.(.+)$/) {
-				$region = $1;
-			}
+			$region =~ s/^.*\.//;    # keep only the rightmost dot-delimited component
 			if($country =~ /^(United States|USA|US)$/) {
 				next unless($region =~ /^[A-Z]{2}$/);	# In the US, the regions are the states
 			}
