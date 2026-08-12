@@ -29,7 +29,15 @@ use Locale::Country;
 use Scalar::Util;
 
 our %admin1cache;
-our %admin2cache;	# e.g. maps 'Kent' => 'P5'
+our %admin2cache;     # name → region code (e.g. 'Kent' → 'P5')
+our %admin2cache_rev; # region code → name (inverse; avoids O(N) scan in _prepare)
+
+# Lazily-initialised Locale singletons — constructing Locale::US / Locale::CA
+# on every geocode call for US/Canadian addresses was the top object-churn
+# hotspot.  These are module-level my-variables (not exported) so they survive
+# across object instances and avoid the construction cost after the first call.
+my $_locale_us;
+my $_locale_ca;
 
 sub _prepare;
 
@@ -335,20 +343,20 @@ sub geocode {
 	# ::diag(__LINE__, ": $country");
 	if($country =~ /^(United States|USA|US)$/) {
 		if($county && (length($county) > 2)) {
-			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($county)}) {
+			if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($county)}) {
 				$county = $twoletterstate;
 			}
 			# ::diag(__LINE__, ": $location, $county, $country");
 		}
 		if($state && (length($state) > 2)) {
-			if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+			if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 				$state = $twoletterstate;
 			}
 			# ::diag(__LINE__, ": $location, $state, $country");
 		}
 	} elsif(($country eq 'Canada') && $state && (length($state) > 2)) {
 		# ::diag(__LINE__, ": $state");
-		if(Locale::CA->new()->{province2code}{uc($state)}) {
+		if(($_locale_ca //= Locale::CA->new())->{province2code}{uc($state)}) {
 			# FIXME:  I can't see that province locations are stored in cities.csv
 			return unless(defined($location));	# OK if searching for a city, that works
 		}
@@ -486,9 +494,11 @@ sub geocode {
 		# know which one will be matched later
 		if(scalar(@admin2s) == 1) {
 			if($state) {
-				$admin2cache{$state} = $region;
+				$admin2cache{$state}     = $region;
+				$admin2cache_rev{$region} = $state;
 			} elsif($county) {
-				$admin2cache{$county} = $region;
+				$admin2cache{$county}    = $region;
+				$admin2cache_rev{$region} = $county;
 			}
 		}
 	}
@@ -672,6 +682,13 @@ sub reverse_geocode
 		);
 	}
 
+	# Validate coordinates before interpolating into SQL — prevents injection
+	# if a caller passes a non-numeric latlng string.
+	for my $c ($latitude, $longitude) {
+		Carp::croak('Invalid coordinate value for reverse_geocode')
+			unless defined($c) && $c =~ /^-?\d+\.?\d*$/;
+	}
+
 	if(wantarray) {
 		my @locs = $self->{'cities'}->execute("SELECT * FROM cities WHERE ((ABS(Latitude - $latitude)) < 0.01) AND ((ABS(Longitude - $longitude)) < 0.01)");
 		foreach my $loc(@locs) {
@@ -679,12 +696,20 @@ sub reverse_geocode
 		}
 		return map { Geo::Location::Point->new($_)->as_string() } @locs;
 	}
-	# Try close in then zoom out, to a reasonable limit
-	foreach my $radius(0.000001, 0.00001, 0.0001, 0.001, 0.01) {
-		if(my $rc = $self->{'cities'}->execute("SELECT * FROM cities WHERE ((ABS(Latitude - $latitude)) < $radius) AND ((ABS(Longitude - $longitude)) < $radius) LIMIT 1")) {
-			$self->_prepare($rc);
-			return Geo::Location::Point->new($rc)->as_string();
-		}
+
+	# Performance: the former code issued 5 sequential SQL queries with ever-
+	# widening radii (0.000001 → 0.01).  Replace with a single query that
+	# orders by Manhattan distance and caps at the maximum radius (0.01°).
+	# This eliminates 4 round-trips to SQLite on the common miss-until-last case.
+	my $rc = $self->{'cities'}->execute(
+		"SELECT * FROM cities" .
+		" WHERE ABS(Latitude - $latitude) < 0.01 AND ABS(Longitude - $longitude) < 0.01" .
+		" ORDER BY (ABS(Latitude - $latitude) + ABS(Longitude - $longitude)) ASC" .
+		" LIMIT 1"
+	);
+	if($rc) {
+		$self->_prepare($rc);
+		return Geo::Location::Point->new($rc)->as_string();
 	}
 	return;
 }
@@ -694,28 +719,21 @@ sub _prepare {
 	my ($self, $loc) = @_;
 
 	if(my $region = $loc->{'Region'}) {
-		my $county;
-
-		# Check if region is already cached in admin2cache
-		while(my ($key, $value) = each %admin2cache) {
-			if($value eq $region) {
-				$county = $key;
-				last;
-			}
-		}
+		# O(1) reverse lookup — the former O(N) `while each %admin2cache` scan
+		# walked the entire cache comparing values.  %admin2cache_rev is kept in
+		# sync at every write site, giving a constant-time code→name translation.
+		my $county = $admin2cache_rev{$region};
 		if($county) {
 			$loc->{'Region'} = $county;
 		} else {
-			# Initialize admin2 object if not already initialized
 			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or Carp::croak("Can't open the admin2 database");
-
-			# Prepare and execute SQL query
 
 			my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($region) . "' LIMIT 1");
 			if(ref($row) && $row->{'name'}) {
-				# Cache the result for future calls and update the location's region
-				$admin2cache{$row->{'name'}} = $region;
-				$loc->{'Region'} = $row->{'name'};
+				# Write to both forward and reverse caches in one go
+				$admin2cache{$row->{'name'}}  = $region;
+				$admin2cache_rev{$region}      = $row->{'name'};
+				$loc->{'Region'}               = $row->{'name'};
 			}
 		}
 	}

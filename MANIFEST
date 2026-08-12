@@ -58,6 +58,7 @@ t/lib/MyLogger.pm
 t/links.t
 t/local.t
 t/locales.t
+t/logic-reducer.t
 t/manifest.t
 t/maxmind.t
 t/modules-used.t

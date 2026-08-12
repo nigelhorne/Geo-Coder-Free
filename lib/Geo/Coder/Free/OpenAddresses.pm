@@ -38,6 +38,13 @@ our %known_locations = (
 
 our %unknown_locations;
 
+# Lazily-initialised Locale singletons.  Locale::US->new() and
+# Locale::CA->new() were being called up to five times per geocode()
+# invocation for US/Canadian addresses.  These module-level variables
+# persist across all object instances and eliminate repeated construction.
+my $_locale_us;
+my $_locale_ca;
+
 use constant	LIBPOSTAL_UNKNOWN => 0;
 use constant	LIBPOSTAL_INSTALLED => 1;
 use constant	LIBPOSTAL_NOT_INSTALLED => -1;
@@ -375,12 +382,12 @@ sub geocode
 			} else {
 				if($c{'country'} =~ /Canada/i) {
 					$addr{'country'} = 'CA';
-					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($c{'subcountry'})}) {
+					if(my $twoletterstate = ($_locale_ca //= Locale::CA->new())->{province2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
 				} elsif($c{'country'} =~ /^(United States|USA|US)$/i) {
 					$addr{'country'} = 'US';
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($c{'subcountry'})}) {
+					if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($c{'subcountry'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
 				} elsif($c{'country'}) {
@@ -418,7 +425,7 @@ sub geocode
 			# ::diag(Data::Dumper->new([$href])->Dump());
 			if($state = $href->{'state'}) {
 				if(length($state) > 2) {
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 						$state = $twoletterstate;
 					}
 				}
@@ -456,7 +463,7 @@ sub geocode
 			# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
 			$state = $addr[3];
 			if(length($state) > 2) {
-				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+				if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 					$state = $twoletterstate;
 				}
 			}
@@ -508,7 +515,7 @@ sub geocode
 		if($c) {
 			if($c eq 'us') {
 				if(length($state) > 2) {
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+					if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 						$state = $twoletterstate;
 					}
 				}
@@ -537,7 +544,7 @@ sub geocode
 					# ::diag(Data::Dumper->new([\$href])->Dump());
 					$state = $href->{'state'};
 					if(length($state) > 2) {
-						if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+						if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 							$state = $twoletterstate;
 						}
 					}
@@ -610,7 +617,7 @@ sub geocode
 								Carp::croak(__PACKAGE__, ": Geo::StreetAddress::US couldn't find the state in '$lookup'");
 							}
 							if(length($state) > 2) {
-								if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+								if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 									$state = $twoletterstate;
 								}
 							}
@@ -701,7 +708,7 @@ sub geocode
 				}
 			} elsif($c eq 'ca') {
 				if(length($state) > 2) {
-					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+					if(my $twoletterstate = ($_locale_ca //= Locale::CA->new())->{province2code}{uc($state)}) {
 						$state = $twoletterstate;
 					}
 				}
@@ -718,7 +725,7 @@ sub geocode
 					# Well formed, simple street address in Canada
 					$state = $href->{'province'};
 					if(length($state) > 2) {
-						if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+						if(my $twoletterstate = ($_locale_ca //= Locale::CA->new())->{province2code}{uc($state)}) {
 							$state = $twoletterstate;
 						}
 					}
@@ -840,14 +847,14 @@ sub geocode
 		if($country =~ /Canada/i) {
 			$country = 'CA';
 			if(length($state) > 2) {
-				if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($state)}) {
+				if(my $twoletterstate = ($_locale_ca //= Locale::CA->new())->{province2code}{uc($state)}) {
 					$state = $twoletterstate;
 				}
 			}
 		} else {
 			$country = 'US';
 			if(length($state) > 2) {
-				if(my $twoletterstate = Locale::US->new()->{state2code}{uc($state)}) {
+				if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 					$state = $twoletterstate;
 				}
 			}
@@ -899,14 +906,14 @@ sub geocode
 			if($addr{'country'} =~ /Canada/i) {
 				$addr{'country'} = 'Canada';
 				if(length($addr{'state'}) > 2) {
-					if(my $twoletterstate = Locale::CA->new()->{province2code}{uc($addr{'state'})}) {
+					if(my $twoletterstate = ($_locale_ca //= Locale::CA->new())->{province2code}{uc($addr{'state'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
 				}
 			} else {
 				$addr{'country'} = 'US';
 				if(length($addr{'state'}) > 2) {
-					if(my $twoletterstate = Locale::US->new()->{state2code}{uc($addr{'state'})}) {
+					if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($addr{'state'})}) {
 						$addr{'state'} = $twoletterstate;
 					}
 				}

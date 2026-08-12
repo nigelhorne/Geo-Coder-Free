@@ -341,23 +341,30 @@ sub geocode {
 
 			my $region = $params{'region'};
 
-			# Merge caller-supplied ignore_words with the module-level stoplist
-			my %ignore_words = %_COMMON_WORDS;
+			# Build the effective stopword set.  When the caller supplies no
+			# ignore_words we avoid copying %_COMMON_WORDS (which is immutable
+			# at runtime) by using a reference to it directly.  Only when extra
+			# words are needed do we allocate and populate a merged hash.
+			my $ignore_words;
 			if (my $iw = $params{'ignore_words'}) {
-				$ignore_words{lc $_} = 1 for @{$iw};
+				my %merged = %_COMMON_WORDS;
+				$merged{lc $_} = 1 for @{$iw};
+				$ignore_words = \%merged;
+			} else {
+				$ignore_words = \%_COMMON_WORDS;
 			}
 
 			my @rc;
 
 			# 3-word window search
-			my @triplets = _find_word_ngrams($scantext, 3, \%ignore_words);
+			my @triplets = _find_word_ngrams($scantext, 3, $ignore_words);
 			my $res = $self->_resolve_scan_candidates(\@triplets, $region, $CONF_TRIPLET, $scantext);
 			if (@{$res}) {
 				return wantarray ? @{$res} : $res->[0];
 			}
 
 			# 2-word window search
-			my @duplets = _find_word_ngrams($scantext, 2, \%ignore_words);
+			my @duplets = _find_word_ngrams($scantext, 2, $ignore_words);
 			$res = $self->_resolve_scan_candidates(\@duplets, $region, $CONF_DUPLET, $scantext);
 			if (@{$res}) {
 				return wantarray ? @{$res} : $res->[0];
@@ -385,7 +392,7 @@ sub geocode {
 				if (@candidates) {
 					my @regional;
 					for my $candidate (@candidates) {
-						next if $ignore_words{lc $candidate};
+						next if $ignore_words->{lc $candidate};
 						my @hits = grep { defined }
 							$self->{'openaddr'}->geocode("$candidate, $region");
 						push @regional, @hits if @hits;
@@ -495,16 +502,13 @@ sub reverse_geocode {
 
 	my %params = _normalize_args(_i18n('usage_reverse', __PACKAGE__), 'latlng', @_);
 
+	# M8 (tautology — same pattern fixed in geocode): both arms are identical;
+	# context propagates implicitly through return.
 	if ($self->{'openaddr'}) {
-		return wantarray
-			? $self->{'openaddr'}->reverse_geocode(\%params)
-			: $self->{'openaddr'}->reverse_geocode(\%params);
+		return $self->{'openaddr'}->reverse_geocode(\%params);
 	}
-
 	if ($params{'latlng'}) {
-		return wantarray
-			? $self->{'maxmind'}->reverse_geocode(\%params)
-			: $self->{'maxmind'}->reverse_geocode(\%params);
+		return $self->{'maxmind'}->reverse_geocode(\%params);
 	}
 
 	Carp::croak(_i18n('reverse_unsupported'));
