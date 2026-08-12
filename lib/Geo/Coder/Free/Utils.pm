@@ -7,7 +7,7 @@ package Geo::Coder::Free::Utils;
 
 =head1 NAME
 
-Geo::Coder::Free::Utils - Random subroutines for VWF
+Geo::Coder::Free::Utils - Random subroutines for Geo::Coder::Free
 
 =head1 DESCRIPTION
 
@@ -34,6 +34,7 @@ our @EXPORT = qw(create_disc_cache create_memory_cache distance);
 use CHI;
 use Data::Dumper;
 use DBI;
+use Error::Simple;
 use Module::Runtime qw(require_module);	# Safe dynamic loading; avoids string eval
 use Params::Get 0.13;
 use Try::Tiny;
@@ -134,7 +135,7 @@ sub create_memory_cache {
 
 sub _create_cache($cache_type, $args) {
 	my $config = $args->{'config'};
-	croak('config is not optional') unless $config;
+	throw Error::Simple('config is not optional') unless($config);
 
 	_validate_cache_config($config, $cache_type);
 
@@ -169,7 +170,7 @@ sub _create_cache($cache_type, $args) {
 	} catch {
 		my $error = "Failed to create $cache_type cache with driver $driver: $_";
 		$logger->error($error) if $logger;
-		croak($error);
+		throw Error::Simple($error);
 	};
 
 	return $cache;
@@ -465,7 +466,7 @@ You can find documentation for this module with the perldoc command.
 
 =head1 LICENSE AND COPYRIGHT
 
-VWF is licensed under GPL2.0 for personal use only.
+Geo::Coder::Free is licensed under GPL2.0 for personal use only.
 Commercial users must apply in writing for a licence.
 
 =head1 SEE ALSO

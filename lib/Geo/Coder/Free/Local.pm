@@ -743,16 +743,16 @@ sub reverse_geocode {
 	# Try hard to support whatever API that the user wants to use
 	if(!ref($self)) {
 		if(scalar(@_)) {
-			return(__PACKAGE__->new()->reverse_geocode(@_));
+			return __PACKAGE__->new()->reverse_geocode(@_);
 		} elsif(!defined($self)) {
 			# Geo::Coder::Free->reverse_geocode()
 			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
 		} elsif($self eq __PACKAGE__) {
 			Carp::croak("Usage: $self", '::reverse_geocode(latlng => "$lat,$long")');
 		}
-		return(__PACKAGE__->new()->reverse_geocode($self));
+		return __PACKAGE__->new()->reverse_geocode($self);
 	} elsif(ref($self) eq 'HASH') {
-		return(__PACKAGE__->new()->reverse_geocode($self));
+		return __PACKAGE__->new()->reverse_geocode($self);
 	} elsif(ref($_[0]) eq 'HASH') {
 		%params = %{$_[0]};
 	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {

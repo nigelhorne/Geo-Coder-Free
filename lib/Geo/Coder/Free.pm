@@ -7,6 +7,7 @@ package Geo::Coder::Free;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 # use lib '.';
 
@@ -37,8 +38,8 @@ our $VERSION = '0.42';
 our $alternatives;
 our $abbreviations;
 
-sub _abbreviate($);
-sub _normalize($);
+sub _abbreviate;
+sub _normalize;
 
 =head1 DESCRIPTION
 
@@ -235,10 +236,10 @@ sub geocode {
 	# Fail when the input is just a set of numbers
 	if(defined($params{'location'}) && ($params{'location'} !~ /\D/)) {
 		Carp::croak('Usage: ', __PACKAGE__, ": invalid location to geocode(), $params{location}") if(length($params{'location'}));
-		return undef;
+		return;
 	} elsif(defined($params{'scantext'}) && ($params{'scantext'} !~ /\D/)) {
 		Carp::croak('Usage: ', __PACKAGE__, ": invalid scantext to geocode(), $params{scantext}") if(length($params{'scantext'}));
-		return undef;
+		return;
 	}
 
 	if($self->{'openaddr'}) {
@@ -707,12 +708,12 @@ sub run {
 		@rc = $class->new()->geocode($location);
 	}
 
-	die "$0: geocoding failed" unless(scalar(@rc));
+	Carp::croak("$0: geocoding failed") unless scalar(@rc);
 
 	print Data::Dumper->new([\@rc])->Dump();
 }
 
-sub _normalize($) {
+sub _normalize {
 	my $street = shift;
 
 	$abbreviations ||= Geo::Coder::Abbreviations->new();
@@ -734,7 +735,7 @@ sub _normalize($) {
 	return $street;
 }
 
-sub _abbreviate($) {
+sub _abbreviate {
 	my $type = uc(shift);
 
 	$abbreviations ||= Geo::Coder::Abbreviations->new();

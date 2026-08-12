@@ -74,7 +74,7 @@ sub AUTOLOAD {
 	my $param = $AUTOLOAD;
 
 	unless($param eq 'MyLogger::DESTROY') {
-		die "Need to define $param";
+		Carp::croak "Need to define $param";
 	}
 }
 

@@ -112,7 +112,7 @@ sub new
 	my $class = shift;
 
 	# Handle hash or hashref arguments
-	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
+	my $args = Params::Get::get_params(undef, @_);
 
 	if(!defined($class)) {
 		# Geo::Coder::Free::Local->new not Geo::Coder::Free::Local::new
@@ -123,10 +123,10 @@ sub new
 		$class = __PACKAGE__;
 	} elsif(Scalar::Util::blessed($class)) {
 		# If $class is an object, clone it with new arguments
-		return bless { %{$class}, %args }, ref($class);
+		return bless { %{$class}, %{$args} }, ref($class);
 	}
 
-	my $directory = $args{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
+	my $directory = $args->{'directory'} || Module::Info->new_from_loaded(__PACKAGE__)->file();
 	$directory =~ s/\.pm$//;
 
 	if(!-d $directory) {
@@ -135,14 +135,14 @@ sub new
 
 	Database::Abstraction::init({
 		cache_duration => '1 day',
-		%args,
+		%{$args},
 		directory => File::Spec->catfile($directory, 'databases'),
-		cache => $args{cache} || CHI->new(driver => 'Memory', global => 1)
+		cache => $args->{'cache'} || CHI->new(driver => 'Memory', global => 1)
 	});
 
 	# Return the blessed object
 	return bless {
-		cache => $args{cache} || CHI->new(driver => 'Memory', global => 1),
+		cache => $args->{'cache'} || CHI->new(driver => 'Memory', global => 1),
 	}, $class;
 }
 
@@ -297,7 +297,7 @@ sub geocode {
 		} elsif($admin1cache{$country} && !defined($state)) {
 			$concatenated_codes = $admin1cache{$country};
 		} else {
-			$self->{'admin1'} //= Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or die "Can't open the admin1 database";
+			$self->{'admin1'} //= Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or Carp::croak("Can't open the admin1 database");
 
 			if(my $admin1 = $self->{'admin1'}->fetchrow_hashref(asciiname => $country)) {
 				$concatenated_codes = $admin1->{'concatenated_codes'};
@@ -354,7 +354,7 @@ sub geocode {
 		}
 	}
 
-	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or die "Can't open the admin2 database";
+	$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or Carp::croak("Can't open the admin2 database");
 
 	if(defined($county) && ($county =~ /^[A-Z]{2}$/) && ($country =~ /^(United States|USA|US)$/)) {
 		# US state. Not Canadian province.
@@ -440,7 +440,7 @@ sub geocode {
 			# ::diag(__PACKAGE__, ': ', __LINE__, ": county $county");
 			# e.g. states in the US
 			if(!defined($self->{'admin1'})) {
-				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or die "Can't open the admin1 database";
+				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or Carp::croak("Can't open the admin1 database");
 			}
 			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
@@ -690,7 +690,7 @@ sub reverse_geocode
 }
 
 # Change 'Charing Cross, P5, Gb' to 'Charing Cross, London, Gb'
-sub _prepare($$) {
+sub _prepare {
 	my ($self, $loc) = @_;
 
 	if(my $region = $loc->{'Region'}) {
@@ -707,7 +707,7 @@ sub _prepare($$) {
 			$loc->{'Region'} = $county;
 		} else {
 			# Initialize admin2 object if not already initialized
-			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or die "Can't open the admin2 database";
+			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or Carp::croak("Can't open the admin2 database");
 
 			# Prepare and execute SQL query
 

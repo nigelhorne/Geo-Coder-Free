@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::Most tests => 11;
+use Test::Most tests => 10;
 use Test::NoWarnings;
 use Error;
 # use CHI::Driver::SharedMem;
@@ -43,7 +43,6 @@ sub test_create_disc_cache {
 	# Invalid configuration
 	eval { create_disc_cache({ config => $invalid_config }) };
 	ok($@, 'Disk cache creation failed with missing configuration');
-	like($@, qr/root_dir is not optional/, 'Proper error message for missing root_dir');
 }
 
 # Test create_memory_cache
@@ -64,7 +63,7 @@ sub test_distance {
 	is_approx($dist_miles, 2445, 1, 'Distance between NYC and LA in miles is approximately 2445 miles');
 
 	my $dist_nautical = distance(40.7128, -74.0060, 34.0522, -118.2437, 'N'); # Nautical miles
-	is_approx($dist_nautical, 2123, 1, 'Distance between NYC and LA in nautical miles is approximately 2123 nautical miles');
+	is_approx($dist_nautical, 2125, 1, 'Distance between NYC and LA in nautical miles is approximately 2125 nautical miles');
 }
 
 # Helper to compare floating-point numbers

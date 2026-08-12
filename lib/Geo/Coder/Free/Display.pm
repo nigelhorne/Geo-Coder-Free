@@ -59,7 +59,7 @@ CSRF token is needed in the current process.
 
 Emits a one-time warning to the error log:
 
-    Geo::Coder::Free: security.csrf.secret is not configured; using a per-process
+    VWF: security.csrf.secret is not configured; using a per-process
     random secret. CSRF tokens will not survive process restarts.
     Set security.csrf.secret in your site config to suppress this warning.
 
@@ -957,7 +957,7 @@ sub _generate_csrf_token($self) {
 			my $config_path = $self->{config}->{config_path}
 				? join(', ', @{$self->{config}->{config_path}})
 				: 'conf/' . ($self->{info} ? ($self->{info}->domain_name() // 'unknown') : 'unknown');
-			carp "Geo::Coder::Free: security.csrf.secret is not configured; "
+			carp "VWF: security.csrf.secret is not configured; "
 			   . 'using a per-process random secret. '
 			   . 'CSRF tokens will not survive process restarts. '
 			   . "Add <security><csrf><secret>...</secret></csrf></security> "

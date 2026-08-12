@@ -3,6 +3,7 @@
 use warnings;
 use strict;
 use autodie qw(:all);
+use Carp;
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
@@ -10,7 +11,7 @@ use lib "$Bin/../lib";
 eval {
 	doit();
 };
-die $@ if $@;
+Carp::croak $@ if $@;
 
 sub doit
 {

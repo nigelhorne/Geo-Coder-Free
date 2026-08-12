@@ -143,24 +143,16 @@ that either C<Leesburg, Loudoun County, Virginia, US> or C<Leesburg, Loudoun, Vi
 sub geocode
 {
 	my $self = shift;
-
-	my %param;
-	if(ref($_[0]) eq 'HASH') {
-		%param = %{$_[0]};
-	} elsif(ref($_[0])) {
-		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
-	} elsif(scalar(@_) % 2 == 0) {
-		%param = @_;
-	} else {
-		$param{location} = shift;
-	}
+	my $param = (@_ == 1 && !ref($_[0]))
+		? { location => $_[0] }
+		: Params::Get::get_params(undef, @_);
 
 	my %ignore_words;
-	if($param{'ignore_words'}) {
-		%ignore_words = map { lc($_) => 1 } @{$param{'ignore_words'}};
+	if($param->{'ignore_words'}) {
+		%ignore_words = map { lc($_) => 1 } @{$param->{'ignore_words'}};
 	}
 
-	if(my $scantext = $param{'scantext'}) {
+	if(my $scantext = $param->{'scantext'}) {
 		return if(length($scantext) < 6);
 		# FIXME:  wow this is inefficient
 		$scantext =~ s/[^\w']+/ /g;
@@ -168,7 +160,7 @@ sub geocode
 		my $count = scalar(@words);
 		my $offset = 0;
 		my @rc;
-		my $region = $param{'region'};
+		my $region = $param->{'region'};
 		if($region) {
 			$region = uc($region);
 		}
@@ -266,7 +258,7 @@ sub geocode
 		# return @locations;
 	}
 
-	my $location = $param{location}
+	my $location = $param->{location}
 		or Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 
 	# ::diag($location);
@@ -406,7 +398,7 @@ sub geocode
 					return $rc;
 				}
 			}
-			if((!$addr{'house_number'}) || !$param{'exact'}) {
+			if((!$addr{'house_number'}) || !$param->{'exact'}) {
 				if(my $rc = $self->_search(\%addr, ('road', 'city', 'state', 'country'))) {
 					return $rc;
 				}
@@ -602,7 +594,7 @@ sub geocode
 						}
 						$fullstreet =~ s/\s+//g;
 					}
-					warn "Fast lookup of US location '$location' failed";
+					Carp::carp("Fast lookup of US location '$location' failed");
 				} else {
 					if($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) {
 						my $lookup = "$1, $2, $state";
@@ -665,7 +657,7 @@ sub geocode
 							}
 							return;	# Not found
 						}
-						die $city;	# TODO: do something here
+						Carp::croak($city);	# TODO: do something here
 					} elsif($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
 						# Perhaps it just has the street's name?
 						# Rockville Pike, Rockville, MD, USA
@@ -751,7 +743,7 @@ sub geocode
 						}
 						$args{street} = uc($street);
 					}
-					warn "Fast lookup of Canadian location '$location' failed";
+					Carp::carp("Fast lookup of Canadian location '$location' failed");
 				} else {
 					if($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) {
 						# Perhaps it just has the street's name?
@@ -826,7 +818,7 @@ sub geocode
 						return $rc;
 					}
 				}
-				if((!$street) || !$param{'exact'}) {
+				if((!$street) || !$param->{'exact'}) {
 					if(my $rc = $self->_get("$city$state$c")) {
 						# return {
 							# 'number' => undef,
