@@ -177,6 +177,16 @@ sub new {
 		$self->{'index'}{$key} = $row;
 	}
 
+	# Build an O(1) region existence index used by geocode() to skip the O(n)
+	# grep before _search when no rows for the requested state/country exist.
+	# Major: every (state|country) pair in the dataset is represented here.
+	# Minor: if geocode's target pair is absent, _search can never match.
+	# Conclusion: early return is safe — eliminates the O(n) grep per call.
+	for my $row (@{$self->{'data'}}) {
+		my $rk = uc($row->{'state'} // '') . '|' . uc($row->{'country'} // '');
+		$self->{'region_index'}{$rk} = 1;
+	}
+
 	return $self;
 }
 
@@ -331,11 +341,13 @@ sub geocode {
 				$addr{'country'} = $l =~ /(United States|USA|US)$/i ? 'US'
 					: Carp::croak("TODO: extract country from $l");
 			}
-			my $has_region = grep {
-				uc($_->{'state'}   // '') eq uc($addr{'state'}   // '') &&
-				uc($_->{'country'} // '') eq uc($addr{'country'} // '')
-			} @{$self->{'data'}};
-			return unless $has_region;
+			# O(1) region check via index built in new() — replaces the former
+			# O(n) grep across all rows.
+			# Major: region_index maps every (state|country) pair in the dataset.
+			# Minor: if target pair is absent, no _search call can match.
+			# Conclusion: early return is equivalent and faster.
+			my $rk = uc($addr{'state'} // '') . '|' . uc($addr{'country'} // '');
+			return unless $self->{'region_index'}{$rk};
 		}
 	}
 
@@ -654,7 +666,10 @@ sub _normalize_args {
 	return %{$args[0]}               if ref($args[0]) eq 'HASH';
 	Carp::croak($error_msg)          if ref($args[0]);
 	return @args                     if @args && @args % 2 == 0;
-	return ($bare_key => $args[0])   if @args;
+	return ($bare_key => $args[0])   if @args == 1;
+	# M7 (logic-gap closure): odd-count > 1 is not a valid calling convention.
+	# Fail fast rather than silently discarding trailing arguments.
+	Carp::croak($error_msg)          if @args;
 	return ();
 }
 
@@ -702,27 +717,23 @@ sub _to_two_letter_state {
 sub _search {
 	my ($self, $data, @columns) = @_;
 
-	for my $row (@{$self->{'data'}}) {
+	# M5 (boolean reduction): the $failed flag was set-and-break in the inner loop
+	# then tested in the outer loop — eliminated by using a labeled 'next ROW'
+	# that short-circuits directly, removing one boolean gate per iteration.
+	ROW: for my $row (@{$self->{'data'}}) {
 		my $matched = 0;
-		my $failed  = 0;
 
 		for my $column (@columns) {
 			if (defined($data->{$column})) {
-				if (!defined($row->{$column})) {
-					$failed = 1;
-					last;
-				}
-				if (uc($row->{$column}) ne uc($data->{$column})) {
-					$failed = 1;
-					last;
-				}
+				next ROW unless defined($row->{$column});
+				next ROW if uc($row->{$column}) ne uc($data->{$column});
 				$matched++;
 			} elsif (exists $data->{$column}) {
 				delete $data->{$column};
 			}
 		}
 
-		next if $failed || $matched < 3;
+		next if $matched < 3;
 
 		# Assign confidence based on how many columns contributed to the match
 		my $confidence = $matched == scalar(@columns) ? $CONF_EXACT

@@ -417,28 +417,29 @@ sub geocode {
 
 		# Try the alternatives table — hand-curated mappings for locations that
 		# the databases have under slightly different names.
-		if (!$params{'scantext'}) {
-			if (my $alt = $self->{'alternatives'}) {
-				my $location = $params{'location'};
-				while (my ($key, $value) = each %{$alt}) {
-					next unless $location =~ $key;
-					(my $new_loc = $location) =~ s/$key/$value/;
+		# M3 (transitive reduction): every scantext path inside this block returned
+		# early above; at this point $params{'scantext'} is provably falsy, so the
+		# former `if (!$params{'scantext'})` guard was a tautology — removed.
+		if (my $alt = $self->{'alternatives'}) {
+			my $location = $params{'location'};
+			while (my ($key, $value) = each %{$alt}) {
+				next unless $location =~ $key;
+				(my $new_loc = $location) =~ s/$key/$value/;
+				$params{'location'} = $new_loc;
+				if (my $rc = $self->geocode(\%params)) {
+					return $rc;
+				}
+				# Also try the comma-free variant ("Tyne and Wear" etc.)
+				if ($value =~ /, /) {
+					(my $flat = $value) =~ s/,//g;
+					($new_loc = $location) =~ s/$key/$flat/;
 					$params{'location'} = $new_loc;
 					if (my $rc = $self->geocode(\%params)) {
 						return $rc;
 					}
-					# Also try the comma-free variant ("Tyne and Wear" etc.)
-					if ($value =~ /, /) {
-						(my $flat = $value) =~ s/,//g;
-						($new_loc = $location) =~ s/$key/$flat/;
-						$params{'location'} = $new_loc;
-						if (my $rc = $self->geocode(\%params)) {
-							return $rc;
-						}
-					}
-					# Restore for the next iteration
-					$params{'location'} = $location;
 				}
+				# Restore for the next iteration
+				$params{'location'} = $location;
 			}
 		}
 	}
@@ -446,10 +447,10 @@ sub geocode {
 	# Final fallback: MaxMind for location lookups.
 	# Scantext without OPENADDR_HOME will silently reach here and return undef;
 	# a proper fix would warn here (see LIMITATIONS).
+	# M8 (tautology elimination): both arms of the former wantarray ternary were
+	# identical — collapsed to a single call; context propagates implicitly.
 	if ($params{'location'}) {
-		return wantarray
-			? $self->{'maxmind'}->geocode(\%params)
-			: $self->{'maxmind'}->geocode(\%params);
+		return $self->{'maxmind'}->geocode(\%params);
 	}
 
 	Carp::croak(_i18n('usage_geocode', __PACKAGE__)) unless $params{'scantext'};
@@ -570,7 +571,11 @@ sub _normalize_args {
 	return %{$args[0]}              if ref($args[0]) eq 'HASH';
 	Carp::croak($error_msg)         if ref($args[0]);
 	return @args                    if @args && @args % 2 == 0;
-	return ($bare_key => $args[0])  if @args;
+	return ($bare_key => $args[0])  if @args == 1;
+	# M7 (logic-gap closure): odd-count > 1 is not a valid calling convention.
+	# The former code silently returned () here, discarding the trailing elements.
+	# Fail fast instead of propagating a malformed argument list downstream.
+	Carp::croak($error_msg)         if @args;
 	return ();
 }
 
