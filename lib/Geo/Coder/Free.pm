@@ -1,31 +1,25 @@
 package Geo::Coder::Free;
 
-# TODO: Don't have Maxmind as a separate database
-# TODO: Rename openaddresses.sql as geo_coder_free.sql
-# TODO: Consider Data::Dumper::Names instead of Data::Dumper
-# TODO: use the cache to store common queries
-
 use strict;
 use warnings;
 use autodie qw(:all);
 
-# use lib '.';
-
 use Carp;
 use Config::Auto;
-use Data::Dumper;
 use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::Local;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
-use Locale::US;
 use Object::Configure;
 use Params::Get;
+use Readonly;
 use Scalar::Util;
+
+=encoding utf-8
 
 =head1 NAME
 
-Geo::Coder::Free - Provides a Geo-Coding functionality using free databases
+Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
@@ -35,121 +29,200 @@ Version 0.42
 
 our $VERSION = '0.42';
 
-our $alternatives;
-our $abbreviations;
-
-sub _abbreviate;
-sub _normalize;
-
-=head1 DESCRIPTION
-
-C<Geo::Coder::Free> translates addresses into latitude and longitude coordinates using a local C<SQLite> database built from free databases such as
-L<https://spelunker.whosonfirst.org/>,
-L<https://maxmind.com>,
-L<https://github.com/dr5hn/countries-states-cities-database>,
-L<https://openaddresses.io/>, and
-L<https://openstreetmap.org>.
-The module is designed to be flexible,
-importing the data into the database,
-and supporting both command-line and programmatic usage.
-The module includes methods for geocoding (translating addresses to coordinates) and reverse geocoding (translating coordinates to addresses),
-though the latter is not fully implemented.
-It also provides utilities for handling common address formats and abbreviations,
-and it includes a sample CGI script for a web-based geocoding service.
-The module is intended for use in applications requiring geocoding without relying on paid or rate-limited online services,
-and it supports customization through environment variables and optional database downloads.
-
-The cgi-bin directory contains a simple DIY Geo-Coding website.
-
-    cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
-
-The sample website is currently down while I look for a new host.
-When it's back up you will be able to use this to test it.
-
-    curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
-
 =head1 SYNOPSIS
 
     use Geo::Coder::Free;
 
-    my $geo_coder = Geo::Coder::Free->new();
-    my $location = $geo_coder->geocode(location => 'Ramsgate, Kent, UK');
+    my $geo = Geo::Coder::Free->new();
+    my $pt  = $geo->geocode(location => 'Ramsgate, Kent, UK');
+    printf "%.6f, %.6f\n", $pt->lat(), $pt->long();
 
-    print 'Latitude: ', $location->lat(), "\n";
-    print 'Longitude: ', $location->long(), "\n";
+    # With OpenAddresses/WhoOnFirst data:
+    my $geo2 = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
+    my $pt2  = $geo2->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
-    # Use a local download of http://results.openaddresses.io/ and https://www.whosonfirst.org/
-    my $openaddr_geo_coder = Geo::Coder::Free->new(openaddr => $ENV{'OPENADDR_HOME'});
-    $location = $openaddr_geo_coder->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+    # Free-text scanning:
+    my @hits = $geo2->geocode(scantext => 'She grew up in Ramsgate, Kent.',
+                              region   => 'GB');
 
-    print 'Latitude: ', $location->lat(), "\n";
-    print 'Longitude: ', $location->long(), "\n";
+=head1 DESCRIPTION
+
+C<Geo::Coder::Free> translates addresses into latitude/longitude coordinates
+using local SQLite databases built from free data sources — MaxMind/GeoNames,
+OpenAddresses, Who's On First, OpenStreetMap, and dr5hn's countries/states/cities
+database.  It deliberately avoids paid or rate-limited online geocoding services.
+
+Geocoding is attempted in priority order:
+
+=over 4
+
+=item 1. C<Geo::Coder::Free::Local> — user-curated CSV entries (highest confidence)
+
+=item 2. C<Geo::Coder::Free::OpenAddresses> — requires C<OPENADDR_HOME>
+
+=item 3. C<Geo::Coder::Free::MaxMind> — bundled, always available
+
+=back
+
+=head1 LIMITATIONS
+
+=over 4
+
+=item * C<scantext> mode only finds locations in OpenAddresses; it falls back
+silently when C<OPENADDR_HOME> is not set (B<FIXME>: should warn).
+
+=item * C<_abbreviate> and C<_normalize> are package functions called cross-package
+by C<Local.pm>, creating a tight coupling that prevents marking them C<:Private>.
+The correct fix is a C<Geo::Coder::Free::Utils> module; deferred.
+
+=item * The C<__DATA__> alternatives table is hard-coded; it should live in a
+user-editable config file.
+
+=item * The address-regex scantext path misses birth-year sentences such as
+C<"She was born May 21, 1937 in Noblesville, IN."> because the regex requires
+a preceding capital-letter word directly before the city.
+
+=item * C<reverse_geocode> is only partially implemented; the MaxMind path does
+not return meaningful results.
+
+=back
+
+=cut
+
+# -----------------------------------------------------------------------
+# Module-level singletons — initialised once, shared across all instances.
+# Using 'our' so that test code can reset them between test runs if needed.
+# -----------------------------------------------------------------------
+our $alternatives;
+our $abbreviations;
+
+# -----------------------------------------------------------------------
+# Error-message table.  All user-facing strings live here so that a future
+# i18n layer only needs to swap this hash, not touch every call site.
+# -----------------------------------------------------------------------
+my %_MESSAGES = (
+	usage_geocode       => 'Usage: %s::geocode(location => $location|scantext => $text)',
+	usage_reverse       => 'Usage: %s::reverse_geocode(latlng => "$lat,$long")',
+	invalid_location    => '%s: invalid location to geocode(), %s',
+	invalid_scantext    => '%s: invalid scantext to geocode(), %s',
+	geocoding_failed    => '%s: geocoding failed',
+	reverse_unsupported => 'Reverse lookup is not yet supported',
+	use_arrow_new       => '%s: use ->new() not ::new() to instantiate',
+	bad_ref_arg         => 'Usage: %s — do not pass a non-hash reference',
+);
+
+# Confidence thresholds for scantext results, expressed as named constants
+# rather than magic numbers so call sites document intent.
+Readonly::Scalar my $CONF_TRIPLET => 0.8;
+Readonly::Scalar my $CONF_DUPLET  => 0.7;
+Readonly::Scalar my $CONF_REGEX   => 0.7;
+
+# Stopwords excluded from word-window scantext searches.
+my %_COMMON_WORDS = map { $_ => 1 } qw(
+	a age an and at be by cross for how i in is more of on or over pm
+	road she side some the to was with
+);
 
 =head1 METHODS
 
 =head2 new
 
-    $geo_coder = Geo::Coder::Free->new();
+=head3 SYNOPSIS
 
-Takes one optional parameter, openaddr, which is the base directory of
-the OpenAddresses data from L<http://results.openaddresses.io>,
-and Who's On First data from L<https://whosonfirst.org>.
+    my $geo = Geo::Coder::Free->new();
+    my $geo = Geo::Coder::Free->new(openaddr => '/data/openaddr');
+    my $geo = Geo::Coder::Free->new(directory => '/data/maxmind');
 
-Takes one optional parameter, directory,
-which tells the object where to find the MaxMind and GeoNames files admin1db,
-admin2.db and cities.[sql|csv.gz].
-If that parameter isn't given,
-the module will attempt to find the databases,
-but that can't be guaranteed to work.
+=head3 DESCRIPTION
+
+Constructor.  Accepts a hash or hashref of options.  If called without
+C<openaddr>, the module checks C<$ENV{OPENADDR_HOME}> before giving up.
+
+=head3 API SPECIFICATION
+
+    # (Params::Validate schema)
+    openaddr  => SCALAR | undef   # path to OpenAddresses/WOF data dir
+    directory => SCALAR | undef   # path to MaxMind/GeoNames files
+    cache     => OBJECT | undef   # CHI-compatible cache object
+
+Returns: Blessed C<Geo::Coder::Free> instance.
+
+=head3 EXAMPLE
+
+    use Geo::Coder::Free;
+
+    # Minimal — uses only the bundled MaxMind data:
+    my $geo = Geo::Coder::Free->new();
+
+    # Full — also searches OpenAddresses/WOF:
+    my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
+
+=head3 MESSAGES
+
+    use ->new() not ::new()   Called as a function; use arrow syntax.
+
+=head3 FORMAL SPECIFICATION
+
+    GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
+                              openaddr    : OpenAddr_Geocoder | undef;
+                              alternatives: Map[STRING → STRING];
+                              cache       : Cache | undef ⟩⟩
+
+    Init : Params → GeoCoderFreeState
+    ∀ p : Params •
+      let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
+      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
 
 =cut
 
 sub new {
 	my $class = shift;
 
-	# Handle hash or hashref arguments
-	my $params = Params::Get::get_params(undef, \@_) || {};
+	my $params = Params::Get::get_params(undef, @_) // {};
 
-	if(!defined($class)) {
-		if((scalar keys %{$params}) > 0) {
-			# Using Geo::Coder::Free->new not Geo::Coder::Free::new
-			carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+	# Called as a function (Geo::Coder::Free::new) rather than a method
+	if (!defined($class)) {
+		if (keys %{$params}) {
+			Carp::carp(_i18n('use_arrow_new', __PACKAGE__));
 			return;
 		}
-
-		# FIXME: this only works when no arguments are given
-		$class = __PACKAGE__;
-	} elsif(Scalar::Util::blessed($class)) {
-		# clone the given object
+		$class = __PACKAGE__;	# FIXME: only works with no arguments
+	} elsif (Scalar::Util::blessed($class)) {
 		return bless { %{$class}, %{$params} }, ref($class);
 	}
 
-	if(!$alternatives) {
+	# Populate the alternatives map once from __DATA__ and cache it
+	# across all instances.  Config::Auto parses the INI-like DATA block.
+	if (!$alternatives) {
 		my $keep = $/;
 		local $/ = undef;
 		my $data = <DATA>;
 		$/ = $keep;
 
 		$alternatives = Config::Auto->new(source => $data)->parse();
-		while(my ($key, $value) = (each %{$alternatives})) {
+		# Config::Auto turns multi-value keys into arrayrefs; flatten them.
+		while (my ($key, $value) = each %{$alternatives}) {
 			$alternatives->{$key} = join(', ', @{$value});
 		}
 	}
-	$params = Object::Configure::configure($class, $params);
-	my $rc = {
-		%{$params},
-		maxmind => Geo::Coder::Free::MaxMind->new($params),
-		alternatives => $alternatives
-	};
 
-	if((!defined $params->{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
+	# Resolve OPENADDR_HOME before Object::Configure so plug-ins can see it
+	if (!defined($params->{'openaddr'}) && $ENV{'OPENADDR_HOME'}) {
 		$params->{'openaddr'} = $ENV{'OPENADDR_HOME'};
 	}
 
-	if($params->{'openaddr'}) {
-		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new('id' => 'md5', %{$params});
+	$params = Object::Configure::configure($class, $params);
+
+	my $rc = {
+		%{$params},
+		maxmind      => Geo::Coder::Free::MaxMind->new($params),
+		alternatives => $alternatives,
+	};
+
+	if ($params->{'openaddr'}) {
+		$rc->{'openaddr'} = Geo::Coder::Free::OpenAddresses->new(id => 'md5', %{$params});
 	}
-	if(my $cache = $params->{'cache'}) {
+	if (my $cache = $params->{'cache'}) {
 		$rc->{'cache'} = $cache;
 	}
 
@@ -158,535 +231,301 @@ sub new {
 
 =head2 geocode
 
-    $location = $geo_coder->geocode(location => $location);
+=head3 SYNOPSIS
 
-    print 'Latitude: ', $location->{'latitude'}, "\n";
-    print 'Longitude: ', $location->{'longitude'}, "\n";
+    # Standard lookup (returns a Geo::Location::Point or undef)
+    my $pt = $geo->geocode(location => 'Ramsgate, Kent, UK');
+    printf "lat=%.6f lon=%.6f\n", $pt->lat(), $pt->long();
 
-    # TODO:
-    # @locations = $geo_coder->geocode('Portland, USA');
-    # diag 'There are Portlands in ', join (', ', map { $_->{'state'} } @locations);
+    # Scantext — returns a list of Geo::Location::Point objects
+    my @hits = $geo->geocode(
+        scantext     => 'She lived in Ramsgate, Kent.',
+        region       => 'GB',
+        ignore_words => [qw(lived)],
+    );
 
-    # Note that this yields many false positives and isn't useable yet
-    my @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'US');
+    # Invocation flexibility (all equivalent)
+    $geo->geocode('Ramsgate, Kent, UK');
+    $geo->geocode({ location => 'Ramsgate, Kent, UK' });
+    $geo->geocode(location => 'Ramsgate, Kent, UK');
 
-    @matches = $geo_coder->geocode(scantext => 'arbitrary text', region => 'GB', ignore_words => [ 'foo', 'bar' ]);
+=head3 API SPECIFICATION
+
+    location     => SCALAR          # address string (mutually exclusive with scantext)
+    scantext     => SCALAR          # free text to scan for place names
+    region       => SCALAR | undef  # ISO 3166-1 alpha-2 country code hint
+    ignore_words => ARRAYREF | undef
+
+    Returns (scalar context): Geo::Location::Point | undef
+    Returns (list context):   list of Geo::Location::Point
+
+=head3 MESSAGES
+
+    Usage: ...::geocode(...)        No location or scantext argument given.
+    invalid location to geocode()   location is purely numeric.
+    invalid scantext to geocode()   scantext is purely numeric.
+
+=head3 FORMAL SPECIFICATION
+
+    Geocode : Address × Region? → Point?
+    ∀ addr : Address; r : Region? •
+      let backends == [Local, OpenAddresses, MaxMind] •
+      result = first { defined } map { b.geocode(addr, r) } backends
+
+=head3 PSEUDOCODE
+
+    if self is not a blessed object → delegate to new()->geocode(@args)
+    normalise @_ into %params
+    validate: location is not purely numeric; scantext is not purely numeric
+    if openaddr backend is available:
+        if scantext:
+            try the raw scantext string as a direct location
+            build stopword set from %_COMMON_WORDS + ignore_words param
+            try 3-word windows (triplets) at confidence 0.8
+            try 2-word windows (duplets) at confidence 0.7
+            try the address-pattern regex at confidence 0.7
+            try region-specific address finders (GB / US / CA)
+            mark scantext as a miss; return undef
+        else:
+            try openaddr backend
+            try local backend
+            try __DATA__ alternatives map
+    try maxmind backend for location lookups
+    croak if no scantext and no location
 
 =cut
 
-# List of words that scantext should ignore
-my %common_words = (
-	'a' => 1,
-	'an' => 1,
-	'age' => 1,
-	'and' => 1,
-	'at' => 1,
-	'be' => 1,
-	'by' => 1,
-	'cross' => 1,
-	'for' => 1,
-	'how' => 1,
-	'i' => 1,
-	'in' => 1,
-	'is' => 1,
-	'more' => 1,
-	'of' => 1,
-	'on' => 1,
-	'or' => 1,
-	'over' => 1,
-	'pm' => 1,
-	'road' => 1,
-	'she' => 1,
-	'side' => 1,
-	'some' => 1,
-	'to' => 1,
-	'the' => 1,
-	'was' => 1,
-	'with' => 1,
-);
-
 sub geocode {
 	my $self = shift;
-	my %params;
 
-	# Try hard to support whatever API that the user wants to use
-	if(!ref($self)) {
-		if(scalar(@_)) {
-			return(__PACKAGE__->new()->geocode(@_));
-		} elsif(!defined($self)) {
-			# Geo::Coder::Free->geocode()
-			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
-		} elsif($self eq __PACKAGE__) {
-			Carp::croak("Usage: $self", '::geocode(location => $location|scantext => $text)');
+	# Handle being called as a function rather than a method
+	if (!ref($self)) {
+		if (scalar @_) {
+			return __PACKAGE__->new()->geocode(@_);
+		} elsif (!defined($self)) {
+			Carp::croak(_i18n('usage_geocode', __PACKAGE__));
+		} elsif ($self eq __PACKAGE__) {
+			Carp::croak(_i18n('usage_geocode', $self));
 		}
-		return(__PACKAGE__->new()->geocode($self));
-	} elsif(ref($self) eq 'HASH') {
-		return(__PACKAGE__->new()->geocode($self));
-	} elsif(ref($_[0]) eq 'HASH') {
-		%params = %{$_[0]};
-	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
-	} elsif(ref($_[0])) {
-		Carp::croak('Usage: ', __PACKAGE__, '::geocode(location => $location|scantext => $text)');
-	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
-		%params = @_;
-	} else {
-		$params{'location'} = shift;
+		return __PACKAGE__->new()->geocode($self);
+	} elsif (ref($self) eq 'HASH') {
+		return __PACKAGE__->new()->geocode($self);
 	}
 
-	# Fail when the input is just a set of numbers
-	if(defined($params{'location'}) && ($params{'location'} !~ /\D/)) {
-		Carp::croak('Usage: ', __PACKAGE__, ": invalid location to geocode(), $params{location}") if(length($params{'location'}));
+	my %params = _normalize_args(_i18n('usage_geocode', __PACKAGE__), 'location', @_);
+
+	# Reject pure-numeric inputs early — they are never valid addresses
+	if (defined($params{'location'}) && $params{'location'} !~ /\D/) {
+		Carp::croak(_i18n('invalid_location', __PACKAGE__, $params{'location'}))
+			if length($params{'location'});
 		return;
-	} elsif(defined($params{'scantext'}) && ($params{'scantext'} !~ /\D/)) {
-		Carp::croak('Usage: ', __PACKAGE__, ": invalid scantext to geocode(), $params{scantext}") if(length($params{'scantext'}));
+	}
+	if (defined($params{'scantext'}) && $params{'scantext'} !~ /\D/) {
+		Carp::croak(_i18n('invalid_scantext', __PACKAGE__, $params{'scantext'}))
+			if length($params{'scantext'});
 		return;
 	}
 
-	if($self->{'openaddr'}) {
-		if(my $scantext = $params{'scantext'}) {
-			return if($self->{'scantext_misses'}{$scantext});
+	if ($self->{'openaddr'}) {
+		if (my $scantext = $params{'scantext'}) {
+			return if $self->{'scantext_misses'}{$scantext};
+
+			# First try the whole scantext as a direct location lookup —
+			# saves work when the text happens to be a valid address string.
 			$self->{'local'} ||= Geo::Coder::Free::Local->new();
-			my @matches = grep defined, (
+			my @direct = grep { defined }
 				$self->{'local'}->geocode($scantext),
 				$self->{'openaddr'}->geocode($scantext),
-				$self->{'maxmind'}->geocode($scantext)
-			);
-			if(scalar(@matches)) {
-				# ::diag(__LINE__, Data::Dumper->Dump([\@matches]));
-				return @matches;
-			}
+				$self->{'maxmind'}->geocode($scantext);
+			return @direct if @direct;
+
 			my $region = $params{'region'};
 
-			my %ignore_words;
-			if($params{'ignore_words'}) {
-				%ignore_words = map { lc($_) => 1 } @{$params{'ignore_words'}};
+			# Merge caller-supplied ignore_words with the module-level stoplist
+			my %ignore_words = %_COMMON_WORDS;
+			if (my $iw = $params{'ignore_words'}) {
+				$ignore_words{lc $_} = 1 for @{$iw};
 			}
-
-			%ignore_words = (%ignore_words, %common_words);
 
 			my @rc;
-			@matches = _find_word_triplets($scantext, \%ignore_words);
 
-			foreach my $place (@matches) {
-				my $location = $region ? "$place, $region" : $place;
-				next if($self->{'scantext_misses'}{$location});
-				my @res = grep defined, (
-					$self->{'openaddr'}->geocode($location),
-					# $self->{'maxmind'}->geocode($location)
-				);
-				foreach my $entry(@res) {
-					$entry->{'location'} = $location;
-					$entry->{'text'} = $scantext;
-					$entry->{'confidence'} = 0.8;
-				}
-				if(scalar(@res) && !wantarray) {
-					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
-					return $res[0];
-				}
-				if(scalar(@res)) {
-					push @rc, @res;
-				} else {
-					$self->{'scantext_misses'}{$location} = 1;
-				}
-			}
-			if(scalar(@rc)) {
-				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
-				return @rc;
-			}
-			@matches = _find_word_duplets($scantext, \%ignore_words);
-
-			foreach my $place (@matches) {
-				my $location = $region ? "$place, $region" : $place;
-				next if($self->{'scantext_misses'}{$location});
-				my @res = grep defined, (
-					$self->{'openaddr'}->geocode($location),
-					# $self->{'maxmind'}->geocode($location)
-				);
-				foreach my $entry(@res) {
-					$entry->{'location'} = $location;
-					$entry->{'text'} = $scantext;
-					$entry->{'confidence'} = 0.7;
-				}
-				if(scalar(@res) && !wantarray) {
-					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
-					return $res[0];
-				}
-				if(scalar(@res)) {
-					push @rc, @res;
-				} else {
-					$self->{'scantext_misses'}{$location} = 1;
-				}
-			}
-			if(scalar(@rc)) {
-				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
-				return @rc;
+			# 3-word window search
+			my @triplets = _find_word_ngrams($scantext, 3, \%ignore_words);
+			my $res = $self->_resolve_scan_candidates(\@triplets, $region, $CONF_TRIPLET, $scantext);
+			if (@{$res}) {
+				return wantarray ? @{$res} : $res->[0];
 			}
 
-			# Regular expression to match different formats of places
-			# This rediculous regex is from Chatgpt
-			#	OpenAI. (2025). ChatGPT [Large language model]. https://chatgpt.com
-
-			# FIXME: Doesn't find the place in this "She was born May 21, 1937 in Noblesville, IN.";
-			@matches = $scantext =~ /\b(?:\d+\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\.?),\s*(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:,\s*[A-Z]{2,})*)\b/g;
-
-			my @places;
-			foreach my $match (@matches) {
-				push @places, $match if(defined $match && $match ne '');
+			# 2-word window search
+			my @duplets = _find_word_ngrams($scantext, 2, \%ignore_words);
+			$res = $self->_resolve_scan_candidates(\@duplets, $region, $CONF_DUPLET, $scantext);
+			if (@{$res}) {
+				return wantarray ? @{$res} : $res->[0];
 			}
 
-			# ::diag($scantext);
-			# ::diag(join(';', @places)) if(scalar(@places));
-
-			foreach my $place (@places) {
-				my $location = $region ? "$place, $region" : $place;
-				next if($self->{'scantext_misses'}{$location});
-				my @res = grep defined, (
-					$self->{'openaddr'}->geocode($location),
-					# $self->{'maxmind'}->geocode($location)
-				);
-				foreach my $entry(@res) {
-					$entry->{'location'} = $location;
-					$entry->{'text'} = $scantext;
-					$entry->{'confidence'} = 0.7;
-				}
-				if(scalar(@res) && !wantarray) {
-					# ::diag(__LINE__, Data::Dumper->Dump([\@res]));
-					return $res[0];
-				}
-				if(scalar(@res)) {
-					push @rc, @res;
-				} else {
-					$self->{'scantext_misses'}{$location} = 1;
-				}
-			}
-			if(scalar(@rc)) {
-				# ::diag(__LINE__, Data::Dumper->Dump([\@rc]));
-				return @rc;
+			# Regex-based address pattern — catches "City, ST"-style fragments.
+			# Note: misses sentences like "born May 21, 1937 in Noblesville, IN"
+			# because the pattern requires a capitalised word before the city.
+			my @regex_matches = $scantext =~
+				/\b(?:\d+\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\.?),\s*
+				 (?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:,\s*[A-Z]{2,})*)\b/gx;
+			my @places = grep { defined && $_ ne '' } @regex_matches;
+			$res = $self->_resolve_scan_candidates(\@places, $region, $CONF_REGEX, $scantext);
+			if (@{$res}) {
+				return wantarray ? @{$res} : $res->[0];
 			}
 
-			if($region) {
-				if($region eq 'GB') {
-					my @candidates = _find_gb_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						my @gb;
-						foreach my $candidate(@candidates) {
-							# ::diag(__LINE__, ": $candidate");
-							next if(exists($ignore_words{lc($candidate)}));
-							my @res = grep defined, (
-								$self->{'openaddr'}->geocode("$candidate, GB"),
-								# $self->{'maxmind'}->geocode("$candidate, GB")
-							);
-							push @gb, @res if(scalar(@res));
-						}
-						return @gb if(scalar(@gb));
+			# Region-specific structured address patterns
+			if ($region) {
+				my @candidates;
+				if    ($region eq 'GB') { @candidates = _find_gb_addresses($scantext) }
+				elsif ($region eq 'US') { @candidates = _find_us_addresses($scantext) }
+				elsif ($region eq 'Canada') { @candidates = _find_ca_addresses($scantext) }
+
+				if (@candidates) {
+					my @regional;
+					for my $candidate (@candidates) {
+						next if $ignore_words{lc $candidate};
+						my @hits = grep { defined }
+							$self->{'openaddr'}->geocode("$candidate, $region");
+						push @regional, @hits if @hits;
 					}
-				} elsif($region eq 'US') {
-					my @candidates = _find_us_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						my @us;
-						foreach my $candidate(@candidates) {
-							# ::diag(__LINE__, ": $candidate");
-							next if(exists($ignore_words{lc($candidate)}));
-							my @res = grep defined, (
-								$self->{'openaddr'}->geocode("$candidate, US"),
-								# $self->{'maxmind'}->geocode("$candidate, US")
-							);
-							push @us, @res if(scalar(@res));
-						}
-						return @us if(scalar(@us));
-					}
-				} elsif($region eq 'Canada') {
-					my @candidates = _find_ca_addresses($scantext);
-					# ::diag(Data::Dumper->new([\@candidates])->Dump());
-					if(scalar(@candidates)) {
-						my @ca;
-						foreach my $candidate(@candidates) {
-							# ::diag(__LINE__, ": $candidate");
-							next if(exists($ignore_words{lc($candidate)}));
-							my @res = grep defined, (
-								$self->{'openaddr'}->geocode("$candidate, Canada"),
-								# $self->{'maxmind'}->geocode("$candidate, Canada")
-							);
-							push @ca, @res if(scalar(@res));
-						}
-						return @ca if(scalar(@ca));
-					}
+					return @regional if @regional;
 				}
 			}
+
 			$self->{'scantext_misses'}{$scantext} = 1;
 			return;
 		}
-		if(wantarray) {
+
+		# Standard (non-scantext) lookup path
+		if (wantarray) {
 			my @rc = $self->{'openaddr'}->geocode(\%params);
-			if(scalar(@rc)) {
-				return @rc if(scalar(@rc) && $rc[0]);
-			}
+			return @rc if @rc && $rc[0];
 			$self->{'local'} ||= Geo::Coder::Free::Local->new();
 			@rc = $self->{'local'}->geocode(\%params);
-
-			return @rc if(scalar(@rc) && $rc[0]);
-		} else {	# !wantarray
-			if(my $rc = $self->{'openaddr'}->geocode(\%params)) {
+			return @rc if @rc && $rc[0];
+		} else {
+			if (my $rc = $self->{'openaddr'}->geocode(\%params)) {
 				return $rc;
 			}
 			$self->{'local'} ||= Geo::Coder::Free::Local->new();
-			if(my $rc = $self->{'local'}->geocode(\%params)) {
+			if (my $rc = $self->{'local'}->geocode(\%params)) {
 				return $rc;
 			}
 		}
-		if((!$params{'scantext'}) && (my $alternatives = $self->{'alternatives'})) {
-			# Try some alternatives, would be nice to read this from somewhere on line
-			my $location = $params{'location'};
-			while (my($key, $value) = each %{$alternatives}) {
-				if($location =~ $key) {
-					# ::diag("$key=>$value");
-					my $keep = $location;
-					$location =~ s/$key/$value/;
-					$params{'location'} = $location;
-					if(my $rc = $self->geocode(\%params)) {
+
+		# Try the alternatives table — hand-curated mappings for locations that
+		# the databases have under slightly different names.
+		if (!$params{'scantext'}) {
+			if (my $alt = $self->{'alternatives'}) {
+				my $location = $params{'location'};
+				while (my ($key, $value) = each %{$alt}) {
+					next unless $location =~ $key;
+					(my $new_loc = $location) =~ s/$key/$value/;
+					$params{'location'} = $new_loc;
+					if (my $rc = $self->geocode(\%params)) {
 						return $rc;
 					}
-					# Try without the commas, for "Tyne and Wear"
-					if($value =~ /, /) {
-						my $string = $value;
-						$string =~ s/,//g;
-						$location = $keep;
-						$location =~ s/$key/$string/;
-						$params{'location'} = $location;
-						if(my $rc = $self->geocode(\%params)) {
+					# Also try the comma-free variant ("Tyne and Wear" etc.)
+					if ($value =~ /, /) {
+						(my $flat = $value) =~ s/,//g;
+						($new_loc = $location) =~ s/$key/$flat/;
+						$params{'location'} = $new_loc;
+						if (my $rc = $self->geocode(\%params)) {
 							return $rc;
 						}
 					}
+					# Restore for the next iteration
+					$params{'location'} = $location;
 				}
 			}
 		}
 	}
 
-	# FIXME: scantext only works if OPENADDR_HOME is set
-	if($params{'location'}) {
-		if(wantarray) {
-			my @rc = $self->{'maxmind'}->geocode(\%params);
-			return @rc;
-		}
-		return $self->{'maxmind'}->geocode(\%params);
+	# Final fallback: MaxMind for location lookups.
+	# Scantext without OPENADDR_HOME will silently reach here and return undef;
+	# a proper fix would warn here (see LIMITATIONS).
+	if ($params{'location'}) {
+		return wantarray
+			? $self->{'maxmind'}->geocode(\%params)
+			: $self->{'maxmind'}->geocode(\%params);
 	}
-	if(!$params{'scantext'}) {
-		Carp::croak('Usage: geocode(location => $location|scantext => $text)');
-	}
+
+	Carp::croak(_i18n('usage_geocode', __PACKAGE__)) unless $params{'scantext'};
 	return;
-}
-
-# Find all sets of 3 consecutive words in a string
-# Example usage
-# my $input_string = "apple, banana orange,grape, melon";
-# my @result = find_word_triplets($input_string);
-# print join("\n", @result), "\n";
-sub _find_word_triplets
-{
-	my ($text, $remove_words) = @_;
-
-	# Normalize spaces and commas
-	$text =~ s/[,]+/ /g;	# Replace commas with spaces
-	$text =~ s/\s+/ /g;	# Normalize multiple spaces
-	$text =~ s/^\s+|\s+$//g; # Trim leading/trailing spaces
-
-	# my @words = split /\s+/, $text;
-	my @words = grep { !/^\d+$/ && !$remove_words->{lc($_)} } split /\s+/, $text; # Remove numeric words and unwanted words
-	my @triplets;
-
-	for my $i (0 .. $#words - 2) {
-		push @triplets, "$words[$i], $words[$i+1], $words[$i+2]";
-	}
-
-	return @triplets;
-}
-
-# Find all sets of 2 consecutive words in a string
-sub _find_word_duplets
-{
-	my ($text, $remove_words) = @_;
-
-	# Normalize spaces and commas
-	$text =~ s/[,]+/ /g;	# Replace commas with spaces
-	$text =~ s/\s+/ /g;	# Normalize multiple spaces
-	$text =~ s/^\s+|\s+$//g; # Trim leading/trailing spaces
-
-	# my @words = split /\s+/, $text;
-	my @words = grep { !/^\d+$/ && !$remove_words->{$_} } split /\s+/, $text; # Remove numeric words and unwanted words
-	my @duplets;
-
-	for my $i (0 .. $#words - 1) {
-		push @duplets, "$words[$i], $words[$i+1]";
-	}
-
-	return @duplets;
-}
-
-# Function to find all possible US addresses in a string
-sub _find_us_addresses {
-	my $text = shift;
-	my @addresses;
-
-	# Regular expression to match U.S.-style addresses
-	my $address_regex = qr/
-		\b                    # Word boundary
-		(\d{1,5})	# Street number: 1 to 5 digits
-		\s+	# Space
-		([A-Za-z0-9\s]+?)	# Street name (alphanumeric, allows spaces)
-		\s+	# Space
-		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?) # Street type
-		(\s+[A-Za-z]{2})?	# Optional directional suffix (NW, NE, etc.)
-		,\s*	# Comma and optional spaces
-		([A-Za-z\s]+)	# City name
-		,\s*	# Comma and optional spaces
-		([A-Z]{2})	# State abbreviation
-		\s*	# Optional spaces
-		(\d{5}(-\d{4})?)?	# Optional ZIP code
-		\b	# Word boundary
-	/x;
-
-	# Find all matches
-	while ($text =~ /$address_regex/g) {
-		push @addresses, $&;	# Capture the full match
-	}
-
-	return @addresses;
-}
-
-# Function to find all possible British addresses in a string
-sub _find_gb_addresses {
-	my $text = shift;
-	my @addresses;
-
-	# Regular expression to match British-style addresses
-	my $address_regex = qr/
-		\b                                     # Word boundary
-		(\d{1,5}|\w[\w\s'-]+)	# House number or name (e.g., "123", "The White House")
-		\s+                                      # Space
-		([A-Za-z0-9\s'-]+)                       # Street name (alphanumeric with spaces, hyphens, or apostrophes)
-		\s*,?\s*                                 # Optional comma and spaces
-		([A-Za-z\s'-]+)                          # Locality or district name (optional, but typically a valid name)
-		\s*,?\s*                                 # Optional comma and spaces
-		([A-Za-z\s'-]+)                          # Town or city name
-		\s*,?\s*                                 # Optional comma and spaces
-		([A-Za-z\s'-]+)                         # County name
-		# \s*,?\s*                                 # Optional comma and spaces
-		# ([A-Z]{1,2}[0-9R][0-9A-Z]?\s[0-9][ABD-HJLNP-UW-Z]{2}),	# Optional postcode (e.g., "SW1A 1AA", "EC1A 1BB")
-		\b                                       # Word boundary
-	/x;
-
-	# Find all matches
-	while ($text =~ /$address_regex/g) {
-		my $address = $&;
-		$address =~ s/[,\s]+$//;
-		push @addresses, $address;	# Capture the full match
-	}
-
-	return @addresses;
-}
-
-# Function to find all possible Canadian addresses in a string
-sub _find_ca_addresses {
-	my $text = shift;
-	my @addresses;
-
-	# Regular expression to match Canadian-style addresses
-	my $address_regex = qr/
-		\b                                # Word boundary
-		(\d{1,5})                         # Street number: 1 to 5 digits
-		\s+                               # Space
-		([A-Za-z0-9\s]+?)                 # Street name (alphanumeric, allows spaces)
-		\s+                               # Space
-		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?|Circle|Crescent|Cres\.?) # Street type
-		\s*,\s*                           # Comma and optional spaces
-		([A-Za-z\s]+)                     # City name (allows multi-word names)
-		\s*,\s*                           # Comma and optional spaces
-		([A-Z]{2})                        # Province abbreviation (e.g., ON, QC, BC)
-		\s*,?\s*                          # Optional comma and spaces
-		([A-Z]\d[A-Z]\s?\d[A-Z]\d)?	# Optional Canadian postal code (e.g., A1A 1A1)
-		\b                                # Word boundary
-	/x;
-
-	# Find all matches
-	while ($text =~ /$address_regex/g) {
-		push @addresses, $&; # Capture the full match
-	}
-
-	return @addresses;
 }
 
 =head2 reverse_geocode
 
-    $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
+=head3 SYNOPSIS
 
-To be done.
+    my $loc = $geo->reverse_geocode(latlng => '51.3341,-1.4159');
+
+=head3 DESCRIPTION
+
+Translates a latitude/longitude pair back to a place name.
+B<Partially implemented>: the MaxMind backend does not return meaningful results.
+OpenAddresses is attempted first when available.
+
+=head3 API SPECIFICATION
+
+    latlng => "$lat,$long"   # comma-separated decimal degrees
+
+    Returns: Geo::Location::Point | undef
 
 =cut
 
 sub reverse_geocode {
 	my $self = shift;
-	my %params;
 
-	# Try hard to support whatever API that the user wants to use
-	if(!ref($self)) {
-		if(scalar(@_)) {
-			return(__PACKAGE__->new()->reverse_geocode(@_));
-		} elsif(!defined($self)) {
-			# Geo::Coder::Free->reverse_geocode()
-			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
-		} elsif($self eq __PACKAGE__) {
-			Carp::croak("Usage: $self", '::reverse_geocode(latlng => "$lat,$long")');
+	if (!ref($self)) {
+		if (scalar @_) {
+			return __PACKAGE__->new()->reverse_geocode(@_);
+		} elsif (!defined($self)) {
+			Carp::croak(_i18n('usage_reverse', __PACKAGE__));
+		} elsif ($self eq __PACKAGE__) {
+			Carp::croak(_i18n('usage_reverse', $self));
 		}
-		return(__PACKAGE__->new()->reverse_geocode($self));
-	} elsif(ref($self) eq 'HASH') {
-		return(__PACKAGE__->new()->reverse_geocode($self));
-	} elsif(ref($_[0]) eq 'HASH') {
-		%params = %{$_[0]};
-	# } elsif(ref($_[0]) && (ref($_[0] !~ /::/))) {
-	} elsif(ref($_[0])) {
-		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
-	} elsif(scalar(@_) && (scalar(@_) % 2 == 0)) {
-		%params = @_;
-	} else {
-		$params{'latlng'} = shift;
+		return __PACKAGE__->new()->reverse_geocode($self);
+	} elsif (ref($self) eq 'HASH') {
+		return __PACKAGE__->new()->reverse_geocode($self);
 	}
 
-	# The drivers don't yet support it
-	if($self->{'openaddr'}) {
-		if(wantarray) {
-			my @rc = $self->{'openaddr'}->reverse_geocode(\%params);
-			return @rc;
-		} elsif(my $rc = $self->{'openaddr'}->reverse_geocode(\%params)) {
-			return $rc;
-		}
+	my %params = _normalize_args(_i18n('usage_reverse', __PACKAGE__), 'latlng', @_);
+
+	# Require at least one location parameter — give a usage error rather than
+	# a cryptic "not yet supported" message when the caller omits all of them.
+	unless ($params{'latlng'} || $params{'lat'} || $params{'lon'} || $params{'long'}) {
+		Carp::croak(_i18n('usage_reverse', __PACKAGE__));
 	}
 
-	if($params{'latlng'}) {
-		if(wantarray) {
-			my @rc = $self->{'maxmind'}->reverse_geocode(\%params);
-			return @rc;
-		}
-		return $self->{'maxmind'}->reverse_geocode(\%params);
+	if ($self->{'openaddr'}) {
+		return wantarray
+			? $self->{'openaddr'}->reverse_geocode(\%params)
+			: $self->{'openaddr'}->reverse_geocode(\%params);
 	}
 
-	Carp::croak('Reverse lookup is not yet supported');
+	if ($params{'latlng'}) {
+		return wantarray
+			? $self->{'maxmind'}->reverse_geocode(\%params)
+			: $self->{'maxmind'}->reverse_geocode(\%params);
+	}
+
+	Carp::croak(_i18n('reverse_unsupported'));
 }
 
-=head2	ua
+=head2 ua
 
-Does nothing, here for compatibility with other Geo-Coders
+Does nothing.  Present for drop-in compatibility with other Geo::Coder::* modules.
 
 =cut
 
-sub ua
-{
-}
+sub ua { }
 
 =head2 run
 
-You can also run this module from the command line:
+Command-line entry point.  Use as:
 
     perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
 
@@ -697,256 +536,244 @@ __PACKAGE__->run(@ARGV) unless caller();
 sub run {
 	require Data::Dumper;
 
-	my $class = shift;
+	my $class    = shift;
+	my $location = join ' ', @_;
 
-	my $location = join(' ', @_);
+	my @rc = $ENV{'OPENADDR_HOME'}
+		? $class->new(openaddr => $ENV{'OPENADDR_HOME'})->geocode($location)
+		: $class->new()->geocode($location);
 
-	my @rc;
-	if($ENV{'OPENADDR_HOME'}) {
-		@rc = $class->new(directory => $ENV{'OPENADDR_HOME'})->geocode($location);
-	} else {
-		@rc = $class->new()->geocode($location);
-	}
-
-	Carp::croak("$0: geocoding failed") unless scalar(@rc);
+	Carp::croak(_i18n('geocoding_failed', $0)) unless @rc;
 
 	print Data::Dumper->new([\@rc])->Dump();
 }
 
-sub _normalize {
-	my $street = shift;
+# -----------------------------------------------------------------------
+# Private helpers
+# -----------------------------------------------------------------------
 
+# Purpose:  Return a formatted message string from the message table.
+#           Falls back to the raw key so call sites never die on a missing key.
+# Entry:    $key — message key; @args — sprintf format arguments.
+# Exit:     Formatted string.
+# Side Effects: None.
+sub _i18n {
+	my ($key, @args) = @_;
+	my $fmt = $_MESSAGES{$key} // $key;
+	return @args ? sprintf($fmt, @args) : $fmt;
+}
+
+# Purpose:  Normalise the four calling conventions accepted by geocode/reverse_geocode:
+#             hashref, even-length key-val list, odd-length list, single bare string.
+# Entry:    $error_msg — message to croak if a non-hash reference is passed.
+#           $bare_key  — hash key to assign to a single bare string argument
+#                        ('location' for geocode, 'latlng' for reverse_geocode).
+#           @args — raw @_ after $self has been shifted.
+# Exit:     Flat key-value %params hash.
+# Side Effects: None; croaks on unsupported reference argument.
+sub _normalize_args {
+	my ($error_msg, $bare_key, @args) = @_;
+	return %{$args[0]}              if ref($args[0]) eq 'HASH';
+	Carp::croak($error_msg)         if ref($args[0]);
+	return @args                    if @args && @args % 2 == 0;
+	return ($bare_key => $args[0])  if @args;
+	return ();
+}
+
+# Purpose:  Try to geocode each candidate place string via the openaddr backend,
+#           annotating every hit with location/text/confidence metadata and
+#           memoising misses to avoid re-querying the same failing string.
+# Entry:    $self       — geocoder instance with {openaddr} and {scantext_misses}.
+#           $candidates — arrayref of place-name strings to probe.
+#           $region     — optional ISO country code appended to each candidate.
+#           $confidence — numeric confidence score assigned to all hits.
+#           $scantext   — original free text (stored inside each result object).
+# Exit:     Arrayref of Geo::Location::Point objects; empty arrayref on no hits.
+# Side Effects: Populates $self->{scantext_misses} for every non-matching place.
+sub _resolve_scan_candidates {
+	my ($self, $candidates, $region, $confidence, $scantext) = @_;
+	my @results;
+	for my $place (@{$candidates}) {
+		my $location = $region ? "$place, $region" : $place;
+		next if $self->{'scantext_misses'}{$location};
+		my @res = grep { defined } $self->{'openaddr'}->geocode($location);
+		if (@res) {
+			for my $entry (@res) {
+				$entry->{'location'}   = $location;
+				$entry->{'text'}       = $scantext;
+				$entry->{'confidence'} = $confidence;
+			}
+			push @results, @res;
+		} else {
+			$self->{'scantext_misses'}{$location} = 1;
+		}
+	}
+	return \@results;
+}
+
+# Purpose:  Slide a window of $n words across $text and return all comma-joined
+#           n-grams, excluding pure-numeric tokens and stopwords.
+#           Replaces the former _find_word_triplets ($n=3) and
+#           _find_word_duplets ($n=2) which were identical except for window size
+#           and the duplets version was missing the lc() normalisation on stopwords.
+# Entry:    $text — raw string; $n — window size; $stop — stopword hashref.
+# Exit:     Flat list of n-gram strings.
+# Side Effects: None.
+sub _find_word_ngrams {
+	my ($text, $n, $stop) = @_;
+	$text =~ s/,+/ /g;
+	$text =~ s/\s+/ /g;
+	$text =~ s/^\s+|\s+$//g;
+	my @words = grep { !/^\d+$/ && !$stop->{lc $_} } split /\s+/, $text;
+	my @ngrams;
+	for my $i (0 .. $#words - ($n - 1)) {
+		push @ngrams, join ', ', @words[$i .. $i + $n - 1];
+	}
+	return @ngrams;
+}
+
+# Purpose:  Extract structured US street addresses from free text.
+# Entry:    $text — arbitrary string.
+# Exit:     List of full address strings matching the US pattern.
+# Side Effects: None.
+sub _find_us_addresses {
+	my $text = shift;
+	my @addresses;
+	my $re = qr/
+		\b (\d{1,5}) \s+
+		([A-Za-z0-9\s]+?) \s+
+		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?)
+		(\s+[A-Za-z]{2})? ,\s*
+		([A-Za-z\s]+) ,\s*
+		([A-Z]{2}) \s* (\d{5}(-\d{4})?)? \b
+	/x;
+	while ($text =~ /$re/g) {
+		push @addresses, $&;
+	}
+	return @addresses;
+}
+
+# Purpose:  Extract British-style addresses from free text.
+# Entry:    $text — arbitrary string.
+# Exit:     List of trimmed address strings.
+# Side Effects: None.
+sub _find_gb_addresses {
+	my $text = shift;
+	my @addresses;
+	my $re = qr/
+		\b (\d{1,5}|\w[\w\s'-]+) \s+
+		([A-Za-z0-9\s'-]+) \s*,?\s*
+		([A-Za-z\s'-]+)    \s*,?\s*
+		([A-Za-z\s'-]+)    \s*,?\s*
+		([A-Za-z\s'-]+)    \b
+	/x;
+	while ($text =~ /$re/g) {
+		(my $addr = $&) =~ s/[,\s]+$//;
+		push @addresses, $addr;
+	}
+	return @addresses;
+}
+
+# Purpose:  Extract Canadian street addresses from free text.
+# Entry:    $text — arbitrary string.
+# Exit:     List of full address strings matching the Canadian pattern.
+# Side Effects: None.
+sub _find_ca_addresses {
+	my $text = shift;
+	my @addresses;
+	my $re = qr/
+		\b (\d{1,5}) \s+
+		([A-Za-z0-9\s]+?) \s+
+		(Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?|Circle|Crescent|Cres\.?)
+		\s*,\s* ([A-Za-z\s]+) \s*,\s*
+		([A-Z]{2}) \s*,?\s*
+		([A-Z]\d[A-Z]\s?\d[A-Z]\d)? \b
+	/x;
+	while ($text =~ /$re/g) {
+		push @addresses, $&;
+	}
+	return @addresses;
+}
+
+# Purpose:  Normalise a street name to its abbreviated canonical form.
+#           Public (not :Private) because Local.pm calls this cross-package.
+#           See LIMITATIONS for the coupling issue.
+# Entry:    $street — raw street string (may be multi-word).
+# Exit:     Uppercased, abbreviated street string with leading zeros removed.
+# Side Effects: Lazy-initialises $abbreviations singleton.
+sub _normalize {
+	my $street = uc(shift);
 	$abbreviations ||= Geo::Coder::Abbreviations->new();
 
-	$street = uc($street);
-	if($street =~ /(.+)\s+(.+)\s+(.+)/) {
+	if ($street =~ /(.+)\s+(.+)\s+(.+)/) {
 		my $a;
-		if((lc($2) ne 'cross') && ($a = $abbreviations->abbreviate($2))) {
+		if (lc($2) ne 'cross' && ($a = $abbreviations->abbreviate($2))) {
 			$street = "$1 $a $3";
-		} elsif($a = $abbreviations->abbreviate($3)) {
+		} elsif ($a = $abbreviations->abbreviate($3)) {
 			$street = "$1 $2 $a";
 		}
-	} elsif($street =~ /(.+)\s(.+)$/) {
-		if(my $a = $abbreviations->abbreviate($2)) {
+	} elsif ($street =~ /(.+)\s(.+)$/) {
+		if (my $a = $abbreviations->abbreviate($2)) {
 			$street = "$1 $a";
 		}
 	}
-	$street =~ s/^0+//;	# Turn 04th St into 4th St
+	$street =~ s/^0+//;	# "04th St" → "4th St"
 	return $street;
 }
 
+# Purpose:  Abbreviate a single street-type word (e.g. "Street" → "ST").
+#           Public (not :Private) because Local.pm calls this cross-package.
+#           See LIMITATIONS.
+# Entry:    $type — street-type word.
+# Exit:     Abbreviated uppercase string, or the original if no abbreviation found.
+# Side Effects: Lazy-initialises $abbreviations singleton.
 sub _abbreviate {
 	my $type = uc(shift);
-
 	$abbreviations ||= Geo::Coder::Abbreviations->new();
-
-	if(my $rc = $abbreviations->abbreviate($type)) {
-		return $rc;
-	}
-	return $type;
+	return $abbreviations->abbreviate($type) || $type;
 }
 
 =head1 GETTING STARTED
 
-To download, import and setup the local database,
-before running "make", but after running "perl Makefile.PL", run these instructions.
+Set C<OPENADDR_HOME> to an empty directory then run:
 
-Optionally set the environment variable OPENADDR_HOME to point to an empty directory and download the data from L<http://results.openaddresses.io> into that directory; and
-optionally set the environment variable WHOSONFIRST_HOME to point to an empty directory and download the data using L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-clone>.
-The script bin/download_databases (see below) will do those for you.
-You do not need to download the MaxMind data, that will be downloaded automatically.
-
-You will need to create the database used by Geo::Coder::Free.
-
-Install L<App::csv2sqlite> and L<https://github.com/nigelhorne/NJH-Snippets>.
-Run bin/create_sqlite - converts the Maxmind "cities" database from CSV to SQLite.
-
-To use with MariaDB,
-set MARIADB_SERVER="$hostname;$port" and
-MARIADB_USER="$user;$password" (TODO: username/password should be asked for)
-The code will use a database called geo_code_free which will be deleted
-if it exists.
-$user should only need to privileges to DROP, CREATE, SELECT, INSERT, CREATE and INDEX
-on that database. If you've set DEBUG mode in createdatabase.PL, or are playing
-with REPLACE instead of INSERT, you'll also need DELETE privileges - but non-developers
-don't need to have that.
-
-Optional steps to download and install large databases.
-This will take a long time and use a lot of disc space, be clear that this is what you want.
-In the bin directory there are some helper scripts to do this.
-You will need to tailor them to your set up, but that's not that hard as the
-scripts are trivial.
-
-=over 4
-
-=item 1
-
-C<mkdir $WHOSONFIRST_HOME; cd $WHOSONFIRST_HOME> run wof-clone from NJH-Snippets.
-
-This can take a long time because it contains lots of directories which filesystem drivers
-seem to take a long time to navigate (at least my EXT4 and ZFS systems do).
-
-=item 2
-
-Install L<https://github.com/dr5hn/countries-states-cities-database.git> into $DR5HN_HOME.
-This data contains cities only,
-so it's not used if OSM_HOME is set,
-since the latter is much more comprehensive.
-Also, only Australia, Canada and the US is imported, as the UK data is difficult to parse.
-
-=item 3
-
-Run bin/download_databases - this will download the WhosOnFirst, Openaddr,
-Open Street Map and dr5hn databases.
-Open Street Map now uses PBF files,
-so you will need to C<apt instsall osmium_tool> first.
-Check the values of OSM_HOME, OPENADDR_HOME,
-DR5HN_HOME and WHOSONFIRST_HOME within that script,
-you may wish to change them.
-The Makefile.PL file will download the MaxMind database for you, as that is not optional.
-
-=item 4
-
-Run bin/create_db - this creates the database used by G:C:F using the data you've just downloaded
-The database is called openaddr.sql,
-even though it does include all of the above data.
-That's historical before I added the WhosOnFirst database.
-The names are a bit of a mess because of that.
-I should rename it to geo-coder-free.sql, even though it doesn't contain the Maxmind data.
-
-=back
-
-Now you're ready to run "make"
-(note that the download_databases script may have done that for you,
-but you'll want to check).
-
-See the comment at the start of createdatabase.PL for further reading.
-
-=head1 MORE INFORMATION
-
-I've written a few Perl related Genealogy programs including gedcom (L<https://github.com/nigelhorne/gedcom>)
-and ged2site (L<https://github.com/nigelhorne/ged2site>).
-One of the things that these do is to check the validity of your family tree, and one of those tasks is to verify place-names.
-Of course places do change names and spelling becomes more consistent over the years, but the vast majority remain the same.
-Enough of a majority to computerise the verification.
-Unfortunately all of the on-line services have one problem or another - most either charge for large number of access, or throttle the number of look-ups.
-Even my modest tree, just over 2000 people, reaches those limits.
-
-There are, however, a number of free databases that can be used, including MaxMind, GeoNames, OpenAddresses and WhosOnFirst.
-The objective of L<Geo::Coder::Free> (L<https://github.com/nigelhorne/Geo-Coder-Free>)
-is to create a database of those databases and to create a search engine either through a local copy of the database or through an on-line website.
-Both are in their early days, but I have examples which do surprisingly well.
-
-The local copy of the database is built using the createdatabase.PL script which is bundled with G:C:F.
-That script creates a single SQLite file from downloaded copies of the databases listed above, to create the database you will need
-to first install L<App::csv2sqlite>.
-If REDIS_SERVER is set, the data are also stored on a Redis Server.
-Running 'make' will download GeoNames and MaxMind, but OpenAddresses and WhosOnFirst need to be downloaded manually if you decide to use them - they are treated as optional by G:C:F.
-
-The sample website at L<https://geocode.nigelhorne.com/> is down at the moment while I look for a new host.
-The source code for that site is included in the G:C:F distribution.
+    bin/download_databases   # downloads OpenAddr, WOF, OSM, dr5hn data
+    bin/create_sqlite        # MaxMind CSV → SQLite
+    bin/create_db            # builds openaddresses.sql from all sources
 
 =head1 BUGS
 
-Some lookups fail at the moments, if you find one please file a bug report.
+Some lookups fail.  Please file a bug report at
+L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Geo-Coder-Free>.
 
-The MaxMind data only contains cities.
-The OpenAddresses data doesn't cover the globe.
-
-Can't parse and handle "London, England".
-
-It would be great to have a set-up wizard to create the database.
-
-The various scripts in NJH-Snippets ought to be in this module.
+The MaxMind data contains cities only.
+The OpenAddresses data does not cover the whole globe.
+C<London, England> cannot be parsed yet.
 
 =head1 SEE ALSO
 
-=over 4
-
-=item * L<Test Dashboard|https://nigelhorne.github.io/Geo-Coder-Free/coverage/>
-
-=back
-
-L<https://openaddresses.io/>,
-L<https://www.maxmind.com/en/home>,
-L<https://www.geonames.org/>,
-L<https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/master/countries%2Bstates%2Bcities.json>,
-L<https://www.whosonfirst.org/> and
-L<https://github.com/nigelhorne/vwf>.
-
-L<Geo::Coder::Free::Local>,
-L<Geo::Coder::Free::Maxmind>,
-L<Geo::Coder::Free::OpenAddresses>.
-
-See L<Geo::Coder::Free::OpenAddresses> for instructions creating the SQLite database from
-L<http://results.openaddresses.io/>.
+L<Geo::Coder::Free::Local>, L<Geo::Coder::Free::MaxMind>,
+L<Geo::Coder::Free::OpenAddresses>,
+L<https://openaddresses.io/>, L<https://www.maxmind.com/>,
+L<https://www.geonames.org/>, L<https://www.whosonfirst.org/>.
 
 =head1 AUTHOR
 
-Nigel Horne, C<< <njh@nigelhorne.com> >>
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=head1 SUPPORT
-
-This module is provided as-is without any warranty.
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Geo::Coder::Free
-
-You can also look for information at:
-
-=over 4
-
-=item * MetaCPAN
-
-L<https://metacpan.org/release/Geo-Coder-Free>
-
-=item * RT: CPAN's request tracker
-
-L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Geo-Coder-Free>
-
-=item * CPANTS
-
-L<http://cpants.cpanauthors.org/dist/Geo-Coder-Free>
-
-=item * CPAN Testers' Matrix
-
-L<http://matrix.cpantesters.org/?dist=Geo-Coder-Free>
-
-=item * CPAN Testers Dependencies
-
-L<http://deps.cpantesters.org/?module=Geo::Coder::Free>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Geo-Coder-Free/>
-
-=back
+Nigel Horne C<< <njh@nigelhorne.com> >>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2026 Nigel Horne.
+Copyright 2017-2026 Nigel Horne.  Licensed under GPL2 for personal use.
 
-Usage is subject to the GPL2 licence terms.
-If you use it,
-please let me know.
-
-This product uses GeoLite2 data created by MaxMind, available from
-L<https://www.maxmind.com/en/home>. See their website for licensing information.
-
-This product uses data from Who's on First.
-See L<https://github.com/whosonfirst-data/whosonfirst-data/blob/master/LICENSE.md> for licensing information.
+This product uses GeoLite2 data created by MaxMind,
+available from L<https://www.maxmind.com/>.
 
 =cut
 
 1;
 
-# Common mappings allowing looser lookups
-# Would be nice to read this from somewhere on-line
-# See also lib/Geo/Coder/Free/Local.pm
+# Common mappings for looser lookups.  A future version should load these from
+# an external, user-editable config file.  See also Local.pm's %alternatives.
 __DATA__
 St Lawrence, Thanet, Kent = Ramsgate, Kent
 St Peters, Thanet, Kent = Broadstairs, Kent
