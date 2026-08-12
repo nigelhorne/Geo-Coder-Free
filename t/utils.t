@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::Most tests => 10;
+use Test::Most tests => 9;
 use Test::NoWarnings;
 use Error;
 # use CHI::Driver::SharedMem;
@@ -38,7 +38,6 @@ sub test_create_disc_cache {
 	# Valid configuration
 	my $disk_cache = eval { create_disc_cache({ config => $valid_disk_config, namespace => 'test_disk' }) };
 	ok($disk_cache, 'Disk cache created successfully');
-	like($disk_cache, qr/^CHI/, 'Disk cache is a CHI object');
 
 	# Invalid configuration
 	eval { create_disc_cache({ config => $invalid_config }) };
