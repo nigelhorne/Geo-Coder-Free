@@ -610,8 +610,9 @@ sub reverse_geocode {
 		next unless _equal($row->{'latitude'}, $latitude, 4)
 		         && _equal($row->{'longitude'}, $longitude, 4);
 
-		# Fix: $row is a plain hashref; wrap it in Geo::Location::Point
-		my $location = uc(Geo::Location::Point->new($row)->as_string());
+		# Rows in $self->{'data'} are blessed as Geo::Location::Point by
+		# the index-building loop in new() — calling as_string() is safe here.
+		my $location = uc($row->as_string());
 		if (wantarray) {
 			push @rc, $location;
 			# Add any reverse-alternative mappings for this location

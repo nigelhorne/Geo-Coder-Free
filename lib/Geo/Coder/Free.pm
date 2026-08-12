@@ -494,12 +494,6 @@ sub reverse_geocode {
 
 	my %params = _normalize_args(_i18n('usage_reverse', __PACKAGE__), 'latlng', @_);
 
-	# Require at least one location parameter — give a usage error rather than
-	# a cryptic "not yet supported" message when the caller omits all of them.
-	unless ($params{'latlng'} || $params{'lat'} || $params{'lon'} || $params{'long'}) {
-		Carp::croak(_i18n('usage_reverse', __PACKAGE__));
-	}
-
 	if ($self->{'openaddr'}) {
 		return wantarray
 			? $self->{'openaddr'}->reverse_geocode(\%params)
