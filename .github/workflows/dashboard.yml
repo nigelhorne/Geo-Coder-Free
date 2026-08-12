@@ -65,7 +65,7 @@ jobs:
           NONINTERACTIVE_TESTING: 1
           PERL_MM_USE_DEFAULT: 1
         run: |
-          cpanm --skip-satisfied --notest --installdeps .
+          cpanm --skip-satisfied --notest --installdeps --verbose .
           cpanm -iqn --skip-satisfied \
               Test::Most \
               Test::Mockingbird \
