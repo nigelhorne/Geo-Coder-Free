@@ -1,5 +1,33 @@
 Revision history for Geo-Coder-Free
 
+0.43
+	Security: page.fcgi - string eval "require $module" replaced with block eval + path-based require; eliminates code execution risk
+	Security: page.fcgi - CAPTCHA redirect Location header now sanitises $redirect_page with s/[^\w]//g to prevent HTTP response splitting
+	Security: page.fcgi - SQL injection blocklist regexes bounded to {1,200} and guarded with 8192-char length cap to prevent ReDoS
+	Security: page.fcgi - vwflog CSV fields now double-quote-escaped per RFC 4180 to prevent log injection
+	Security: MaxMind - admin2 SQL LIKE predicate validates country (/^[A-Z]{2}$/) and region (/^[A-Z0-9]{1,10}$/) before interpolation
+	Security: bin/geodecode - system() call converted from string form to list form to prevent shell metacharacter injection
+	Security: Display::query - 'q' param allowlist regex fixed (was broken placeholder); 'scantext' now validated with length cap
+	Free: _normalize rewritten with split to eliminate O(N³) catastrophic backtracking from (.+)\s+(.+)\s+(.+)
+	Free: _find_gb_addresses commas now mandatory between parts to prevent exponential backtracking on comma-free text
+	Free: _find_us_addresses and _find_ca_addresses converted all capturing groups to non-capturing (only $& used)
+	Free: _find_us_addresses and _find_ca_addresses street name pattern bounded to prevent lazy-quantifier O(N²) expansion
+	Free: _normalize_args now croaks on odd-count argument lists longer than 1 (closes logic gap M7)
+	Free: wantarray tautologies in reverse_geocode eliminated (M8)
+	Free: scantext ignore_words passed by reference instead of copying the full hash each call
+	Local: _search $failed flag replaced with labeled ROW: loop (M5)
+	Local: region_index built in new() for O(1) region guard in geocode
+	Local: England guard regexes use [^,]+ instead of .+ to prevent comma-based backtracking
+	MaxMind: %admin2cache_rev added as inverse of %admin2cache, replacing O(N) value scan with O(1) lookup in _prepare
+	MaxMind: Locale::US and Locale::CA objects lazily initialised once per module load (singletons)
+	MaxMind: $concatenated_codes now quoted with \Q...\E in regex interpolation (prevents metacharacter injection from DB values)
+	MaxMind: region extraction simplified from /^.+\.(.+)$/ capture to s/^.*\.// substitution
+	MaxMind: reverse_geocode replaced 5-query radius loop with single ORDER BY query
+	OpenAddresses: Locale::US and Locale::CA objects lazily initialised once per module load (singletons)
+	OpenAddresses: street-address regexes fixed — (?![a|p]m\b) lookahead corrected to (?![ap]m\b); spurious | removed from all character classes; all unused capturing groups converted to non-capturing
+	OpenAddresses: city-name nested quantifier ([a-zA-Z|\s+]{1,30}){1,2} replaced with word-sequence pattern ([A-Za-z]+(?:\s+[A-Za-z]+)*) eliminating ReDoS risk
+	t/logic-reducer.t: new test file with partition-based proofs for all M-series reductions
+
 0.42	Fri Jul 10 11:48:02 EDT 2026
 	Try Geo::Address::Parser before libpostal() as that uses less memory
 	createdatabase.PL - borough parent lookup now uses locality_id from hierarchy to skip intermediate boroughs

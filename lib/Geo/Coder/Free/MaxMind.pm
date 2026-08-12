@@ -724,7 +724,16 @@ sub _prepare {
 		} else {
 			$self->{'admin2'} //= Geo::Coder::Free::DB::MaxMind::admin2->new(no_entry => 1) or Carp::croak("Can't open the admin2 database");
 
-			my $row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '" . uc($loc->{'Country'}) . '.%.' . uc($region) . "' LIMIT 1");
+			# Validate both tokens before interpolating into SQL.
+			# $loc->{'Country'} is DB-sourced (ISO 3166-1 alpha-2 = two
+			# uppercase letters) and $region is user-supplied.  Unvalidated
+			# interpolation into a LIKE predicate would allow SQL injection.
+			my $_country = uc($loc->{'Country'} // '');
+			my $_reg     = uc($region // '');
+			my $row;
+			if($_country =~ /^[A-Z]{2}$/ && $_reg =~ /^[A-Z0-9]{1,10}$/) {
+				$row = $self->{'admin2'}->execute("SELECT name FROM admin2 WHERE concatenated_codes LIKE '$_country.%.$_reg' LIMIT 1");
+			}
 			if(ref($row) && $row->{'name'}) {
 				# Write to both forward and reverse caches in one go
 				$admin2cache{$row->{'name'}}  = $region;

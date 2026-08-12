@@ -28,9 +28,15 @@ sub html {
 
 	my $allowed = {
 		'page'     => 'query',
-		'q'        => qr/[a-z][A-Z]$/i,	# TODO: regex of allowable name formats
-		'scantext' => undef,			# TODO: regex of allowable name formats
-		'lang'     => qr/^[A-Z][A-Z]/i,
+		# Addresses: letters (including accented), digits, spaces, and common
+		# punctuation.  Angle brackets are excluded to prevent XSS in any
+		# error path that echoes the input.  500-char cap prevents DoS via
+		# absurdly long strings reaching the geocoder.
+		'q'        => qr/^[^<>\x00-\x1f\x7f]{1,500}$/,
+		# Free text for scantext mode — allow anything printable but cap
+		# length so the geocoder's O(N²) word-window scan stays bounded.
+		'scantext' => qr/^[^\x00-\x08\x0b\x0c\x0e-\x1f\x7f]{1,2000}$/,
+		'lang'     => qr/^[A-Z]{2}/i,
 	};
 	my %params = %{$info->params({ allow => $allowed })};
 

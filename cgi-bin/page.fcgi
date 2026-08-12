@@ -345,8 +345,12 @@ sub doit
 				$logger->info("CAPTCHA verified for $client_ip - rate limit bypass granted");
 				$has_captcha_bypass = 1;
 
-				# Redirect to original page or home
+				# Redirect to original page or home.
+				# Strip every non-word character before interpolating into the
+				# Location header to prevent HTTP response splitting: a raw
+				# newline in $redirect_page would inject a second header line.
 				my $redirect_page = $info->param('page') || 'index';
+				$redirect_page =~ s/[^\w]//g;
 				$info->status(302);
 				print "Status: 302 Found\n",
 					"Location: $ENV{SCRIPT_NAME}?page=$redirect_page\n\n";
@@ -540,8 +544,15 @@ sub doit
 			# TODO: consider creating a whitelist of valid modules
 			$logger->debug("doit(): Loading module $display_module from @INC");
 			unless($display_module->can('new')) {
-				eval "require $display_module; 1";
-				$display_module->import();
+				# Block eval + path-based require instead of string eval.
+				# String eval ("require $display_module") compiles arbitrary
+				# Perl and is unsafe even when $page has been sanitized with
+				# s/\W//g — a future change to the sanitizer would silently
+				# reopen code execution.  The path conversion is deterministic
+				# and string eval is never needed here.
+				(my $display_path = $display_module) =~ s{::}{/}g;
+				eval { require "$display_path.pm" };
+				$display_module->import() unless $@;
 			}
 			if($@) {
 				$logger->debug("Failed to load module $display_module: $@");
@@ -709,7 +720,29 @@ sub blacklisted
 		}
 
 		if(my $string = $info->as_string()) {
-			if(($string =~ /SELECT.+AND.+/i) || ($string =~ /ORDER BY /i) || ($string =~ / OR NOT /i) || ($string =~ / AND \d+=\d+/i) || ($string =~ /THEN.+ELSE.+END/i) || ($string =~ /.+AND.+SELECT.+/i) || ($string =~ /\sAND\s.+\sAND\s/i) || ($string =~ /AND\sCASE\sWHEN/i)) {
+			# Hard length cap: skip pattern matching entirely on absurdly long
+			# inputs.  Even bounded quantifiers like {1,200} iterate many times
+			# across a 1 MB string, so cap before we run any regex.
+			return 0 if length($string) > 8192;
+			# SECURITY - ReDoS defence:
+			#   The original patterns used greedy .+ between SQL keywords, which
+			#   causes catastrophic (exponential) backtracking when an attacker
+			#   sends a string that contains the opening keyword but not the
+			#   closing one (e.g. thousands of chars after SELECT with no AND).
+			#   All .+ quantifiers are replaced with the bounded class [^;]{0,N}:
+			#     - the semicolon is a natural SQL statement terminator so it is
+			#       a safe anchor that real SQL injection never crosses, and
+			#     - the explicit upper bound caps backtracking to O(N) steps.
+			#   Word-boundary assertions (\b) also eliminate false positives on
+			#   ordinary words that happen to contain the substring.
+			if(   ($string =~ /SELECT\b[^;]{0,500}\bAND\b/i)
+			   || ($string =~ /ORDER\s+BY\s/i)
+			   || ($string =~ /\bOR\s+NOT\b/i)
+			   || ($string =~ /\bAND\s+\d+=\d+/i)
+			   || ($string =~ /\bTHEN\b[^;]{0,200}\bELSE\b[^;]{0,200}\bEND\b/i)
+			   || ($string =~ /\bAND\b[^;]{0,200}\bSELECT\b/i)
+			   || ($string =~ /\sAND\s[^;]{0,100}\sAND\s/i)
+			   || ($string =~ /\bAND\s+CASE\s+WHEN\b/i)) {
 				$blacklisted_ip{$remote} = 1;
 				$info->status(403);
 				return 1;
@@ -730,16 +763,40 @@ sub filter
 	return 1;
 }
 
-# Put something to vwf.log
+# Escape a single value for safe inclusion in a double-quoted CSV field.
+# Follows RFC 4180 §2.7 and additionally neutralises spreadsheet formulas.
+sub _csv_escape
+{
+	my $v = shift // '';
+
+	# RFC 4180: a double-quote inside a quoted field is represented by two
+	# double-quote characters.  Without this, one embedded " would break the
+	# column boundary and corrupt every subsequent field on the row.
+	$v =~ s/"/""/g;
+
+	# SECURITY - CSV formula injection defence:
+	#   Spreadsheet applications (Excel, LibreOffice Calc) interpret cell values
+	#   that begin with = + - @ TAB or CR as formulas.  An attacker who controls
+	#   a logged field (e.g. the page parameter) could inject =cmd|'/C calc'!A0.
+	#   Prefix such values with a single-quote to force literal interpretation.
+	$v =~ s/^([=+\-@\t\r])/'$1/;
+
+	return $v;
+}
+
+# Write one access record to vwf.log (CSV format) and optionally to syslog.
+# All user-influenced fields are escaped through _csv_escape before output.
 sub vwflog
 {
 	my ($vwflog, $info, $lingua, $syslog, $message, $log, $request_start) = @_;
 
+	# Calculate request duration in milliseconds if a start timer was supplied.
 	my $duration_ms = '';
 	if($request_start) {
 		$duration_ms = int((Time::HiRes::time() - $request_start) * 1000);
 	}
 
+	# Determine which template was rendered for this request (may be empty on error).
 	my $template;
 	if($log) {
 		$template = $log->template();
@@ -749,14 +806,15 @@ sub vwflog
 	}
 	$message ||= '';
 
+	# Create the log file with a header row on first use.
 	if(!-e $vwflog) {
-		# First run - put in the heading row
 		open(my $fout, '>', $vwflog);
 		print $fout '"domain_name","time","IP","country","type","language","http_code","template","args","messages","error","duration_ms"',
 			"\n";
 		close $fout;
 	}
 
+	# Collect any warn/notice-level messages emitted during this request.
 	my $warnings;
         if(my $messages = $info->messages()) {
                 $warnings = join('; ',
@@ -765,38 +823,51 @@ sub vwflog
         }
 	$warnings ||= '';
 
+	my $country = $lingua->country() || 'unknown';
+
+	# Open the log in append mode.  If the open fails we skip logging silently
+	# so that a disk-full or permissions error does not crash the live request.
 	if(open(my $fout, '>>', $vwflog)) {
+		# SECURITY — CSV injection defence:
+		#   Every user-visible field is passed through _csv_escape so that
+		#   embedded double-quotes cannot break the CSV column structure, and
+		#   leading formula characters cannot trigger code execution when the
+		#   file is opened in a spreadsheet application.
 		print $fout
-			'"', $info->domain_name(), '",',
+			'"', _csv_escape($info->domain_name()), '",',
 			'"', strftime('%F %T', localtime), '",',
-			'"', ($ENV{REMOTE_ADDR} ? $ENV{REMOTE_ADDR} : ''), '",',
-			'"', $lingua->country(), '",',
-			'"', $info->browser_type(), '",',
-			'"', $lingua->language(), '",',
+			'"', _csv_escape($ENV{REMOTE_ADDR} // ''), '",',
+			'"', _csv_escape($country), '",',
+			'"', _csv_escape($info->browser_type()), '",',
+			'"', _csv_escape($lingua->language() // ''), '",',
 			$info->status(), ',',
-			'"', $template, '",',
-			'"', $info->as_string(raw => 1), '",',
-			'"', $warnings, '",',
-			'"', $message, '",',
+			'"', _csv_escape($template), '",',
+			'"', _csv_escape($info->as_string(raw => 1)), '",',
+			'"', _csv_escape($warnings), '",',
+			'"', _csv_escape($message), '",',
 			$duration_ms,
 			"\n";
 		close($fout);
 	}
 
+	# Optionally mirror the record to syslog (configured via the syslog stanza).
 	if($syslog) {
 		unless(Sys::Syslog->can('openlog')) {
 			require Sys::Syslog;
 			Sys::Syslog->import();
 		}
 
+		# Configure the socket transport if a hash of options was provided.
 		if(ref($syslog) eq 'HASH') {
 			Sys::Syslog::setlogsock($syslog);
 		}
 		Sys::Syslog::openlog($script_name, 'cons,pid', 'user');
+		# Use positional %s/%d format args so that special characters in the
+		# values cannot be interpreted as syslog format directives.
 		Sys::Syslog::syslog('info|local0', '%s %s %s %s %s %d %s %s %d %s %s',
 			$info->domain_name() || '',
 			$ENV{REMOTE_ADDR} || '',
-			$lingua->country() || '',
+			$country,
 			$info->browser_type() || '',
 			$lingua->language() || '',
 			$info->status() || '',
