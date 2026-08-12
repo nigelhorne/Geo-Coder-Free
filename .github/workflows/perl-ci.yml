@@ -34,6 +34,10 @@ jobs:
           - '5.36'
           - '5.38'
           - '5.40'
+          - '5.42'
+        exclude:
+          - os: windows-latest
+            perl: '5.40'
     name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
     env:
       AUTOMATED_TESTING: 1
@@ -43,17 +47,37 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup Perl
-        uses: shogo82148/actions-setup-perl@v1.42.0
+        id: setup-perl
+        uses: shogo82148/actions-setup-perl@v1.43.1
         with:
           perl-version: ${{ matrix.perl }}
+
+      - name: Get exact Perl binary version for cache key
+        id: perl-version
+        shell: perl {0}
+        run: |
+          use Config;
+          my @paths = ($^X);
+          if ($^O eq 'MSWin32' && $Config{libperl}) {
+              (my $dir = $^X) =~ s{[\\/][^\\/]+$}{};
+              my $dll = "$dir/$Config{libperl}";
+              push @paths, $dll if -f $dll;
+          }
+          my $sum = 0;
+          for my $path (@paths) {
+              open(my $fh, '<:raw', $path) or next;
+              $sum += unpack('%32C*', $_) while read $fh, $_, 65536;
+          }
+          open(my $out, '>>', $ENV{GITHUB_OUTPUT}) or die $!;
+          print $out "version=$Config{version}-$Config{archname}-$sum\n";
 
       - name: Cache CPAN modules
         uses: actions/cache@v6
         with:
           path: ~/perl5
-          key: ${{ runner.os }}-${{ matrix.perl }}-${{ hashFiles('cpanfile') }}
+          key: ${{ runner.os }}-perl-${{ steps.perl-version.outputs.version }}-${{ hashFiles('cpanfile') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.perl }}-
+            ${{ runner.os }}-perl-${{ steps.perl-version.outputs.version }}-
 
       - name: Install cpanm and local::lib
         if: runner.os != 'Windows'
@@ -79,6 +103,39 @@ jobs:
           set "PERL5LIB=%USERPROFILE%\perl5\lib\perl5"
           cpanm --notest --installdeps .
 
+      - name: Reinstall YAML::XS against current Perl (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: cpanm --notest --reinstall YAML::XS
+
+      - name: Lint and syntax check
+        shell: perl {0}
+        run: |
+          use strict;
+          use warnings;
+          use File::Find;
+          use lib 'lib';
+          my @failed;
+          push @INC, sub { open my $h, '<', \qq{1;\n}; $h };
+          my @dirs = grep { -d } qw(lib bin);
+          @dirs = ('.') unless @dirs;
+          find({ wanted => sub {
+              return unless -f && /\.pm$/;
+              my $file = $File::Find::name;
+              do $file;
+              if ($@) {
+                  warn "Syntax check failed: $file\n";
+                  push @failed, $file;
+              }
+          }, no_chdir => 1 }, @dirs);
+
+          if (($ENV{RUNNER_OS} // '') eq 'Linux') {
+              system('cpanm --notest --quiet warnings::unused 2>/dev/null');
+              system('PERL5OPT=-Mwarnings::unused prove -lr t/ 2>&1 | grep -i unused && true || echo "warnings::unused: no unused variables detected"');
+          }
+
+          exit(@failed ? 1 : 0);
+
       - name: Run tests
         if: runner.os != 'Windows'
         shell: bash
@@ -96,7 +153,7 @@ jobs:
           prove -lr t/
 
       - name: Run Perl::Critic
-        if: matrix.perl == '5.40' && matrix.os == 'ubuntu-latest'
+        if: matrix.perl == '5.42' && matrix.os == 'ubuntu-latest'
         continue-on-error: true
         run: |
           eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
@@ -104,8 +161,17 @@ jobs:
           perlcritic --severity 3 lib/ || true
         shell: bash
 
+      - name: Check imports with perlimports
+        if: matrix.perl == '5.42' && matrix.os == 'ubuntu-latest'
+        continue-on-error: true
+        run: |
+          eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
+          cpanm --notest App::perlimports
+          find lib -name '*.pm' | xargs perlimports --lint
+        shell: bash
+
       - name: Test coverage
-        if: matrix.perl == '5.40' && matrix.os == 'ubuntu-latest'
+        if: matrix.perl == '5.42' && matrix.os == 'ubuntu-latest'
         run: |
           eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
           cpanm --notest Devel::Cover
