@@ -30,8 +30,12 @@ use_ok 'Geo::Coder::Free::Utils';
 my $LOCAL_OBJ = Geo::Coder::Free::Local->new();
 
 # MaxMind mock — prevents any real DB access for GCF facade tests.
-mock('Geo::Coder::Free::MaxMind', 'geocode',         sub { return undef });
-mock('Geo::Coder::Free::MaxMind', 'reverse_geocode', sub { return undef });
+# Call _remock_maxmind() after any restore_all() to reinstate these stubs.
+sub _remock_maxmind {
+	mock('Geo::Coder::Free::MaxMind', 'geocode',         sub { return undef });
+	mock('Geo::Coder::Free::MaxMind', 'reverse_geocode', sub { return undef });
+}
+_remock_maxmind();
 
 # Tempdir for OA — creates a valid (but empty) openaddr directory.
 my $TMPDIR = tempdir(CLEANUP => 1);
@@ -357,6 +361,7 @@ subtest 'GCF geocode() — hostile string payloads return undef' => sub {
 	);
 
 	restore_all();
+	_remock_maxmind();
 };
 
 # -----------------------------------------------------------------------
