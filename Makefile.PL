@@ -315,7 +315,8 @@ my $test_requires = {
 	'Test::Needs' => 0,
 	'Test::NoWarnings' => 0,
 	'Test::Number::Delta' => 0,
-	'Test::Returns' => 0
+	'Test::Returns' => 0,
+	'Test::Without::Module' => 0,
 };
 
 if($ENV{'AUTHOR_TESTING'}) {
