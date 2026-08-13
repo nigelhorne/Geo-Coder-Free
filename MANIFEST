@@ -54,6 +54,7 @@ t/eol.t
 t/fixme.t
 t/function.t
 t/gv.t
+t/integration.t
 t/kwalitee.t
 t/lib/MyLogger.pm
 t/links.t

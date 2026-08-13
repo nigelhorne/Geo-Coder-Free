@@ -671,12 +671,16 @@ sub doit
 	}
 }
 
+# Send a 300 Multiple Choices response listing the pages this site serves.
+# Called when the ?page= parameter is absent or the requested page is unknown.
 sub choose
 {
 	$logger->info('Called with no page to display');
 
 	my $status = $info->status();
 
+	# If the status is already non-200 (e.g. 404 set by the caller), relay
+	# that status rather than overriding it with a 300.
 	if($status != 200) {
 		print "Status: $status ",
 			HTTP::Status::status_message($status),
@@ -689,7 +693,8 @@ sub choose
 
 	$info->status(300);
 
-	# Print last modified date if path is defined
+	# Include a Last-Modified header based on the script's mtime so that
+	# caches and conditional-GET clients can revalidate efficiently.
 	if(my $path = $info->script_path()) {
 		require HTTP::Date;
 		HTTP::Date->import();
@@ -701,7 +706,7 @@ sub choose
 
 	print "\n";
 
-	# Print available pages unless it's a HEAD request
+	# RFC 7231 §4.3.2: a HEAD response must not include a body.
 	unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 		print "/cgi-bin/page.fcgi?page=index\n",
 			"/cgi-bin/page.fcgi?page=query\n",
@@ -709,11 +714,16 @@ sub choose
 	}
 }
 
-# Is this client trying to attack us?
+# Check whether the current request looks like a SQL injection attempt.
+# IPs that trigger a match are added to the in-process %blacklisted_ip set so
+# that subsequent requests from the same IP are rejected without re-scanning.
 sub blacklisted
 {
 	if(my $remote = $ENV{'REMOTE_ADDR'}) {
 		my $info = shift;
+
+		# Fast path: this IP was already blacklisted earlier in this process
+		# lifetime; no need to re-scan the request string.
 		if($blacklisted_ip{$remote}) {
 			$info->status(403);
 			return 1;

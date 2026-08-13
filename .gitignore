@@ -1,20 +1,20 @@
 !Build/
 .last_cover_stats
-# /META.yml
-# /META.json
+/META.yml
+/META.json
 /MYMETA.*
 *.o
 *.pm.tdy
 *.bs
-*.swp
 
 # Devel::Cover
 cover_db/
+cover_html/
 
 # Devel::NYTProf
 nytprof.out
 
-# Dizt::Zilla
+# Dist::Zilla
 /.build/
 
 # Module::Build
@@ -25,7 +25,7 @@ Build.bat
 # Module::Install
 inc/
 
-# ExtUitls::MakeMaker
+# ExtUtils::MakeMaker
 /blib/
 /_eumm/
 /*.gz
@@ -34,15 +34,24 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
-CLAUDE.md
+*.swp
+.DS_Store
 
-# Local files
-lib/Geo/Coder/Free/MaxMind/databases/admin1.db
-lib/Geo/Coder/Free/MaxMind/databases/admin2.db
-lib/Geo/Coder/Free/MaxMind/databases/allCountries.txt
+# Carton/Carmel
+/local/
+/.carmel/
+# cpanfile.snapshot should generally be ignored for library code, otherwise included
+# cpanfile.snapshot
+
+# Don't stash the output files
+t/tmp_*.t
+
+schemas/
+\.claude
+CLAUDE.md
 downloads/
-downloads/allCountries.txt
-lib/Geo/Coder/Free/MaxMind/databases/cities.csv.gz
-lib/Geo/Coder/Free/MaxMind/databases/cities.sql
-save_to/
 lib/Geo/Coder/Free/GeoNames/
+lib/Geo/Coder/Free/MaxMind/
+lib/Geo/Coder/Free/OpenAddresses/databases/
+save_to/
+page/
