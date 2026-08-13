@@ -79,6 +79,7 @@ t/port.t
 t/prereq.t
 t/scantext.t
 t/strict.t
+t/unit.t
 t/unused.t
 t/utils.t
 t/vars.t

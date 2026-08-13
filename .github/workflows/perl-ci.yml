@@ -87,6 +87,11 @@ jobs:
         if: runner.os == 'Windows'
         run: cpanm --notest App::cpanminus local::lib
 
+      - name: Install DB_File, needed for a lot of CPAN modules
+        run: |
+          sudo apt install libdb-dev
+        if: runner.os == 'Linux'
+
       - name: Install dependencies
         if: runner.os != 'Windows'
         shell: bash
