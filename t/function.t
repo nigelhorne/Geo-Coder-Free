@@ -584,7 +584,7 @@ subtest 'Local::_search: minimum threshold and confidence assignment' => sub {
 # =====================================================================
 
 subtest 'Local::new: data load, index, region_index, memory safety' => sub {
-	my $local = Geo::Coder::Free::Local->new();
+	my $local = new_ok('Geo::Coder::Free::Local');
 	ok(defined $local, 'new() returns defined object');
 	isa_ok($local, 'Geo::Coder::Free::Local', 'correctly blessed');
 
