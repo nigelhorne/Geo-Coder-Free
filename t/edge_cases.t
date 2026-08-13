@@ -366,25 +366,27 @@ subtest 'GCF geocode() — hostile string payloads return undef' => sub {
 # causes subtle, hard-to-debug failures.
 # -----------------------------------------------------------------------
 subtest 'GCF geocode() — global variable isolation' => sub {
-	my $geo = Geo::Coder::Free->new();
+	my $geo = new_ok('Geo::Coder::Free');
 
-	# $_ isolation.
-	local $_ = 'sentinel_dollar_underscore';
-	$geo->geocode(location => 'Ramsgate, Kent, UK');
-	is($_, 'sentinel_dollar_underscore', 'geocode() does not clobber $_');
+	if(!defined($ENV{NO_NETWORK_TESTING})) {
+		# $_ isolation.
+		local $_ = 'sentinel_dollar_underscore';
+		$geo->geocode(location => 'Ramsgate, Kent, UK');
+		is($_, 'sentinel_dollar_underscore', 'geocode() does not clobber $_');
 
-	# $@ isolation — must be sampled immediately after the eval to avoid
-	# interference from any subsequent ops.
-	eval { 1 };
-	my $prev_err = $@;
-	$geo->geocode(location => 'Nonexistent, Place, XX');
-	is($@, $prev_err, 'geocode() does not clobber $@');
+		# $@ isolation — must be sampled immediately after the eval to avoid
+		# interference from any subsequent ops.
+		eval { 1 };
+		my $prev_err = $@;
+		$geo->geocode(location => 'Nonexistent, Place, XX');
+		is($@, $prev_err, 'geocode() does not clobber $@');
 
-	# Alarm state — verify geocode does not leave a pending alarm.
-	alarm(0);
-	$geo->geocode(location => 'Ramsgate, Kent, UK');
-	my $remaining = alarm(0);
-	is($remaining, 0, 'geocode() does not install a lingering alarm');
+		# Alarm state — verify geocode does not leave a pending alarm.
+		alarm(0);
+		$geo->geocode(location => 'Ramsgate, Kent, UK');
+		my $remaining = alarm(0);
+		is($remaining, 0, 'geocode() does not install a lingering alarm');
+	}
 };
 
 # -----------------------------------------------------------------------
