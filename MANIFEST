@@ -71,6 +71,7 @@ t/noopentickets.t
 t/noplan.t
 t/openaddr.t
 t/osm.t
+t/path.t
 t/pod-cm.t
 t/pod-coverage.t
 t/pod-snippets.t
