@@ -20,14 +20,14 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">43.0%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">47.2%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
 <tr><td class="h"><a id="L200">200</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $class) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (&amp;Scalar::Util::blessed($class)) { }</td></tr>
-<tr><td class="h"><a id="L201">201</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (keys %{$params;})</td></tr>
+<tr><td class="h"><a id="L201">201</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (keys %{$params;})</td></tr>
 <tr><td class="h"><a id="L212">212</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($alternatives)</td></tr>
 <tr><td class="h"><a id="L226">226</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $$params{&quot;openaddr&quot;} and $ENV{&quot;OPENADDR_HOME&quot;})</td></tr>
 <tr><td class="h"><a id="L238">238</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$params{&quot;openaddr&quot;})</td></tr>
@@ -40,7 +40,7 @@ https://pjcj.net
 <tr><td class="h"><a id="L340">340</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $params{&quot;location&quot;} and not $params{&quot;location&quot;} =~ /\D/)</td></tr>
 <tr><td class="h"><a id="L342">342</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if length $params{&quot;location&quot;}</td></tr>
 <tr><td class="h"><a id="L345">345</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $params{&quot;scantext&quot;} and not $params{&quot;scantext&quot;} =~ /\D/)</td></tr>
-<tr><td class="h"><a id="L347">347</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if length $params{&quot;scantext&quot;}</td></tr>
+<tr><td class="h"><a id="L347">347</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if length $params{&quot;scantext&quot;}</td></tr>
 <tr><td class="h"><a id="L351">351</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($$self{&quot;openaddr&quot;})</td></tr>
 <tr><td class="h"><a id="L352">352</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $scantext = $params{&quot;scantext&quot;})</td></tr>
 <tr><td class="h"><a id="L353">353</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $$self{&quot;scantext_misses&quot;}{$scantext}</td></tr>
@@ -73,13 +73,13 @@ https://pjcj.net
 <tr><td class="h"><a id="L466">466</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;geocode(\%params))</td></tr>
 <tr><td class="h"><a id="L481">481</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params{&quot;location&quot;})</td></tr>
 <tr><td class="h"><a id="L485">485</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $params{&quot;scantext&quot;}</td></tr>
-<tr><td class="h"><a id="L521">521</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
+<tr><td class="h"><a id="L521">521</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif (ref $self eq &#39;HASH&#39;) { }</td></tr>
-<tr><td class="h"><a id="L522">522</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @_) { }</td></tr>
-<tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $self) { }</td></tr>
+<tr><td class="h"><a id="L522">522</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (scalar @_) { }</td></tr>
+<tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (not defined $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($self eq __PACKAGE__) { }</td></tr>
 <tr><td class="h"><a id="L538">538</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($$self{&quot;openaddr&quot;})</td></tr>
-<tr><td class="h"><a id="L541">541</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($params{&quot;latlng&quot;})</td></tr>
+<tr><td class="h"><a id="L541">541</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params{&quot;latlng&quot;})</td></tr>
 <tr><td class="h"><a id="L573">573</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">$ENV{&#39;OPENADDR_HOME&#39;} ? :</td></tr>
 <tr><td class="h"><a id="L576">576</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless @rc</td></tr>
 <tr><td class="h"><a id="L593">593</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@args ? :</td></tr>
