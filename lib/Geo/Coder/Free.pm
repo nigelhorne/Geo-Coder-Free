@@ -51,6 +51,8 @@ C<Geo::Coder::Free> translates addresses into latitude/longitude coordinates
 using local SQLite databases built from free data sources — MaxMind/GeoNames,
 OpenAddresses, Who's On First, OpenStreetMap, and dr5hn's countries/states/cities
 database.  It deliberately avoids paid or rate-limited online geocoding services.
+The module is designed to be flexible, supporting both command-line and programmatic usage.
+It also includes a sample CGI script for a web-based geocoding service.
 
 Geocoding is attempted in priority order:
 
@@ -63,6 +65,15 @@ Geocoding is attempted in priority order:
 =item 3. C<Geo::Coder::Free::MaxMind> — bundled, always available
 
 =back
+
+The C<cgi-bin> directory contains a simple DIY geo-coding website:
+
+    cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
+
+The sample website is currently down while a new host is sought.
+When it returns, you will be able to test it with:
+
+    curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
 
 =head1 LIMITATIONS
 
@@ -140,12 +151,17 @@ C<openaddr>, the module checks C<$ENV{OPENADDR_HOME}> before giving up.
 
 =head3 API SPECIFICATION
 
-    # (Params::Validate schema)
-    openaddr  => SCALAR | undef   # path to OpenAddresses/WOF data dir
-    directory => SCALAR | undef   # path to MaxMind/GeoNames files
-    cache     => OBJECT | undef   # CHI-compatible cache object
+=head4 input
 
-Returns: Blessed C<Geo::Coder::Free> instance.
+    # Input schema (Params::Validate::Strict)
+    openaddr  => { type => 'scalar', optional => 1 }                          # path to OpenAddresses/WOF data dir
+    directory => { type => 'scalar', optional => 1 }                          # path to MaxMind/GeoNames files
+    cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible cache object
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Coder::Free' }
 
 =head3 EXAMPLE
 
@@ -251,13 +267,19 @@ sub new {
 
 =head3 API SPECIFICATION
 
-    location     => SCALAR          # address string (mutually exclusive with scantext)
-    scantext     => SCALAR          # free text to scan for place names
-    region       => SCALAR | undef  # ISO 3166-1 alpha-2 country code hint
-    ignore_words => ARRAYREF | undef
+=head4 input
 
-    Returns (scalar context): Geo::Location::Point | undef
-    Returns (list context):   list of Geo::Location::Point
+    # Input schema (Params::Validate::Strict) — exactly one of location or scantext is required
+    location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
+    scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
+    region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
+    ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
+    # list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
 
 =head3 MESSAGES
 
@@ -478,9 +500,18 @@ OpenAddresses is attempted first when available.
 
 =head3 API SPECIFICATION
 
-    latlng => "$lat,$long"   # comma-separated decimal degrees
+=head4 input
 
-    Returns: Geo::Location::Point | undef
+    # Input schema (Params::Validate::Strict) — latlng or lat+lon required
+    latlng => { type => 'scalar', optional => 1 }  # "$lat,$long" comma-separated decimal degrees
+    lat    => { type => 'scalar', optional => 1 }  # latitude  (alternative to latlng)
+    lon    => { type => 'scalar', optional => 1 }  # longitude (alternative to latlng)
+    long   => { type => 'scalar', optional => 1 }  # alias for lon
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Location::Point', optional => 1 }
 
 =cut
 
@@ -758,11 +789,74 @@ sub _abbreviate {
 
 =head1 GETTING STARTED
 
-Set C<OPENADDR_HOME> to an empty directory then run:
+To download, import and set up the local database:
+before running C<make>, but after running C<perl Makefile.PL>, follow these instructions.
 
-    bin/download_databases   # downloads OpenAddr, WOF, OSM, dr5hn data
-    bin/create_sqlite        # MaxMind CSV → SQLite
-    bin/create_db            # builds openaddresses.sql from all sources
+Optionally set C<OPENADDR_HOME> to point to an empty directory and download the data from
+L<http://results.openaddresses.io> into that directory; and
+optionally set C<WHOSONFIRST_HOME> to point to an empty directory and download the data using
+L<https://github.com/nigelhorne/NJH-Snippets/blob/master/bin/wof-clone>.
+The script C<bin/download_databases> (see below) will do those for you.
+You do not need to download the MaxMind data — that is downloaded automatically.
+
+You will need to create the database used by C<Geo::Coder::Free>.
+
+Install L<App::csv2sqlite> and L<https://github.com/nigelhorne/NJH-Snippets>.
+Run C<bin/create_sqlite> — this converts the MaxMind "cities" database from CSV to SQLite.
+
+To use with MariaDB, set C<MARIADB_SERVER="$hostname;$port"> and
+C<MARIADB_USER="$user;$password"> (TODO: username/password should be asked for interactively).
+The code will use a database called C<geo_code_free>, which will be dropped and recreated if it exists.
+C<$user> needs only DROP, CREATE, SELECT, INSERT, and INDEX privileges on that database.
+
+The following optional steps download and install large databases.
+This will take a long time and use a lot of disc space.
+
+=over 4
+
+=item 1
+
+C<mkdir $WHOSONFIRST_HOME; cd $WHOSONFIRST_HOME> then run C<wof-clone> from NJH-Snippets.
+
+This can take a long time because it contains many nested directories, which filesystem drivers
+can be slow to navigate (particularly on EXT4 and ZFS).
+
+=item 2
+
+Install L<https://github.com/dr5hn/countries-states-cities-database.git> into C<$DR5HN_HOME>.
+This data covers cities only, so it is not used when C<OSM_HOME> is set (OSM is far more
+comprehensive).  Only Australia, Canada, and the US are imported, as the UK data is difficult
+to parse.
+
+=item 3
+
+Run C<bin/download_databases> — this downloads the Who's On First, OpenAddr, OpenStreetMap,
+and dr5hn databases.
+OpenStreetMap now uses PBF files, so you will need C<apt install osmium-tool> first.
+Check the values of C<OSM_HOME>, C<OPENADDR_HOME>, C<DR5HN_HOME> and C<WHOSONFIRST_HOME>
+within that script and adjust them for your setup.
+The C<Makefile.PL> file downloads the MaxMind database automatically, as it is not optional.
+
+=item 4
+
+Run C<bin/create_db> — this creates the database used by C<Geo::Coder::Free> from the data you
+have just downloaded.
+The database is called C<openaddr.sql> for historical reasons (before Who's On First was added);
+it actually contains data from all sources above.
+
+=back
+
+Now you are ready to run C<make>.
+See the comment at the start of C<createdatabase.PL> for further details.
+
+=head1 MORE INFORMATION
+
+I have written several Perl genealogy programs including
+L<gedcom|https://github.com/nigelhorne/gedcom> and
+L<ged2site|https://github.com/nigelhorne/ged2site>.
+One of the things these do is check the validity of a family tree, including verifying place-names.
+Of course places do change names and spelling becomes more consistent over the years, but the vast
+majority remain the same — enough to make computerised verification worthwhile.
 
 =head1 BUGS
 

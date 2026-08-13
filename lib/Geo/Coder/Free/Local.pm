@@ -118,9 +118,15 @@ containing three or more data points.
 
 =head3 API SPECIFICATION
 
-    cache => CHI-compatible object | undef   # optional result cache
+=head4 input
 
-    Returns: Blessed Geo::Coder::Free::Local instance.
+    # Input schema (Params::Validate::Strict)
+    cache => { type => 'object', optional => 1, can => ['get', 'set'] }  # CHI-compatible cache object
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Coder::Free::Local' }
 
 =head3 FORMAL SPECIFICATION
 
@@ -203,9 +209,15 @@ sub new {
 
 =head3 API SPECIFICATION
 
-    location => SCALAR   # required; must contain at least two commas
+=head4 input
 
-    Returns: Geo::Location::Point | undef
+    # Input schema (Params::Validate::Strict)
+    location => { type => 'scalar' }  # address string; must contain at least two commas
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Location::Point', optional => 1 }
 
 =head3 MESSAGES
 
@@ -573,13 +585,19 @@ sub geocode {
 
 =head3 API SPECIFICATION
 
-    latlng => "$lat,$long"   # comma-separated decimal degrees
-    lat    => SCALAR         # alternative: separate latitude
-    lon    => SCALAR         # alternative: separate longitude
-    long   => SCALAR         # alias for lon
+=head4 input
 
-    Returns (list context):   list of location strings and their alternatives
-    Returns (scalar context): single location string | undef
+    # Input schema (Params::Validate::Strict) — latlng or lat+lon required
+    latlng => { type => 'scalar', optional => 1 }  # "$lat,$long" comma-separated decimal degrees
+    lat    => { type => 'scalar', optional => 1 }  # latitude  (alternative to latlng)
+    lon    => { type => 'scalar', optional => 1 }  # longitude (alternative to latlng)
+    long   => { type => 'scalar', optional => 1 }  # alias for lon
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # scalar context: { type => 'scalar',   optional => 1 }  # location string
+    # list context:   { type => 'arrayref', of => { type => 'scalar' } }
 
 =cut
 

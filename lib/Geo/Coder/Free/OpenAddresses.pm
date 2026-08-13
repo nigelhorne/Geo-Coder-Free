@@ -104,6 +104,19 @@ openaddresses.sql.
 
 Takes an optional parameter cache, which points to an object that understands get() and set() messages to store data in
 
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    openaddr => { type => 'scalar' }                                          # path to the directory containing openaddresses.sql
+    cache    => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible cache object
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Coder::Free::OpenAddresses' }
+
 =cut
 
 sub new {
@@ -144,6 +157,23 @@ it will go on to look just for the town if the street isn't found.
 
 The word "county" is removed from US county searches,
 that either C<Leesburg, Loudoun County, Virginia, US> or C<Leesburg, Loudoun, Virginia, US> will work.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict) — exactly one of location or scantext is required
+    location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
+    scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
+    region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
+    ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
+    exact        => { type => 'scalar',   optional => 1 }  # if set, do not fall back to town-only match
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
+    # list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
 
 =cut
 
