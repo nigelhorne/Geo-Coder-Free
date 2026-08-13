@@ -305,6 +305,7 @@ my $test_requires = {
 	'CGI::Lingua' => 0,
 	'CHI::Driver::Null' => 0,
 	'Data::Throttler' => 0,
+	'File::Temp' => 0,
 	'Test::Carp' => 0,
 	'Test::Deep' => 0,
 	'Test::DescribeMe' => 0,

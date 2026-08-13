@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use File::Temp;
 use Test::Most tests => 9;
 use Test::NoWarnings;
 use Error;
@@ -15,7 +16,8 @@ BEGIN { use_ok('Geo::Coder::Free::Utils') }
 my $valid_disk_config = {
 	disc_cache => {
 		driver => 'File',
-		root_dir => '/tmp/cache',
+		# root_dir => '/tmp/cache',
+		root_dir => File::Temp::tempdir(CLEANUP => 1)
 	}
 };
 
@@ -37,7 +39,7 @@ my $invalid_config = {};
 sub test_create_disc_cache {
 	# Valid configuration
 	my $disk_cache = eval { create_disc_cache({ config => $valid_disk_config, namespace => 'test_disk' }); 1 };
-	diag($@) if(defined($@));
+	diag($@) if($@);
 	ok($disk_cache, 'Disk cache created successfully');
 
 	# Invalid configuration
