@@ -9,7 +9,7 @@
 #	LANG=en_GB root_dir=$(pwd)/.. ./page.fcgi page=index
 # To mimic a French mobile site:
 #	root_dir=$(pwd)/.. ./page.fcgi --mobile page=index lang=fr
-# To turn off the linting of HTML on a search engine landing page
+# To turn off the linting of HTML on a search-engine landing page
 #	LANG=en_GB root_dir=$(pwd)/.. ./page.fcgi --search-engine page=index lint_content=0
 
 use strict;
@@ -55,6 +55,7 @@ use lib CGI::Info::script_dir() . '/../lib';
 use lib File::HomeDir->my_home() . '/lib/perl5';
 
 use Geo::Coder::Free;
+use Geo::Coder::Free::Allow;
 use Geo::Coder::Free::Config;
 use Geo::Coder::Free::Utils;
 
@@ -452,20 +453,42 @@ sub doit
 		return;
 	}
 
-	# Access control checks
+	# ── Multi-layer access control ─────────────────────────────────────────
+	# Three independent checks are run in order of cheapness:
+	#   1. CGI::ACL — cloud ranges, country blocks, explicit IP allow/deny.
+	#   2. blacklisted() — in-process IP set built from prior SQL-injection attempts.
+	#   3. CGI::Geo::Coder::Free::Allow — DShield feed, user-agent blacklist, throttler, IDS.
 	if(my $remote_addr = $ENV{'REMOTE_ADDR'}) {
 		my $reason;
 		if($acl->all_denied(lingua => $lingua)) {
 			$reason = 'Denied by CGI::ACL';
 		} elsif(blacklisted($info)) {
 			$reason = 'Blacklisted for attempting to break in';
+		} else {
+			# CGI::Geo::Coder::Free::Allow may throw an Error object when it blocks a request.
+			# Catch it here so the 403 response is sent rather than propagating.
+			try {
+				unless(CGI::Geo::Coder::Free::Allow::allow({
+					info   => $info,
+					lingua => $lingua,
+					logger => $logger,
+					cache  => $rate_limit_cache,
+					config => $config,
+				})) {
+					$reason = 'Blocked by CGI::Geo::Coder::Free::Allow';
+				}
+			} catch Error with {
+				$reason = shift;
+			};
 		}
 		if($reason) {
-			# Client has been blocked
+			# Return a minimal plain-text 403 - no template rendering so that
+			# a blocked attacker receives no information about site structure.
 			print "Status: 403 Forbidden\n",
 				"Content-type: text/plain\n",
 				"Pragma: no-cache\n\n";
 
+			# Suppress the body on HEAD requests per RFC 7231 §4.3.2.
 			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 				print "Access Denied\n";
 			}
@@ -476,6 +499,9 @@ sub doit
 		}
 	}
 
+	# ── FCGI::Buffer setup ────────────────────────────────────────────────
+	# FCGI::Buffer post-processes the output: compresses it, generates an ETag
+	# and Last-Modified header, and serves a 304 Not Modified when appropriate.
 	my $args = {
 		generate_etag => 1,
 		generate_last_modified => 1,
@@ -484,6 +510,8 @@ sub doit
 		info => $info,
 		optimise_content => 1,
 		logger => $logger,
+		# lint_content runs HTML::Tidy on the output; enable in debug mode or
+		# when explicitly requested via the lint_content query parameter.
 		lint_content => $info->param('lint_content') // $params{'debug'},
 		lingua => $lingua
 	};
@@ -512,9 +540,12 @@ sub doit
 		}
 	}
 
+	# $display holds the instantiated Geo::Coder::Free::Display subclass when the page is
+	# found; $invalidpage is set when the page name is invalid or unloadable.
 	my $display;
 	my $invalidpage;
 
+	# Arguments forwarded to every Geo::Coder::Free::Display subclass constructor.
 	$args = {
 		cachedir => $cachedir,
 		info => $info,
@@ -524,19 +555,29 @@ sub doit
 		log => $log
 	};
 
-	# Display the requested page
+	# ── Page dispatch ──────────────────────────────────────────────────────
+	# The outer block eval catches any exception thrown during module loading
+	# or display-object construction, setting $@ for inspection below.
 	eval {
 		my $page = $info->param('page');
+
+		# Strip URL fragment identifiers - the server never needs them.
 		$page =~ s/#.*$//;
-		$page =~ s/\\//g;	# I don't know what you're trying to escape or why, but I'm not going to let you
+
+		# Reject backslashes: no legitimate page name contains one, and
+		# they have historically been used to probe Windows path traversal.
+		$page =~ s/\\//g;
+
 		if($page =~ /\//) {
-			# Block "page=/etc/passwd" and "page=http://www.google.com"
+			# A slash in the page name indicates an attempt to traverse
+			# directories (e.g. page=/etc/passwd or page=http://evil.com).
 			$logger->info("Blocking '/' in $page");
 			$info->status(403);
 			$log->status(403);
 			$invalidpage = 1;
 		} else {
-			# Remove all non alphanumeric characters in the name of the page to be loaded
+			# Strip every non-word character so that the page name can only
+			# contain [A-Za-z0-9_] - safe to use as a Perl package suffix.
 			$page =~ s/\W//g;
 			$page =~ s/\s//g;
 			my $display_module = "Geo::Coder::Free::Display::$page";
