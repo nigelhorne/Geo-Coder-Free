@@ -89,7 +89,7 @@ jobs:
 
       - name: Install DB_File, needed for a lot of CPAN modules
         run: |
-          sudo apt install libdb-dev
+          sudo apt install libdb-dev libperl-dev
         if: runner.os == 'Linux'
 
       - name: Install dependencies

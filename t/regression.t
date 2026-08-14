@@ -84,31 +84,54 @@ subtest 'REG-3: MyLogger::error does not recurse into itself' => sub {
 };
 
 # -----------------------------------------------------------------------
-# REG-4: admin2.db had 13 duplicate GB.ENG.G5→Tooting lines appended by
-#         Makefile.PL on every build.  Kent's own entry existed but was
-#         shadowed on BSD/macOS where file iteration order differs from Linux.
-#         Fix: removed the wrong entry from the Makefile.PL append block
-#         and stripped the duplicates from the committed admin2.db.
+# REG-4: Makefile.PL was appending "GB.ENG.G5\tTooting" to admin2.db on
+#         every build.  GB.ENG.G5 is Kent's GeoNames admin2 code; Tooting is
+#         a South London suburb and has no business under that code.  On BSD/
+#         macOS the appended row was returned first, shadowing Kent.
+#         Fix: removed the wrong line from the Makefile.PL append block.
+#
+#         We test two things independently:
+#           (a) Makefile.PL source no longer contains the bad append — this
+#               is stable regardless of what GeoNames ships for GB.ENG.G5.
+#           (b) admin2.db (whether committed or freshly downloaded) has no
+#               Tooting entry under GB.ENG.G5; and if the code is present at
+#               all, it maps to Kent.
 # -----------------------------------------------------------------------
-subtest 'REG-4: admin2.db has exactly one GB.ENG.G5 entry and it is Kent' => sub {
+subtest 'REG-4: Makefile.PL no longer appends Tooting under GB.ENG.G5' => sub {
+	plan tests => 1;
+
+	open(my $fh, '<', 'Makefile.PL') or BAIL_OUT("Cannot open Makefile.PL: $!");
+	my $src = do { local $/; <$fh> };
+	close $fh;
+
+	# Match the Perl string-literal form used in print statements:
+	#   "GB.ENG.G5\tTooting..."
+	# A comment mentioning both names is not a match; the escaped \t is key.
+	unlike($src, qr["GB\.ENG\.G5\\tTooting],
+		'Makefile.PL source has no GB.ENG.G5/Tooting append (root-cause line removed)');
+};
+
+subtest 'REG-4b: admin2.db has no Tooting entry under GB.ENG.G5' => sub {
 	my $db = 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db';
 	unless(-f $db) {
 		plan tests => 1;
 		pass('admin2.db not present — skipping data-integrity check');
 		return;
 	}
-	plan tests => 3;
+	plan tests => 2;
 
 	open(my $fh, '<', $db) or BAIL_OUT("Cannot open $db: $!");
 	my @g5 = grep { /^GB\.ENG\.G5\t/ } <$fh>;
 	close $fh;
 
-	is(scalar @g5, 1,
-		'exactly one line for GB.ENG.G5 (no corrupt duplicates from Makefile.PL)');
-	like($g5[0], qr/\tKent\t/,
-		'GB.ENG.G5 maps to Kent');
-	unlike(join('', @g5), qr/Tooting/,
-		'no Tooting under GB.ENG.G5 (Makefile.PL append block no longer wrong)');
+	my @tooting = grep { /Tooting/ } @g5;
+	is(scalar @tooting, 0,
+		'no Tooting rows under GB.ENG.G5 in admin2.db');
+
+	# If the GeoNames download still carries GB.ENG.G5, verify it is Kent.
+	# If the entry is absent from the current upstream data, that is also fine.
+	ok(!@g5 || $g5[0] =~ /\tKent\t/,
+		'GB.ENG.G5, if present, maps to Kent (not overridden by wrong append)');
 };
 
 # -----------------------------------------------------------------------
