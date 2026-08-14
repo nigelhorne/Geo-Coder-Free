@@ -43,7 +43,8 @@ jobs:
           AUTOMATED_TESTING: 1
         shell: bash
         run: |
-          cpanm -iqn ExtUtils::MakeMaker Test::Most Test::Needs Clone
+          cpanm -n ExtUtils::MakeMaker
+          cpanm -iqn Test::Most Test::Needs Clone
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
           cpanm -iv DB_File
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
@@ -53,6 +54,7 @@ jobs:
           else
             cpanm -ivn --installdeps . --exclude-only=Socket6,Net::Subnet
           fi
+
       - name: Make Module
         env:
           AUTOMATED_TESTING: 1
