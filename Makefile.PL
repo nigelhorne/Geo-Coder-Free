@@ -257,8 +257,11 @@ if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 		"GB.ENG.O5\tLondon\tLondon\t2648110\n",
 		"GB.ENG.I8\tLondon\tLondon\t2648110\n",
 		"GB.ENG.P5\tLondon\tLondon\t2648110\n",
-		"GB.ENG.G5\tTooting\tTooting\t2648110\n",	# Not in the database, but Balham is close
 		"GB.ENG.A5\tBedfordshire\tBedfordshire\t2648110\n";
+	# NOTE: GB.ENG.G5 is Kent (GeoNames admin2); do not append Tooting here —
+	# Tooting is in London (Wandsworth) and its correct worldcitiespop code is
+	# not G5.  The old entry silently shadowed the Kent row on BSD/macOS where
+	# the file is read in a different order.
 }
 
 # For bin/create_sqlite/createdatabase
