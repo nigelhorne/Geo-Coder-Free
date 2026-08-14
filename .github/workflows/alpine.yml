@@ -25,7 +25,7 @@ jobs:
         run: |
           apk update
           apk upgrade
-	  apk add --no-cache perl perl-dev build-base linux-headers wget
+          apk add --no-cache perl perl-dev build-base linux-headers wget
           apk add perl-app-cpanminus make gzip git perl-dbi gcc libaio-dev
           apk add perl-test-most perl-test-nowarnings perl-lwp-protocol-https
           apk add musl-dev perl-canary-stability perl-file-slurp zlib-dev perl-dbd-csv
