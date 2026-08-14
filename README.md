@@ -288,6 +288,11 @@ The OpenAddresses data does not cover the whole globe.
 
 # SEE ALSO
 
+# SEE ALSO
+
+- [Configure an Object at Runtime](https://metacpan.org/pod/Object%3A%3AConfigure)
+- [Test Dashboard](https://nigelhorne.github.io/Geo-Coder-Free/coverage/)
+
 [Geo::Coder::Free::Local](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3ALocal), [Geo::Coder::Free::MaxMind](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AMaxMind),
 [Geo::Coder::Free::OpenAddresses](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AOpenAddresses),
 [https://openaddresses.io/](https://openaddresses.io/), [https://www.maxmind.com/](https://www.maxmind.com/),

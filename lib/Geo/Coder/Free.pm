@@ -821,6 +821,16 @@ C<London, England> cannot be parsed yet.
 
 =head1 SEE ALSO
 
+=head1 SEE ALSO
+
+=over 4
+
+=item * L<Configure an Object at Runtime|Object::Configure>
+
+=item * L<Test Dashboard|https://nigelhorne.github.io/Geo-Coder-Free/coverage/>
+
+=back
+
 L<Geo::Coder::Free::Local>, L<Geo::Coder::Free::MaxMind>,
 L<Geo::Coder::Free::OpenAddresses>,
 L<https://openaddresses.io/>, L<https://www.maxmind.com/>,
