@@ -4,7 +4,7 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 # VERSION
 
-Version 0.42
+Version 0.43
 
 # SYNOPSIS
 

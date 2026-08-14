@@ -46,7 +46,8 @@ jobs:
           cpanm -iqn Test::DescribeMe Data::Validate::URI Log::Any::Adapter::Log4perl
           cpanm -iqn Text::xSV::Slurp Test::Carp Digest::CRC Test::Needs Array::Iterator
           cpanm -iqn Template::Filters Template::Plugin::EnvHash HTML::SocialMedia Template::Plugin::JSON
-          cpanm -iqn Cache::LRU
+          cpanm -iqn Cache::LRU Readonly
+          cpanm -iqn Test::Mockingbird Test::Returns Test::Memory::Cycle Test::Without::Module
           cpanm -iqfn CGI::IDS
           cpanm -iqn --installdeps .
         env:

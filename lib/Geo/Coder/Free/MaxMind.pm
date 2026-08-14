@@ -60,7 +60,7 @@ Version 0.42
 
 =cut
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 =head1 SYNOPSIS
 
@@ -225,7 +225,6 @@ sub geocode {
 		});
 	}
 
-	# ::diag(__LINE__, ": $location");
 	return unless(($location =~ /,/) || $params{'region'});	# Not well formed, or an attempt to find the location of an entire country
 
 	# Check cache first
@@ -282,7 +281,6 @@ sub geocode {
 		$county =~ s/\s$//g;
 		# $country =~ s/^\s//g;
 		$country =~ s/\s$//g;
-		# ::diag(__LINE__, "$county, $country");
 		$region_only = 1;	# Will only return one match, not every match in the region
 	} else {
 		# Carp::croak(__PACKAGE__, ' only supports towns, not full addresses');
@@ -295,9 +293,7 @@ sub geocode {
 			$concatenated_codes = 'GB';
 		}
 		$countrycode = country2code($country);
-		# ::diag(__LINE__, ": country $countrycode, county $county, state $state, location $location");
 		# if($county && $countrycode) {
-			# ::diag(__LINE__, ": country $countrycode, county $county, location $location");
 		# }
 
 		if($state && $admin1cache{$state}) {
@@ -335,27 +331,22 @@ sub geocode {
 		}
 	}
 	return unless(defined($concatenated_codes));
-	# ::diag(__LINE__, ": $concatenated_codes");
 
 	my @admin2s;
 	my $region;
 	my @regions;
-	# ::diag(__LINE__, ": $country");
 	if($country =~ /^(United States|USA|US)$/) {
 		if($county && (length($county) > 2)) {
 			if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($county)}) {
 				$county = $twoletterstate;
 			}
-			# ::diag(__LINE__, ": $location, $county, $country");
 		}
 		if($state && (length($state) > 2)) {
 			if(my $twoletterstate = ($_locale_us //= Locale::US->new())->{state2code}{uc($state)}) {
 				$state = $twoletterstate;
 			}
-			# ::diag(__LINE__, ": $location, $state, $country");
 		}
 	} elsif(($country eq 'Canada') && $state && (length($state) > 2)) {
-		# ::diag(__LINE__, ": $state");
 		if(($_locale_ca //= Locale::CA->new())->{province2code}{uc($state)}) {
 			# FIXME:  I can't see that province locations are stored in cities.csv
 			return unless(defined($location));	# OK if searching for a city, that works
@@ -368,25 +359,18 @@ sub geocode {
 		# US state. Not Canadian province.
 		$region = $county;
 	} elsif($county && $admin1cache{$county}) {
-		# ::diag(__LINE__);
 		$region = $admin1cache{$county};
 	} elsif($county && $admin2cache{$county}) {
 		$region = $admin2cache{$county};
-		# ::diag(__LINE__, ": $county");
 	} elsif(defined($state) && $admin2cache{$state} && !defined($county)) {
-		# ::diag(__LINE__);
 		$region = $admin2cache{$state};
 	} else {
-		# ::diag(__PACKAGE__, ': ', __LINE__);
 		if(defined($county) && ($county eq 'London')) {
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		} elsif(defined($county)) {
-			# ::diag(__PACKAGE__, ': ', __LINE__, ": $county");
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $county);
 		}
-		# ::diag(__LINE__, Data::Dumper->new([\@admin2s])->Dump());
 		foreach my $admin2(@admin2s) {
-			# ::diag(__LINE__, Data::Dumper->new([$admin2])->Dump());
 			if($admin2->{'concatenated_codes'} =~ $concatenated_codes) {
 				$region = $admin2->{'concatenated_codes'};
 				if($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) {
@@ -425,11 +409,9 @@ sub geocode {
 	if((scalar(@regions) == 0) && !defined($region)) {
 		# e.g. Unitary authorities in the UK
 		# admin[12].db columns are labelled ['concatenated_codes', 'name', 'asciiname', 'geonameId']
-		# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
 		@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		if((scalar(@admin2s) == 0) && ($country =~ /^(Canada|United States|USA|US)$/) && ($location !~ /\sCounty/i)) {
 			$location .= ' County';
-			# ::diag(__PACKAGE__, ': ', __LINE__, ": $location");
 			@admin2s = $self->{'admin2'}->selectall_hash(asciiname => $location);
 		}
 		if(scalar(@admin2s) && defined($admin2s[0]->{'concatenated_codes'})) {
@@ -445,14 +427,12 @@ sub geocode {
 				}
 			}
 		} elsif(defined($county)) {
-			# ::diag(__PACKAGE__, ': ', __LINE__, ": county $county");
 			# e.g. states in the US
 			if(!defined($self->{'admin1'})) {
 				$self->{'admin1'} = Geo::Coder::Free::DB::MaxMind::admin1->new(no_entry => 1) or Carp::croak("Can't open the admin1 database");
 			}
 			my @admin1s = $self->{'admin1'}->selectall_hash(asciiname => $county);
 			foreach my $admin1(@admin1s) {
-				# ::diag(__LINE__, Data::Dumper->new([$admin1])->Dump());
 				if($admin1->{'concatenated_codes'} =~ /^\Q$concatenated_codes\E\./i) {
 					$region = $admin1->{'concatenated_codes'};
 					if(scalar(@admin1s) == 1) {
@@ -509,11 +489,9 @@ sub geocode {
 		$options->{'Country'} = $countrycode;
 		$confidence = 0.1;
 	}
-	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	# This case nonsense is because DBD::CSV changes the columns to lowercase, whereas DBD::SQLite does not
 	# if(wantarray && (!$options->{'City'}) && !$region_only) {
 	# if(0) {	# We don't need to find all the cities in a state, which is what this would do
-		# # ::diag(__PACKAGE__, ': ', __LINE__);
 		# my @rc = $self->{'cities'}->selectall_hash($options);
 		# if(scalar(@rc) == 0) {
 			# if((!defined($region)) && !defined($params{'region'})) {
@@ -525,13 +503,10 @@ sub geocode {
 			# if($countrycode) {
 				# @rc = $self->{'cities'}->selectall_hash('Region' => ($region || $params{'region'}), 'Country' => $countrycode);
 				# if(scalar(@rc) == 0) {
-					# # ::diag(__PACKAGE__, ': ', __LINE__, ': no matches: ', Data::Dumper->new([$options])->Dump());
 					# return;
 				# }
 			# }
-			# # ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
 		# }
-		# # ::diag(__LINE__, ': ', Data::Dumper->new([\@rc])->Dump());
 		# foreach my $city(@rc) {
 			# if($city->{'Latitude'}) {
 				# $city->{'latitude'} = delete $city->{'Latitude'};
@@ -586,10 +561,8 @@ sub geocode {
 		#
 		# return @locations;
 	# }
-	# ::diag(__PACKAGE__, ': ', __LINE__, ': ', Data::Dumper->new([$options])->Dump());
 	my $city = $self->{'cities'}->fetchrow_hashref($options);
 	if(!defined($city)) {
-		# ::diag(__LINE__, ': ', scalar(@regions));
 		foreach $region(@regions) {
 			$region =~ s/^.*\.//;    # keep only the rightmost dot-delimited component
 			if($country =~ /^(United States|USA|US)$/) {
@@ -601,7 +574,6 @@ sub geocode {
 		}
 	}
 
-	# ::diag(__LINE__, ': ', Data::Dumper->new([$city])->Dump());
 	if(defined($city) && defined($city->{'Latitude'})) {
 		# Cache and return result
 		delete $city->{'Region'} if(defined($city->{'Region'}) && ($city->{'Region'} =~ /^[A-Z]\d$/));	# E.g. Region = G5

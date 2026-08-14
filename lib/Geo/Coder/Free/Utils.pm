@@ -11,16 +11,16 @@ Geo::Coder::Free::Utils - Random subroutines for Geo::Coder::Free
 
 =head1 DESCRIPTION
 
-Utility module for cache management and geospatial calculations.
-Provides cross-driver cache initialization and Haversine formula implementation.
+Utility module for cache management, geospatial calculations, and shared
+address-normalization helpers used by multiple backends.
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use v5.20;
 use strict;
@@ -29,10 +29,12 @@ use feature qw(signatures);
 no warnings qw(experimental::signatures);
 
 use Exporter qw(import);
-our @EXPORT = qw(create_disc_cache create_memory_cache distance);
+our @EXPORT = qw(create_disc_cache create_memory_cache distance _abbreviate _normalize);
+our @EXPORT_OK = qw(_abbreviate _normalize);
 
 use CHI;
 use Data::Dumper;
+use Geo::Coder::Abbreviations;
 use DBI;
 use Error::Simple;
 use Module::Runtime qw(require_module);	# Safe dynamic loading; avoids string eval
@@ -444,6 +446,59 @@ sub distance($lat1, $lon1, $lat2, $lon2, $unit = 'M') {
 	my $c = 2 * asin(sqrt($a));
 
 	return $radius * $c;
+}
+
+# Singleton shared across all callers; lazy-initialised on first use.
+my $abbreviations;
+
+=head2 _normalize
+
+Normalise a street name to its abbreviated canonical form.  Uppercases the
+input, then abbreviates the second-to-last or last word (whichever is a
+recognised street type) using C<Geo::Coder::Abbreviations>.  Leading zeros
+are also stripped (C<"04th St"> → C<"4th St">).
+
+Exported so that C<Local.pm> and C<OpenAddresses.pm> can call it without
+importing C<Geo::Coder::Free>.
+
+=cut
+
+sub _normalize {
+	my $street = uc(shift);
+	$abbreviations ||= Geo::Coder::Abbreviations->new();
+
+	my @words = split /\s+/, $street;
+	if (@words >= 3) {
+		my $a;
+		if (lc($words[-2]) ne 'cross' && ($a = $abbreviations->abbreviate($words[-2]))) {
+			$words[-2] = $a;
+		} elsif ($a = $abbreviations->abbreviate($words[-1])) {
+			$words[-1] = $a;
+		}
+		$street = join ' ', @words;
+	} elsif (@words == 2) {
+		if (my $a = $abbreviations->abbreviate($words[-1])) {
+			$street = "$words[0] $a";
+		}
+	}
+	$street =~ s/^0+//;
+	return $street;
+}
+
+=head2 _abbreviate
+
+Abbreviate a single street-type word (e.g. C<"Street"> → C<"ST">).  Returns
+the original word uppercased if no abbreviation is found.
+
+Exported so that C<Local.pm> and C<OpenAddresses.pm> can call it without
+importing C<Geo::Coder::Free>.
+
+=cut
+
+sub _abbreviate {
+	my $type = uc(shift);
+	$abbreviations ||= Geo::Coder::Abbreviations->new();
+	return $abbreviations->abbreviate($type) || $type;
 }
 
 1;

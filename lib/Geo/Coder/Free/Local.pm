@@ -6,7 +6,7 @@ use autodie qw(:all);
 
 use Carp;
 use Geo::Location::Point 0.14;
-use Geo::Coder::Free;
+use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
 use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
 use Locale::CA;
@@ -28,7 +28,7 @@ Version 0.42
 
 =cut
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 =head1 SYNOPSIS
 
@@ -61,9 +61,6 @@ index in C<new()> handles exact string matches; no index exists for partial fiel
 
 =item * C<our %alternatives> duplicates mappings in C<Geo::Coder::Free::__DATA__>.
 Both should be consolidated into a shared external config file.
-
-=item * C<_abbreviate> and C<_normalize> are cross-package calls into C<Geo::Coder::Free>,
-creating tight coupling and preventing either module from being used independently.
 
 =item * C<$libpostal_is_installed> is a module-level (effectively global) flag.
 Not thread-safe in a forking or threaded Perl deployment.
@@ -328,7 +325,7 @@ sub geocode {
 
 			if (my $street = $c{'street_name'}) {
 				if (my $type = $c{'street_type'}) {
-					my $abbrev = Geo::Coder::Free::_abbreviate($type);
+					my $abbrev = _abbreviate($type);
 					$street .= ' ' . ($abbrev || $type);
 					$street .= ' ' . $c{'street_direction_suffix'}
 						if $c{'street_direction_suffix'};
@@ -396,7 +393,7 @@ sub geocode {
 					my $city   = uc($href->{'city'} // '');
 					if (my $street = $href->{'street'}) {
 						if ($href->{'type'}) {
-							$street .= ' ' . Geo::Coder::Free::_abbreviate($href->{'type'});
+							$street .= ' ' . _abbreviate($href->{'type'});
 						}
 						$street .= ' ' . $href->{'suffix'}  if $href->{'suffix'};
 						$street  = $href->{'prefix'} . " $street" if $href->{'prefix'};
@@ -440,13 +437,13 @@ sub geocode {
 					$addr{'name'} = $parts[0];
 					if ($parts[1] =~ /^(\d+)\s+(.+)/) {
 						$addr{'number'} = $1;
-						$addr{'road'}   = Geo::Coder::Free::_normalize($2);
+						$addr{'road'}   = _normalize($2);
 						if (my $rc = $self->_search(\%addr, qw(name number road city state country))) {
 							$rc->{'country'} = 'US';
 							return $self->_cache_and_return($lc, $rc);
 						}
 					} else {
-						$addr{'road'} = Geo::Coder::Free::_normalize($parts[1]);
+						$addr{'road'} = _normalize($parts[1]);
 						if (my $rc = $self->_search(\%addr, qw(name road city state country))) {
 							$rc->{'country'} = 'US';
 							return $self->_cache_and_return($lc, $rc);
@@ -454,7 +451,7 @@ sub geocode {
 					}
 				} else {
 					$addr{'number'} = $parts[0];
-					$addr{'road'}   = Geo::Coder::Free::_normalize($parts[1]);
+					$addr{'road'}   = _normalize($parts[1]);
 					if (my $rc = $self->_search(\%addr, qw(number road city state country))) {
 						$rc->{'country'} = 'US';
 						return $self->_cache_and_return($lc, $rc);
@@ -502,7 +499,7 @@ sub geocode {
 			$addr{'location'} = $location;
 
 			if (my $street = $addr{'road'}) {
-				$addr{'road'} = Geo::Coder::Free::_normalize($street);
+				$addr{'road'} = _normalize($street);
 			}
 
 			# libpostal returns "england" as a state — map to country code

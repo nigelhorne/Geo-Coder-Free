@@ -14,7 +14,7 @@ Version 0.42
 
 =cut
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 # It contains admin areas such as counties, states and provinces
 # Note that GB has England, Scotland and Wales at this level, not the counties

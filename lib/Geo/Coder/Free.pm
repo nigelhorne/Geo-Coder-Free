@@ -6,10 +6,10 @@ use autodie qw(:all);
 
 use Carp;
 use Config::Auto;
-use Geo::Coder::Abbreviations;
 use Geo::Coder::Free::Local;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
+use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
 use Object::Configure;
 use Params::Get;
 use Readonly;
@@ -27,7 +27,7 @@ Version 0.42
 
 =cut
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 =head1 SYNOPSIS
 
@@ -54,15 +54,25 @@ database.  It deliberately avoids paid or rate-limited online geocoding services
 The module is designed to be flexible, supporting both command-line and programmatic usage.
 It also includes a sample CGI script for a web-based geocoding service.
 
-Geocoding is attempted in priority order:
+Geocoding dispatch order depends on whether C<OPENADDR_HOME> (or C<openaddr>) is set:
+
+B<With OpenAddresses data:>
 
 =over 4
 
-=item 1. C<Geo::Coder::Free::Local> — user-curated CSV entries (highest confidence)
+=item 1. C<Geo::Coder::Free::OpenAddresses> — requires C<OPENADDR_HOME>
 
-=item 2. C<Geo::Coder::Free::OpenAddresses> — requires C<OPENADDR_HOME>
+=item 2. C<Geo::Coder::Free::Local> — user-curated CSV entries (tried as fallback)
 
 =item 3. C<Geo::Coder::Free::MaxMind> — bundled, always available
+
+=back
+
+B<Without OpenAddresses data:>
+
+=over 4
+
+=item 1. C<Geo::Coder::Free::MaxMind> only — Local is not consulted.
 
 =back
 
@@ -81,10 +91,6 @@ When it returns, you will be able to test it with:
 
 =item * C<scantext> mode only finds locations in OpenAddresses; it falls back
 silently when C<OPENADDR_HOME> is not set (B<FIXME>: should warn).
-
-=item * C<_abbreviate> and C<_normalize> are package functions called cross-package
-by C<Local.pm>, creating a tight coupling that prevents marking them C<:Private>.
-The correct fix is a C<Geo::Coder::Free::Utils> module; deferred.
 
 =item * The C<__DATA__> alternatives table is hard-coded; it should live in a
 user-editable config file.
@@ -112,7 +118,6 @@ before iterating.
 # Using 'our' so that test code can reset them between test runs if needed.
 # -----------------------------------------------------------------------
 our $alternatives;
-our $abbreviations;
 
 # -----------------------------------------------------------------------
 # Error-message table.  All user-facing strings live here so that a future
@@ -757,50 +762,7 @@ sub _find_ca_addresses {
 	return @addresses;
 }
 
-# Purpose:  Normalise a street name to its abbreviated canonical form.
-#           Public (not :Private) because Local.pm calls this cross-package.
-#           See LIMITATIONS for the coupling issue.
-# Entry:    $street — raw street string (may be multi-word).
-# Exit:     Uppercased, abbreviated street string with leading zeros removed.
-# Side Effects: Lazy-initialises $abbreviations singleton.
-sub _normalize {
-	my $street = uc(shift);
-	$abbreviations ||= Geo::Coder::Abbreviations->new();
-
-	# ReDoS fix: the former /(.+)\s+(.+)\s+(.+)/ was O(N³) because all three
-	# greedy .+ groups can match spaces, forcing the engine to try every possible
-	# three-way split.  Splitting on whitespace is O(N) and semantically identical:
-	# we want to abbreviate the second-to-last word (embedded street type) or the
-	# last word (trailing street type).
-	my @words = split /\s+/, $street;
-	if (@words >= 3) {
-		my $a;
-		if (lc($words[-2]) ne 'cross' && ($a = $abbreviations->abbreviate($words[-2]))) {
-			$words[-2] = $a;
-		} elsif ($a = $abbreviations->abbreviate($words[-1])) {
-			$words[-1] = $a;
-		}
-		$street = join ' ', @words;
-	} elsif (@words == 2) {
-		if (my $a = $abbreviations->abbreviate($words[-1])) {
-			$street = "$words[0] $a";
-		}
-	}
-	$street =~ s/^0+//;	# "04th St" → "4th St"
-	return $street;
-}
-
-# Purpose:  Abbreviate a single street-type word (e.g. "Street" → "ST").
-#           Public (not :Private) because Local.pm calls this cross-package.
-#           See LIMITATIONS.
-# Entry:    $type — street-type word.
-# Exit:     Abbreviated uppercase string, or the original if no abbreviation found.
-# Side Effects: Lazy-initialises $abbreviations singleton.
-sub _abbreviate {
-	my $type = uc(shift);
-	$abbreviations ||= Geo::Coder::Abbreviations->new();
-	return $abbreviations->abbreviate($type) || $type;
-}
+# _normalize and _abbreviate are imported from Geo::Coder::Free::Utils.
 
 =head1 GETTING STARTED
 
