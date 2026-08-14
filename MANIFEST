@@ -15,6 +15,7 @@ css/style.css
 ignore.txt
 index.html
 lib/Geo/Coder/Free.pm
+lib/Geo/Coder/Free/Allow.pm
 lib/Geo/Coder/Free/bin/db2sql
 lib/Geo/Coder/Free/Config.pm
 lib/Geo/Coder/Free/DB/MaxMind/admin.pm
@@ -80,6 +81,7 @@ t/pod-synopsis.t
 t/pod.t
 t/port.t
 t/prereq.t
+t/regression.t
 t/scantext.t
 t/strict.t
 t/transaction.t

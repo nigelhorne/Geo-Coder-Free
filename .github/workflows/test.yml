@@ -34,7 +34,7 @@ jobs:
           perl-version: ${{ matrix.perl }}
 
       - name: Install Ubuntu Packages
-        run: sudo apt-get update && sudo apt-get install -y libdb-dev libio-aio-perl build-essential gcc make libc-dev libaio-dev
+        run: sudo apt-get update && sudo apt-get install -y libdb-dev libio-aio-perl build-essential gcc make libc-dev libaio-dev perl-dev
         if: matrix.os == 'ubuntu-latest'
       - run: perl -V
 
