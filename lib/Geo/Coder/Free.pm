@@ -15,8 +15,6 @@ use Params::Get;
 use Readonly;
 use Scalar::Util;
 
-=encoding utf-8
-
 =head1 NAME
 
 Geo::Coder::Free - Geocoding using free, locally-hosted databases
@@ -28,6 +26,8 @@ Version 0.42
 =cut
 
 our $VERSION = '0.42';
+
+=encoding utf-8
 
 =head1 SYNOPSIS
 
@@ -48,7 +48,7 @@ our $VERSION = '0.42';
 =head1 DESCRIPTION
 
 C<Geo::Coder::Free> translates addresses into latitude/longitude coordinates
-using local SQLite databases built from free data sources — MaxMind/GeoNames,
+using local SQLite databases built from free data sources - MaxMind/GeoNames,
 OpenAddresses, Who's On First, OpenStreetMap, and dr5hn's countries/states/cities
 database.  It deliberately avoids paid or rate-limited online geocoding services.
 The module is designed to be flexible, supporting both command-line and programmatic usage.
@@ -60,11 +60,11 @@ B<With OpenAddresses data:>
 
 =over 4
 
-=item 1. C<Geo::Coder::Free::OpenAddresses> — requires C<OPENADDR_HOME>
+=item 1. C<Geo::Coder::Free::OpenAddresses> - requires C<OPENADDR_HOME>
 
-=item 2. C<Geo::Coder::Free::Local> — user-curated CSV entries (tried as fallback)
+=item 2. C<Geo::Coder::Free::Local> - user-curated CSV entries (tried as fallback)
 
-=item 3. C<Geo::Coder::Free::MaxMind> — bundled, always available
+=item 3. C<Geo::Coder::Free::MaxMind> - bundled, always available
 
 =back
 
@@ -72,7 +72,7 @@ B<Without OpenAddresses data:>
 
 =over 4
 
-=item 1. C<Geo::Coder::Free::MaxMind> only — Local is not consulted.
+=item 1. C<Geo::Coder::Free::MaxMind> only - Local is not consulted.
 
 =back
 
@@ -185,27 +185,15 @@ to those shared references are immediately visible in both objects.
 
     use Geo::Coder::Free;
 
-    # Minimal — uses only the bundled MaxMind data:
+    # Minimal - uses only the bundled MaxMind data:
     my $geo = Geo::Coder::Free->new();
 
-    # Full — also searches OpenAddresses/WOF:
+    # Full - also searches OpenAddresses/WOF:
     my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
 
 =head3 MESSAGES
 
     use ->new() not ::new()   Called as a function; use arrow syntax.
-
-=head3 FORMAL SPECIFICATION
-
-    GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
-                              openaddr    : OpenAddr_Geocoder | undef;
-                              alternatives: Map[STRING → STRING];
-                              cache       : Cache | undef ⟩⟩
-
-    Init : Params → GeoCoderFreeState
-    ∀ p : Params •
-      let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
-      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
 
 =cut
 
@@ -271,7 +259,7 @@ sub new {
     my $pt = $geo->geocode(location => 'Ramsgate, Kent, UK');
     printf "lat=%.6f lon=%.6f\n", $pt->lat(), $pt->long();
 
-    # Scantext — returns a list of Geo::Location::Point objects
+    # Scantext - returns a list of Geo::Location::Point objects
     my @hits = $geo->geocode(
         scantext     => 'She lived in Ramsgate, Kent.',
         region       => 'GB',
@@ -287,7 +275,7 @@ sub new {
 
 =head4 input
 
-    # Input schema (Params::Validate::Strict) — exactly one of location or scantext is required
+    # Input schema (Params::Validate::Strict) - exactly one of location or scantext is required
     location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
     scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
     region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
@@ -304,14 +292,6 @@ sub new {
     Usage: ...::geocode(...)        No location or scantext argument given.
     invalid location to geocode()   location is purely numeric.
     invalid scantext to geocode()   scantext is purely numeric.
-
-=head3 FORMAL SPECIFICATION
-
-    Geocode : Address × Region? → Point?
-    ∀ addr : Address; r : Region? •
-      let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
-                    ∧ (openaddr = undef ⟹ [MaxMind]) •
-      result = first { defined } map { b.geocode(addr, r) } backends
 
 =head3 PSEUDOCODE
 
@@ -849,6 +829,28 @@ L<https://www.geonames.org/>, L<https://www.whosonfirst.org/>.
 =head1 AUTHOR
 
 Nigel Horne C<< <njh@nigelhorne.com> >>
+
+=head1 FORMAL SPECIFICATION
+
+=head2 new
+
+    GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
+                              openaddr    : OpenAddr_Geocoder | undef;
+                              alternatives: Map[STRING → STRING];
+                              cache       : Cache | undef ⟩⟩
+
+    Init : Params → GeoCoderFreeState
+    ∀ p : Params •
+      let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
+      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
+
+=head2 geocode
+
+    Geocode : Address × Region? → Point?
+    ∀ addr : Address; r : Region? •
+      let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
+                    ∧ (openaddr = undef ⟹ [MaxMind]) •
+      result = first { defined } map { b.geocode(addr, r) } backends
 
 =head1 LICENSE AND COPYRIGHT
 

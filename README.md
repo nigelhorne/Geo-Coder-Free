@@ -25,7 +25,7 @@ Version 0.42
 # DESCRIPTION
 
 `Geo::Coder::Free` translates addresses into latitude/longitude coordinates
-using local SQLite databases built from free data sources — MaxMind/GeoNames,
+using local SQLite databases built from free data sources - MaxMind/GeoNames,
 OpenAddresses, Who's On First, OpenStreetMap, and dr5hn's countries/states/cities
 database.  It deliberately avoids paid or rate-limited online geocoding services.
 The module is designed to be flexible, supporting both command-line and programmatic usage.
@@ -35,13 +35,13 @@ Geocoding dispatch order depends on whether `OPENADDR_HOME` (or `openaddr`) is s
 
 **With OpenAddresses data:**
 
-- 1. `Geo::Coder::Free::OpenAddresses` — requires `OPENADDR_HOME`
-- 2. `Geo::Coder::Free::Local` — user-curated CSV entries (tried as fallback)
-- 3. `Geo::Coder::Free::MaxMind` — bundled, always available
+- 1. `Geo::Coder::Free::OpenAddresses` - requires `OPENADDR_HOME`
+- 2. `Geo::Coder::Free::Local` - user-curated CSV entries (tried as fallback)
+- 3. `Geo::Coder::Free::MaxMind` - bundled, always available
 
 **Without OpenAddresses data:**
 
-- 1. `Geo::Coder::Free::MaxMind` only — Local is not consulted.
+- 1. `Geo::Coder::Free::MaxMind` only - Local is not consulted.
 
 The `cgi-bin` directory contains a simple DIY geo-coding website:
 
@@ -109,27 +109,15 @@ to those shared references are immediately visible in both objects.
 
     use Geo::Coder::Free;
 
-    # Minimal — uses only the bundled MaxMind data:
+    # Minimal - uses only the bundled MaxMind data:
     my $geo = Geo::Coder::Free->new();
 
-    # Full — also searches OpenAddresses/WOF:
+    # Full - also searches OpenAddresses/WOF:
     my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
 
 ### MESSAGES
 
     use ->new() not ::new()   Called as a function; use arrow syntax.
-
-### FORMAL SPECIFICATION
-
-    GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
-                              openaddr    : OpenAddr_Geocoder | undef;
-                              alternatives: Map[STRING → STRING];
-                              cache       : Cache | undef ⟩⟩
-
-    Init : Params → GeoCoderFreeState
-    ∀ p : Params •
-      let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
-      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
 
 ## geocode
 
@@ -139,7 +127,7 @@ to those shared references are immediately visible in both objects.
     my $pt = $geo->geocode(location => 'Ramsgate, Kent, UK');
     printf "lat=%.6f lon=%.6f\n", $pt->lat(), $pt->long();
 
-    # Scantext — returns a list of Geo::Location::Point objects
+    # Scantext - returns a list of Geo::Location::Point objects
     my @hits = $geo->geocode(
         scantext     => 'She lived in Ramsgate, Kent.',
         region       => 'GB',
@@ -155,7 +143,7 @@ to those shared references are immediately visible in both objects.
 
 #### input
 
-    # Input schema (Params::Validate::Strict) — exactly one of location or scantext is required
+    # Input schema (Params::Validate::Strict) - exactly one of location or scantext is required
     location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
     scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
     region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
@@ -172,14 +160,6 @@ to those shared references are immediately visible in both objects.
     Usage: ...::geocode(...)        No location or scantext argument given.
     invalid location to geocode()   location is purely numeric.
     invalid scantext to geocode()   scantext is purely numeric.
-
-### FORMAL SPECIFICATION
-
-    Geocode : Address × Region? → Point?
-    ∀ addr : Address; r : Region? •
-      let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
-                    ∧ (openaddr = undef ⟹ [MaxMind]) •
-      result = first { defined } map { b.geocode(addr, r) } backends
 
 ### PSEUDOCODE
 
@@ -316,6 +296,28 @@ The OpenAddresses data does not cover the whole globe.
 # AUTHOR
 
 Nigel Horne `<njh@nigelhorne.com>`
+
+# FORMAL SPECIFICATION
+
+## new
+
+    GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
+                              openaddr    : OpenAddr_Geocoder | undef;
+                              alternatives: Map[STRING → STRING];
+                              cache       : Cache | undef ⟩⟩
+
+    Init : Params → GeoCoderFreeState
+    ∀ p : Params •
+      let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
+      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
+
+## geocode
+
+    Geocode : Address × Region? → Point?
+    ∀ addr : Address; r : Region? •
+      let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
+                    ∧ (openaddr = undef ⟹ [MaxMind]) •
+      result = first { defined } map { b.geocode(addr, r) } backends
 
 # LICENSE AND COPYRIGHT
 
