@@ -261,7 +261,7 @@ if(open(my $admin2, '>>', 'lib/Geo/Coder/Free/MaxMind/databases/admin2.db')) {
 		"GB.ENG.A5\tBedfordshire\tBedfordshire\t2648110\n";
 }
 
-# For bin/create_sqlite and createdatabase
+# For bin/create_sqlite/createdatabase
 my $build_requires = {
 	'App::csv2sqlite' => 0,
 	'DB_File' => 0,
@@ -299,7 +299,8 @@ if($ENV{'OSM_HOME'}) {
 if($ENV{'REDIS_SERVER'}) {
 	$build_requires->{'Redis'} = 0;
 }
-if(!$ENV{NO_NETWORK_TESTING}) {
+
+if($ENV{OPENADDR_HOME}) {
 	# for createdatabase
 	$build_requires->{'Locale::AU'} = 0;
 	$build_requires->{'Locale::CA'} = 0;
