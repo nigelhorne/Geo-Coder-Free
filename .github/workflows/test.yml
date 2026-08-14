@@ -29,13 +29,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Setup Perl
-        uses: shogo82148/actions-setup-perl@v1.42.0
+        uses: shogo82148/actions-setup-perl@v1.43.1
         with:
           perl-version: ${{ matrix.perl }}
+
       - name: Install Ubuntu Packages
-        run: sudo apt-get install libdb-dev libio-aio-perl build-essential
+        run: sudo apt-get update && sudo apt-get install -y libdb-dev libio-aio-perl build-essential gcc make libc-dev
         if: matrix.os == 'ubuntu-latest'
       - run: perl -V
+
       - name: Install Dependencies
         env:
           AUTOMATED_TESTING: 1
@@ -44,7 +46,12 @@ jobs:
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
           cpanm -iv DB_File
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
-          cpanm -ivn --installdeps .
+          # Skip Socket6-dependent modules on Windows
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            cpanm -ivn --installdeps .
+          else
+            cpanm -ivn --installdeps . --exclude-only=Socket6,Net::Subnet
+          fi
       - name: Make Module
         env:
           AUTOMATED_TESTING: 1
