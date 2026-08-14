@@ -16,7 +16,15 @@ BEGIN {
 
 ADMIN1: {
 	SKIP: {
-		if(!$ENV{'NO_NETWORK_TESTING'}) {
+		if($ENV{'NO_NETWORK_TESTING'}) {
+			diag('Network testing disabled');
+			skip('Network testing disabled', 5);
+		}
+
+		skip('No admin1 database found', 5)
+			unless -f 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db';
+
+		{
 			my $admin1 = new_ok('Geo::Coder::Free::DB::MaxMind::admin1' => [
 				directory => 'lib/Geo/Coder/Free/MaxMind/databases',
 				logger => new_ok('MyLogger'),
@@ -29,9 +37,6 @@ ADMIN1: {
 
 			$england = $admin1->fetchrow_hashref({ asciiname => 'England' });
 			cmp_ok($england->{concatenated_codes}, 'eq', 'GB.ENG', 'England is GB.ENG');
-		} else {
-			diag('Network testing disabled');
-			skip('Network testing disabled', 5);
 		}
 	}
 }
