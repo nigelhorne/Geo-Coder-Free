@@ -50,7 +50,7 @@ jobs:
           cpanm -iqn Cache::LRU Readonly
           cpanm -iqn Test::Mockingbird Test::Returns Test::Memory::Cycle Test::Without::Module
           cpanm -iqfn CGI::IDS
-          cpanm -iqn Cache::LRU
+          cpanm -iqn Cache::LRU Crypt::URandom
           cpanm -iqn --installdeps .
         env:
           AUTOMATED_TESTING: 1

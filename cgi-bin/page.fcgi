@@ -544,14 +544,13 @@ sub doit
 			# TODO: consider creating a whitelist of valid modules
 			$logger->debug("doit(): Loading module $display_module from @INC");
 			unless($display_module->can('new')) {
-				# Block eval + path-based require instead of string eval.
-				# String eval ("require $display_module") compiles arbitrary
-				# Perl and is unsafe even when $page has been sanitized with
-				# s/\W//g — a future change to the sanitizer would silently
-				# reopen code execution.  The path conversion is deterministic
-				# and string eval is never needed here.
-				(my $display_path = $display_module) =~ s{::}{/}g;
-				eval { require "$display_path.pm" };
+				# String-eval elimination:
+				#   The original code used eval "require $display_module" which is a
+				#   string eval on a user-derived value.  Although $page has been
+				#   stripped of \W characters, a Unicode or locale edge-case could
+				#   allow a bypass.  Module::Runtime::require_module() loads a module
+				#   by name using a block eval internally, with no string-eval surface.
+				eval { require_module($display_module) };
 				$display_module->import() unless $@;
 			}
 			if($@) {
