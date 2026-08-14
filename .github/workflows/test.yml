@@ -41,6 +41,7 @@ jobs:
       - name: Install Dependencies
         env:
           AUTOMATED_TESTING: 1
+        shell: bash
         run: |
           cpanm -iqn ExtUtils::MakeMaker Test::Most Test::Needs Clone
           cpanm -iqnf --skip-satisfied LWP::Simple::WithCache CGI::IDS
