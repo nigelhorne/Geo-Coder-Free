@@ -20,62 +20,67 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free/Utils.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">62.7%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">66.1%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L138">138</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $config</td></tr>
-<tr><td class="h"><a id="L147">147</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (defined $driver)</td></tr>
-<tr><td class="h"><a id="L149">149</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($logger)</td></tr>
-<tr><td class="h"><a id="L155">155</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (_is_driver_available($driver))</td></tr>
-<tr><td class="h"><a id="L157">157</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($logger)</td></tr>
-<tr><td class="h"><a id="L172">172</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L180">180</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $config-&gt;{$cache_type}</td></tr>
-<tr><td class="h"><a id="L183">183</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ref $cache_config eq &quot;HASH&quot;</td></tr>
-<tr><td class="h"><a id="L187">187</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (exists $cache_config-&gt;{&#39;driver&#39;})</td></tr>
-<tr><td class="h"><a id="L191">191</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless grep {$_ eq $driver;} @valid_drivers</td></tr>
-<tr><td class="h"><a id="L196">196</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $cache_config-&gt;{$param}</td></tr>
-<tr><td class="h"><a id="L198">198</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $value and $value =~ /^\d+$/u and $value &gt; 0</td></tr>
-<tr><td class="h"><a id="L203">203</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $cache_config-&gt;{&#39;port&#39;})</td></tr>
-<tr><td class="h"><a id="L205">205</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless $port &gt;= 1 and $port &lt;= 65535</td></tr>
-<tr><td class="h"><a id="L210">210</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (exists $cache_config-&gt;{&#39;datastore&#39;} and exists $cache_config-&gt;{&#39;global&#39;} and my $driver = $$cache_config{&quot;driver&quot;})</td></tr>
-<tr><td class="h"><a id="L219">219</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $ENV{$env_var}</td></tr>
-<tr><td class="h"><a id="L222">222</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$cache_type eq &#39;disc_cache&#39; ? :</td></tr>
-<tr><td class="h"><a id="L226">226</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">$cache_type eq &#39;disc_cache&#39; ? :</td></tr>
-<tr><td class="h"><a id="L230">230</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $driver =~ /^(Memory|Null)$/u</td></tr>
-<tr><td class="h"><a id="L241">241</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless exists $driver_modules{$driver}</td></tr>
-<tr><td class="h"><a id="L243">243</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($driver_modules{$driver}-&gt;can(&quot;new&quot;))</td></tr>
-<tr><td class="h"><a id="L252">252</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($@)</td></tr>
-<tr><td class="h"><a id="L266">266</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($logger and $logger-&gt;can(&#39;error&#39;)) { }</td></tr>
-<tr><td class="h"><a id="L275">275</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($driver eq &#39;Redis&#39;) { }</td></tr>
+<tr><td class="h"><a id="L140">140</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $config</td></tr>
+<tr><td class="h"><a id="L149">149</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (defined $driver)</td></tr>
+<tr><td class="h"><a id="L151">151</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($logger)</td></tr>
+<tr><td class="h"><a id="L157">157</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (_is_driver_available($driver))</td></tr>
+<tr><td class="h"><a id="L159">159</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($logger)</td></tr>
+<tr><td class="h"><a id="L174">174</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
+<tr><td class="h"><a id="L182">182</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $config-&gt;{$cache_type}</td></tr>
+<tr><td class="h"><a id="L185">185</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ref $cache_config eq &quot;HASH&quot;</td></tr>
+<tr><td class="h"><a id="L189">189</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (exists $cache_config-&gt;{&#39;driver&#39;})</td></tr>
+<tr><td class="h"><a id="L193">193</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless grep {$_ eq $driver;} @valid_drivers</td></tr>
+<tr><td class="h"><a id="L198">198</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $cache_config-&gt;{$param}</td></tr>
+<tr><td class="h"><a id="L200">200</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $value and $value =~ /^\d+$/u and $value &gt; 0</td></tr>
+<tr><td class="h"><a id="L205">205</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (exists $cache_config-&gt;{&#39;port&#39;})</td></tr>
+<tr><td class="h"><a id="L207">207</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless $port &gt;= 1 and $port &lt;= 65535</td></tr>
+<tr><td class="h"><a id="L212">212</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (exists $cache_config-&gt;{&#39;datastore&#39;} and exists $cache_config-&gt;{&#39;global&#39;} and my $driver = $cache_config-&gt;{&#39;driver&#39;})</td></tr>
+<tr><td class="h"><a id="L221">221</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $ENV{$env_var}</td></tr>
+<tr><td class="h"><a id="L224">224</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$cache_type eq &#39;disc_cache&#39; ? :</td></tr>
+<tr><td class="h"><a id="L228">228</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">$cache_type eq &#39;disc_cache&#39; ? :</td></tr>
+<tr><td class="h"><a id="L232">232</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $driver =~ /^(Memory|Null)$/u</td></tr>
+<tr><td class="h"><a id="L243">243</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless exists $driver_modules{$driver}</td></tr>
+<tr><td class="h"><a id="L245">245</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($driver_modules{$driver}-&gt;can(&quot;new&quot;))</td></tr>
+<tr><td class="h"><a id="L254">254</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($@)</td></tr>
+<tr><td class="h"><a id="L268">268</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($logger and $logger-&gt;can(&#39;error&#39;)) { }</td></tr>
+<tr><td class="h"><a id="L277">277</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($driver eq &#39;Redis&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($driver eq &#39;DBI&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($driver eq &#39;SharedMem&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif ($driver eq &#39;Memory&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($driver eq &#39;Memcached&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (not $driver =~ /^(Null)$/u) { }</td></tr>
-<tr><td class="h"><a id="L295">295</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@servers)</td></tr>
-<tr><td class="h"><a id="L305">305</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $$config{&quot;redis_options&quot;}</td></tr>
-<tr><td class="h"><a id="L311">311</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $connect_string</td></tr>
-<tr><td class="h"><a id="L322">322</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L340">340</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $config-&gt;{&#39;global&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L349">349</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@servers) { }</td></tr>
-<tr><td class="h"><a id="L354">354</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L361">361</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $root_dir</td></tr>
-<tr><td class="h"><a id="L362">362</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless -d $root_dir and -w $root_dir</td></tr>
-<tr><td class="h"><a id="L371">371</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $server_config</td></tr>
-<tr><td class="h"><a id="L378">378</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($server_entry =~ /:/u)</td></tr>
-<tr><td class="h"><a id="L384">384</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($server_entry =~ /^([a-zA-Z0-9.-]+):(\d+)$/u) { }</td></tr>
-<tr><td class="h"><a id="L386">386</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $port &gt; 0 and $port &lt;= 65535</td></tr>
-<tr><td class="h"><a id="L388">388</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L417">417</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $$coord</td></tr>
-<tr><td class="h"><a id="L418">418</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless &amp;looks_like_number($$coord)</td></tr>
-<tr><td class="h"><a id="L422">422</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lat1 &gt; 90 or abs $lat2 &gt; 90</td></tr>
-<tr><td class="h"><a id="L424">424</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lon1 &gt; 180 or abs $lon2 &gt; 180</td></tr>
-<tr><td class="h"><a id="L428">428</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $lat1 == $lat2 and $lon1 == $lon2</td></tr>
-<tr><td class="h"><a id="L432">432</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $unit =~ /^[KNM]$/u</td></tr>
-<tr><td class="h"><a id="L436">436</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$unit eq &#39;N&#39; ? :</td></tr>
+<tr><td class="h"><a id="L297">297</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@servers)</td></tr>
+<tr><td class="h"><a id="L307">307</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $config-&gt;{&#39;redis_options&#39;}</td></tr>
+<tr><td class="h"><a id="L313">313</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $connect_string</td></tr>
+<tr><td class="h"><a id="L324">324</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
+<tr><td class="h"><a id="L342">342</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $config-&gt;{&#39;global&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L351">351</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@servers) { }</td></tr>
+<tr><td class="h"><a id="L356">356</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
+<tr><td class="h"><a id="L363">363</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $root_dir</td></tr>
+<tr><td class="h"><a id="L364">364</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless -d $root_dir and -w $root_dir</td></tr>
+<tr><td class="h"><a id="L373">373</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $server_config</td></tr>
+<tr><td class="h"><a id="L380">380</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($server_entry =~ /:/u)</td></tr>
+<tr><td class="h"><a id="L386">386</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($server_entry =~ /^([a-zA-Z0-9.-]+):(\d+)$/u) { }</td></tr>
+<tr><td class="h"><a id="L388">388</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $port &gt; 0 and $port &lt;= 65535</td></tr>
+<tr><td class="h"><a id="L390">390</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
+<tr><td class="h"><a id="L419">419</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $$coord</td></tr>
+<tr><td class="h"><a id="L420">420</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless &amp;looks_like_number($$coord)</td></tr>
+<tr><td class="h"><a id="L424">424</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lat1 &gt; 90 or abs $lat2 &gt; 90</td></tr>
+<tr><td class="h"><a id="L426">426</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lon1 &gt; 180 or abs $lon2 &gt; 180</td></tr>
+<tr><td class="h"><a id="L430">430</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $lat1 == $lat2 and $lon1 == $lon2</td></tr>
+<tr><td class="h"><a id="L434">434</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $unit =~ /^[KNM]$/u</td></tr>
+<tr><td class="h"><a id="L438">438</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$unit eq &#39;N&#39; ? :</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$unit eq &#39;K&#39; ? :</td></tr>
+<tr><td class="h"><a id="L471">471</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@words &gt;= 3) { }</td></tr>
+<tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (@words == 2) { }</td></tr>
+<tr><td class="h"><a id="L473">473</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (lc $words[-2] ne &#39;cross&#39; and $a = $abbreviations-&gt;abbreviate($words[-2])) { }</td></tr>
+<tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif ($a = $abbreviations-&gt;abbreviate($words[-1])) { }</td></tr>
+<tr><td class="h"><a id="L480">480</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $a = $abbreviations-&gt;abbreviate($words[-1]))</td></tr>
 </table>
 </body>
 </html>

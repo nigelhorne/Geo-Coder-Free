@@ -26,9 +26,9 @@ https://pjcj.net
 <table>
 <tr><th>line</th><th>stmt</th><th>bran</th><th>cond</th><th>sub</th><th>pod</th><th>time</th><th>code</th></tr>
 <tr><td class="h">1</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">package Geo::Coder::Free::DB::MaxMind::admin2;</td></tr>
-<tr><td class="h">2</td><td colspan="7"></td></tr><tr><td class="h">3</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L3">17</a></div></td><td></td><td><div>63384</div><div>18</div><div>241</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">4</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L4">17</a></div></td><td></td><td><div>43</div><div>26</div><div>418</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">5</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L5">17</a></div></td><td></td><td><div>209</div><div>5999</div><div>68</div></td><td class="s">use autodie qw(:all);</td></tr>
+<tr><td class="h">2</td><td colspan="7"></td></tr><tr><td class="h">3</td><td><div class="c3">16</div><div class="c3">16</div><div class="c3">16</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L3">16</a></div></td><td></td><td><div>62992</div><div>15</div><div>167</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">4</td><td><div class="c3">16</div><div class="c3">16</div><div class="c3">16</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L4">16</a></div></td><td></td><td><div>26</div><div>11</div><div>333</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">5</td><td><div class="c3">16</div><div class="c3">16</div><div class="c3">16</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L5">16</a></div></td><td></td><td><div>196</div><div>5833</div><div>50</div></td><td class="s">use autodie qw(:all);</td></tr>
 <tr><td class="h">6</td><td colspan="7"></td></tr><tr><td class="h">7 - 15</td><td colspan="6"></td><td class="s"><pre>=head1 NAME
 
 Geo::Coder::Free::DB::MaxMind::admin2 - driver for http://download.geonames.org/export/dump/admin2Codes.txt
@@ -38,15 +38,15 @@ Geo::Coder::Free::DB::MaxMind::admin2 - driver for http://download.geonames.org/
 Version 0.42
 
 =cut</pre></td></tr>
-<tr><td class="h">16</td><td colspan="7"></td></tr><tr><td class="h">17</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.42&#39;;</td></tr>
+<tr><td class="h">16</td><td colspan="7"></td></tr><tr><td class="h">17</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.43&#39;;</td></tr>
 <tr><td class="h">18</td><td colspan="7"></td></tr><tr><td class="h">19</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># It contains admin areas drilled down from the admin1 database such as US counties</td></tr>
 <tr><td class="h">20</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># Note that GB has counties</td></tr>
 <tr><td class="h">21</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># A typical line is:</td></tr>
 <tr><td class="h">22</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GB.ENG.G5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Kent&nbsp;&nbsp;&nbsp;&nbsp;Kent&nbsp;&nbsp;&nbsp;&nbsp;3333158</td></tr>
 <tr><td class="h">23</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># So a look up of &#39;Sittingbourne&#39; with a Region set to &#39;G5&#39; in the cities database will give:</td></tr>
 <tr><td class="h">24</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gb,sittingbourne,Sittingbourne,G5,41148,51.333333,.75</td></tr>
-<tr><td class="h">25</td><td colspan="7"></td></tr><tr><td class="h">26</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L26">17</a></div></td><td></td><td><div>42146</div><div>17</div><div>67</div></td><td class="s">use parent -norequire, &#39;Geo::Coder::Free::DB::MaxMind::admin&#39;;</td></tr>
-<tr><td class="h">27</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L27">17</a></div></td><td></td><td><div>609</div><div>13</div><div>61</div></td><td class="s">use Geo::Coder::Free::DB::MaxMind::admin;</td></tr>
+<tr><td class="h">25</td><td colspan="7"></td></tr><tr><td class="h">26</td><td><div class="c3">16</div><div class="c3">16</div><div class="c3">16</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L26">16</a></div></td><td></td><td><div>38770</div><div>15</div><div>54</div></td><td class="s">use parent -norequire, &#39;Geo::Coder::Free::DB::MaxMind::admin&#39;;</td></tr>
+<tr><td class="h">27</td><td><div class="c3">16</div><div class="c3">16</div><div class="c3">16</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm--subroutine.html#L27">16</a></div></td><td></td><td><div>578</div><div>13</div><div>49</div></td><td class="s">use Geo::Coder::Free::DB::MaxMind::admin;</td></tr>
 <tr><td class="h">28</td><td colspan="7"></td></tr><tr><td class="h">29</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
 </table>
 </body>
