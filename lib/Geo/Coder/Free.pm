@@ -27,7 +27,7 @@ Version 0.42
 
 =cut
 
-our $VERSION = '0.43';
+our $VERSION = '0.42';
 
 =head1 SYNOPSIS
 
@@ -606,7 +606,6 @@ sub run {
 #           Falls back to the raw key so call sites never die on a missing key.
 # Entry:    $key — message key; @args — sprintf format arguments.
 # Exit:     Formatted string.
-# Side Effects: None.
 sub _i18n {
 	my ($key, @args) = @_;
 	my $fmt = $_MESSAGES{$key} // $key;
@@ -672,7 +671,6 @@ sub _resolve_scan_candidates {
 #           and the duplets version was missing the lc() normalisation on stopwords.
 # Entry:    $text — raw string; $n — window size; $stop — stopword hashref.
 # Exit:     Flat list of n-gram strings.
-# Side Effects: None.
 sub _find_word_ngrams {
 	my ($text, $n, $stop) = @_;
 	$text =~ s/,+/ /g;
@@ -689,7 +687,6 @@ sub _find_word_ngrams {
 # Purpose:  Extract structured US street addresses from free text.
 # Entry:    $text — arbitrary string.
 # Exit:     List of full address strings matching the US pattern.
-# Side Effects: None.
 sub _find_us_addresses {
 	my $text = shift;
 	my @addresses;
@@ -710,7 +707,6 @@ sub _find_us_addresses {
 # Purpose:  Extract British-style addresses from free text.
 # Entry:    $text — arbitrary string.
 # Exit:     List of trimmed address strings.
-# Side Effects: None.
 sub _find_gb_addresses {
 	my $text = shift;
 	my @addresses;
@@ -743,7 +739,6 @@ sub _find_gb_addresses {
 # Purpose:  Extract Canadian street addresses from free text.
 # Entry:    $text — arbitrary string.
 # Exit:     List of full address strings matching the Canadian pattern.
-# Side Effects: None.
 sub _find_ca_addresses {
 	my $text = shift;
 	my @addresses;

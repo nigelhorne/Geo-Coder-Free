@@ -4,7 +4,7 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 # VERSION
 
-Version 0.43
+Version 0.42
 
 # SYNOPSIS
 
@@ -31,11 +31,17 @@ database.  It deliberately avoids paid or rate-limited online geocoding services
 The module is designed to be flexible, supporting both command-line and programmatic usage.
 It also includes a sample CGI script for a web-based geocoding service.
 
-Geocoding is attempted in priority order:
+Geocoding dispatch order depends on whether `OPENADDR_HOME` (or `openaddr`) is set:
 
-- 1. `Geo::Coder::Free::Local` — user-curated CSV entries (highest confidence)
-- 2. `Geo::Coder::Free::OpenAddresses` — requires `OPENADDR_HOME`
+**With OpenAddresses data:**
+
+- 1. `Geo::Coder::Free::OpenAddresses` — requires `OPENADDR_HOME`
+- 2. `Geo::Coder::Free::Local` — user-curated CSV entries (tried as fallback)
 - 3. `Geo::Coder::Free::MaxMind` — bundled, always available
+
+**Without OpenAddresses data:**
+
+- 1. `Geo::Coder::Free::MaxMind` only — Local is not consulted.
 
 The `cgi-bin` directory contains a simple DIY geo-coding website:
 
@@ -50,9 +56,6 @@ When it returns, you will be able to test it with:
 
 - `scantext` mode only finds locations in OpenAddresses; it falls back
 silently when `OPENADDR_HOME` is not set (**FIXME**: should warn).
-- `_abbreviate` and `_normalize` are package functions called cross-package
-by `Local.pm`, creating a tight coupling that prevents marking them `:Private`.
-The correct fix is a `Geo::Coder::Free::Utils` module; deferred.
 - The `__DATA__` alternatives table is hard-coded; it should live in a
 user-editable config file.
 - The address-regex scantext path misses birth-year sentences such as
