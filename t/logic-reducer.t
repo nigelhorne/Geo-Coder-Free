@@ -221,24 +221,34 @@ subtest 'M3: scantext path never reaches alternatives table' => sub {
 # -----------------------------------------------------------------------
 
 subtest 'M8: maxmind fallback — scalar and list context both work' => sub {
-	if(!defined($ENV{NO_NETWORK_TESTING})) {
-		plan tests => 3;
-
-		my $geo = new_ok('Geo::Coder::Free');
-
-		my $scalar_result;
-		lives_ok {
-			$scalar_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
-		} 'geocode in scalar context does not die (M8 context propagation intact)';
-
-		my @list_result;
-		lives_ok {
-			@list_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
-		} 'geocode in list context does not die (M8 context propagation intact)';
-	} else {
+	if(defined($ENV{NO_NETWORK_TESTING})) {
 		plan tests => 1;
 		pass('Needs network testing');
+		return;
 	}
+
+	unless(-f 'lib/Geo/Coder/Free/MaxMind/databases/cities.sql') {
+		plan tests => 1;
+		pass('No cities database — skipping M8 context test');
+		return;
+	}
+
+	plan tests => 3;
+
+	# Suppress OPENADDR_HOME so we stay on the MaxMind-only path
+	local $ENV{OPENADDR_HOME} = '';
+
+	my $geo = new_ok('Geo::Coder::Free');
+
+	my $scalar_result;
+	lives_ok {
+		$scalar_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
+	} 'geocode in scalar context does not die (M8 context propagation intact)';
+
+	my @list_result;
+	lives_ok {
+		@list_result = $geo->geocode(location => 'Ramsgate, Kent, UK');
+	} 'geocode in list context does not die (M8 context propagation intact)';
 };
 
 done_testing();

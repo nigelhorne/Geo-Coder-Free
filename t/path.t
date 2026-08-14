@@ -484,7 +484,7 @@ subtest 'Local::geocode() — lgc_cache_hit: cached value returned without scan'
 	$LOCAL_OBJ->{'cache'}{$key} = $fake;
 	my $r = $LOCAL_OBJ->geocode(location => 'Cache Test Key, City, US');
 	delete $LOCAL_OBJ->{'cache'}{$key};
-	is($r, $fake, 'cache hit returns the exact cached object');
+	is(refaddr($r), refaddr($fake), 'cache hit returns the exact cached object');
 };
 
 subtest 'Local::geocode() — lgc_index_hit: exact string in index → GLP returned' => sub {
