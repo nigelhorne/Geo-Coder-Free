@@ -50,7 +50,7 @@ jobs:
           cpanm -iqn --skip-satisfied HTML::Entities LWP::Protocol::https Log::Any::Adapter::Log4perl Template::Filters Template::Plugin::EnvHash HTML::SocialMedia
           # Skip Socket6-dependent modules on Windows
           if [ "$RUNNER_OS" != "Windows" ]; then
-            cpanm -ivn --installdeps .
+            cpanm -ivn --skip-satisfied --installdeps .
           else
             cpanm -ivn --installdeps . --exclude-only=Socket6,Net::Subnet
           fi
