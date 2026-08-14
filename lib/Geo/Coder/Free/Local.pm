@@ -466,17 +466,19 @@ sub geocode {
 		return;
 	}
 
-	# Geo::Address::Parser — loaded lazily to avoid mandatory dep
-	require Geo::Address::Parser && Geo::Address::Parser->import()
-		unless Geo::Address::Parser->can('parse');
-
-	my $addr_parser = Geo::Address::Parser->new(country => 'UK');
-	if (my $fields = $addr_parser->parse($location)) {
-		# Remove undef fields so _search only matches defined columns
-		delete $fields->{$_} for grep { !defined $fields->{$_} } keys %{$fields};
-		if (my $rc = $self->_search($fields, keys %{$fields})) {
-			$rc->{'country'} = 'UK';
-			return $self->_cache_and_return($lc, $rc);
+	# Geo::Address::Parser — optional; load lazily, skip if not installed
+	unless (Geo::Address::Parser->can('parse')) {
+		eval { require Geo::Address::Parser; Geo::Address::Parser->import() };
+	}
+	if (Geo::Address::Parser->can('parse')) {
+		my $addr_parser = Geo::Address::Parser->new(country => 'UK');
+		if (my $fields = $addr_parser->parse($location)) {
+			# Remove undef fields so _search only matches defined columns
+			delete $fields->{$_} for grep { !defined $fields->{$_} } keys %{$fields};
+			if (my $rc = $self->_search($fields, keys %{$fields})) {
+				$rc->{'country'} = 'UK';
+				return $self->_cache_and_return($lc, $rc);
+			}
 		}
 	}
 
