@@ -60,6 +60,12 @@ user-editable config file.
 a preceding capital-letter word directly before the city.
 - `reverse_geocode` is only partially implemented; the MaxMind path does
 not return meaningful results.
+- The `alternatives` map loop uses `each %{$alt}`, which retains its
+iterator position across calls.  After a successful match and early `return`,
+the next `geocode()` call on the same input starts iterating from the key
+**after** the matched one, potentially missing the match entirely until `each`
+wraps around.  Workaround: call `keys %{$alt}` once to reset the iterator
+before iterating.
 
 # METHODS
 
@@ -75,6 +81,12 @@ not return meaningful results.
 
 Constructor.  Accepts a hash or hashref of options.  If called without
 `openaddr`, the module checks `$ENV{OPENADDR_HOME}` before giving up.
+
+If called on an existing object instance (`$clone = $geo->new()`), returns
+a **shallow clone**.  All scalar fields are copied by value, but reference-type
+fields (`alternatives`, `scantext_misses`, `maxmind`, `openaddr`) share the
+same underlying object or hashref between the original and the clone.  Mutations
+to those shared references are immediately visible in both objects.
 
 ### API SPECIFICATION
 
@@ -162,7 +174,8 @@ Constructor.  Accepts a hash or hashref of options.  If called without
 
     Geocode : Address × Region? → Point?
     ∀ addr : Address; r : Region? •
-      let backends == [Local, OpenAddresses, MaxMind] •
+      let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
+                    ∧ (openaddr = undef ⟹ [MaxMind]) •
       result = first { defined } map { b.geocode(addr, r) } backends
 
 ### PSEUDOCODE
@@ -202,11 +215,12 @@ OpenAddresses is attempted first when available.
 
 #### input
 
-    # Input schema (Params::Validate::Strict) — latlng or lat+lon required
-    latlng => { type => 'scalar', optional => 1 }  # "$lat,$long" comma-separated decimal degrees
-    lat    => { type => 'scalar', optional => 1 }  # latitude  (alternative to latlng)
-    lon    => { type => 'scalar', optional => 1 }  # longitude (alternative to latlng)
-    long   => { type => 'scalar', optional => 1 }  # alias for lon
+    # Input schema (Params::Validate::Strict) — latlng required
+    latlng => { type => 'scalar' }  # "$lat,$long" comma-separated decimal degrees
+    # NOTE: separate lat/lon/long keys are NOT supported at the Geo::Coder::Free
+    # (facade) level.  When no OpenAddresses backend is configured, passing
+    # lat/lon/long instead of latlng will croak "not yet supported".
+    # To use separate coordinates call Geo::Coder::Free::Local::reverse_geocode.
 
 #### output
 

@@ -68,6 +68,16 @@ creating tight coupling and preventing either module from being used independent
 =item * C<$libpostal_is_installed> is a module-level (effectively global) flag.
 Not thread-safe in a forking or threaded Perl deployment.
 
+=item * The C<__DATA__> filehandle is a one-shot resource.  The first call to
+C<new()> exhausts it with C<my @data = E<lt>DATAE<gt>>; every subsequent
+C<new()> in the same process reads zero rows and builds an empty index.
+Construct exactly one C<Local> object per process and share it.
+
+=item * The hash-index key is C<lc(Geo::Location::Point-E<gt>new($row)-E<gt>as_string())>,
+which B<includes the C<name> field>.  To get a direct index hit the caller must
+supply the full string with the venue/place name as the leading component;
+an address that omits the name falls through to the slower O(n) C<_search> path.
+
 =back
 
 =cut
@@ -115,6 +125,11 @@ our %alternatives = (
 Constructor.  Reads the C<__DATA__> CSV block, builds a hash-based lookup
 index, and derives the geographic centre of any city/state/country cluster
 containing three or more data points.
+
+B<One-shot filehandle>: the C<DATA> handle is consumed on the first call to
+C<new()>.  Any subsequent call to C<new()> returns an object whose dataset and
+index are both empty.  In code that constructs multiple C<Local> objects (e.g.
+in tests) construct B<exactly one> instance and reuse it across all callers.
 
 =head3 API SPECIFICATION
 
@@ -238,6 +253,8 @@ sub new {
     reject if location does not contain two or more commas (not a full address)
     check cache; return hit
     check hash index; return hit and cache it
+    # index key includes the 'name' field; supply the venue/place name as the
+    # leading address component to guarantee an index hit
     attempt country-specific parser (US, GB; skip CA/AU pending implementation)
     attempt Geo::StreetAddress::US for "..., USA" addresses
     attempt Geo::Address::Parser

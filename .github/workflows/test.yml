@@ -33,7 +33,7 @@ jobs:
         with:
           perl-version: ${{ matrix.perl }}
       - name: Install Ubuntu Packages
-        run: sudo apt-get install libdb-dev
+        run: sudo apt-get install libdb-dev libio-aio-perl build-essential
         if: matrix.os == 'ubuntu-latest'
       - run: perl -V
       - name: Install Dependencies
