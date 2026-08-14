@@ -1,14 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.43
-	[ Tests ]
-	- Added new tests
-	  t/logic-reducer.t: new test file with partition-based proofs for all M-series reductions
-	  t/unit.t: new black-box unit test file covering every public API of Geo::Coder::Free, Local, OpenAddresses, and Utils; uses Test::Mockingbird to mock MaxMind, Test::Returns for schema validation, and an API ledger to guarantee all documented states are exercised
-	  t/integration.t: new end-to-end integration test file covering cross-module workflows; tests backend delegation chain, alternatives singleton, concurrency isolation, clone shallow-copy semantics, scantext memoisation, round-trip geocode/reverse, distance calculations, OA known_locations, MaxMind admin cache invariants, optional Geo::libpostal dep, and USA/US normalisation
-	  t/edge_cases.t: new destructive/boundary/security test file; covers distance() boundary coordinates, undef/non-numeric/out-of-range inputs, cache hostile configs, purely numeric geocode rejection (M7 regression), SQL/shell/newline injection payloads, global variable isolation, and ReDoS regression tests for _normalize(), _find_gb_addresses(), and the OA city-name pattern
-	  t/path.t: new CFG path-coverage test file; maps every unique execution path in GCF::new/geocode/reverse_geocode, Local::geocode/reverse_geocode/_search/_find_geographic_centres/_to_two_letter_state, and the shared helpers _normalize_args/_normalize/_abbreviate/_find_word_ngrams; 97 subtests covering all dispatch branches, guard exits, confidence levels, and mock-contamination hygiene
-	  t/transaction.t: new transaction-flow/lifecycle test file; 18 subtests covering Local cache write-through, geocode idempotency, scantext miss memoization, OA exception propagation (no silent swallow), OA→Local delegation chain, all-miss recovery, one-shot __DATA__ lifecycle, alternatives map re-geocode cycle, geocode→reverse round-trip, USA/US normalization idempotency, lazy backend creation, clone shallow-copy state boundary (shared references visible across both sides), and object usability after mid-chain failure
+0.43	Fri Aug 14 09:22:46 AM EDT 2026
 	[ Enhancements ]
 	- _normalize rewritten with split to eliminate O(N³) catastrophic backtracking from (.+)\s+(.+)\s+(.+)
 	- _find_gb_addresses commas now mandatory between parts to prevent exponential backtracking on comma-free text
@@ -18,6 +10,14 @@ Revision history for Geo-Coder-Free
 	- wantarray tautologies in reverse_geocode eliminated (M8)
 	- scantext ignore_words passed by reference instead of copying the full hash each call
 	- %admin2cache_rev added as inverse of %admin2cache, replacing O(N) value scan with O(1) lookup in _prepare
+	[ Tests ]
+	- Added new tests
+	  t/logic-reducer.t: new test file with partition-based proofs for all M-series reductions
+	  t/unit.t: new black-box unit test file covering every public API of Geo::Coder::Free, Local, OpenAddresses, and Utils; uses Test::Mockingbird to mock MaxMind, Test::Returns for schema validation, and an API ledger to guarantee all documented states are exercised
+	  t/integration.t: new end-to-end integration test file covering cross-module workflows; tests backend delegation chain, alternatives singleton, concurrency isolation, clone shallow-copy semantics, scantext memoisation, round-trip geocode/reverse, distance calculations, OA known_locations, MaxMind admin cache invariants, optional Geo::libpostal dep, and USA/US normalisation
+	  t/edge_cases.t: new destructive/boundary/security test file; covers distance() boundary coordinates, undef/non-numeric/out-of-range inputs, cache hostile configs, purely numeric geocode rejection (M7 regression), SQL/shell/newline injection payloads, global variable isolation, and ReDoS regression tests for _normalize(), _find_gb_addresses(), and the OA city-name pattern
+	  t/path.t: new CFG path-coverage test file; maps every unique execution path in GCF::new/geocode/reverse_geocode, Local::geocode/reverse_geocode/_search/_find_geographic_centres/_to_two_letter_state, and the shared helpers _normalize_args/_normalize/_abbreviate/_find_word_ngrams; 97 subtests covering all dispatch branches, guard exits, confidence levels, and mock-contamination hygiene
+	  t/transaction.t: new transaction-flow/lifecycle test file; 18 subtests covering Local cache write-through, geocode idempotency, scantext miss memoization, OA exception propagation (no silent swallow), OA→Local delegation chain, all-miss recovery, one-shot __DATA__ lifecycle, alternatives map re-geocode cycle, geocode→reverse round-trip, USA/US normalization idempotency, lazy backend creation, clone shallow-copy state boundary (shared references visible across both sides), and object usability after mid-chain failure
 
 0.42	Fri Jul 10 11:48:02 EDT 2026
 	Try Geo::Address::Parser before libpostal() as that uses less memory

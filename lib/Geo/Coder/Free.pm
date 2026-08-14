@@ -21,11 +21,11 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
-Version 0.42
+Version 0.43
 
 =cut
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 =encoding utf-8
 
@@ -818,8 +818,6 @@ L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Geo-Coder-Free>.
 The MaxMind data contains cities only.
 The OpenAddresses data does not cover the whole globe.
 C<London, England> cannot be parsed yet.
-
-=head1 SEE ALSO
 
 =head1 SEE ALSO
 

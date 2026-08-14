@@ -288,8 +288,6 @@ The OpenAddresses data does not cover the whole globe.
 
 # SEE ALSO
 
-# SEE ALSO
-
 - [Configure an Object at Runtime](https://metacpan.org/pod/Object%3A%3AConfigure)
 - [Test Dashboard](https://nigelhorne.github.io/Geo-Coder-Free/coverage/)
 

@@ -47,6 +47,5 @@ jobs:
           ./codecov -t ${{ secrets.CODECOV_TOKEN }}
         shell: bash
         env:
-          AUTHOR_TESTING: 1
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           AUTOMATED_TESTING: 1
