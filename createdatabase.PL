@@ -76,10 +76,7 @@ use Geo::Hash;
 use JSON::MaybeXS;
 use LWP::ConnCache;
 use LWP::UserAgent::Throttled;
-use Locale::AU;	# TODO: use Locale::Geocode
-use Locale::CA;
 use Locale::Country;
-use Locale::US;
 use Digest::MD5;
 use Encode;
 use Geo::StreetAddress::US;
@@ -1314,6 +1311,10 @@ if($dbh) {
 }
 
 print "This will take some time.\nBest to do it last thing at night and go to sleep, it should be ready in the morning.\n";
+
+require Locale::AU;	# TODO: use Locale::Geocode
+require Locale::CA;
+require Locale::US;
 
 my $au = Locale::AU->new();
 my $ca = Locale::CA->new();
