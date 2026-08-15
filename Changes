@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.43	Fri Aug 14 09:22:46 AM EDT 2026
+0.43	Fri Aug 14 08:24:12 PM EDT 2026
 	[ Enhancements ]
 	- _normalize rewritten with split to eliminate O(N³) catastrophic backtracking from (.+)\s+(.+)\s+(.+)
 	- _find_gb_addresses commas now mandatory between parts to prevent exponential backtracking on comma-free text
