@@ -49,131 +49,134 @@ https://pjcj.net
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($e = $ENV{&#39;MARIADB_SERVER&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $db_file) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $sqlite_file) { }</td></tr>
-<tr><td class="h"><a id="L1275">1275</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $berkeley_db = tie(%db_tie, &quot;DB_File&quot;, $db_file, 66, 420, $berkeley_db)</td></tr>
-<tr><td class="h"><a id="L1283">1283</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh = &#39;DBI&#39;-&gt;connect(&quot;dbi:SQLite:dbname=$sqlite_file&quot;, undef, undef, {&#39;RaiseError&#39;, 1, &#39;AutoCommit&#39;, 0, &#39;synchronous&#39;, 0, &#39;locking_mode&#39;, &#39;EXCLUSIVE&#39;})) { }</td></tr>
-<tr><td class="h"><a id="L1298">1298</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
-<tr><td class="h"><a id="L1326">1326</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (-r $filename or $force_flag)</td></tr>
-<tr><td class="h"><a id="L1336">1336</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1359">1359</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($state = $us-&gt;{&#39;state2code&#39;}{uc $row-&gt;{&#39;Name&#39;}})</td></tr>
-<tr><td class="h"><a id="L1371">1371</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L1407">1407</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
-<tr><td class="h"><a id="L1420">1420</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L1440">1440</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($force_flag || -r $filename and my $all_countries = &quot;File::Open::NoCache::ReadOnly&quot;-&gt;new($filename) and Deparse error: Can&#39;t locate object method &quot;object_2svref&quot; via package &quot;B::SPECIAL&quot; at /opt/hostedtoolcache/perl/5.40.4/x64/lib/5.40.4/B/Deparse.pm line 5681.
+<tr><td class="h"><a id="L1219">1219</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $sqlite_file)</td></tr>
+<tr><td class="h"><a id="L1236">1236</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $sqlite_file)</td></tr>
+<tr><td class="h"><a id="L1261">1261</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $sqlite_file)</td></tr>
+<tr><td class="h"><a id="L1281">1281</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $berkeley_db = tie(%db_tie, &quot;DB_File&quot;, $db_file, 66, 420, $berkeley_db)</td></tr>
+<tr><td class="h"><a id="L1289">1289</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh = &#39;DBI&#39;-&gt;connect(&quot;dbi:SQLite:dbname=$sqlite_file&quot;, undef, undef, {&#39;RaiseError&#39;, 1, &#39;AutoCommit&#39;, 0, &#39;synchronous&#39;, 0, &#39;locking_mode&#39;, &#39;EXCLUSIVE&#39;})) { }</td></tr>
+<tr><td class="h"><a id="L1304">1304</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
+<tr><td class="h"><a id="L1332">1332</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (-r $filename or $force_flag)</td></tr>
+<tr><td class="h"><a id="L1342">1342</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1365">1365</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($state = $us-&gt;{&#39;state2code&#39;}{uc $row-&gt;{&#39;Name&#39;}})</td></tr>
+<tr><td class="h"><a id="L1377">1377</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L1413">1413</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
+<tr><td class="h"><a id="L1426">1426</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L1446">1446</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($force_flag || -r $filename and my $all_countries = &quot;File::Open::NoCache::ReadOnly&quot;-&gt;new($filename) and Deparse error: Can&#39;t locate object method &quot;object_2svref&quot; via package &quot;B::SPECIAL&quot; at /opt/hostedtoolcache/perl/5.40.4/x64/lib/5.40.4/B/Deparse.pm line 5681.
  and my $admin1 = &quot;File::Open::NoCache::ReadOnly&quot;-&gt;new(&quot;lib/Geo/Coder/Free/MaxMind/databases/admin1.db&quot;) and my $admin2 = &quot;File::Open::NoCache::ReadOnly&quot;-&gt;new(&quot;lib/Geo/Coder/Free/MaxMind/databases/admin2.db&quot;))</td></tr>
-<tr><td class="h"><a id="L1449">1449</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1451">1451</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1453">1453</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1500">1500</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($openaddresses_countries{$country})</td></tr>
-<tr><td class="h"><a id="L1503">1503</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq $c)</td></tr>
-<tr><td class="h"><a id="L1508">1508</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $found</td></tr>
-<tr><td class="h"><a id="L1511">1511</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($fields[7] ne &quot;ADM1&quot;)</td></tr>
-<tr><td class="h"><a id="L1516">1516</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $city and $city =~ m[/../]</td></tr>
-<tr><td class="h"><a id="L1522">1522</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;gb&#39;) { }</td></tr>
-<tr><td class="h"><a id="L1524">1524</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
-<tr><td class="h"><a id="L1533">1533</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($columns{&#39;STATE&#39;} eq &quot;GREATER LONDON&quot;)</td></tr>
-<tr><td class="h"><a id="L1538">1538</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
-<tr><td class="h"><a id="L1540">1540</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq &#39;YUKON&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1455">1455</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1457">1457</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1459">1459</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1506">1506</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($openaddresses_countries{$country})</td></tr>
+<tr><td class="h"><a id="L1509">1509</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq $c)</td></tr>
+<tr><td class="h"><a id="L1514">1514</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $found</td></tr>
+<tr><td class="h"><a id="L1517">1517</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($fields[7] ne &quot;ADM1&quot;)</td></tr>
+<tr><td class="h"><a id="L1522">1522</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $city and $city =~ m[/../]</td></tr>
+<tr><td class="h"><a id="L1528">1528</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;gb&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1530">1530</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
+<tr><td class="h"><a id="L1539">1539</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($columns{&#39;STATE&#39;} eq &quot;GREATER LONDON&quot;)</td></tr>
+<tr><td class="h"><a id="L1544">1544</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
+<tr><td class="h"><a id="L1546">1546</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq &#39;YUKON&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($state eq &#39;WASHINGTON, D.C.&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (my $sc = &#39;Locale::SubCountry&#39;-&gt;new($country)) { }</td></tr>
-<tr><td class="h"><a id="L1545">1545</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $sc-&gt;code($state)) { }</td></tr>
-<tr><td class="h"><a id="L1547">1547</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $code ne &quot;UNKNOWN&quot;</td></tr>
-<tr><td class="h"><a id="L1555">1555</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city =~ /(.+)\s+county$/i) { }</td></tr>
-<tr><td class="h"><a id="L1574">1574</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $columns{&#39;CITY&#39;} and $columns{&#39;CITY&#39;} =~ m[/../]</td></tr>
-<tr><td class="h"><a id="L1576">1576</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L1578">1578</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1605">1605</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $csv_file =~ m[ca/ab/airdrie.csv]</td></tr>
-<tr><td class="h"><a id="L1612">1612</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $country = uc $components[0])</td></tr>
-<tr><td class="h"><a id="L1617">1617</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $openaddresses_countries{lc $country}</td></tr>
-<tr><td class="h"><a id="L1620">1620</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($components[1] =~ /\.csv$/) { }</td></tr>
-<tr><td class="h"><a id="L1625">1625</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq &quot;GREATER LONDON&quot;)</td></tr>
-<tr><td class="h"><a id="L1631">1631</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;US&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1551">1551</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $sc-&gt;code($state)) { }</td></tr>
+<tr><td class="h"><a id="L1553">1553</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $code ne &quot;UNKNOWN&quot;</td></tr>
+<tr><td class="h"><a id="L1561">1561</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city =~ /(.+)\s+county$/i) { }</td></tr>
+<tr><td class="h"><a id="L1580">1580</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $columns{&#39;CITY&#39;} and $columns{&#39;CITY&#39;} =~ m[/../]</td></tr>
+<tr><td class="h"><a id="L1582">1582</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L1584">1584</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1611">1611</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $csv_file =~ m[ca/ab/airdrie.csv]</td></tr>
+<tr><td class="h"><a id="L1618">1618</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $country = uc $components[0])</td></tr>
+<tr><td class="h"><a id="L1623">1623</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $openaddresses_countries{lc $country}</td></tr>
+<tr><td class="h"><a id="L1626">1626</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($components[1] =~ /\.csv$/) { }</td></tr>
+<tr><td class="h"><a id="L1631">1631</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq &quot;GREATER LONDON&quot;)</td></tr>
+<tr><td class="h"><a id="L1637">1637</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;US&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $current_country or $country ne $current_country) { }</td></tr>
-<tr><td class="h"><a id="L1632">1632</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $current_state or $state ne $current_state)</td></tr>
-<tr><td class="h"><a id="L1651">1651</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless my $fh = &quot;File::Open::NoCache::ReadOnly&quot;-&gt;new($csv_file)</td></tr>
-<tr><td class="h"><a id="L1656">1656</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1685">1685</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &quot;CA&quot; or $country eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L1691">1691</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $row-&gt;{$column}</td></tr>
-<tr><td class="h"><a id="L1694">1694</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L1695">1695</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
-<tr><td class="h"><a id="L1716">1716</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $components[1]</td></tr>
-<tr><td class="h"><a id="L1723">1723</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $row-&gt;{&#39;STREET&#39;} and $row-&gt;{&#39;STREET&#39;} =~ /MEDLARS DR/i and 0)</td></tr>
-<tr><td class="h"><a id="L1739">1739</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($row-&gt;{&#39;COUNTRY&#39;} eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L1744">1744</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L1775">1775</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $whosonfirst = $ENV{&#39;WHOSONFIRST_HOME&#39;})</td></tr>
-<tr><td class="h"><a id="L1786">1786</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (-f $File::Find::name and $File::Find::name =~ /(\d+)\.geojson$/)</td></tr>
-<tr><td class="h"><a id="L1795">1795</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($s ne $string)</td></tr>
-<tr><td class="h"><a id="L1816">1816</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($@ or not defined $properties)</td></tr>
-<tr><td class="h"><a id="L1822">1822</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;wof:superseded_by&#39;} and scalar @{$properties-&gt;{&#39;wof:superseded_by&#39;};}</td></tr>
-<tr><td class="h"><a id="L1826">1826</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;mz:is_current&#39;} and $properties-&gt;{&#39;mz:is_current&#39;} &lt;= 0</td></tr>
-<tr><td class="h"><a id="L1827">1827</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;src:geom&#39;} and $properties-&gt;{&#39;src:geom&#39;} eq &quot;missing&quot;</td></tr>
-<tr><td class="h"><a id="L1829">1829</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $placetype</td></tr>
-<tr><td class="h"><a id="L1830">1830</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $placetype eq &quot;country&quot;</td></tr>
-<tr><td class="h"><a id="L1831">1831</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $placetype eq &quot;marketarea&quot;</td></tr>
-<tr><td class="h"><a id="L1833">1833</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L1834">1834</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($openaddresses_countries{lc $country})</td></tr>
-<tr><td class="h"><a id="L1837">1837</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (lc $country eq $c)</td></tr>
-<tr><td class="h"><a id="L1842">1842</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $found</td></tr>
-<tr><td class="h"><a id="L1847">1847</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &#39;region&#39;) { }</td></tr>
-<tr><td class="h"><a id="L1849">1849</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;US&#39; or $country eq &#39;CA&#39; or $country eq &#39;AU&#39;) { }</td></tr>
-<tr><td class="h"><a id="L1857">1857</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $state and $country eq &quot;US&quot; and my $rc = $properties-&gt;{&#39;qs:gn_nameadm1&#39;})</td></tr>
-<tr><td class="h"><a id="L1858">1858</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc =~ /^\[A-Z]{2}$/)</td></tr>
-<tr><td class="h"><a id="L1867">1867</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $state and my $a1 = $properties-&gt;{&#39;as:a1&#39;} || $properties-&gt;{&#39;qs:a1&#39;} || $properties-&gt;{&#39;qs:name_adm1&#39;} || $properties-&gt;{&#39;qs_pg:name_adm1&#39;} || $properties-&gt;{&#39;woe:name_adm1&#39;})</td></tr>
-<tr><td class="h"><a id="L1868">1868</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($a1 eq &#39;England&#39; or $a1 eq &#39;Scotland&#39; or $a1 eq &#39;Wales&#39; or $a1 eq &#39;Northern Ireland&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1638">1638</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $current_state or $state ne $current_state)</td></tr>
+<tr><td class="h"><a id="L1657">1657</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless my $fh = &quot;File::Open::NoCache::ReadOnly&quot;-&gt;new($csv_file)</td></tr>
+<tr><td class="h"><a id="L1662">1662</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1691">1691</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &quot;CA&quot; or $country eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L1697">1697</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $row-&gt;{$column}</td></tr>
+<tr><td class="h"><a id="L1700">1700</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L1701">1701</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $^O ne &quot;solaris&quot;</td></tr>
+<tr><td class="h"><a id="L1722">1722</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $components[1]</td></tr>
+<tr><td class="h"><a id="L1729">1729</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $row-&gt;{&#39;STREET&#39;} and $row-&gt;{&#39;STREET&#39;} =~ /MEDLARS DR/i and 0)</td></tr>
+<tr><td class="h"><a id="L1745">1745</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($row-&gt;{&#39;COUNTRY&#39;} eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L1750">1750</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L1781">1781</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $whosonfirst = $ENV{&#39;WHOSONFIRST_HOME&#39;})</td></tr>
+<tr><td class="h"><a id="L1792">1792</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (-f $File::Find::name and $File::Find::name =~ /(\d+)\.geojson$/)</td></tr>
+<tr><td class="h"><a id="L1801">1801</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($s ne $string)</td></tr>
+<tr><td class="h"><a id="L1822">1822</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($@ or not defined $properties)</td></tr>
+<tr><td class="h"><a id="L1828">1828</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;wof:superseded_by&#39;} and scalar @{$properties-&gt;{&#39;wof:superseded_by&#39;};}</td></tr>
+<tr><td class="h"><a id="L1832">1832</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;mz:is_current&#39;} and $properties-&gt;{&#39;mz:is_current&#39;} &lt;= 0</td></tr>
+<tr><td class="h"><a id="L1833">1833</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;src:geom&#39;} and $properties-&gt;{&#39;src:geom&#39;} eq &quot;missing&quot;</td></tr>
+<tr><td class="h"><a id="L1835">1835</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $placetype</td></tr>
+<tr><td class="h"><a id="L1836">1836</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $placetype eq &quot;country&quot;</td></tr>
+<tr><td class="h"><a id="L1837">1837</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $placetype eq &quot;marketarea&quot;</td></tr>
+<tr><td class="h"><a id="L1839">1839</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L1840">1840</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($openaddresses_countries{lc $country})</td></tr>
+<tr><td class="h"><a id="L1843">1843</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (lc $country eq $c)</td></tr>
+<tr><td class="h"><a id="L1848">1848</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $found</td></tr>
+<tr><td class="h"><a id="L1853">1853</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &#39;region&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1855">1855</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;US&#39; or $country eq &#39;CA&#39; or $country eq &#39;AU&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1863">1863</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $state and $country eq &quot;US&quot; and my $rc = $properties-&gt;{&#39;qs:gn_nameadm1&#39;})</td></tr>
+<tr><td class="h"><a id="L1864">1864</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc =~ /^\[A-Z]{2}$/)</td></tr>
+<tr><td class="h"><a id="L1873">1873</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $state and my $a1 = $properties-&gt;{&#39;as:a1&#39;} || $properties-&gt;{&#39;qs:a1&#39;} || $properties-&gt;{&#39;qs:name_adm1&#39;} || $properties-&gt;{&#39;qs_pg:name_adm1&#39;} || $properties-&gt;{&#39;woe:name_adm1&#39;})</td></tr>
+<tr><td class="h"><a id="L1874">1874</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($a1 eq &#39;England&#39; or $a1 eq &#39;Scotland&#39; or $a1 eq &#39;Wales&#39; or $a1 eq &#39;Northern Ireland&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($country eq &#39;US&#39; or $country eq &#39;CA&#39; or $country eq &#39;AU&#39;) { }</td></tr>
-<tr><td class="h"><a id="L1871">1871</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $sc = &#39;Locale::SubCountry&#39;-&gt;new($country)) { }</td></tr>
-<tr><td class="h"><a id="L1872">1872</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($a1 =~ /^(.+)[\s_]COUNTY/i)</td></tr>
-<tr><td class="h"><a id="L1877">1877</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $sc-&gt;code($a1))</td></tr>
-<tr><td class="h"><a id="L1879">1879</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $code ne &quot;UNKNOWN&quot;</td></tr>
-<tr><td class="h"><a id="L1887">1887</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state)</td></tr>
-<tr><td class="h"><a id="L1889">1889</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /^CITY\[_\s]OF/i) { }</td></tr>
-<tr><td class="h"><a id="L1892">1892</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $state eq &quot;England&quot;</td></tr>
-<tr><td class="h"><a id="L1898">1898</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
-<tr><td class="h"><a id="L1900">1900</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @hierarchy and my $region = $hierarchy[0]{&#39;region_id&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L1901">1901</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $region_id and $region == $region_id) { }</td></tr>
-<tr><td class="h"><a id="L1905">1905</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $region &lt; 0</td></tr>
-<tr><td class="h"><a id="L1908">1908</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state) { }</td></tr>
-<tr><td class="h"><a id="L1928">1928</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $state</td></tr>
-<tr><td class="h"><a id="L1930">1930</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($max_state_lengths{$country} and length $state &gt; $max_state_lengths{$country})</td></tr>
-<tr><td class="h"><a id="L1931">1931</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $sc = &#39;Locale::SubCountry&#39;-&gt;new($country)) { }</td></tr>
-<tr><td class="h"><a id="L1932">1932</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $sc-&gt;code($state))</td></tr>
-<tr><td class="h"><a id="L1934">1934</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $code ne &quot;UNKNOWN&quot;</td></tr>
-<tr><td class="h"><a id="L1942">1942</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &#39;locality&#39; or $placetype eq &#39;neighbourhood&#39; or $placetype eq &#39;borough&#39;) { }</td></tr>
-<tr><td class="h"><a id="L1944">1944</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &quot;borough&quot; and my $parent = $properties-&gt;{&#39;wof:parent_id&#39;})</td></tr>
-<tr><td class="h"><a id="L1949">1949</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @hier and my $locality = $hier[0]{&#39;locality_id&#39;})</td></tr>
-<tr><td class="h"><a id="L1953">1953</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($parent_name)</td></tr>
-<tr><td class="h"><a id="L1957">1957</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
-<tr><td class="h"><a id="L1962">1962</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @hierarchy and my $locality = $hierarchy[0]{&#39;locality_id&#39;})</td></tr>
-<tr><td class="h"><a id="L1963">1963</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $w = get_wof($properties, $locality, $geojson_file))</td></tr>
-<tr><td class="h"><a id="L1970">1970</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &quot;county&quot;)</td></tr>
-<tr><td class="h"><a id="L1982">1982</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L1988">1988</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city) { }</td></tr>
-<tr><td class="h"><a id="L1993">1993</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $address</td></tr>
-<tr><td class="h"><a id="L1994">1994</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_location($address) || &#39;Geo::StreetAddress::US&#39;-&gt;parse_address($address))</td></tr>
-<tr><td class="h"><a id="L1995">1995</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($href-&gt;{&#39;city&#39;})</td></tr>
-<tr><td class="h"><a id="L1999">1999</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
-<tr><td class="h"><a id="L2002">2002</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($postcode)</td></tr>
-<tr><td class="h"><a id="L2006">2006</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
-<tr><td class="h"><a id="L2010">2010</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($number)</td></tr>
-<tr><td class="h"><a id="L2015">2015</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $name = $properties-&gt;{&#39;wof:name&#39;})</td></tr>
-<tr><td class="h"><a id="L2016">2016</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name ne $city)</td></tr>
-<tr><td class="h"><a id="L2028">2028</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($row-&gt;{&#39;LAT&#39;} and $row-&gt;{&#39;LON&#39;})</td></tr>
-<tr><td class="h"><a id="L2051">2051</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $addr_full = $properties-&gt;{&#39;addr:full&#39;})</td></tr>
-<tr><td class="h"><a id="L2053">2053</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country =~ /^ENGLAND/) { }</td></tr>
-<tr><td class="h"><a id="L2060">2060</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ap)</td></tr>
-<tr><td class="h"><a id="L2061">2061</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ap-&gt;parse($addr_full)) { }</td></tr>
-<tr><td class="h"><a id="L2065">2065</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = $c{&#39;street_type&#39;})</td></tr>
-<tr><td class="h"><a id="L2083">2083</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L2101">2101</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
-<tr><td class="h"><a id="L2133">2133</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $osm = $ENV{&#39;OSM_HOME&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L1877">1877</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $sc = &#39;Locale::SubCountry&#39;-&gt;new($country)) { }</td></tr>
+<tr><td class="h"><a id="L1878">1878</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($a1 =~ /^(.+)[\s_]COUNTY/i)</td></tr>
+<tr><td class="h"><a id="L1883">1883</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $sc-&gt;code($a1))</td></tr>
+<tr><td class="h"><a id="L1885">1885</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $code ne &quot;UNKNOWN&quot;</td></tr>
+<tr><td class="h"><a id="L1893">1893</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state)</td></tr>
+<tr><td class="h"><a id="L1895">1895</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /^CITY\[_\s]OF/i) { }</td></tr>
+<tr><td class="h"><a id="L1898">1898</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $state eq &quot;England&quot;</td></tr>
+<tr><td class="h"><a id="L1904">1904</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
+<tr><td class="h"><a id="L1906">1906</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @hierarchy and my $region = $hierarchy[0]{&#39;region_id&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L1907">1907</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $region_id and $region == $region_id) { }</td></tr>
+<tr><td class="h"><a id="L1911">1911</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $region &lt; 0</td></tr>
+<tr><td class="h"><a id="L1914">1914</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state) { }</td></tr>
+<tr><td class="h"><a id="L1934">1934</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $state</td></tr>
+<tr><td class="h"><a id="L1936">1936</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($max_state_lengths{$country} and length $state &gt; $max_state_lengths{$country})</td></tr>
+<tr><td class="h"><a id="L1937">1937</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $sc = &#39;Locale::SubCountry&#39;-&gt;new($country)) { }</td></tr>
+<tr><td class="h"><a id="L1938">1938</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $sc-&gt;code($state))</td></tr>
+<tr><td class="h"><a id="L1940">1940</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $code ne &quot;UNKNOWN&quot;</td></tr>
+<tr><td class="h"><a id="L1948">1948</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &#39;locality&#39; or $placetype eq &#39;neighbourhood&#39; or $placetype eq &#39;borough&#39;) { }</td></tr>
+<tr><td class="h"><a id="L1950">1950</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &quot;borough&quot; and my $parent = $properties-&gt;{&#39;wof:parent_id&#39;})</td></tr>
+<tr><td class="h"><a id="L1955">1955</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @hier and my $locality = $hier[0]{&#39;locality_id&#39;})</td></tr>
+<tr><td class="h"><a id="L1959">1959</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($parent_name)</td></tr>
+<tr><td class="h"><a id="L1963">1963</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
+<tr><td class="h"><a id="L1968">1968</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @hierarchy and my $locality = $hierarchy[0]{&#39;locality_id&#39;})</td></tr>
+<tr><td class="h"><a id="L1969">1969</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $w = get_wof($properties, $locality, $geojson_file))</td></tr>
+<tr><td class="h"><a id="L1976">1976</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($placetype eq &quot;county&quot;)</td></tr>
+<tr><td class="h"><a id="L1988">1988</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L1994">1994</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city) { }</td></tr>
+<tr><td class="h"><a id="L1999">1999</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $address</td></tr>
+<tr><td class="h"><a id="L2000">2000</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_location($address) || &#39;Geo::StreetAddress::US&#39;-&gt;parse_address($address))</td></tr>
+<tr><td class="h"><a id="L2001">2001</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($href-&gt;{&#39;city&#39;})</td></tr>
+<tr><td class="h"><a id="L2005">2005</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
+<tr><td class="h"><a id="L2008">2008</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($postcode)</td></tr>
+<tr><td class="h"><a id="L2012">2012</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
+<tr><td class="h"><a id="L2016">2016</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($number)</td></tr>
+<tr><td class="h"><a id="L2021">2021</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $name = $properties-&gt;{&#39;wof:name&#39;})</td></tr>
+<tr><td class="h"><a id="L2022">2022</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name ne $city)</td></tr>
+<tr><td class="h"><a id="L2034">2034</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($row-&gt;{&#39;LAT&#39;} and $row-&gt;{&#39;LON&#39;})</td></tr>
+<tr><td class="h"><a id="L2057">2057</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $addr_full = $properties-&gt;{&#39;addr:full&#39;})</td></tr>
+<tr><td class="h"><a id="L2059">2059</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country =~ /^ENGLAND/) { }</td></tr>
+<tr><td class="h"><a id="L2066">2066</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ap)</td></tr>
+<tr><td class="h"><a id="L2067">2067</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ap-&gt;parse($addr_full)) { }</td></tr>
+<tr><td class="h"><a id="L2071">2071</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = $c{&#39;street_type&#39;})</td></tr>
+<tr><td class="h"><a id="L2089">2089</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L2107">2107</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
+<tr><td class="h"><a id="L2139">2139</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $osm = $ENV{&#39;OSM_HOME&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($force_flag || !0 and my $dr5hn = $ENV{&#39;DR5HN_HOME&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L2167">2167</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless my $reader = &quot;XML::LibXML::Reader&quot;-&gt;new(&quot;FD&quot;, $pin)</td></tr>
-<tr><td class="h"><a id="L2172">2172</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($reader-&gt;nodeType == 1) { }</td></tr>
+<tr><td class="h"><a id="L2173">2173</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless my $reader = &quot;XML::LibXML::Reader&quot;-&gt;new(&quot;FD&quot;, $pin)</td></tr>
+<tr><td class="h"><a id="L2178">2178</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($reader-&gt;nodeType == 1) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($reader-&gt;nodeType == 15) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($reader-&gt;nodeType == 14) { }</td></tr>
-<tr><td class="h"><a id="L2174">2174</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($node eq &#39;node&#39;) { }</td></tr>
+<tr><td class="h"><a id="L2180">2180</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($node eq &#39;node&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($in_node and $node eq &#39;tag&#39; and $reader-&gt;hasAttributes) { }</td></tr>
-<tr><td class="h"><a id="L2175">2175</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($reader-&gt;hasAttributes)</td></tr>
-<tr><td class="h"><a id="L2185">2185</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($key eq &#39;name:en&#39;) { }</td></tr>
+<tr><td class="h"><a id="L2181">2181</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($reader-&gt;hasAttributes)</td></tr>
+<tr><td class="h"><a id="L2191">2191</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($key eq &#39;name:en&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($key eq &#39;name&#39; and not defined $name) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($key eq &#39;is_in&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($key eq &#39;is_in:country&#39;) { }</td></tr>
@@ -181,16 +184,16 @@ https://pjcj.net
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($key eq &#39;wikipedia&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($key eq &#39;gns:cc1&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($key eq &#39;place&#39;) { }</td></tr>
-<tr><td class="h"><a id="L2194">2194</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (Locale::Country::country2code($country))</td></tr>
-<tr><td class="h"><a id="L2208">2208</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $is_in) { }</td></tr>
-<tr><td class="h"><a id="L2218">2218</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($v =~ /^en:(.+)/)</td></tr>
-<tr><td class="h"><a id="L2225">2225</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;CA&#39;) { }</td></tr>
-<tr><td class="h"><a id="L2236">2236</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $is_in and defined $lat and defined $lon and defined $place)</td></tr>
-<tr><td class="h"><a id="L2240">2240</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square|farm/</td></tr>
-<tr><td class="h"><a id="L2242">2242</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $place or defined $name or $is_in =~ /,/)</td></tr>
-<tr><td class="h"><a id="L2254">2254</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $row = extract_osm_home($file, $name, $place, $is_in))</td></tr>
-<tr><td class="h"><a id="L2274">2274</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L2292">2292</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /, US/) { }</td></tr>
+<tr><td class="h"><a id="L2200">2200</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (Locale::Country::country2code($country))</td></tr>
+<tr><td class="h"><a id="L2214">2214</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $is_in) { }</td></tr>
+<tr><td class="h"><a id="L2224">2224</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($v =~ /^en:(.+)/)</td></tr>
+<tr><td class="h"><a id="L2231">2231</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;CA&#39;) { }</td></tr>
+<tr><td class="h"><a id="L2242">2242</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $is_in and defined $lat and defined $lon and defined $place)</td></tr>
+<tr><td class="h"><a id="L2246">2246</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $place =~ /town|locality|neighbourhood|hamlet|allotments|suburb|city|village|farm|island|islet|municipality|isolated[_\s]dwelling|State\sRoute\s|square|farm/</td></tr>
+<tr><td class="h"><a id="L2248">2248</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $place or defined $name or $is_in =~ /,/)</td></tr>
+<tr><td class="h"><a id="L2260">2260</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $row = extract_osm_home($file, $name, $place, $is_in))</td></tr>
+<tr><td class="h"><a id="L2280">2280</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L2298">2298</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /, US/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /, Canada/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in eq &#39;Canada&#39; and defined $place and $place =~ /\Q$name\E, (.+)/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in eq &#39;US&#39;) { }</td></tr>
@@ -198,121 +201,121 @@ https://pjcj.net
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /^Australia, (.+)/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /(.+), Australia$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $country and $country eq &#39;Australia&#39;) { }</td></tr>
-<tr><td class="h"><a id="L2293">2293</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+), (.+), US/) { }</td></tr>
+<tr><td class="h"><a id="L2299">2299</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+), (.+), US/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /^(.+), US/) { }</td></tr>
-<tr><td class="h"><a id="L2299">2299</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /^([a-z\s]+?)\sCounty, (.+)/i)</td></tr>
-<tr><td class="h"><a id="L2303">2303</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $state and $is_in =~ /^(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2304">2304</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $us-&gt;{&#39;state2code&#39;}{uc $1})</td></tr>
-<tr><td class="h"><a id="L2309">2309</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and defined $county)</td></tr>
-<tr><td class="h"><a id="L2316">2316</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+), (.+), Canada/) { }</td></tr>
+<tr><td class="h"><a id="L2305">2305</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /^([a-z\s]+?)\sCounty, (.+)/i)</td></tr>
+<tr><td class="h"><a id="L2309">2309</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $state and $is_in =~ /^(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2310">2310</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $us-&gt;{&#39;state2code&#39;}{uc $1})</td></tr>
+<tr><td class="h"><a id="L2315">2315</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and defined $county)</td></tr>
+<tr><td class="h"><a id="L2322">2322</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+), (.+), Canada/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /^(.+), Canada/) { }</td></tr>
-<tr><td class="h"><a id="L2317">2317</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name) { }</td></tr>
-<tr><td class="h"><a id="L2321">2321</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $city})</td></tr>
-<tr><td class="h"><a id="L2327">2327</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2328">2328</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $2}) { }</td></tr>
+<tr><td class="h"><a id="L2323">2323</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name) { }</td></tr>
+<tr><td class="h"><a id="L2327">2327</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $city})</td></tr>
+<tr><td class="h"><a id="L2333">2333</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2334">2334</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $2}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($code = $ca-&gt;{&#39;province2code&#39;}{uc $1}) { }</td></tr>
-<tr><td class="h"><a id="L2334">2334</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq &quot;Alta.&quot;)</td></tr>
-<tr><td class="h"><a id="L2353">2353</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $1})</td></tr>
-<tr><td class="h"><a id="L2369">2369</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2370">2370</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($au-&gt;{&#39;code2state&#39;}{uc $1})</td></tr>
-<tr><td class="h"><a id="L2373">2373</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /(.+?), (.+)/) { }</td></tr>
-<tr><td class="h"><a id="L2381">2381</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2382">2382</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $1})</td></tr>
-<tr><td class="h"><a id="L2385">2385</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($is_in =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2395">2395</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2396">2396</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($au-&gt;{&#39;code2state&#39;}{uc $2})</td></tr>
-<tr><td class="h"><a id="L2399">2399</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /(.+?), (.+)/) { }</td></tr>
-<tr><td class="h"><a id="L2407">2407</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2408">2408</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $2})</td></tr>
-<tr><td class="h"><a id="L2411">2411</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($is_in =~ /(.+?), (.+)/)</td></tr>
-<tr><td class="h"><a id="L2418">2418</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /,/ and my $code = $au-&gt;{&#39;state2code&#39;}{uc $is_in}) { }</td></tr>
+<tr><td class="h"><a id="L2340">2340</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq &quot;Alta.&quot;)</td></tr>
+<tr><td class="h"><a id="L2359">2359</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $1})</td></tr>
+<tr><td class="h"><a id="L2375">2375</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2376">2376</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($au-&gt;{&#39;code2state&#39;}{uc $1})</td></tr>
+<tr><td class="h"><a id="L2379">2379</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /(.+?), (.+)/) { }</td></tr>
+<tr><td class="h"><a id="L2387">2387</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2388">2388</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $1})</td></tr>
+<tr><td class="h"><a id="L2391">2391</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($is_in =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2401">2401</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2402">2402</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($au-&gt;{&#39;code2state&#39;}{uc $2})</td></tr>
+<tr><td class="h"><a id="L2405">2405</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /(.+?), (.+)/) { }</td></tr>
+<tr><td class="h"><a id="L2413">2413</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2414">2414</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $2})</td></tr>
+<tr><td class="h"><a id="L2417">2417</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($is_in =~ /(.+?), (.+)/)</td></tr>
+<tr><td class="h"><a id="L2424">2424</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /,/ and my $code = $au-&gt;{&#39;state2code&#39;}{uc $is_in}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $state) { }</td></tr>
-<tr><td class="h"><a id="L2420">2420</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $name eq $city</td></tr>
-<tr><td class="h"><a id="L2426">2426</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state and length $state &gt; 2) { }</td></tr>
+<tr><td class="h"><a id="L2426">2426</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $name eq $city</td></tr>
+<tr><td class="h"><a id="L2432">2432</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state and length $state &gt; 2) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (my $code = $us-&gt;{&#39;state2code&#39;}{uc $is_in}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($code = $ca-&gt;{&#39;province2code&#39;}{uc $is_in}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($code = $au-&gt;{&#39;state2code&#39;}{uc $is_in}) { }</td></tr>
-<tr><td class="h"><a id="L2428">2428</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $us-&gt;{&#39;state2code&#39;}{uc $state}) { }</td></tr>
+<tr><td class="h"><a id="L2434">2434</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $us-&gt;{&#39;state2code&#39;}{uc $state}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($code = $ca-&gt;{&#39;province2code&#39;}{uc $state}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($au-&gt;{&#39;code2state&#39;}{$state}) { }</td></tr>
-<tr><td class="h"><a id="L2429">2429</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($preamble) { }</td></tr>
-<tr><td class="h"><a id="L2437">2437</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($preamble) { }</td></tr>
-<tr><td class="h"><a id="L2447">2447</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /(.+?),\s(.+)/) { }</td></tr>
-<tr><td class="h"><a id="L2448">2448</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $1})</td></tr>
-<tr><td class="h"><a id="L2451">2451</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /(.+?),\s(.+)/)</td></tr>
-<tr><td class="h"><a id="L2453">2453</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $name</td></tr>
-<tr><td class="h"><a id="L2460">2460</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $city</td></tr>
-<tr><td class="h"><a id="L2461">2461</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $name eq $city</td></tr>
-<tr><td class="h"><a id="L2462">2462</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L2468">2468</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq $state)</td></tr>
-<tr><td class="h"><a id="L2469">2469</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name) { }</td></tr>
-<tr><td class="h"><a id="L2487">2487</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
-<tr><td class="h"><a id="L2491">2491</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+), (.+), Canada/) { }</td></tr>
+<tr><td class="h"><a id="L2435">2435</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($preamble) { }</td></tr>
+<tr><td class="h"><a id="L2443">2443</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($preamble) { }</td></tr>
+<tr><td class="h"><a id="L2453">2453</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /(.+?),\s(.+)/) { }</td></tr>
+<tr><td class="h"><a id="L2454">2454</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $1})</td></tr>
+<tr><td class="h"><a id="L2457">2457</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /(.+?),\s(.+)/)</td></tr>
+<tr><td class="h"><a id="L2459">2459</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $name</td></tr>
+<tr><td class="h"><a id="L2466">2466</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $city</td></tr>
+<tr><td class="h"><a id="L2467">2467</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $name eq $city</td></tr>
+<tr><td class="h"><a id="L2468">2468</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L2474">2474</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq $state)</td></tr>
+<tr><td class="h"><a id="L2475">2475</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name) { }</td></tr>
+<tr><td class="h"><a id="L2493">2493</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
+<tr><td class="h"><a id="L2497">2497</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+), (.+), Canada/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /^(.+),\s?Canada/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /^Canada,\s?(.+?),/) { }</td></tr>
-<tr><td class="h"><a id="L2503">2503</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state and length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L2504">2504</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /Qu.bec/i)</td></tr>
-<tr><td class="h"><a id="L2507">2507</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $state}) { }</td></tr>
-<tr><td class="h"><a id="L2510">2510</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($preamble)</td></tr>
-<tr><td class="h"><a id="L2523">2523</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($add_record)</td></tr>
-<tr><td class="h"><a id="L2524">2524</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /,/) { }</td></tr>
+<tr><td class="h"><a id="L2509">2509</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state and length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L2510">2510</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /Qu.bec/i)</td></tr>
+<tr><td class="h"><a id="L2513">2513</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $ca-&gt;{&#39;province2code&#39;}{uc $state}) { }</td></tr>
+<tr><td class="h"><a id="L2516">2516</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($preamble)</td></tr>
+<tr><td class="h"><a id="L2529">2529</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($add_record)</td></tr>
+<tr><td class="h"><a id="L2530">2530</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $is_in =~ /,/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /(.+), (.+)$/) { }</td></tr>
-<tr><td class="h"><a id="L2525">2525</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $country and $is_in ne &quot;GB&quot;)</td></tr>
-<tr><td class="h"><a id="L2526">2526</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (Locale::Country::country2code($is_in)) { }</td></tr>
-<tr><td class="h"><a id="L2530">2530</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L2535">2535</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;GB&#39;) { }</td></tr>
+<tr><td class="h"><a id="L2531">2531</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $country and $is_in ne &quot;GB&quot;)</td></tr>
+<tr><td class="h"><a id="L2532">2532</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (Locale::Country::country2code($is_in)) { }</td></tr>
+<tr><td class="h"><a id="L2536">2536</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L2541">2541</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;GB&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not Locale::Country::country2code($country)) { }</td></tr>
-<tr><td class="h"><a id="L2541">2541</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /\Q$city\E, London/)</td></tr>
-<tr><td class="h"><a id="L2545">2545</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $province = $ca-&gt;{&#39;province2code&#39;}{uc $country}) { }</td></tr>
+<tr><td class="h"><a id="L2547">2547</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /\Q$city\E, London/)</td></tr>
+<tr><td class="h"><a id="L2551">2551</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $province = $ca-&gt;{&#39;province2code&#39;}{uc $country}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (my $s = $us-&gt;{&#39;state2code&#39;}{uc $country}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($us-&gt;{&#39;code2state&#39;}{uc $country}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($s = $au-&gt;{&#39;state2code&#39;}{uc $country}) { }</td></tr>
-<tr><td class="h"><a id="L2564">2564</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $country)</td></tr>
-<tr><td class="h"><a id="L2568">2568</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($full_name = $us-&gt;{&#39;code2state&#39;}{$is_in}) { }</td></tr>
+<tr><td class="h"><a id="L2570">2570</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $country)</td></tr>
+<tr><td class="h"><a id="L2574">2574</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($full_name = $us-&gt;{&#39;code2state&#39;}{$is_in}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($full_name = $au-&gt;{&#39;code2state&#39;}{$is_in}) { }</td></tr>
-<tr><td class="h"><a id="L2570">2570</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /north-america/) { }</td></tr>
+<tr><td class="h"><a id="L2576">2576</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /north-america/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($file =~ /australia/ and $full_name = $au-&gt;{&#39;code2state&#39;}{$is_in}) { }</td></tr>
-<tr><td class="h"><a id="L2580">2580</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and defined $full_name and $place =~ /(.+),\s\Q$full_name\E/)</td></tr>
-<tr><td class="h"><a id="L2585">2585</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and defined $full_name and $city =~ /(.+),\s\Q$full_name\E/)</td></tr>
-<tr><td class="h"><a id="L2589">2589</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $full_name</td></tr>
-<tr><td class="h"><a id="L2591">2591</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $country) { }</td></tr>
+<tr><td class="h"><a id="L2586">2586</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and defined $full_name and $place =~ /(.+),\s\Q$full_name\E/)</td></tr>
+<tr><td class="h"><a id="L2591">2591</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and defined $full_name and $city =~ /(.+),\s\Q$full_name\E/)</td></tr>
+<tr><td class="h"><a id="L2595">2595</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $full_name</td></tr>
+<tr><td class="h"><a id="L2597">2597</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $country) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not $country =~ /Australia|Canada|US|GB/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in =~ /,.+,/) { }</td></tr>
-<tr><td class="h"><a id="L2596">2596</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $country}) { }</td></tr>
-<tr><td class="h"><a id="L2597">2597</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), \Q$country\E$/)</td></tr>
-<tr><td class="h"><a id="L2609">2609</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state)</td></tr>
-<tr><td class="h"><a id="L2612">2612</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
-<tr><td class="h"><a id="L2615">2615</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $city and $state and $country</td></tr>
-<tr><td class="h"><a id="L2619">2619</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
-<tr><td class="h"><a id="L2620">2620</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($add_record) { }</td></tr>
+<tr><td class="h"><a id="L2602">2602</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $code = $au-&gt;{&#39;state2code&#39;}{uc $country}) { }</td></tr>
+<tr><td class="h"><a id="L2603">2603</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in =~ /(.+?), \Q$country\E$/)</td></tr>
+<tr><td class="h"><a id="L2615">2615</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state)</td></tr>
+<tr><td class="h"><a id="L2618">2618</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
+<tr><td class="h"><a id="L2621">2621</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $city and $state and $country</td></tr>
+<tr><td class="h"><a id="L2625">2625</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
+<tr><td class="h"><a id="L2626">2626</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($add_record) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($country) { }</td></tr>
-<tr><td class="h"><a id="L2629">2629</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name and $name ne $city)</td></tr>
-<tr><td class="h"><a id="L2632">2632</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
-<tr><td class="h"><a id="L2637">2637</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L2656">2656</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($reader-&gt;name eq &quot;node&quot; and $reader-&gt;hasAttributes)</td></tr>
-<tr><td class="h"><a id="L2665">2665</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $err = $@)</td></tr>
-<tr><td class="h"><a id="L2666">2666</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ref $err and $err-&gt;isa(&quot;XML::LibXML::Error&quot;)</td></tr>
-<tr><td class="h"><a id="L2700">2700</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country-&gt;{&#39;iso3&#39;} eq &quot;USA&quot; or $country-&gt;{&#39;iso3&#39;} eq &quot;CAN&quot; or $country-&gt;{&#39;iso3&#39;} eq &quot;AUS&quot;)</td></tr>
-<tr><td class="h"><a id="L2701">2701</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country-&gt;{&#39;name&#39;} eq &quot;United States&quot;)</td></tr>
-<tr><td class="h"><a id="L2713">2713</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city-&gt;{&#39;name&#39;} =~ /County$/ and $country-&gt;{&#39;name&#39;} eq &#39;US&#39;) { }</td></tr>
-<tr><td class="h"><a id="L2720">2720</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
-<tr><td class="h"><a id="L2774">2774</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
-<tr><td class="h"><a id="L2793">2793</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
-<tr><td class="h"><a id="L2798">2798</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($berkeley_db)</td></tr>
-<tr><td class="h"><a id="L2802">2802</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($redis)</td></tr>
-<tr><td class="h"><a id="L2812">2812</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless my $where = shift()</td></tr>
-<tr><td class="h"><a id="L2817">2817</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($csv) { }</td></tr>
-<tr><td class="h"><a id="L2862">2862</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($csv and $line =~ /\.csv$/) { }</td></tr>
+<tr><td class="h"><a id="L2635">2635</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name and $name ne $city)</td></tr>
+<tr><td class="h"><a id="L2638">2638</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
+<tr><td class="h"><a id="L2643">2643</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L2662">2662</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($reader-&gt;name eq &quot;node&quot; and $reader-&gt;hasAttributes)</td></tr>
+<tr><td class="h"><a id="L2671">2671</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $err = $@)</td></tr>
+<tr><td class="h"><a id="L2672">2672</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ref $err and $err-&gt;isa(&quot;XML::LibXML::Error&quot;)</td></tr>
+<tr><td class="h"><a id="L2706">2706</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country-&gt;{&#39;iso3&#39;} eq &quot;USA&quot; or $country-&gt;{&#39;iso3&#39;} eq &quot;CAN&quot; or $country-&gt;{&#39;iso3&#39;} eq &quot;AUS&quot;)</td></tr>
+<tr><td class="h"><a id="L2707">2707</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country-&gt;{&#39;name&#39;} eq &quot;United States&quot;)</td></tr>
+<tr><td class="h"><a id="L2719">2719</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city-&gt;{&#39;name&#39;} =~ /County$/ and $country-&gt;{&#39;name&#39;} eq &#39;US&#39;) { }</td></tr>
+<tr><td class="h"><a id="L2726">2726</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($inserts &gt;= 250)</td></tr>
+<tr><td class="h"><a id="L2780">2780</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
+<tr><td class="h"><a id="L2799">2799</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
+<tr><td class="h"><a id="L2804">2804</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($berkeley_db)</td></tr>
+<tr><td class="h"><a id="L2808">2808</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($redis)</td></tr>
+<tr><td class="h"><a id="L2818">2818</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless my $where = shift()</td></tr>
+<tr><td class="h"><a id="L2823">2823</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($csv) { }</td></tr>
+<tr><td class="h"><a id="L2868">2868</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($csv and $line =~ /\.csv$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($line =~ /\.geojson$/) { }</td></tr>
-<tr><td class="h"><a id="L2882">2882</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (ref $_[0] eq &#39;HASH&#39;) { }</td></tr>
+<tr><td class="h"><a id="L2888">2888</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (ref $_[0] eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (ref $_[0]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar(@_) % 2 == 0) { }</td></tr>
-<tr><td class="h"><a id="L2895">2895</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $country)</td></tr>
-<tr><td class="h"><a id="L2912">2912</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($dbh or $berkeley_db or $mongodb or $redis)</td></tr>
-<tr><td class="h"><a id="L2924">2924</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state)</td></tr>
-<tr><td class="h"><a id="L2931">2931</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $county and $county =~ /geojson/i)</td></tr>
-<tr><td class="h"><a id="L2940">2940</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($file =~ /statewide/ or $file =~ /^province/ or $file =~ /countrywide/)</td></tr>
-<tr><td class="h"><a id="L2941">2941</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /^city[_\s]of[_\s](.+).csv$/) { }</td></tr>
+<tr><td class="h"><a id="L2901">2901</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $country)</td></tr>
+<tr><td class="h"><a id="L2918">2918</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($dbh or $berkeley_db or $mongodb or $redis)</td></tr>
+<tr><td class="h"><a id="L2930">2930</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state)</td></tr>
+<tr><td class="h"><a id="L2937">2937</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $county and $county =~ /geojson/i)</td></tr>
+<tr><td class="h"><a id="L2946">2946</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($file =~ /statewide/ or $file =~ /^province/ or $file =~ /countrywide/)</td></tr>
+<tr><td class="h"><a id="L2947">2947</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /^city[_\s]of[_\s](.+).csv$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($file =~ /^town[_\s]of[_\s](.+).csv$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($file =~ /^(.+)[_\s]borough.csv$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($file =~ /^(.+)-region.csv$/) { }</td></tr>
@@ -320,306 +323,306 @@ https://pjcj.net
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($file =~ /^(.+)[_\s]district.csv$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $city || $file =~ /countries\+states\+cities/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $county || $file =~ /^WHOSONFIRST\-DATA/i || $file =~ /countrywide/ || $file =~ /countries\+states\+cities/i || $file =~ /^\d+\.GEOJSON$/i) { }</td></tr>
-<tr><td class="h"><a id="L2943">2943</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city =~ /\Q$oa\E/i || $city =~ m[/../])</td></tr>
-<tr><td class="h"><a id="L2955">2955</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if not defined $city or $city eq &quot;REMOTE&quot;</td></tr>
-<tr><td class="h"><a id="L2962">2962</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
-<tr><td class="h"><a id="L2966">2966</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
-<tr><td class="h"><a id="L2972">2972</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if length $city == 0</td></tr>
-<tr><td class="h"><a id="L2980">2980</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if length $city == 0</td></tr>
-<tr><td class="h"><a id="L2993">2993</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $city)</td></tr>
-<tr><td class="h"><a id="L2996">2996</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city and defined $zip and my $info = $zipcodes{$zip})</td></tr>
-<tr><td class="h"><a id="L3003">3003</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city and defined $zip and $zip =~ /^(\d{5})/)</td></tr>
-<tr><td class="h"><a id="L3005">3005</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (exists $unknown_zips{&quot;$country/$zip&quot;})</td></tr>
-<tr><td class="h"><a id="L3009">3009</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($res-&gt;is_success)</td></tr>
-<tr><td class="h"><a id="L3015">3015</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $rc)</td></tr>
-<tr><td class="h"><a id="L3020">3020</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($place)</td></tr>
-<tr><td class="h"><a id="L3027">3027</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
-<tr><td class="h"><a id="L3041">3041</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $city or defined $state)</td></tr>
-<tr><td class="h"><a id="L3043">3043</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $zip</td></tr>
-<tr><td class="h"><a id="L3044">3044</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $zip =~ /^\d{5}/</td></tr>
-<tr><td class="h"><a id="L3045">3045</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $dbh</td></tr>
-<tr><td class="h"><a id="L3049">3049</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $row-&gt;{&#39;LAT&#39;} and defined $row-&gt;{&#39;LON&#39;})</td></tr>
-<tr><td class="h"><a id="L3058">3058</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $row-&gt;{&#39;LAT&#39;} == 0 and $row-&gt;{&#39;LON&#39;} == 0</td></tr>
-<tr><td class="h"><a id="L3060">3060</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
-<tr><td class="h"><a id="L3063">3063</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city and $city =~ /(.+),\s*(.+)/)</td></tr>
-<tr><td class="h"><a id="L3069">3069</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($borough ne $street)</td></tr>
-<tr><td class="h"><a id="L3080">3080</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
-<tr><td class="h"><a id="L3097">3097</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
-<tr><td class="h"><a id="L3099">3099</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street =~ /(.+)\s+(.+)\s+(.+)/) { }</td></tr>
+<tr><td class="h"><a id="L2949">2949</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city =~ /\Q$oa\E/i || $city =~ m[/../])</td></tr>
+<tr><td class="h"><a id="L2961">2961</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if not defined $city or $city eq &quot;REMOTE&quot;</td></tr>
+<tr><td class="h"><a id="L2968">2968</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
+<tr><td class="h"><a id="L2972">2972</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
+<tr><td class="h"><a id="L2978">2978</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if length $city == 0</td></tr>
+<tr><td class="h"><a id="L2986">2986</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if length $city == 0</td></tr>
+<tr><td class="h"><a id="L2999">2999</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $city)</td></tr>
+<tr><td class="h"><a id="L3002">3002</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city and defined $zip and my $info = $zipcodes{$zip})</td></tr>
+<tr><td class="h"><a id="L3009">3009</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city and defined $zip and $zip =~ /^(\d{5})/)</td></tr>
+<tr><td class="h"><a id="L3011">3011</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (exists $unknown_zips{&quot;$country/$zip&quot;})</td></tr>
+<tr><td class="h"><a id="L3015">3015</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($res-&gt;is_success)</td></tr>
+<tr><td class="h"><a id="L3021">3021</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $rc)</td></tr>
+<tr><td class="h"><a id="L3026">3026</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($place)</td></tr>
+<tr><td class="h"><a id="L3033">3033</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
+<tr><td class="h"><a id="L3047">3047</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $city or defined $state)</td></tr>
+<tr><td class="h"><a id="L3049">3049</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $zip</td></tr>
+<tr><td class="h"><a id="L3050">3050</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $zip =~ /^\d{5}/</td></tr>
+<tr><td class="h"><a id="L3051">3051</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $dbh</td></tr>
+<tr><td class="h"><a id="L3055">3055</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $row-&gt;{&#39;LAT&#39;} and defined $row-&gt;{&#39;LON&#39;})</td></tr>
+<tr><td class="h"><a id="L3064">3064</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $row-&gt;{&#39;LAT&#39;} == 0 and $row-&gt;{&#39;LON&#39;} == 0</td></tr>
+<tr><td class="h"><a id="L3066">3066</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
+<tr><td class="h"><a id="L3069">3069</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city and $city =~ /(.+),\s*(.+)/)</td></tr>
+<tr><td class="h"><a id="L3075">3075</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($borough ne $street)</td></tr>
+<tr><td class="h"><a id="L3086">3086</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
+<tr><td class="h"><a id="L3103">3103</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
+<tr><td class="h"><a id="L3105">3105</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street =~ /(.+)\s+(.+)\s+(.+)/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($street =~ /(.+)\s(.+)$/) { }</td></tr>
-<tr><td class="h"><a id="L3101">3101</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (lc $2 ne &#39;cross&#39; and $a = $abbr-&gt;abbreviate($2)) { }</td></tr>
+<tr><td class="h"><a id="L3107">3107</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (lc $2 ne &#39;cross&#39; and $a = $abbr-&gt;abbreviate($2)) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($a = $abbr-&gt;abbreviate($3)) { }</td></tr>
-<tr><td class="h"><a id="L3107">3107</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $a = $abbr-&gt;abbreviate($2))</td></tr>
-<tr><td class="h"><a id="L3113">3113</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $county)</td></tr>
-<tr><td class="h"><a id="L3114">3114</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /^(.+)[_\-]county.csv$/) { }</td></tr>
+<tr><td class="h"><a id="L3113">3113</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $a = $abbr-&gt;abbreviate($2))</td></tr>
+<tr><td class="h"><a id="L3119">3119</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $county)</td></tr>
+<tr><td class="h"><a id="L3120">3120</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /^(.+)[_\-]county.csv$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $city and $city =~ /(.+)\s+COUNTY$/i) { }</td></tr>
-<tr><td class="h"><a id="L3124">3124</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $county and $row-&gt;{&#39;DISTRICT&#39;})</td></tr>
-<tr><td class="h"><a id="L3125">3125</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
-<tr><td class="h"><a id="L3135">3135</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($row-&gt;{&#39;DISTRICT&#39;} ne $state and not $row-&gt;{&#39;DISTRICT&#39;} =~ /^\d+$/)</td></tr>
-<tr><td class="h"><a id="L3139">3139</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and not defined $county and $city =~ /\s+County$/)</td></tr>
-<tr><td class="h"><a id="L3143">3143</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
-<tr><td class="h"><a id="L3144">3144</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
-<tr><td class="h"><a id="L3145">3145</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /\s+COUNTY$/i)</td></tr>
-<tr><td class="h"><a id="L3150">3150</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq $county or $city eq &quot;$county COUNTY&quot; or $county eq &quot;$city COUNTY&quot;)</td></tr>
-<tr><td class="h"><a id="L3172">3172</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state)</td></tr>
-<tr><td class="h"><a id="L3173">3173</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq &#39;IN&#39;) { }</td></tr>
+<tr><td class="h"><a id="L3130">3130</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $county and $row-&gt;{&#39;DISTRICT&#39;})</td></tr>
+<tr><td class="h"><a id="L3131">3131</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
+<tr><td class="h"><a id="L3141">3141</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($row-&gt;{&#39;DISTRICT&#39;} ne $state and not $row-&gt;{&#39;DISTRICT&#39;} =~ /^\d+$/)</td></tr>
+<tr><td class="h"><a id="L3145">3145</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and not defined $county and $city =~ /\s+County$/)</td></tr>
+<tr><td class="h"><a id="L3149">3149</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
+<tr><td class="h"><a id="L3150">3150</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city)</td></tr>
+<tr><td class="h"><a id="L3151">3151</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /\s+COUNTY$/i)</td></tr>
+<tr><td class="h"><a id="L3156">3156</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq $county or $city eq &quot;$county COUNTY&quot; or $county eq &quot;$city COUNTY&quot;)</td></tr>
+<tr><td class="h"><a id="L3178">3178</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state)</td></tr>
+<tr><td class="h"><a id="L3179">3179</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq &#39;IN&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($state eq &#39;MO&#39;) { }</td></tr>
-<tr><td class="h"><a id="L3174">3174</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city eq &#39;FW&#39;) { }</td></tr>
+<tr><td class="h"><a id="L3180">3180</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city eq &#39;FW&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $county and $county eq &#39;LAPORTE&#39;) { }</td></tr>
-<tr><td class="h"><a id="L3181">3181</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city eq &quot;SAINT LOUIS&quot;)</td></tr>
-<tr><td class="h"><a id="L3187">3187</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city and not $city =~ /^\s+$/ or $county or $state)</td></tr>
-<tr><td class="h"><a id="L3188">3188</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
-<tr><td class="h"><a id="L3189">3189</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;Australia&#39; || $country eq &#39;AU&#39; and $file =~ m[/au/(...)/.+.csv$]) { }</td></tr>
+<tr><td class="h"><a id="L3187">3187</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and $city eq &quot;SAINT LOUIS&quot;)</td></tr>
+<tr><td class="h"><a id="L3193">3193</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city and not $city =~ /^\s+$/ or $county or $state)</td></tr>
+<tr><td class="h"><a id="L3194">3194</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
+<tr><td class="h"><a id="L3195">3195</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &#39;Australia&#39; || $country eq &#39;AU&#39; and $file =~ m[/au/(...)/.+.csv$]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (my $region = $row-&gt;{&#39;REGION&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L3196">3196</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
-<tr><td class="h"><a id="L3206">3206</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and length $state == 2 and $city =~ /(.+)\s\Q$state\E/)</td></tr>
-<tr><td class="h"><a id="L3216">3216</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $county</td></tr>
-<tr><td class="h"><a id="L3217">3217</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $street</td></tr>
-<tr><td class="h"><a id="L3221">3221</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $row-&gt;{$c}</td></tr>
-<tr><td class="h"><a id="L3226">3226</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $columns{&#39;NUMBER&#39;} and $columns{&#39;NUMBER&#39;} eq 0</td></tr>
-<tr><td class="h"><a id="L3229">3229</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city or $country eq &quot;GB&quot; and $city eq &quot;LONDON&quot; and defined $state and $state eq &quot;LONDON&quot;)</td></tr>
-<tr><td class="h"><a id="L3234">3234</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $columns{$column}</td></tr>
-<tr><td class="h"><a id="L3236">3236</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city and defined $street and defined $row-&gt;{&#39;REGION&#39;} and not defined $county)</td></tr>
-<tr><td class="h"><a id="L3238">3238</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $street)</td></tr>
-<tr><td class="h"><a id="L3239">3239</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $county and 0</td></tr>
-<tr><td class="h"><a id="L3247">3247</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (delete $columns{&#39;COUNTY&#39;})</td></tr>
-<tr><td class="h"><a id="L3248">3248</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
-<tr><td class="h"><a id="L3252">3252</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name)</td></tr>
-<tr><td class="h"><a id="L3256">3256</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
-<tr><td class="h"><a id="L3264">3264</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (delete $columns{&#39;NUMBER&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L3202">3202</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $state)</td></tr>
+<tr><td class="h"><a id="L3212">3212</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $city and length $state == 2 and $city =~ /(.+)\s\Q$state\E/)</td></tr>
+<tr><td class="h"><a id="L3222">3222</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $county</td></tr>
+<tr><td class="h"><a id="L3223">3223</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $street</td></tr>
+<tr><td class="h"><a id="L3227">3227</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $row-&gt;{$c}</td></tr>
+<tr><td class="h"><a id="L3232">3232</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $columns{&#39;NUMBER&#39;} and $columns{&#39;NUMBER&#39;} eq 0</td></tr>
+<tr><td class="h"><a id="L3235">3235</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city or $country eq &quot;GB&quot; and $city eq &quot;LONDON&quot; and defined $state and $state eq &quot;LONDON&quot;)</td></tr>
+<tr><td class="h"><a id="L3240">3240</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $columns{$column}</td></tr>
+<tr><td class="h"><a id="L3242">3242</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $city and defined $street and defined $row-&gt;{&#39;REGION&#39;} and not defined $county)</td></tr>
+<tr><td class="h"><a id="L3244">3244</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $street)</td></tr>
+<tr><td class="h"><a id="L3245">3245</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $county and 0</td></tr>
+<tr><td class="h"><a id="L3253">3253</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (delete $columns{&#39;COUNTY&#39;})</td></tr>
+<tr><td class="h"><a id="L3254">3254</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $city</td></tr>
+<tr><td class="h"><a id="L3258">3258</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name)</td></tr>
+<tr><td class="h"><a id="L3262">3262</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
+<tr><td class="h"><a id="L3270">3270</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (delete $columns{&#39;NUMBER&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($name and delete $columns{&#39;STREET&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L3265">3265</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name)</td></tr>
-<tr><td class="h"><a id="L3269">3269</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
-<tr><td class="h"><a id="L3279">3279</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (delete $columns{&#39;STREET&#39;})</td></tr>
-<tr><td class="h"><a id="L3280">3280</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name)</td></tr>
-<tr><td class="h"><a id="L3284">3284</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
-<tr><td class="h"><a id="L3298">3298</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
-<tr><td class="h"><a id="L3314">3314</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($dbh or $mongodb or $berkeley_db or $redis)</td></tr>
-<tr><td class="h"><a id="L3317">3317</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar keys %columns == 0</td></tr>
-<tr><td class="h"><a id="L3320">3320</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $columns{$column}) { }</td></tr>
+<tr><td class="h"><a id="L3271">3271</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name)</td></tr>
+<tr><td class="h"><a id="L3275">3275</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
+<tr><td class="h"><a id="L3285">3285</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (delete $columns{&#39;STREET&#39;})</td></tr>
+<tr><td class="h"><a id="L3286">3286</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name)</td></tr>
+<tr><td class="h"><a id="L3290">3290</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
+<tr><td class="h"><a id="L3304">3304</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /^(.+)\s+RESTAURANT/i)</td></tr>
+<tr><td class="h"><a id="L3320">3320</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($dbh or $mongodb or $berkeley_db or $redis)</td></tr>
+<tr><td class="h"><a id="L3323">3323</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar keys %columns == 0</td></tr>
+<tr><td class="h"><a id="L3326">3326</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $columns{$column}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($columns{$column} =~ /^\s+$/) { }</td></tr>
-<tr><td class="h"><a id="L3326">3326</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $columns{&#39;COUNTY&#39;} and $columns{&#39;COUNTY&#39;} =~ /geojson/i)</td></tr>
-<tr><td class="h"><a id="L3337">3337</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $columns{&#39;COUNTY&#39;} and defined $columns{&#39;CITY&#39;} and $columns{&#39;COUNTY&#39;} =~ /CITY OF \Q$columns{&#39;CITY&#39;}\E/i)</td></tr>
-<tr><td class="h"><a id="L3362">3362</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $lat and defined $lon</td></tr>
-<tr><td class="h"><a id="L3367">3367</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (exists $columns{$column}) { }</td></tr>
-<tr><td class="h"><a id="L3385">3385</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $columns{$column}</td></tr>
-<tr><td class="h"><a id="L3390">3390</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $digest)</td></tr>
-<tr><td class="h"><a id="L3417">3417</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $columns{&#39;COUNTRY&#39;})</td></tr>
-<tr><td class="h"><a id="L3430">3430</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($columns{&#39;STREET&#39;} and $columns{&#39;STREET&#39;} =~ /^[A-Z]\s\w+\s\w+$/)</td></tr>
-<tr><td class="h"><a id="L3439">3439</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $columns2{$column}</td></tr>
-<tr><td class="h"><a id="L3441">3441</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($digest = create_md5($global, &amp;Encode::encode_utf8($digest)))</td></tr>
-<tr><td class="h"><a id="L3481">3481</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ref $row ne &quot;HASH&quot;</td></tr>
-<tr><td class="h"><a id="L3483">3483</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $country)</td></tr>
-<tr><td class="h"><a id="L3489">3489</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($max_state_lengths{$country} and $state and length $state &gt; $max_state_lengths{$country})</td></tr>
-<tr><td class="h"><a id="L3493">3493</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $country != 2)</td></tr>
-<tr><td class="h"><a id="L3499">3499</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($row-&gt;{&#39;LAT&#39;} and $row-&gt;{&#39;LON&#39;})</td></tr>
-<tr><td class="h"><a id="L3509">3509</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($mongodb)</td></tr>
-<tr><td class="h"><a id="L3513">3513</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($berkeley_db)</td></tr>
-<tr><td class="h"><a id="L3518">3518</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
-<tr><td class="h"><a id="L3519">3519</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $query) { }</td></tr>
-<tr><td class="h"><a id="L3670">3670</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($query)</td></tr>
-<tr><td class="h"><a id="L3675">3675</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
-<tr><td class="h"><a id="L3690">3690</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($redis)</td></tr>
-<tr><td class="h"><a id="L3738">3738</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $digest &lt;= 16) { }</td></tr>
-<tr><td class="h"><a id="L3744">3744</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($queued_commits{$rc} or $global_md5s{$rc} or $state_md5s{$rc})</td></tr>
-<tr><td class="h"><a id="L3749">3749</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $dbh)</td></tr>
-<tr><td class="h"><a id="L3753">3753</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($global or !0) { }</td></tr>
-<tr><td class="h"><a id="L3792">3792</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $id &lt; 0</td></tr>
-<tr><td class="h"><a id="L3793">3793</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $l1_cache-&gt;get($id))</td></tr>
-<tr><td class="h"><a id="L3798">3798</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $l2_cache) { }</td></tr>
-<tr><td class="h"><a id="L3799">3799</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $name = $l2_cache-&gt;get($id))</td></tr>
-<tr><td class="h"><a id="L3817">3817</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($properties-&gt;{&#39;wof:repo&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L3824">3824</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) { }</td></tr>
+<tr><td class="h"><a id="L3332">3332</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $columns{&#39;COUNTY&#39;} and $columns{&#39;COUNTY&#39;} =~ /geojson/i)</td></tr>
+<tr><td class="h"><a id="L3343">3343</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $columns{&#39;COUNTY&#39;} and defined $columns{&#39;CITY&#39;} and $columns{&#39;COUNTY&#39;} =~ /CITY OF \Q$columns{&#39;CITY&#39;}\E/i)</td></tr>
+<tr><td class="h"><a id="L3368">3368</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $lat and defined $lon</td></tr>
+<tr><td class="h"><a id="L3373">3373</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (exists $columns{$column}) { }</td></tr>
+<tr><td class="h"><a id="L3391">3391</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $columns{$column}</td></tr>
+<tr><td class="h"><a id="L3396">3396</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $digest)</td></tr>
+<tr><td class="h"><a id="L3423">3423</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $columns{&#39;COUNTRY&#39;})</td></tr>
+<tr><td class="h"><a id="L3436">3436</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($columns{&#39;STREET&#39;} and $columns{&#39;STREET&#39;} =~ /^[A-Z]\s\w+\s\w+$/)</td></tr>
+<tr><td class="h"><a id="L3445">3445</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $columns2{$column}</td></tr>
+<tr><td class="h"><a id="L3447">3447</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($digest = create_md5($global, &amp;Encode::encode_utf8($digest)))</td></tr>
+<tr><td class="h"><a id="L3487">3487</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ref $row ne &quot;HASH&quot;</td></tr>
+<tr><td class="h"><a id="L3489">3489</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $country)</td></tr>
+<tr><td class="h"><a id="L3495">3495</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($max_state_lengths{$country} and $state and length $state &gt; $max_state_lengths{$country})</td></tr>
+<tr><td class="h"><a id="L3499">3499</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $country != 2)</td></tr>
+<tr><td class="h"><a id="L3505">3505</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($row-&gt;{&#39;LAT&#39;} and $row-&gt;{&#39;LON&#39;})</td></tr>
+<tr><td class="h"><a id="L3515">3515</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($mongodb)</td></tr>
+<tr><td class="h"><a id="L3519">3519</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($berkeley_db)</td></tr>
+<tr><td class="h"><a id="L3524">3524</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
+<tr><td class="h"><a id="L3525">3525</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not defined $query) { }</td></tr>
+<tr><td class="h"><a id="L3676">3676</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($query)</td></tr>
+<tr><td class="h"><a id="L3681">3681</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($dbh)</td></tr>
+<tr><td class="h"><a id="L3696">3696</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($redis)</td></tr>
+<tr><td class="h"><a id="L3744">3744</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $digest &lt;= 16) { }</td></tr>
+<tr><td class="h"><a id="L3750">3750</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($queued_commits{$rc} or $global_md5s{$rc} or $state_md5s{$rc})</td></tr>
+<tr><td class="h"><a id="L3755">3755</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $dbh)</td></tr>
+<tr><td class="h"><a id="L3759">3759</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($global or !0) { }</td></tr>
+<tr><td class="h"><a id="L3798">3798</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $id &lt; 0</td></tr>
+<tr><td class="h"><a id="L3799">3799</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $l1_cache-&gt;get($id))</td></tr>
+<tr><td class="h"><a id="L3804">3804</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $l2_cache) { }</td></tr>
+<tr><td class="h"><a id="L3805">3805</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $name = $l2_cache-&gt;get($id))</td></tr>
+<tr><td class="h"><a id="L3823">3823</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($properties-&gt;{&#39;wof:repo&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L3830">3830</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($id =~ /(\d{3})(\d{3})(\d{3})(\d+)/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($id =~ /(\d{3})(\d{3})(\d+)/) { }</td></tr>
-<tr><td class="h"><a id="L3826">3826</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($repo ne &quot;*&quot; and not -e $filename)</td></tr>
-<tr><td class="h"><a id="L3833">3833</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($repo ne &quot;*&quot; and not -e $filename)</td></tr>
-<tr><td class="h"><a id="L3842">3842</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($repo eq &quot;*&quot;)</td></tr>
-<tr><td class="h"><a id="L3847">3847</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($filename and -r $filename)</td></tr>
-<tr><td class="h"><a id="L3859">3859</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($filename) { }</td></tr>
-<tr><td class="h"><a id="L3870">3870</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar @{$properties-&gt;{&#39;wof:superseded_by&#39;};}</td></tr>
-<tr><td class="h"><a id="L3871">3871</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;mz:is_current&#39;} and $properties-&gt;{&#39;mz:is_current&#39;} &lt;= 0</td></tr>
-<tr><td class="h"><a id="L3873">3873</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($properties-&gt;{&#39;wof:placetype&#39;} eq &quot;region&quot;)</td></tr>
-<tr><td class="h"><a id="L3875">3875</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &quot;US&quot; or $country eq &quot;CA&quot; or $country eq &quot;AU&quot;)</td></tr>
-<tr><td class="h"><a id="L3888">3888</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar @_ != 4</td></tr>
-<tr><td class="h"><a id="L3911">3911</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name and defined $place and $name eq $place</td></tr>
-<tr><td class="h"><a id="L3912">3912</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place)</td></tr>
-<tr><td class="h"><a id="L3918">3918</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and not defined $place and $state = us_state2code(uc $is_in))</td></tr>
-<tr><td class="h"><a id="L3919">3919</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (country($file, $is_in) eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L3932">3932</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $place</td></tr>
-<tr><td class="h"><a id="L3933">3933</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 3 and not $place_fields[1] =~ /\s/ and $place_fields[2] =~ /^and\s/)</td></tr>
-<tr><td class="h"><a id="L3951">3951</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields &gt; 1 and $is_in_fields[1] eq &#39;US&#39; and $state = $us-&gt;{&#39;state2code&#39;}{uc $is_in_fields[0]}) { }</td></tr>
+<tr><td class="h"><a id="L3832">3832</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($repo ne &quot;*&quot; and not -e $filename)</td></tr>
+<tr><td class="h"><a id="L3839">3839</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($repo ne &quot;*&quot; and not -e $filename)</td></tr>
+<tr><td class="h"><a id="L3848">3848</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($repo eq &quot;*&quot;)</td></tr>
+<tr><td class="h"><a id="L3853">3853</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($filename and -r $filename)</td></tr>
+<tr><td class="h"><a id="L3865">3865</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($filename) { }</td></tr>
+<tr><td class="h"><a id="L3876">3876</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar @{$properties-&gt;{&#39;wof:superseded_by&#39;};}</td></tr>
+<tr><td class="h"><a id="L3877">3877</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if exists $properties-&gt;{&#39;mz:is_current&#39;} and $properties-&gt;{&#39;mz:is_current&#39;} &lt;= 0</td></tr>
+<tr><td class="h"><a id="L3879">3879</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($properties-&gt;{&#39;wof:placetype&#39;} eq &quot;region&quot;)</td></tr>
+<tr><td class="h"><a id="L3881">3881</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country eq &quot;US&quot; or $country eq &quot;CA&quot; or $country eq &quot;AU&quot;)</td></tr>
+<tr><td class="h"><a id="L3894">3894</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar @_ != 4</td></tr>
+<tr><td class="h"><a id="L3917">3917</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name and defined $place and $name eq $place</td></tr>
+<tr><td class="h"><a id="L3918">3918</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place)</td></tr>
+<tr><td class="h"><a id="L3924">3924</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and not defined $place and $state = us_state2code(uc $is_in))</td></tr>
+<tr><td class="h"><a id="L3925">3925</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (country($file, $is_in) eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L3938">3938</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $place</td></tr>
+<tr><td class="h"><a id="L3939">3939</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 3 and not $place_fields[1] =~ /\s/ and $place_fields[2] =~ /^and\s/)</td></tr>
+<tr><td class="h"><a id="L3957">3957</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields &gt; 1 and $is_in_fields[1] eq &#39;US&#39; and $state = $us-&gt;{&#39;state2code&#39;}{uc $is_in_fields[0]}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @is_in_fields &gt; 1 and $is_in_fields[1] eq &#39;US&#39; and $state = $us-&gt;{&#39;state2code&#39;}{uc $is_in_fields[0]}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $name and defined $place and $place eq &quot;$name, $is_in&quot; and $state = us_state2code($is_in)) { }</td></tr>
-<tr><td class="h"><a id="L3952">3952</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place_fields[1] eq $is_in_fields[0])</td></tr>
-<tr><td class="h"><a id="L3965">3965</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L3966">3966</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L3973">3973</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L3974">3974</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 5)</td></tr>
-<tr><td class="h"><a id="L3975">3975</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[4] eq &#39;US&#39;) { }</td></tr>
+<tr><td class="h"><a id="L3958">3958</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place_fields[1] eq $is_in_fields[0])</td></tr>
+<tr><td class="h"><a id="L3971">3971</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L3972">3972</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L3979">3979</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L3980">3980</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 5)</td></tr>
+<tr><td class="h"><a id="L3981">3981</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[4] eq &#39;US&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in_fields[0] eq &#39;Australia&#39;) { }</td></tr>
-<tr><td class="h"><a id="L3976">3976</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = us_state2code($is_in_fields[1]))</td></tr>
-<tr><td class="h"><a id="L3981">3981</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1) { }</td></tr>
+<tr><td class="h"><a id="L3982">3982</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = us_state2code($is_in_fields[1]))</td></tr>
+<tr><td class="h"><a id="L3987">3987</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($name) { }</td></tr>
-<tr><td class="h"><a id="L3990">3990</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+) County$/)</td></tr>
-<tr><td class="h"><a id="L3995">3995</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = us_state2code($is_in_fields[3]))</td></tr>
-<tr><td class="h"><a id="L4002">4002</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4012">4012</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4017">4017</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and scalar @place_fields == 2 and $state = us_state2code($is_in_fields[0]) and $state eq $is_in_fields[1] and $place_fields[1] eq $is_in_fields[0])</td></tr>
-<tr><td class="h"><a id="L4019">4019</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4020">4020</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4027">4027</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and defined $name and not defined $place and us_state2code($is_in_fields[0]) and us_state2code($is_in_fields[0]) eq $is_in_fields[1])</td></tr>
-<tr><td class="h"><a id="L4029">4029</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4030">4030</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4037">4037</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and defined $name and scalar @place_fields == 3 and $state = us_state2code($is_in_fields[1]))</td></tr>
-<tr><td class="h"><a id="L4039">4039</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4040">4040</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4046">4046</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place_fields[1] =~ /(.+) County$/)</td></tr>
-<tr><td class="h"><a id="L4051">4051</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and defined $name and $name eq $place_fields[0] and $us-&gt;{&#39;code2state&#39;}{$is_in} and country($file, $is_in) eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4059">4059</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 2 and not defined $place and $state = us_state2code($is_in_fields[1]) and country($file, $is_in_fields[1]) eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4064">4064</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4067">4067</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1) { }</td></tr>
-<tr><td class="h"><a id="L4077">4077</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 3 and defined $name and $state = us_state2code($is_in) and country($file, $is_in) eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4084">4084</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place_fields[1] =~ /(.+) County$/)</td></tr>
-<tr><td class="h"><a id="L4089">4089</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and scalar @is_in_fields == 2 and $state = us_state2code($is_in_fields[1]) and country($file, $is_in_fields[1]) eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4096">4096</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name)</td></tr>
-<tr><td class="h"><a id="L4097">4097</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sRoad$/ or $name =~ /\sLn$/ or $name =~ /\sAvenue/ or $name =~ /\sStreet$/ or $name =~ /\sRd$/ or $name =~ /\sCt$/ or ($name =~ /\sRoad\s/ or $name =~ /\sWay$/)) { }</td></tr>
-<tr><td class="h"><a id="L4105">4105</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 4 and scalar @place_fields == 2 and $is_in_fields[3] eq &quot;US&quot; and $us-&gt;{&#39;code2state&#39;}{$is_in_fields[2]})</td></tr>
-<tr><td class="h"><a id="L4112">4112</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4117">4117</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and not defined $place and $is_in eq &quot;Washington DC&quot;)</td></tr>
-<tr><td class="h"><a id="L4120">4120</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4121">4121</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4128">4128</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and defined $place and $is_in eq &quot;Washington DC&quot;)</td></tr>
-<tr><td class="h"><a id="L4131">4131</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4132">4132</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4139">4139</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and defined $place and $place =~ /^\Q$name\E\s.+Washington.*/ and $is_in eq &quot;Washington DC&quot;)</td></tr>
-<tr><td class="h"><a id="L4142">4142</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4143">4143</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4150">4150</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $place and $place eq &quot;county&quot; and scalar @is_in_fields == 4 and $is_in_fields[3] eq &quot;US&quot; and us_state2code($is_in_fields[0]) eq $is_in_fields[2])</td></tr>
-<tr><td class="h"><a id="L4158">4158</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @place_fields == 2 and scalar @is_in_fields == 1 and $state = us_state2code($place_fields[1]) and $is_in =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4166">4166</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4167">4167</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
-<tr><td class="h"><a id="L4171">4171</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $place and $is_in eq &quot;US&quot; and $state = us_state2code($name))</td></tr>
-<tr><td class="h"><a id="L4178">4178</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $place and scalar @is_in_fields == 2 and $state = us_state2code($is_in_fields[1]) and country($file, $state) eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4184">4184</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sRoad$/ or $name =~ /\sLn$/ or $name =~ /\sAvenue/ or $name =~ /\sStreet$/ or $name =~ /\sRd$/ or $name =~ /\sCt$/ or $name =~ /\sRoad\s/ or $name =~ /\sWay$/) { }</td></tr>
-<tr><td class="h"><a id="L4187">4187</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $place ne $is_in_fields[0]</td></tr>
-<tr><td class="h"><a id="L4194">4194</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 3 and $is_in_fields[2] eq &quot;US&quot; and $state = us_state2code($is_in_fields[1]))</td></tr>
-<tr><td class="h"><a id="L4195">4195</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 1)</td></tr>
-<tr><td class="h"><a id="L4203">4203</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4216">4216</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 4)</td></tr>
-<tr><td class="h"><a id="L4217">4217</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /north-america/) { }</td></tr>
+<tr><td class="h"><a id="L3996">3996</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+) County$/)</td></tr>
+<tr><td class="h"><a id="L4001">4001</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = us_state2code($is_in_fields[3]))</td></tr>
+<tr><td class="h"><a id="L4008">4008</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4018">4018</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4023">4023</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and scalar @place_fields == 2 and $state = us_state2code($is_in_fields[0]) and $state eq $is_in_fields[1] and $place_fields[1] eq $is_in_fields[0])</td></tr>
+<tr><td class="h"><a id="L4025">4025</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4026">4026</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4033">4033</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and defined $name and not defined $place and us_state2code($is_in_fields[0]) and us_state2code($is_in_fields[0]) eq $is_in_fields[1])</td></tr>
+<tr><td class="h"><a id="L4035">4035</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4036">4036</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4043">4043</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and defined $name and scalar @place_fields == 3 and $state = us_state2code($is_in_fields[1]))</td></tr>
+<tr><td class="h"><a id="L4045">4045</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4046">4046</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4052">4052</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place_fields[1] =~ /(.+) County$/)</td></tr>
+<tr><td class="h"><a id="L4057">4057</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and defined $name and $name eq $place_fields[0] and $us-&gt;{&#39;code2state&#39;}{$is_in} and country($file, $is_in) eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4065">4065</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 2 and not defined $place and $state = us_state2code($is_in_fields[1]) and country($file, $is_in_fields[1]) eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4070">4070</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4073">4073</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1) { }</td></tr>
+<tr><td class="h"><a id="L4083">4083</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 3 and defined $name and $state = us_state2code($is_in) and country($file, $is_in) eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4090">4090</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place_fields[1] =~ /(.+) County$/)</td></tr>
+<tr><td class="h"><a id="L4095">4095</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and scalar @is_in_fields == 2 and $state = us_state2code($is_in_fields[1]) and country($file, $is_in_fields[1]) eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4102">4102</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name)</td></tr>
+<tr><td class="h"><a id="L4103">4103</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sRoad$/ or $name =~ /\sLn$/ or $name =~ /\sAvenue/ or $name =~ /\sStreet$/ or $name =~ /\sRd$/ or $name =~ /\sCt$/ or ($name =~ /\sRoad\s/ or $name =~ /\sWay$/)) { }</td></tr>
+<tr><td class="h"><a id="L4111">4111</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 4 and scalar @place_fields == 2 and $is_in_fields[3] eq &quot;US&quot; and $us-&gt;{&#39;code2state&#39;}{$is_in_fields[2]})</td></tr>
+<tr><td class="h"><a id="L4118">4118</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4123">4123</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and not defined $place and $is_in eq &quot;Washington DC&quot;)</td></tr>
+<tr><td class="h"><a id="L4126">4126</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4127">4127</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4134">4134</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and defined $place and $is_in eq &quot;Washington DC&quot;)</td></tr>
+<tr><td class="h"><a id="L4137">4137</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4138">4138</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4145">4145</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and defined $place and $place =~ /^\Q$name\E\s.+Washington.*/ and $is_in eq &quot;Washington DC&quot;)</td></tr>
+<tr><td class="h"><a id="L4148">4148</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4149">4149</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4156">4156</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $place and $place eq &quot;county&quot; and scalar @is_in_fields == 4 and $is_in_fields[3] eq &quot;US&quot; and us_state2code($is_in_fields[0]) eq $is_in_fields[2])</td></tr>
+<tr><td class="h"><a id="L4164">4164</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @place_fields == 2 and scalar @is_in_fields == 1 and $state = us_state2code($place_fields[1]) and $is_in =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4172">4172</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4173">4173</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $country</td></tr>
+<tr><td class="h"><a id="L4177">4177</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $place and $is_in eq &quot;US&quot; and $state = us_state2code($name))</td></tr>
+<tr><td class="h"><a id="L4184">4184</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and defined $place and scalar @is_in_fields == 2 and $state = us_state2code($is_in_fields[1]) and country($file, $state) eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4190">4190</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sRoad$/ or $name =~ /\sLn$/ or $name =~ /\sAvenue/ or $name =~ /\sStreet$/ or $name =~ /\sRd$/ or $name =~ /\sCt$/ or $name =~ /\sRoad\s/ or $name =~ /\sWay$/) { }</td></tr>
+<tr><td class="h"><a id="L4193">4193</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $place ne $is_in_fields[0]</td></tr>
+<tr><td class="h"><a id="L4200">4200</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 3 and $is_in_fields[2] eq &quot;US&quot; and $state = us_state2code($is_in_fields[1]))</td></tr>
+<tr><td class="h"><a id="L4201">4201</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 1)</td></tr>
+<tr><td class="h"><a id="L4209">4209</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4222">4222</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 4)</td></tr>
+<tr><td class="h"><a id="L4223">4223</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /north-america/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in_fields[3] eq &#39;GB&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($file =~ /australia/ and $is_in_fields[0] eq &#39;Australia&#39;) { }</td></tr>
-<tr><td class="h"><a id="L4219">4219</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name ne $is_in_fields[0] and $state = us_state2code($is_in_fields[1]))</td></tr>
-<tr><td class="h"><a id="L4228">4228</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = us_state2code($is_in_fields[2]) and $is_in_fields[3] eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4236">4236</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4249">4249</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = au_state2code($is_in_fields[2]) and $is_in_fields[1] eq $state)</td></tr>
-<tr><td class="h"><a id="L4258">4258</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = au_state2code($is_in_fields[1]) and $is_in_fields[2] eq $state)</td></tr>
-<tr><td class="h"><a id="L4269">4269</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 6 and $state = us_state2code($is_in_fields[2]) and $is_in_fields[5] eq &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L4278">4278</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and $is_in =~ /[,;]\sCanada/ and scalar @is_in_fields &gt; 1) { }</td></tr>
+<tr><td class="h"><a id="L4225">4225</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name ne $is_in_fields[0] and $state = us_state2code($is_in_fields[1]))</td></tr>
+<tr><td class="h"><a id="L4234">4234</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = us_state2code($is_in_fields[2]) and $is_in_fields[3] eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4242">4242</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4255">4255</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = au_state2code($is_in_fields[2]) and $is_in_fields[1] eq $state)</td></tr>
+<tr><td class="h"><a id="L4264">4264</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = au_state2code($is_in_fields[1]) and $is_in_fields[2] eq $state)</td></tr>
+<tr><td class="h"><a id="L4275">4275</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 6 and $state = us_state2code($is_in_fields[2]) and $is_in_fields[5] eq &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L4284">4284</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and not $name =~ /,/ and $is_in =~ /[,;]\sCanada/ and scalar @is_in_fields &gt; 1) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @is_in_fields == 3 and $is_in_fields[0] eq &#39;Canada&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (defined $name and not $name =~ /,/ and defined $place and $place =~ /,/ and $ca-&gt;{&#39;code2province&#39;}{$is_in}) { }</td></tr>
-<tr><td class="h"><a id="L4279">4279</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 3) { }</td></tr>
+<tr><td class="h"><a id="L4285">4285</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 3) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @is_in_fields == 4) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @is_in_fields == 2) { }</td></tr>
-<tr><td class="h"><a id="L4280">4280</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] =~ /Qu.bec/i) { }</td></tr>
+<tr><td class="h"><a id="L4286">4286</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] =~ /Qu.bec/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in_fields[0] =~ /Qu.bec/i) { }</td></tr>
-<tr><td class="h"><a id="L4289">4289</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place =~ /, \Q$is_in_fields[0]\E$/)</td></tr>
-<tr><td class="h"><a id="L4298">4298</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state and $is_in_fields[0] =~ /(.+) County$/)</td></tr>
-<tr><td class="h"><a id="L4306">4306</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state)</td></tr>
-<tr><td class="h"><a id="L4327">4327</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $p = $provinces{uc $is_in_fields[1]})</td></tr>
-<tr><td class="h"><a id="L4330">4330</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[2] =~ /Qu.bec/i)</td></tr>
-<tr><td class="h"><a id="L4333">4333</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[0]) and $code = ca_province2code($is_in_fields[1])) { }</td></tr>
+<tr><td class="h"><a id="L4295">4295</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place =~ /, \Q$is_in_fields[0]\E$/)</td></tr>
+<tr><td class="h"><a id="L4304">4304</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state and $is_in_fields[0] =~ /(.+) County$/)</td></tr>
+<tr><td class="h"><a id="L4312">4312</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state)</td></tr>
+<tr><td class="h"><a id="L4333">4333</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $p = $provinces{uc $is_in_fields[1]})</td></tr>
+<tr><td class="h"><a id="L4336">4336</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[2] =~ /Qu.bec/i)</td></tr>
+<tr><td class="h"><a id="L4339">4339</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[0]) and $code = ca_province2code($is_in_fields[1])) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($state = ca_province2code($is_in_fields[2])) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($state = ca_province2code($is_in_fields[1]) and $state eq $is_in_fields[2]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (ca_province2code($is_in_fields[0]) and ca_province2code($is_in_fields[0]) eq $is_in_fields[2]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (ca_province2code($is_in_fields[1]) eq $is_in_fields[2]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($state = ca_province2code($is_in_fields[1]) and $is_in_fields[2] eq &#39;Canada&#39;) { }</td></tr>
-<tr><td class="h"><a id="L4335">4335</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq $is_in_fields[2] and $code eq $state)</td></tr>
-<tr><td class="h"><a id="L4336">4336</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place eq &quot;county&quot;)</td></tr>
-<tr><td class="h"><a id="L4358">4358</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4366">4366</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4369">4369</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $ca-&gt;{&#39;code2province&#39;}{$state}</td></tr>
-<tr><td class="h"><a id="L4375">4375</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place eq &#39;county&#39;) { }</td></tr>
-<tr><td class="h"><a id="L4388">4388</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4396">4396</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4400">4400</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /Qu.bec/i)</td></tr>
-<tr><td class="h"><a id="L4403">4403</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[0]))</td></tr>
-<tr><td class="h"><a id="L4404">4404</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and $place_fields[1] eq &quot;D.C.&quot;)</td></tr>
-<tr><td class="h"><a id="L4409">4409</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 3 and $place_fields[2] eq &quot;D.C.&quot;)</td></tr>
-<tr><td class="h"><a id="L4415">4415</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $place)</td></tr>
-<tr><td class="h"><a id="L4423">4423</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 1 and defined $name and not $place =~ /,/)</td></tr>
-<tr><td class="h"><a id="L4429">4429</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sRoad$/ or $name =~ /\sLn$/ or $name =~ /\sAvenue/ or $name =~ /\sStreet$/ or $name =~ /\sRd$/ or $name =~ /\sCt$/) { }</td></tr>
-<tr><td class="h"><a id="L4436">4436</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place =~ /\Q$name\E/)</td></tr>
-<tr><td class="h"><a id="L4444">4444</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2)</td></tr>
-<tr><td class="h"><a id="L4451">4451</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4456">4456</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 7 and $state = ca_province2code($is_in_fields[5]))</td></tr>
-<tr><td class="h"><a id="L4463">4463</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place =~ /^(\d+?)\s(.+)/)</td></tr>
-<tr><td class="h"><a id="L4467">4467</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
-<tr><td class="h"><a id="L4470">4470</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 8 and $is_in_fields[6] eq &quot;Canada&quot;)</td></tr>
-<tr><td class="h"><a id="L4478">4478</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields &gt;= 5)</td></tr>
-<tr><td class="h"><a id="L4479">4479</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] eq $is_in_fields[4] and ca_province2code($is_in_fields[4])) { }</td></tr>
+<tr><td class="h"><a id="L4341">4341</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq $is_in_fields[2] and $code eq $state)</td></tr>
+<tr><td class="h"><a id="L4342">4342</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place eq &quot;county&quot;)</td></tr>
+<tr><td class="h"><a id="L4364">4364</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4372">4372</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4375">4375</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $ca-&gt;{&#39;code2province&#39;}{$state}</td></tr>
+<tr><td class="h"><a id="L4381">4381</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place eq &#39;county&#39;) { }</td></tr>
+<tr><td class="h"><a id="L4394">4394</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4402">4402</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4406">4406</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /Qu.bec/i)</td></tr>
+<tr><td class="h"><a id="L4409">4409</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[0]))</td></tr>
+<tr><td class="h"><a id="L4410">4410</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and $place_fields[1] eq &quot;D.C.&quot;)</td></tr>
+<tr><td class="h"><a id="L4415">4415</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 3 and $place_fields[2] eq &quot;D.C.&quot;)</td></tr>
+<tr><td class="h"><a id="L4421">4421</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $place)</td></tr>
+<tr><td class="h"><a id="L4429">4429</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 1 and defined $name and not $place =~ /,/)</td></tr>
+<tr><td class="h"><a id="L4435">4435</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sRoad$/ or $name =~ /\sLn$/ or $name =~ /\sAvenue/ or $name =~ /\sStreet$/ or $name =~ /\sRd$/ or $name =~ /\sCt$/) { }</td></tr>
+<tr><td class="h"><a id="L4442">4442</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($place =~ /\Q$name\E/)</td></tr>
+<tr><td class="h"><a id="L4450">4450</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2)</td></tr>
+<tr><td class="h"><a id="L4457">4457</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4462">4462</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 7 and $state = ca_province2code($is_in_fields[5]))</td></tr>
+<tr><td class="h"><a id="L4469">4469</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place =~ /^(\d+?)\s(.+)/)</td></tr>
+<tr><td class="h"><a id="L4473">4473</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $name</td></tr>
+<tr><td class="h"><a id="L4476">4476</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 8 and $is_in_fields[6] eq &quot;Canada&quot;)</td></tr>
+<tr><td class="h"><a id="L4484">4484</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields &gt;= 5)</td></tr>
+<tr><td class="h"><a id="L4485">4485</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] eq $is_in_fields[4] and ca_province2code($is_in_fields[4])) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in_fields[0] eq $is_in_fields[3] and ca_province2code($is_in_fields[4])) { }</td></tr>
-<tr><td class="h"><a id="L4487">4487</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $is_in_fields[$i] and $state = ca_province2code($is_in_fields[$i]))</td></tr>
-<tr><td class="h"><a id="L4497">4497</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[2]) and $is_in_fields[3] eq &quot;Canada&quot;)</td></tr>
-<tr><td class="h"><a id="L4506">4506</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 10 and scalar @place_fields == 1 and defined $name and not $name =~ /,/ and $state = ca_province2code($is_in_fields[8]))</td></tr>
-<tr><td class="h"><a id="L4513">4513</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4519">4519</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $row)</td></tr>
-<tr><td class="h"><a id="L4533">4533</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] =~ /Qu.bec/i)</td></tr>
-<tr><td class="h"><a id="L4536">4536</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[1]))</td></tr>
-<tr><td class="h"><a id="L4546">4546</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2)</td></tr>
-<tr><td class="h"><a id="L4548">4548</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (ca_province2code($place_fields[1]) eq $is_in)</td></tr>
-<tr><td class="h"><a id="L4550">4550</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $name ne $place_fields[0]</td></tr>
-<tr><td class="h"><a id="L4559">4559</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $ca-&gt;{&#39;code2province&#39;}{$is_in})</td></tr>
-<tr><td class="h"><a id="L4567">4567</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and $state = ca_province2code($is_in))</td></tr>
-<tr><td class="h"><a id="L4575">4575</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 2 and $state = ca_province2code($is_in_fields[1]))</td></tr>
-<tr><td class="h"><a id="L4576">4576</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sStreet/ or $name =~ /\sRoad$/)</td></tr>
-<tr><td class="h"><a id="L4585">4585</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 2)</td></tr>
-<tr><td class="h"><a id="L4591">4591</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/) { }</td></tr>
+<tr><td class="h"><a id="L4493">4493</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $is_in_fields[$i] and $state = ca_province2code($is_in_fields[$i]))</td></tr>
+<tr><td class="h"><a id="L4503">4503</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[2]) and $is_in_fields[3] eq &quot;Canada&quot;)</td></tr>
+<tr><td class="h"><a id="L4512">4512</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 10 and scalar @place_fields == 1 and defined $name and not $name =~ /,/ and $state = ca_province2code($is_in_fields[8]))</td></tr>
+<tr><td class="h"><a id="L4519">4519</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4525">4525</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $row)</td></tr>
+<tr><td class="h"><a id="L4539">4539</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] =~ /Qu.bec/i)</td></tr>
+<tr><td class="h"><a id="L4542">4542</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = ca_province2code($is_in_fields[1]))</td></tr>
+<tr><td class="h"><a id="L4552">4552</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2)</td></tr>
+<tr><td class="h"><a id="L4554">4554</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (ca_province2code($place_fields[1]) eq $is_in)</td></tr>
+<tr><td class="h"><a id="L4556">4556</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $name ne $place_fields[0]</td></tr>
+<tr><td class="h"><a id="L4565">4565</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $ca-&gt;{&#39;code2province&#39;}{$is_in})</td></tr>
+<tr><td class="h"><a id="L4573">4573</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and $state = ca_province2code($is_in))</td></tr>
+<tr><td class="h"><a id="L4581">4581</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 2 and $state = ca_province2code($is_in_fields[1]))</td></tr>
+<tr><td class="h"><a id="L4582">4582</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($name =~ /\sStreet/ or $name =~ /\sRoad$/)</td></tr>
+<tr><td class="h"><a id="L4591">4591</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 2)</td></tr>
+<tr><td class="h"><a id="L4597">4597</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($is_in_fields[0] =~ /\sRoad$/) { }</td></tr>
-<tr><td class="h"><a id="L4593">4593</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place) { }</td></tr>
-<tr><td class="h"><a id="L4595">4595</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar @place_fields == 1</td></tr>
-<tr><td class="h"><a id="L4601">4601</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $place</td></tr>
-<tr><td class="h"><a id="L4609">4609</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1)</td></tr>
-<tr><td class="h"><a id="L4615">4615</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4618">4618</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place =~ /\sHospital$/ || $place =~ /sAirport$/)</td></tr>
-<tr><td class="h"><a id="L4620">4620</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
-<tr><td class="h"><a id="L4631">4631</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and $is_in_fields[1] eq &quot;GB&quot; and defined $name and scalar @name_fields == 1 and not defined $place)</td></tr>
-<tr><td class="h"><a id="L4638">4638</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 3 and $name ne $is_in_fields[1] and $state = ca_province2code($is_in_fields[2]))</td></tr>
-<tr><td class="h"><a id="L4647">4647</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and scalar @is_in_fields == 3 and $is_in_fields[0] eq &quot;Australia&quot; and $state = au_state2code($is_in_fields[2]) and $state eq $is_in_fields[1])</td></tr>
-<tr><td class="h"><a id="L4655">4655</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 3 and $is_in_fields[2] eq &quot;GB&quot; and defined $place)</td></tr>
-<tr><td class="h"><a id="L4663">4663</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and scalar @is_in_fields == 3 and $is_in_fields[2] eq &quot;GB&quot; and not defined $place)</td></tr>
-<tr><td class="h"><a id="L4670">4670</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1 and scalar @is_in_fields == 2 and $is_in_fields[1] eq &quot;GB&quot; and not $name =~ /\sStreet$/)</td></tr>
-<tr><td class="h"><a id="L4679">4679</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and scalar @is_in_fields == 4 and $is_in_fields[0] eq &quot;GB&quot;)</td></tr>
-<tr><td class="h"><a id="L4684">4684</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] eq &#39;Yorkshire&#39;) { }</td></tr>
-<tr><td class="h"><a id="L4693">4693</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and defined $place and scalar @place_fields == 2 and scalar @is_in_fields == 1)</td></tr>
-<tr><td class="h"><a id="L4694">4694</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in eq &quot;GB&quot;)</td></tr>
-<tr><td class="h"><a id="L4702">4702</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = au_state2code($is_in) and country($file, $state) eq &quot;Australia&quot;)</td></tr>
-<tr><td class="h"><a id="L4703">4703</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in eq $place_fields[1])</td></tr>
-<tr><td class="h"><a id="L4713">4713</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and not defined $place and scalar @is_in_fields == 1 and $state = au_state2code($is_in) and country($file, $state) eq &quot;Australia&quot;)</td></tr>
-<tr><td class="h"><a id="L4721">4721</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and defined $place and scalar @place_fields == 2 and scalar @is_in_fields == 2 and $is_in_fields[0] eq &quot;GB&quot;)</td></tr>
-<tr><td class="h"><a id="L4729">4729</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and defined $place and scalar @place_fields == 1 and scalar @is_in_fields == 2 and $is_in_fields[0] eq &quot;GB&quot;)</td></tr>
-<tr><td class="h"><a id="L4737">4737</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and not defined $place)</td></tr>
-<tr><td class="h"><a id="L4738">4738</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] eq &#39;GB&#39;) { }</td></tr>
+<tr><td class="h"><a id="L4599">4599</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place) { }</td></tr>
+<tr><td class="h"><a id="L4601">4601</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if scalar @place_fields == 1</td></tr>
+<tr><td class="h"><a id="L4607">4607</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $place</td></tr>
+<tr><td class="h"><a id="L4615">4615</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1)</td></tr>
+<tr><td class="h"><a id="L4621">4621</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4624">4624</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $place and $place =~ /\sHospital$/ || $place =~ /sAirport$/)</td></tr>
+<tr><td class="h"><a id="L4626">4626</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($is_in_fields[0] =~ /(.+)\sCounty$/)</td></tr>
+<tr><td class="h"><a id="L4637">4637</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2 and $is_in_fields[1] eq &quot;GB&quot; and defined $name and scalar @name_fields == 1 and not defined $place)</td></tr>
+<tr><td class="h"><a id="L4644">4644</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 3 and $name ne $is_in_fields[1] and $state = ca_province2code($is_in_fields[2]))</td></tr>
+<tr><td class="h"><a id="L4653">4653</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and scalar @is_in_fields == 3 and $is_in_fields[0] eq &quot;Australia&quot; and $state = au_state2code($is_in_fields[2]) and $state eq $is_in_fields[1])</td></tr>
+<tr><td class="h"><a id="L4661">4661</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @is_in_fields == 3 and $is_in_fields[2] eq &quot;GB&quot; and defined $place)</td></tr>
+<tr><td class="h"><a id="L4669">4669</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and scalar @is_in_fields == 3 and $is_in_fields[2] eq &quot;GB&quot; and not defined $place)</td></tr>
+<tr><td class="h"><a id="L4676">4676</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @name_fields == 1 and scalar @is_in_fields == 2 and $is_in_fields[1] eq &quot;GB&quot; and not $name =~ /\sStreet$/)</td></tr>
+<tr><td class="h"><a id="L4685">4685</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and scalar @is_in_fields == 4 and $is_in_fields[0] eq &quot;GB&quot;)</td></tr>
+<tr><td class="h"><a id="L4690">4690</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[1] eq &#39;Yorkshire&#39;) { }</td></tr>
+<tr><td class="h"><a id="L4699">4699</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and defined $place and scalar @place_fields == 2 and scalar @is_in_fields == 1)</td></tr>
+<tr><td class="h"><a id="L4700">4700</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in eq &quot;GB&quot;)</td></tr>
+<tr><td class="h"><a id="L4708">4708</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = au_state2code($is_in) and country($file, $state) eq &quot;Australia&quot;)</td></tr>
+<tr><td class="h"><a id="L4709">4709</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in eq $place_fields[1])</td></tr>
+<tr><td class="h"><a id="L4719">4719</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and not defined $place and scalar @is_in_fields == 1 and $state = au_state2code($is_in) and country($file, $state) eq &quot;Australia&quot;)</td></tr>
+<tr><td class="h"><a id="L4727">4727</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and defined $place and scalar @place_fields == 2 and scalar @is_in_fields == 2 and $is_in_fields[0] eq &quot;GB&quot;)</td></tr>
+<tr><td class="h"><a id="L4735">4735</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and defined $place and scalar @place_fields == 1 and scalar @is_in_fields == 2 and $is_in_fields[0] eq &quot;GB&quot;)</td></tr>
+<tr><td class="h"><a id="L4743">4743</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $name and scalar @name_fields == 1 and not defined $place)</td></tr>
+<tr><td class="h"><a id="L4744">4744</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] eq &#39;GB&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @is_in_fields == 3 and $state = au_state2code($is_in_fields[1])) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @is_in_fields == 2 and $is_in_fields[1] eq &#39;Australia&#39; and $state = au_state2code($is_in_fields[0])) { }</td></tr>
-<tr><td class="h"><a id="L4739">4739</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2)</td></tr>
-<tr><td class="h"><a id="L4747">4747</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 3)</td></tr>
-<tr><td class="h"><a id="L4756">4756</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[2] eq &quot;Australia&quot;)</td></tr>
-<tr><td class="h"><a id="L4765">4765</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] eq &quot;Australia&quot; and defined au_state2code($is_in_fields[2]) and au_state2code($is_in_fields[2]) eq $state)</td></tr>
-<tr><td class="h"><a id="L4782">4782</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and $state = ca_province2code($place_fields[1]))</td></tr>
-<tr><td class="h"><a id="L4806">4806</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $us-&gt;{&#39;state2code&#39;}{$state})</td></tr>
-<tr><td class="h"><a id="L4809">4809</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($us-&gt;{&#39;code2state&#39;}{$state})</td></tr>
-<tr><td class="h"><a id="L4821">4821</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $_[0])</td></tr>
-<tr><td class="h"><a id="L4829">4829</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $ca-&gt;{&#39;province2code&#39;}{$province})</td></tr>
-<tr><td class="h"><a id="L4832">4832</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ca-&gt;{&#39;code2province&#39;}{$province})</td></tr>
-<tr><td class="h"><a id="L4847">4847</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $au-&gt;{&#39;state2code&#39;}{$state})</td></tr>
-<tr><td class="h"><a id="L4850">4850</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($au-&gt;{&#39;code2state&#39;}{$state})</td></tr>
-<tr><td class="h"><a id="L4869">4869</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $file</td></tr>
-<tr><td class="h"><a id="L4872">4872</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
-<tr><td class="h"><a id="L4873">4873</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /australia/</td></tr>
-<tr><td class="h"><a id="L4876">4876</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
-<tr><td class="h"><a id="L4879">4879</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /europe/)</td></tr>
-<tr><td class="h"><a id="L4881">4881</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $valid_states{$state} or $valid_states{uc $state}</td></tr>
+<tr><td class="h"><a id="L4745">4745</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 2)</td></tr>
+<tr><td class="h"><a id="L4753">4753</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @is_in_fields == 3)</td></tr>
+<tr><td class="h"><a id="L4762">4762</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[2] eq &quot;Australia&quot;)</td></tr>
+<tr><td class="h"><a id="L4771">4771</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($is_in_fields[0] eq &quot;Australia&quot; and defined au_state2code($is_in_fields[2]) and au_state2code($is_in_fields[2]) eq $state)</td></tr>
+<tr><td class="h"><a id="L4788">4788</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @place_fields == 2 and $state = ca_province2code($place_fields[1]))</td></tr>
+<tr><td class="h"><a id="L4812">4812</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $us-&gt;{&#39;state2code&#39;}{$state})</td></tr>
+<tr><td class="h"><a id="L4815">4815</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($us-&gt;{&#39;code2state&#39;}{$state})</td></tr>
+<tr><td class="h"><a id="L4827">4827</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $_[0])</td></tr>
+<tr><td class="h"><a id="L4835">4835</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $ca-&gt;{&#39;province2code&#39;}{$province})</td></tr>
+<tr><td class="h"><a id="L4838">4838</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ca-&gt;{&#39;code2province&#39;}{$province})</td></tr>
+<tr><td class="h"><a id="L4853">4853</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $au-&gt;{&#39;state2code&#39;}{$state})</td></tr>
+<tr><td class="h"><a id="L4856">4856</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($au-&gt;{&#39;code2state&#39;}{$state})</td></tr>
+<tr><td class="h"><a id="L4875">4875</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $file</td></tr>
+<tr><td class="h"><a id="L4878">4878</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /north-america/</td></tr>
+<tr><td class="h"><a id="L4879">4879</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $file =~ /australia/</td></tr>
+<tr><td class="h"><a id="L4882">4882</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $state</td></tr>
+<tr><td class="h"><a id="L4885">4885</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($file =~ /europe/)</td></tr>
+<tr><td class="h"><a id="L4887">4887</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $valid_states{$state} or $valid_states{uc $state}</td></tr>
 </table>
 </body>
 </html>
