@@ -1215,9 +1215,11 @@ if($ENV{'REDIS_SERVER'}) {
 	$redis->select(1);
 	$redis->flushdb();
 
-	# So the database is not contantly re-written
-	open(my $fout, '>', $sqlite_file);
-	close($fout);
+	# So the database is not constantly re-written (only when SQLite is configured)
+	if(defined($sqlite_file)) {
+		open(my $fout, '>', $sqlite_file);
+		close($fout);
+	}
 } elsif(my $e = $ENV{'MONGODB_SERVER'}) {
 	# TODO
 	# I'm hoping this will require less RAM than SQLite which just chews
@@ -1230,9 +1232,11 @@ if($ENV{'REDIS_SERVER'}) {
 
 	$mongodb = MongoDB::MongoClient->new(host => $server, port => $port)->get_database($db_name)->get_collection('data');
 
-	# So the database is not contantly re-written
-	open(my $fout, '>', $sqlite_file);
-	close($fout);
+	# So the database is not constantly re-written (only when SQLite is configured)
+	if(defined($sqlite_file)) {
+		open(my $fout, '>', $sqlite_file);
+		close($fout);
+	}
 } elsif($e = $ENV{'MARIADB_SERVER'}) {
 	# MariaDB/MySQL
 	require DBD::MariaDB;
@@ -1253,10 +1257,12 @@ if($ENV{'REDIS_SERVER'}) {
 	$dbh->do('CREATE DATABASE geo_coder_free');
 	$dbh->do('USE geo_coder_free');
 
-	# So the database is not contantly re-written
-	open(my $fout, '>', $sqlite_file);
-	close($fout);
-	truncate $sqlite_file, 0;
+	# So the database is not constantly re-written (only when SQLite is configured)
+	if(defined($sqlite_file)) {
+		open(my $fout, '>', $sqlite_file);
+		close($fout);
+		truncate $sqlite_file, 0;
+	}
 } elsif(defined($db_file)) {
 	# if($berkeley_db = DB_File::HASHINFO->new()) {
 		# $berkeley_db->{'cachesize'} = 64 * 1024 * 1024;
