@@ -35,7 +35,7 @@ jobs:
 
       # Install Perl via perlbrew
       - name: Setup Perl environment
-        uses: shogo82148/actions-setup-perl@v1.42.0
+        uses: shogo82148/actions-setup-perl@v1.43.1
         with:
           perl-version: ${{ matrix.perl }}
           # install cpanminus
@@ -83,7 +83,8 @@ jobs:
               PPI \
               App::Prove \
               File::Copy::Recursive \
-              Test::LectroTest::Compat
+              Test::LectroTest::Compat \
+              Code::CutNPaste
           cpanm -iqn Data::Random::String::Matches Data::Random::Structure Data::Random Data::Random::String
         timeout-minutes: 10
 
@@ -108,7 +109,7 @@ jobs:
             perl Makefile.PL && make install
           else
             echo "Install ATG"
-            cpanm -iqn App::Test::Generator@0.45
+            cpanm -iqn App::Test::Generator@0.46
           fi
 
       - name: Generate dashboard
