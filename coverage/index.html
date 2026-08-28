@@ -42,7 +42,7 @@
 		/* Show cursor points on the headers to show that they are clickable */
 		th { background-color: #f2f2f2; cursor: pointer; }
 		th.sortable {
-			cursor: pointer;
+			cursor: grab;
 			user-select: none;
 			white-space: nowrap;
 		}
@@ -54,6 +54,11 @@
 			color: #000;	/* dark for active */
 			font-weight: bold;
 		}
+		/* Prevent child spans intercepting drag events so enter/leave fire only on the th */
+		th.sortable .label,
+		th.sortable .arrow { pointer-events: none; }
+		th.col-dragging { opacity: 0.4; cursor: grabbing; }
+		th.col-drag-over { outline: 2px dashed #555; background-color: #d8eaff !important; }
 		.sparkline {
 			display: inline-block;
 			vertical-align: middle;
@@ -137,7 +142,7 @@
 	<img src="https://img.shields.io/badge/coverage-72%25-yellow" alt="Coverage badge">
 </div>
 <h1>Geo::Coder::Free</h1><h2>Coverage Report</h2>
-<table data-sort-col="0" data-sort-order="asc">
+<table data-sort-col="0" data-sort-order="asc" data-table-id="coverage">
 <!-- Make the column headers clickable -->
 <thead>
 <tr>
@@ -153,19 +158,19 @@
 
 <tbody>
 
-<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="79.2,79.2,79.2,79.2,79.2,79.2,79.2,79.2,79.2,79.2"></canvas></td><td>84.5</td><td>68.2</td><td>68.6</td><td>96.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">79.2%</span></td><td class="neutral" title="Previous: 79.2%">&#9679; 0.0%</td></tr>
-<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-Config-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Config.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/Config.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="62.6,62.6,62.6,62.6,62.6,62.6,62.6,62.6,62.6,62.6"></canvas></td><td>78.2</td><td>45.5</td><td>29.6</td><td>100.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">62.6%</span></td><td class="neutral" title="Previous: 62.6%">&#9679; 0.0%</td></tr>
-<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/admin.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/DB/MaxMind/admin.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2"></canvas></td><td>85.7</td><td>0.0</td><td>0.0</td><td>80.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.2%</span></td><td class="neutral" title="Previous: 84.2%">&#9679; 0.0%</td></tr>
-<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin1-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/admin1.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/DB/MaxMind/admin1.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0"></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="Previous: 100.0%">&#9679; 0.0%</td></tr>
-<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/admin2.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/DB/MaxMind/admin2.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0"></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="Previous: 100.0%">&#9679; 0.0%</td></tr>
-<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-cities-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/cities.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/DB/MaxMind/cities.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2"></canvas></td><td>85.7</td><td>0.0</td><td>0.0</td><td>80.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.2%</span></td><td class="neutral" title="Previous: 84.2%">&#9679; 0.0%</td></tr>
-<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-OpenAddr-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/OpenAddr.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/DB/OpenAddr.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2"></canvas></td><td>85.7</td><td>0.0</td><td>0.0</td><td>80.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.2%</span></td><td class="neutral" title="Previous: 84.2%">&#9679; 0.0%</td></tr>
-<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-openaddresses-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/openaddresses.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/DB/openaddresses.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0"></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="Previous: 100.0%">&#9679; 0.0%</td></tr>
-<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-Local-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Local.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/Local.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="74.8,74.8,74.8,74.8,74.8,74.8,74.8,74.8,74.8,74.8"></canvas></td><td>82.6</td><td>70.3</td><td>50.5</td><td>100.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">74.8%</span></td><td class="neutral" title="Previous: 74.8%">&#9679; 0.0%</td></tr>
-<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-MaxMind-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/MaxMind.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/MaxMind.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="15.2,15.2,15.2,15.2,15.2,15.2,15.2,15.2,15.2,15.2"></canvas></td><td>21.2</td><td>5.3</td><td>4.1</td><td>85.7</td><td><span class="coverage-badge badge-bad" title="Needs improvement">15.2%</span></td><td class="neutral" title="Previous: 15.2%">&#9679; 0.0%</td></tr>
-<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-OpenAddresses-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/OpenAddresses.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/OpenAddresses.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="16.6,16.6,16.6,16.6,16.6,16.6,16.6,16.6,16.6,16.6"></canvas></td><td>21.1</td><td>7.7</td><td>4.7</td><td>93.8</td><td><span class="coverage-badge badge-bad" title="Needs improvement">16.6%</span></td><td class="neutral" title="Previous: 16.6%">&#9679; 0.0%</td></tr>
-<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-Utils-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Utils.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/lib/Geo/Coder/Free/Utils.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="66.9,66.9,66.9,66.9,66.9,66.9,66.9,66.9,66.9,66.9"></canvas></td><td>70.7</td><td>66.1</td><td>48.0</td><td>76.2</td><td><span class="coverage-badge badge-bad" title="Needs improvement">66.9%</span></td><td class="neutral" title="Previous: 66.9%">&#9679; 0.0%</td></tr>
-<tr class="low"><td><a href="createdatabase.PL.html" title="View coverage line by line" target="_blank">createdatabase.PL</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/639e4f60e9f0bea73a2adf51e77eaabf121f2872/createdatabase.PL" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="5.3,5.3,5.3,5.3,5.3,5.3,5.3,5.3,5.3,5.3"></canvas></td><td>9.0</td><td>0.2</td><td>0.1</td><td>75.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">5.3%</span></td><td class="neutral" title="Previous: 5.3%">&#9679; 0.0%</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="79.2,79.2,79.2,79.2,79.2,79.2,79.2,79.2,79.2,79.2"></canvas></td><td>84.5</td><td>68.2</td><td>68.6</td><td>96.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">79.2%</span></td><td class="neutral" title="Previous: 79.2%">&#9679; 0.0%</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-Config-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Config.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/Config.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="62.6,62.6,62.6,62.6,62.6,62.6,62.6,62.6,62.6,62.6"></canvas></td><td>78.2</td><td>45.5</td><td>29.6</td><td>100.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">62.6%</span></td><td class="neutral" title="Previous: 62.6%">&#9679; 0.0%</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/admin.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/DB/MaxMind/admin.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2"></canvas></td><td>85.7</td><td>0.0</td><td>0.0</td><td>80.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.2%</span></td><td class="neutral" title="Previous: 84.2%">&#9679; 0.0%</td></tr>
+<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin1-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/admin1.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/DB/MaxMind/admin1.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0"></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="Previous: 100.0%">&#9679; 0.0%</td></tr>
+<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-admin2-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/admin2.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/DB/MaxMind/admin2.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0"></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="Previous: 100.0%">&#9679; 0.0%</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-MaxMind-cities-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/MaxMind/cities.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/DB/MaxMind/cities.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2"></canvas></td><td>85.7</td><td>0.0</td><td>0.0</td><td>80.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.2%</span></td><td class="neutral" title="Previous: 84.2%">&#9679; 0.0%</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-DB-OpenAddr-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/OpenAddr.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/DB/OpenAddr.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2,84.2"></canvas></td><td>85.7</td><td>0.0</td><td>0.0</td><td>80.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">84.2%</span></td><td class="neutral" title="Previous: 84.2%">&#9679; 0.0%</td></tr>
+<tr class="high"><td><a href="blib-lib-Geo-Coder-Free-DB-openaddresses-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/DB/openaddresses.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/DB/openaddresses.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0,100.0"></canvas></td><td>100.0</td><td>0.0</td><td>0.0</td><td>100.0</td><td><span class="coverage-badge badge-good" title="Excellent coverage">100.0%</span></td><td class="neutral" title="Previous: 100.0%">&#9679; 0.0%</td></tr>
+<tr class="med"><td><a href="blib-lib-Geo-Coder-Free-Local-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Local.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/Local.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="74.8,74.8,74.8,74.8,74.8,74.8,74.8,74.8,74.8,74.8"></canvas></td><td>82.6</td><td>70.3</td><td>50.5</td><td>100.0</td><td><span class="coverage-badge badge-warn" title="Moderate coverage">74.8%</span></td><td class="neutral" title="Previous: 74.8%">&#9679; 0.0%</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-MaxMind-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/MaxMind.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/MaxMind.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="15.2,15.2,15.2,15.2,15.2,15.2,15.2,15.2,15.2,15.2"></canvas></td><td>21.2</td><td>5.3</td><td>4.1</td><td>85.7</td><td><span class="coverage-badge badge-bad" title="Needs improvement">15.2%</span></td><td class="neutral" title="Previous: 15.2%">&#9679; 0.0%</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-OpenAddresses-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/OpenAddresses.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/OpenAddresses.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="16.6,16.6,16.6,16.6,16.6,16.6,16.6,16.6,16.6,16.6"></canvas></td><td>21.1</td><td>7.7</td><td>4.7</td><td>93.8</td><td><span class="coverage-badge badge-bad" title="Needs improvement">16.6%</span></td><td class="neutral" title="Previous: 16.6%">&#9679; 0.0%</td></tr>
+<tr class="low"><td><a href="blib-lib-Geo-Coder-Free-Utils-pm.html" title="View coverage line by line" target="_blank">lib/Geo/Coder/Free/Utils.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/Utils.pm" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="66.9,66.9,66.9,66.9,66.9,66.9,66.9,66.9,66.9,66.9"></canvas></td><td>70.7</td><td>66.1</td><td>48.0</td><td>76.2</td><td><span class="coverage-badge badge-bad" title="Needs improvement">66.9%</span></td><td class="neutral" title="Previous: 66.9%">&#9679; 0.0%</td></tr>
+<tr class="low"><td><a href="createdatabase.PL.html" title="View coverage line by line" target="_blank">createdatabase.PL</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/createdatabase.PL" class="icon-link" title="View source on GitHub">&#128269;</a><canvas class="sparkline" width="80" height="20" data-points="5.3,5.3,5.3,5.3,5.3,5.3,5.3,5.3,5.3,5.3"></canvas></td><td>9.0</td><td>0.2</td><td>0.1</td><td>75.0</td><td><span class="coverage-badge badge-bad" title="Needs improvement">5.3%</span></td><td class="neutral" title="Previous: 5.3%">&#9679; 0.0%</td></tr>
 <tr class="summary-row nosort"><td colspan="2"><strong>Summary</strong></td><td colspan="2">13 files</td><td colspan="3">Avg: 67%, Low: 5</td></tr>
 <tr class="med nosort"><td><strong>Total</strong></td><td>71.1</td><td>20.2</td><td>15.8</td><td>89.7</td><td colspan="2"><strong>67.2</strong></td></tr>
 </tbody></table>
@@ -214,17 +219,17 @@ function linearRegression(data) {
 }
 
 
-const dataPoints = [ { x: "2026-08-14T11:57:17-04:00", y: 72.328123094987, delta: 0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/6a66d7c593881e4f3abf06c84ad20e0ae49bedcc", label: "2026-08-14T11:57:17-04:00", pointBackgroundColor: "gray", comment: "More vwf security" },
-{ x: "2026-08-14T13:17:45-04:00", y: 72.328123094987, delta: -0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/d9d0e8ec4bcbd1bdd6111a4df4ec85063d331c70", label: "2026-08-14T13:17:45-04:00", pointBackgroundColor: "gray", comment: "More CI" },
-{ x: "2026-08-14T14:31:03-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/b8db593684ad7c8da6c70b4a2cfc322fdc9d631c", label: "2026-08-14T14:31:03-04:00", pointBackgroundColor: "gray", comment: "Change the Tooting entry" },
+const dataPoints = [ { x: "2026-08-14T13:17:45-04:00", y: 72.328123094987, delta: 0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/d9d0e8ec4bcbd1bdd6111a4df4ec85063d331c70", label: "2026-08-14T13:17:45-04:00", pointBackgroundColor: "gray", comment: "More CI" },
+{ x: "2026-08-14T14:31:03-04:00", y: 72.328123094987, delta: -0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/b8db593684ad7c8da6c70b4a2cfc322fdc9d631c", label: "2026-08-14T14:31:03-04:00", pointBackgroundColor: "gray", comment: "Change the Tooting entry" },
 { x: "2026-08-14T16:06:11-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/fd969242585988afe837019fe4378f681fa6f70c", label: "2026-08-14T16:06:11-04:00", pointBackgroundColor: "gray", comment: "More CI fixes" },
 { x: "2026-08-14T16:43:52-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/75de76eab693c40034553a1522a0a540e25c7569", label: "2026-08-14T16:43:52-04:00", pointBackgroundColor: "gray", comment: "More CI" },
-{ x: "2026-08-14T17:08:01-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/653429be27a1eaf8e81deb5f315225b134b639a4", label: "2026-08-14T17:08:01-04:00", pointBackgroundColor: "gray", comment: "CI - bash shell" },
+{ x: "2026-08-14T17:08:01-04:00", y: 72.328123094987, delta: -0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/653429be27a1eaf8e81deb5f315225b134b639a4", label: "2026-08-14T17:08:01-04:00", pointBackgroundColor: "gray", comment: "CI - bash shell" },
 { x: "2026-08-14T18:44:15-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/a383c5742a666477d3062999c2d0302b1350c42d", label: "2026-08-14T18:44:15-04:00", pointBackgroundColor: "gray", comment: "Windows CI" },
 { x: "2026-08-14T19:49:06-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/6d1f6ae894c8d1e067974774de73883b5b47a8ea", label: "2026-08-14T19:49:06-04:00", pointBackgroundColor: "gray", comment: "skip-satisfied" },
 { x: "2026-08-14T20:09:20-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/deb3933c4fb7db8ae6d1d7f61f72887dd6952f81", label: "2026-08-14T20:09:20-04:00", pointBackgroundColor: "gray", comment: "Fix undef issue" },
-{ x: "2026-08-14T20:24:43-04:00", y: 36.1640615474935, delta: -36.2, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/988f8240cc66fb1105e323209fe0409254dafe41", label: "2026-08-14T20:24:43-04:00", pointBackgroundColor: "red", comment: "Release 0.43" },
-{ x: "2026-08-23T01:30:32+00:00", y: 72.328123094987, delta: 36.2, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/639e4f60e9f0bea73a2adf51e77eaabf121f2872", label: "2026-08-23T01:30:32+00:00", pointBackgroundColor: "green", comment: "Merge pull request #67 from nigelhorne/dependabot/github_actions/shogo82148/actions-setup-perl-1.43.1" } ];
+{ x: "2026-08-14T20:24:43-04:00", y: 72.328123094987, delta: 0.0, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/988f8240cc66fb1105e323209fe0409254dafe41", label: "2026-08-14T20:24:43-04:00", pointBackgroundColor: "gray", comment: "Release 0.43" },
+{ x: "2026-08-22T21:04:50-04:00", y: 36.1640615474935, delta: -36.2, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/639e4f60e9f0bea73a2adf51e77eaabf121f2872", label: "2026-08-22T21:04:50-04:00", pointBackgroundColor: "red", comment: "Merge pull request #67 from nigelhorne/dependabot/github_actions/shogo82148/actions-setup-perl-1.43.1" },
+{ x: "2026-08-28T20:47:23+00:00", y: 72.328123094987, delta: 36.2, url: "https://github.com/nigelhorne/Geo-Coder-Free/commit/41d4641440b9fc27cd37684417d144291e9829eb", label: "2026-08-28T20:47:23+00:00", pointBackgroundColor: "green", comment: "Current run" } ];
 const regressionPoints = linearRegression(dataPoints);
 // Try to register the zoom plugin (handles different UMD builds)
 (function registerZoomPlugin(){
@@ -347,7 +352,10 @@ if(resetBtn) {
 	});
 }
 
-function sortTable(th, colIndex) {
+function sortTable(th) {
+	// Always recompute colIndex from DOM so it stays correct after drag-reordering.
+	// The historic onclick="sortTable(this, N)" calls still work; the N is ignored.
+	const colIndex = Array.from(th.parentElement.cells).indexOf(th);
 	const table = th.closest("table");
 	if(!table || !table.tBodies.length) return;
 
@@ -358,21 +366,30 @@ function sortTable(th, colIndex) {
 	const prevOrder = table.getAttribute("data-sort-order") || "desc";
 	const asc = (prevCol != colIndex) ? true : (prevOrder === "desc");
 
-	const isNumeric = colIndex === 0; // Date column
+	const isDate = th.dataset.sortType === 'date';
 
 	const normalRows = rows.filter(r => !r.classList.contains("nosort"));
 	const fixedRows = rows.filter(r => r.classList.contains("nosort"));
 
 	normalRows.sort((a, b) => {
-		let x = a.cells[colIndex]?.innerText.trim() || "";
-		let y = b.cells[colIndex]?.innerText.trim() || "";
+		const cellA = a.cells[colIndex];
+		const cellB = b.cells[colIndex];
+		let x = (cellA?.dataset.value ?? cellA?.innerText ?? "").trim();
+		let y = (cellB?.dataset.value ?? cellB?.innerText ?? "").trim();
 
-		if(isNumeric) {
+		if(isDate) {
 			x = Date.parse(x) || 0;
 			y = Date.parse(y) || 0;
 		} else {
-			x = x.toLowerCase();
-			y = y.toLowerCase();
+			const nx = parseFloat(x);
+			const ny = parseFloat(y);
+			if(!isNaN(nx) && !isNaN(ny)) {
+				x = nx;
+				y = ny;
+			} else {
+				x = x.toLowerCase();
+				y = y.toLowerCase();
+			}
 		}
 
 		if(x < y) return asc ? -1 : 1;
@@ -400,28 +417,235 @@ function sortTable(th, colIndex) {
 
 	table.setAttribute("data-sort-col", colIndex);
 	table.setAttribute("data-sort-order", asc ? "asc" : "desc");
+	saveSortState(table);
 }
 
+// ---------------------------------------------------------
+// Column drag-to-reorder
+// ---------------------------------------------------------
+let _dragSrcTh = null;
+let _initializingTables = false;
+
+// ---------------------------------------------------------
+// localStorage persistence for sort state and column order
+// ---------------------------------------------------------
+function _tableId(table) {
+	return table ? table.dataset.tableId : null;
+}
+
+function saveColOrder(table) {
+	const id = _tableId(table);
+	if(!id) return;
+	const headerRow = table.tHead && table.tHead.rows[0];
+	if(!headerRow) return;
+	const order = Array.from(headerRow.cells).map(th => parseInt(th.dataset.colId, 10));
+	try { localStorage.setItem('atg_col_order_' + id, JSON.stringify(order)); } catch(e) {}
+}
+
+function saveSortState(table) {
+	if(_initializingTables) return;
+	const id = _tableId(table);
+	if(!id) return;
+	const colIdx = parseInt(table.getAttribute('data-sort-col'), 10);
+	const order  = table.getAttribute('data-sort-order') || 'asc';
+	const headerRow = table.tHead && table.tHead.rows[0];
+	if(!headerRow) return;
+	const th = headerRow.cells[colIdx];
+	const colId = th ? parseInt(th.dataset.colId, 10) : colIdx;
+	try { localStorage.setItem('atg_sort_' + id, JSON.stringify({colId, order})); } catch(e) {}
+}
+
+function _restoreColOrder(table, savedOrder) {
+	const headerRow = table.tHead && table.tHead.rows[0];
+	if(!headerRow) return;
+	const placed = new Set();
+	savedOrder.forEach((wantedId, dstPos) => {
+		const srcTh = Array.from(headerRow.cells).find(
+			th => parseInt(th.dataset.colId, 10) === wantedId && !placed.has(th)
+		);
+		if(!srcTh) return;
+		const srcIdx = Array.from(headerRow.cells).indexOf(srcTh);
+		const dstIdx = dstPos < headerRow.cells.length ? dstPos : headerRow.cells.length - 1;
+		if(srcIdx === dstIdx) { placed.add(srcTh); return; }
+		Array.from(table.rows).forEach(row => {
+			if(row.cells.length <= Math.max(srcIdx, dstIdx)) return;
+			const moved = row.cells[srcIdx];
+			const ref = row.cells[dstIdx];
+			if(srcIdx < dstIdx) row.insertBefore(moved, ref ? ref.nextSibling : null);
+			else row.insertBefore(moved, ref);
+		});
+		placed.add(srcTh);
+	});
+}
+
+function _applySort(table, th, order) {
+	// Force the desired direction then call sortTable
+	const colIndex = Array.from(th.parentElement.cells).indexOf(th);
+	// Preset state so sortTable's toggle logic lands on `order`
+	table.setAttribute('data-sort-col', colIndex === 0 ? -1 : 0); // make it differ
+	table.setAttribute('data-sort-order', order === 'asc' ? 'desc' : 'asc');
+	sortTable(th);
+}
+
+function _colDragStart(e) {
+	_dragSrcTh = this;
+	e.dataTransfer.effectAllowed = 'move';
+	e.dataTransfer.setData('text/plain', ''); // required by Firefox
+	this.classList.add('col-dragging');
+}
+
+function _colDragOver(e) {
+	if(!_dragSrcTh || _dragSrcTh === this) return;
+	e.preventDefault();
+	e.dataTransfer.dropEffect = 'move';
+}
+
+function _colDragEnter(e) {
+	if(!_dragSrcTh || _dragSrcTh === this) return;
+	// Clear previous drag-over highlight before setting the new one
+	document.querySelectorAll('th.col-drag-over').forEach(t => t.classList.remove('col-drag-over'));
+	this.classList.add('col-drag-over');
+}
+
+function _colDragLeave(e) {
+	// Only clear when leaving to something truly outside this th
+	if(!this.contains(e.relatedTarget)) {
+		this.classList.remove('col-drag-over');
+	}
+}
+
+function _colDrop(e) {
+	e.preventDefault();
+	e.stopPropagation();
+	if(!_dragSrcTh || _dragSrcTh === this) return false;
+
+	const table = this.closest('table');
+	const srcIdx = Array.from(_dragSrcTh.parentElement.cells).indexOf(_dragSrcTh);
+	const dstIdx = Array.from(this.parentElement.cells).indexOf(this);
+
+	// Move the cell at srcIdx to dstIdx in every row (thead + tbody)
+	Array.from(table.rows).forEach(row => {
+		const cells = row.cells;
+		if(cells.length <= Math.max(srcIdx, dstIdx)) return;
+		const moved = cells[srcIdx];
+		if(srcIdx < dstIdx) {
+			row.insertBefore(moved, cells[dstIdx].nextSibling);
+		} else {
+			row.insertBefore(moved, cells[dstIdx]);
+		}
+	});
+
+	// Update data-sort-col so the next sort-click knows the active column's new position
+	const activeArrow = table.querySelector('thead .arrow.active');
+	if(activeArrow) {
+		const activeTh = activeArrow.closest('th');
+		const newIdx = Array.from(activeTh.parentElement.cells).indexOf(activeTh);
+		table.setAttribute('data-sort-col', newIdx);
+	}
+
+	saveColOrder(table);
+	return false;
+}
+
+function _colDragEnd(e) {
+	this.classList.remove('col-dragging');
+	document.querySelectorAll('th.col-drag-over').forEach(t => t.classList.remove('col-drag-over'));
+	_dragSrcTh = null;
+}
 
 // Initial display.
-// The table has been set up sorted in ascending order on the filename; reflect that in the GUI
+// The coverage table is pre-sorted ascending by filename from Perl; reflect that in the GUI.
+// The mutation and duplication tables are sorted by JS on load so the arrows always match data.
+// Saved column order and sort state are restored from localStorage when present.
 document.addEventListener("DOMContentLoaded", () => {
-	const table = document.querySelector("table");
-	if(!table) return;
+	_initializingTables = true;
 
-	const headers = table.tHead.rows[0].cells;
-	for(let i = 0; i < headers.length; i++) {
-		const arrow = headers[i].querySelector(".arrow");
-		if(!arrow) continue;
+	// Assign original column indices as data-col-id (must be done before any reordering)
+	document.querySelectorAll('table[data-table-id]').forEach(table => {
+		const headerRow = table.tHead && table.tHead.rows[0];
+		if(!headerRow) return;
+		Array.from(headerRow.cells).forEach((th, i) => { th.dataset.colId = i; });
+	});
 
-		if(i === 0) {
-			arrow.textContent = "▲";
-			arrow.classList.add("active");
-		} else {
-			arrow.textContent = "▲";
-			arrow.classList.remove("active");
+	// Restore saved column order, then sort state, for every identified table
+	document.querySelectorAll('table[data-table-id]').forEach(table => {
+		const id = _tableId(table);
+		// --- column order ---
+		let savedOrder = null;
+		try { savedOrder = JSON.parse(localStorage.getItem('atg_col_order_' + id)); } catch(e) {}
+		if(Array.isArray(savedOrder) && savedOrder.length) {
+			_restoreColOrder(table, savedOrder);
+		}
+
+		// --- sort state ---
+		let savedSort = null;
+		try { savedSort = JSON.parse(localStorage.getItem('atg_sort_' + id)); } catch(e) {}
+		if(savedSort && typeof savedSort.colId === 'number') {
+			const headerRow = table.tHead && table.tHead.rows[0];
+			const th = headerRow && Array.from(headerRow.cells).find(
+				c => parseInt(c.dataset.colId, 10) === savedSort.colId
+			);
+			if(th) {
+				_applySort(table, th, savedSort.order || 'asc');
+				return; // done with this table
+			}
+		}
+
+		// No saved sort — apply defaults
+		if(table.classList.contains('mut-table')) {
+			// Score% column (original col 5)
+			const headerRow = table.tHead && table.tHead.rows[0];
+			const th = headerRow && Array.from(headerRow.cells).find(
+				c => parseInt(c.dataset.colId, 10) === 5
+			);
+			if(th) _applySort(table, th, 'asc');
+		} else if(table.classList.contains('dup-table')) {
+			// File column (original col 0)
+			const headerRow = table.tHead && table.tHead.rows[0];
+			const th = headerRow && Array.from(headerRow.cells).find(
+				c => parseInt(c.dataset.colId, 10) === 0
+			);
+			if(th) _applySort(table, th, 'asc');
+		} else if(table.classList.contains('sortable-table') && !table.classList.contains('mut-table') && !table.classList.contains('dup-table')) {
+			// CPAN Testers: sort by Date (original col 0) ascending
+			const headerRow = table.tHead && table.tHead.rows[0];
+			const th = headerRow && Array.from(headerRow.cells).find(
+				c => parseInt(c.dataset.colId, 10) === 0
+			);
+			if(th) _applySort(table, th, 'asc');
+		}
+	});
+
+	// Coverage table: pre-sorted ascending by File (col 0) from Perl — just update arrows
+	const covTable = document.querySelector("table[data-table-id='coverage']");
+	if(covTable && covTable.tHead) {
+		const id = _tableId(covTable);
+		let savedSort = null;
+		try { savedSort = JSON.parse(localStorage.getItem('atg_sort_' + id)); } catch(e) {}
+		if(!savedSort) {
+			const headers = covTable.tHead.rows[0].cells;
+			for(let i = 0; i < headers.length; i++) {
+				const arrow = headers[i].querySelector(".arrow");
+				if(!arrow) continue;
+				arrow.textContent = "▲";
+				arrow.classList.toggle("active", i === 0);
+			}
 		}
 	}
+
+	_initializingTables = false;
+
+	// Wire up drag-to-reorder on every sortable column header
+	document.querySelectorAll('th.sortable').forEach(th => {
+		th.setAttribute('draggable', 'true');
+		th.title = (th.title ? th.title + ' · ' : '') + 'Drag to reorder columns';
+		th.addEventListener('dragstart',  _colDragStart);
+		th.addEventListener('dragover',   _colDragOver);
+		th.addEventListener('dragenter',  _colDragEnter);
+		th.addEventListener('dragleave',  _colDragLeave);
+		th.addEventListener('drop',       _colDrop);
+		th.addEventListener('dragend',    _colDragEnd);
+	});
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -513,10 +737,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	update();
 });
-document.addEventListener("DOMContentLoaded", () => {
-	const th = document.querySelector("table.sortable-table th");
-	if(th) sortTable(th, 0);
-});
 </script>
 
 
@@ -544,10 +764,10 @@ document.addEventListener("DOMContentLoaded", () => {
 	</label>
 </div>
 
-<table class="sortable-table" data-sort-col="0" data-sort-order="asc">
+<table class="sortable-table" data-sort-col="0" data-sort-order="asc" data-table-id="cpan">
 <thead>
 <tr>
-	<th class="sortable" onclick="sortTable(this, 0)">
+	<th class="sortable" onclick="sortTable(this, 0)" data-sort-type="date">
 		<span class="label">Date</span> <span class="arrow">&#x25B2;</span>
 	</th>
 	<th class="sortable" onclick="sortTable(this, 1)">
@@ -581,14 +801,46 @@ document.addEventListener("DOMContentLoaded", () => {
 <li><b>Survived</b>: 
 0
 </li>
+<li><b>Duplication</b>: 2 duplicate block(s) across 2 file(s) (see Dup% column)</li>
 </ul>
 <h3>Mutation Files</h3>
 
-<table border='1' cellpadding='5'>
+<table border='1' cellpadding='5' class="sortable-table mut-table" data-sort-col="5" data-sort-order="asc" data-table-id="mut">
 
-<tr><th>File</th><th>Total</th><th>Killed</th><th>Survivors</th><th>Skipped</th><th>Score%</th><th>Complexity</th><th title="TER1=Statement, TER2=Branch, TER3=LCSAJ Path">TER1 / TER2 / TER3</th></tr>
+<thead>
+<tr>
+<th class="sortable" onclick="sortTable(this, 0)"><span class="label">File</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 1)"><span class="label">Total</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 2)"><span class="label">Killed</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 3)"><span class="label">Survivors</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 4)"><span class="label">Skipped</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 5)"><span class="label">Score%</span> <span class="arrow active">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 6)"><span class="label">Complexity</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 7)" title="TER1=Statement, TER2=Branch, TER3=LCSAJ Path"><span class="label">TER1 / TER2 / TER3</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 8)"><span class="label">Dup%</span> <span class="arrow">&#x25B2;</span></th>
+</tr>
+</thead>
+<tbody>
 
-</table>
+</tbody></table>
+
+<h2>Duplication Report</h2>
+<p><em>Only duplicate blocks of 10 or more consecutive lines are shown. Each pair is listed once. Intra-file duplicates are labelled <b>(same file)</b>.</em></p>
+
+<table border='1' cellpadding='5' class="sortable-table dup-table" data-sort-col="0" data-sort-order="asc" data-table-id="dup">
+
+<thead>
+<tr>
+<th class="sortable" onclick="sortTable(this, 0)"><span class="label">File</span> <span class="arrow active">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 1)"><span class="label">Lines (10+ consecutive)</span> <span class="arrow">&#x25B2;</span></th>
+<th class="sortable" onclick="sortTable(this, 2)"><span class="label">Duplicated in</span> <span class="arrow">&#x25B2;</span></th>
+</tr>
+</thead>
+<tbody>
+
+<tr><td><a href="cpd_html/lib/Geo/Coder/Free.pm.html" title="View duplicate lines highlighted" target="_blank">lib/Geo/Coder/Free.pm</a> <a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free.pm" class="icon-link" title="View source on GitHub" target="_blank">&#128269;</a></td><td data-value="208"><span title="Carp::carp(_i18n('use_arrow_new', __PACKAGE__));">lines 208&ndash;217</span></td><td><a href="cpd_html/lib/Geo/Coder/Free/Local.pm.html" title="View highlighted in CPD report" target="_blank">lib/Geo/Coder/Free/Local.pm line 684</a></td></tr>
+
+</tbody></table>
 
 <h2>Structural Coverage (Approximate)</h2>
 <div class='summary'>
@@ -602,8 +854,8 @@ Tests execute 53.10% of the code. No mutation data available yet — trigger the
 </div>
 <footer>
 	<p>Project: <a href="https://github.com/nigelhorne/Geo-Coder-Free">Geo-Coder-Free</a></p>
-	<p><em>Last updated: 2026-08-23 01:29:57 - <a href="https://github.com/nigelhorne/Geo-Coder-Free/commit/639e4f60e9f0bea73a2adf51e77eaabf121f2872">commit <code>639e4f6</code></a></em></p>
-	<p style="float: right; font-size: 0.85em; color: #999;">Powered by <a href="https://metacpan.org/dist/App-Test-Generator">App::Test::Generator 0.45</a></p>
+	<p><em>Last updated: 2026-08-28 20:46:06 - <a href="https://github.com/nigelhorne/Geo-Coder-Free/commit/41d4641440b9fc27cd37684417d144291e9829eb">commit <code>41d4641</code></a></em></p>
+	<p style="float: right; font-size: 0.85em; color: #999;">Powered by <a href="https://metacpan.org/dist/App-Test-Generator">App::Test::Generator 0.46</a></p>
 </footer>
 </body>
 </html>

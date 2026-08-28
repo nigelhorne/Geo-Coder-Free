@@ -1,0 +1,1287 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CPD: lib/Geo/Coder/Free/Local.pm</title>
+<style>
+
+/* --------------------------------------------------
+   CSS Variables (Light Mode Default)
+-------------------------------------------------- */
+
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --table-header: #333;
+    --table-header-text: #ffffff;
+
+    --survived-1: #f8d7da;
+    --survived-2: #f5b7b1;
+    --survived-3: #ec7063;
+
+    --killed: #d4edda;
+    --border: #cccccc;
+}
+
+/* --------------------------------------------------
+   Dark Mode Overrides
+-------------------------------------------------- */
+
+html[data-theme='dark'] {
+    --bg: #1e1e1e;
+    --text: #dddddd;
+    --table-header: #222;
+    --table-header-text: #ffffff;
+
+    --survived-1: #5c2b2e;
+    --survived-2: #7b2c2f;
+    --survived-3: #a93226;
+
+    --killed: #1e4620;
+    --border: #555;
+}
+
+/* --------------------------------------------------
+   Global Styles
+-------------------------------------------------- */
+
+body {
+	font-family: sans-serif;
+	background: var(--bg);
+	color: var(--text);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    background: var(--table-header);
+    color: var(--table-header-text);
+}
+
+.survived-1 { background-color: var(--survived-1); }
+.survived-2 { background-color: var(--survived-2); }
+.survived-3 { background-color: var(--survived-3); }
+
+.killed { background-color: var(--killed); }
+
+.legend {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+}
+
+.legend pre {
+    background: #f4f4f4;
+    padding: 5px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0 6px 0 20px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+}
+
+/* White box for non-mutated lines */
+.legend-box.none {
+	background-color: var(--bg);
+}
+
+/* --------------------------------------------------
+   Suggested Test Box Styling
+   Theme-aware and readable in light & dark modes
+-------------------------------------------------- */
+
+.suggested-test {
+    margin-top: 6px;
+    margin-bottom: 12px;
+
+    /* Use theme variables instead of hardcoded colors */
+    background: var(--bg);
+    color: var(--text);
+
+    padding: 8px;
+    border-radius: 4px;
+
+    /* Subtle border for visual separation */
+    border: 1px solid var(--border);
+}
+
+/* Label styling */
+.suggest-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* Ensure the test code block inherits readable colors */
+.suggested-test pre {
+    background: transparent;   /* Prevent nested dark blocks */
+    color: inherit;            /* Match theme text color */
+    margin: 0;
+    font-family: monospace;
+}
+
+pre { line-height: 1.4; }
+
+pre > details {
+    margin: 0.2em 0;
+}
+
+pre > details:first-child {
+    margin-top: 0;
+}
+
+pre > details:last-child {
+    margin-bottom: 0;
+}
+
+pre details,
+pre summary,
+pre ul,
+pre li {
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.nav { margin-bottom: 1em; }
+
+.toggle {
+    float: right;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	cursor: help;
+}
+
+/* Tooltip bubble */
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: var(--table-header);
+    color: var(--table-header-text);
+    padding: 6px 10px;
+    white-space: normal;
+    max-width: 300px;
+    min-width: 30ch;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    margin-left: 10ch;   /* move tooltip ~10 characters to the right */
+}
+
+.mutant-details {
+	margin-left: 2em;
+	font-size: 0.9em;
+}
+
+/* Indent the list of mutations that displays when expanding by 8 characters */
+pre details.mutant-details ul {
+	padding-left: 8ch;
+	margin: 0.2em 0;
+}
+
+.mutant-details summary {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.lcsaj-dot {
+    color: #5555ff;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-dot-uncovered {
+    color: #cc4444;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-tip {
+	position: relative;
+	display: inline-block;
+}
+
+.lcsaj-tip .lcsaj-tip-text {
+	visibility: hidden;
+	background-color: #333;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	white-space: nowrap;
+	position: fixed;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.lcsaj-tip:hover .lcsaj-tip-text {
+	visibility: visible;
+}
+
+.cpd-dot {
+    color: #cc8800;
+    font-size: 10px;
+    margin-right: 3px;
+    cursor: help;
+    text-decoration: none;
+}
+a.cpd-dot { cursor: pointer; }
+a.cpd-dot:hover { color: #ff8800; }
+
+.cpd-tip {
+    position: relative;
+    display: inline-block;
+}
+
+.cpd-tip .cpd-tip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cpd-tip:hover .cpd-tip-text {
+    visibility: visible;
+}
+
+/* CPD drill-down page styles */
+.dup-line { background-color: #fff3cd; display: block; }
+.dup-line:hover { background-color: #ffe082; }
+.intra-dot { color: #9944cc; margin-right: 4px; cursor: help; text-decoration: none; }
+a.intra-dot { cursor: pointer; }
+a.intra-dot:hover { color: #7700bb; }
+.cpd-legend {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    font-size: 0.9em;
+}
+
+</style>
+</head>
+<body>
+<button class="toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+<div class="nav">&larr; <a href="../Free.pm.html">lib/Geo/Coder/Free.pm</a> &nbsp; <a href="../../../../../index.html">&uarr; Dashboard</a> &nbsp; &nbsp;
+<a href="https://github.com/nigelhorne/Geo-Coder-Free/blob/41d4641440b9fc27cd37684417d144291e9829eb/lib/Geo/Coder/Free/Local.pm" target="_blank">View on GitHub &#128269;</a></div>
+<h1>lib/Geo/Coder/Free/Local.pm &mdash; Duplicate Code Regions</h1>
+<div class="legend cpd-legend">
+  <span class="cpd-dot">&#9670;</span> Amber lines duplicate code in another file &mdash; hover for location.<br>
+  <span class="intra-dot">&#9670;</span> Purple: duplicate of another region within this same file.
+</div>
+<pre>
+    1: package Geo::Coder::Free::Local;
+    2: 
+    3: use strict;
+    4: use warnings;
+    5: use autodie qw(:all);
+    6: 
+    7: use Carp;
+    8: use Geo::Location::Point 0.14;
+    9: use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
+   10: use Geo::StreetAddress::US;
+   11: use Lingua::EN::AddressParse;
+   12: use Locale::CA;
+   13: use Locale::US;
+   14: use Object::Configure;
+   15: use Params::Get;
+   16: use Readonly;
+   17: use Text::xSV::Slurp;
+   18: 
+   19: =encoding utf-8
+   20: 
+   21: =head1 NAME
+   22: 
+   23: Geo::Coder::Free::Local - Geocode using user-curated local data
+   24: 
+   25: =head1 VERSION
+   26: 
+   27: Version 0.42
+   28: 
+   29: =cut
+   30: 
+   31: our $VERSION = '0.43';
+   32: 
+   33: =head1 SYNOPSIS
+   34: 
+   35:     use Geo::Coder::Free::Local;
+   36: 
+   37:     my $geocoder = Geo::Coder::Free::Local-&gt;new();
+   38:     my $location = $geocoder-&gt;geocode(location =&gt; 'Ramsgate, Kent, UK');
+   39:     printf "lat=%.6f lon=%.6f\n", $location-&gt;lat(), $location-&gt;long();
+   40: 
+   41: =head1 DESCRIPTION
+   42: 
+   43: Provides geocoding via a user-curated CSV dataset embedded in the module's
+   44: C&lt;__DATA__&gt; section.  Locations in the data were verified by GPS and by
+   45: inspecting geotagged photographs.  The data is read once at construction time
+   46: and indexed for fast lookup.
+   47: 
+   48: This is the highest-priority backend tried by C&lt;Geo::Coder::Free&gt;.
+   49: 
+   50: =head1 LIMITATIONS
+   51: 
+   52: =over 4
+   53: 
+   54: =item * The embedded C&lt;__DATA__&gt; dataset covers only a small set of hand-picked locations.
+   55: There is no mechanism for non-authors to contribute data without patching the module.
+   56: 
+   57: =item * Canadian and Australian address parsing is not yet implemented; those queries return C&lt;undef&gt;.
+   58: 
+   59: =item * C&lt;_search&gt; performs an O(n) linear scan through all rows.  The hash-based
+   60: index in C&lt;new()&gt; handles exact string matches; no index exists for partial field matches.
+   61: 
+   62: =item * C&lt;our %alternatives&gt; duplicates mappings in C&lt;Geo::Coder::Free::__DATA__&gt;.
+   63: Both should be consolidated into a shared external config file.
+   64: 
+   65: =item * C&lt;$libpostal_is_installed&gt; is a module-level (effectively global) flag.
+   66: Not thread-safe in a forking or threaded Perl deployment.
+   67: 
+   68: =item * The C&lt;__DATA__&gt; filehandle is a one-shot resource.  The first call to
+   69: C&lt;new()&gt; exhausts it with C&lt;my @data = E&lt;lt&gt;DATAE&lt;gt&gt;&gt;; every subsequent
+   70: C&lt;new()&gt; in the same process reads zero rows and builds an empty index.
+   71: Construct exactly one C&lt;Local&gt; object per process and share it.
+   72: 
+   73: =item * The hash-index key is C&lt;lc(Geo::Location::Point-E&lt;gt&gt;new($row)-E&lt;gt&gt;as_string())&gt;,
+   74: which B&lt;includes the C&lt;name&gt; field&gt;.  To get a direct index hit the caller must
+   75: supply the full string with the venue/place name as the leading component;
+   76: an address that omits the name falls through to the slower O(n) C&lt;_search&gt; path.
+   77: 
+   78: =back
+   79: 
+   80: =cut
+   81: 
+   82: # Libpostal detection states — avoid magic numbers
+   83: use constant LIBPOSTAL_UNKNOWN       =&gt; 0;
+   84: use constant LIBPOSTAL_INSTALLED     =&gt; 1;
+   85: use constant LIBPOSTAL_NOT_INSTALLED =&gt; -1;
+   86: 
+   87: # Module-level singleton flags — see LIMITATIONS re: thread safety.
+   88: our $libpostal_is_installed = LIBPOSTAL_UNKNOWN;
+   89: 
+   90: # Lazily initialised Locale singletons to avoid repeated object construction
+   91: # (Locale::US-&gt;new() and Locale::CA-&gt;new() are called multiple times per geocode;
+   92: # caching them reduces object churn on busy lookups).
+   93: my $_locale_us;
+   94: my $_locale_ca;
+   95: 
+   96: # Confidence thresholds for _search results, aligned with OpenAddresses backend
+   97: Readonly::Scalar my $CONF_EXACT  =&gt; 1.0;
+   98: Readonly::Scalar my $CONF_HIGH   =&gt; 0.7;
+   99: Readonly::Scalar my $CONF_MEDIUM =&gt; 0.5;
+  100: 
+  101: # Hard-coded place-name aliases for ambiguous or database-inconsistent locations.
+  102: # MAINTENANCE NOTE: the same mappings appear in Geo::Coder::Free::__DATA__.
+  103: # Both should eventually be replaced by a shared external config file.
+  104: our %alternatives = (
+  105: 	'ST LAWRENCE, THANET, KENT' =&gt; 'RAMSGATE, KENT',
+  106: 	'ST PETERS, THANET, KENT'   =&gt; 'ST PETERS, KENT',
+  107: 	'MINSTER, THANET, KENT'     =&gt; 'RAMSGATE, KENT',
+  108: 	'TYNE AND WEAR'             =&gt; 'BOROUGH OF NORTH TYNESIDE',
+  109: );
+  110: 
+  111: =head1 METHODS
+  112: 
+  113: =head2 new
+  114: 
+  115: =head3 SYNOPSIS
+  116: 
+  117:     my $geocoder = Geo::Coder::Free::Local-&gt;new();
+  118:     my $geocoder = Geo::Coder::Free::Local-&gt;new(cache =&gt; $chi_cache);
+  119: 
+  120: =head3 DESCRIPTION
+  121: 
+  122: Constructor.  Reads the C&lt;__DATA__&gt; CSV block, builds a hash-based lookup
+  123: index, and derives the geographic centre of any city/state/country cluster
+  124: containing three or more data points.
+  125: 
+  126: B&lt;One-shot filehandle&gt;: the C&lt;DATA&gt; handle is consumed on the first call to
+  127: C&lt;new()&gt;.  Any subsequent call to C&lt;new()&gt; returns an object whose dataset and
+  128: index are both empty.  In code that constructs multiple C&lt;Local&gt; objects (e.g.
+  129: in tests) construct B&lt;exactly one&gt; instance and reuse it across all callers.
+  130: 
+  131: =head3 API SPECIFICATION
+  132: 
+  133: =head4 input
+  134: 
+  135:     # Input schema (Params::Validate::Strict)
+  136:     cache =&gt; { type =&gt; 'object', optional =&gt; 1, can =&gt; ['get', 'set'] }  # CHI-compatible cache object
+  137: 
+  138: =head4 output
+  139: 
+  140:     # Output schema (Return::Set)
+  141:     { type =&gt; 'object', isa =&gt; 'Geo::Coder::Free::Local' }
+  142: 
+  143: =head3 FORMAL SPECIFICATION
+  144: 
+  145:     LocalState ::= ⟨⟨ data  : seq Row;
+  146:                        index : Map[STRING → Row];
+  147:                        cache : Map[STRING → Point] ⟩⟩
+  148: 
+  149:     Init : Params → LocalState
+  150:     ∀ p : Params •
+  151:       let rows    == parse_csv(__DATA__) ∪ geographic_centres(__DATA__) •
+  152:       let idx_key == λ r • lc(Point(r).as_string()) •
+  153:       LocalState.index = { idx_key(r) ↦ r | r ∈ rows }
+  154: 
+  155: =cut
+  156: 
+  157: sub new {
+  158: 	my $class = shift;
+  159: 	my $params = Params::Get::get_params(undef, @_) // {};
+  160: 
+  161: 	if (!defined($class)) {
+  162: 		$class = __PACKAGE__;	# FIXME: only works when no arguments are given
+  163: 	} elsif (ref($class)) {
+  164: 		return bless { %{$class}, %{$params} }, ref($class);
+  165: 	}
+  166: 
+  167: 	$params = Object::Configure::configure($class, $params);
+  168: 
+  169: 	my @data = &lt;DATA&gt;;
+  170: 
+  171: 	my $self = bless {
+  172: 		data =&gt; xsv_slurp(
+  173: 			shape    =&gt; 'aoh',
+  174: 			text_csv =&gt; {
+  175: 				allow_loose_quotes =&gt; 1,
+  176: 				blank_is_undef     =&gt; 1,
+  177: 				empty_is_undef     =&gt; 1,
+  178: 				binary             =&gt; 1,
+  179: 				escape_char        =&gt; '\\',
+  180: 			},
+  181: 			string =&gt; \join('', grep { !/^\s*(#|$)/ } @data),
+  182: 		),
+  183: 		%{$params},
+  184: 	}, $class;
+  185: 
+  186: 	# Derive geographic centres from clusters of 3+ co-located data points,
+  187: 	# adding implicit town/city records to the dataset.
+  188: 	my $towns = _find_geographic_centres($self-&gt;{'data'});
+  189: 	push @{$self-&gt;{'data'}}, @{$towns} if $towns;
+  190: 
+  191: 	# Build a hash index on the stringified Geo::Location::Point representation
+  192: 	# so that exact-match lookups avoid the O(n) scan in _search.
+  193: 	for my $row (@{$self-&gt;{'data'}}) {
+  194: 		my $key = lc(Geo::Location::Point-&gt;new($row)-&gt;as_string());
+  195: 		$self-&gt;{'index'}{$key} = $row;
+  196: 	}
+  197: 
+  198: 	# Build an O(1) region existence index used by geocode() to skip the O(n)
+  199: 	# grep before _search when no rows for the requested state/country exist.
+  200: 	# Major: every (state|country) pair in the dataset is represented here.
+  201: 	# Minor: if geocode's target pair is absent, _search can never match.
+  202: 	# Conclusion: early return is safe — eliminates the O(n) grep per call.
+  203: 	for my $row (@{$self-&gt;{'data'}}) {
+  204: 		my $rk = uc($row-&gt;{'state'} // '') . '|' . uc($row-&gt;{'country'} // '');
+  205: 		$self-&gt;{'region_index'}{$rk} = 1;
+  206: 	}
+  207: 
+  208: 	return $self;
+  209: }
+  210: 
+  211: =head2 geocode
+  212: 
+  213: =head3 SYNOPSIS
+  214: 
+  215:     my $pt = $geocoder-&gt;geocode(location =&gt; '203 E Chatsworth Rd, Reisterstown, Baltimore, MD, US');
+  216:     print $pt-&gt;lat(), "\n";
+  217: 
+  218:     # All calling forms are accepted:
+  219:     $geocoder-&gt;geocode('203 E Chatsworth Rd, Reisterstown, MD, US');
+  220:     $geocoder-&gt;geocode({ location =&gt; '203 E Chatsworth Rd, Reisterstown, MD, US' });
+  221: 
+  222: =head3 API SPECIFICATION
+  223: 
+  224: =head4 input
+  225: 
+  226:     # Input schema (Params::Validate::Strict)
+  227:     location =&gt; { type =&gt; 'scalar' }  # address string; must contain at least two commas
+  228: 
+  229: =head4 output
+  230: 
+  231:     # Output schema (Return::Set)
+  232:     { type =&gt; 'object', isa =&gt; 'Geo::Location::Point', optional =&gt; 1 }
+  233: 
+  234: =head3 MESSAGES
+  235: 
+  236:     Usage: ...::geocode(...)   No location argument given.
+  237: 
+  238: =head3 FORMAL SPECIFICATION
+  239: 
+  240:     Geocode : STRING → Point?
+  241:     ∀ addr : STRING •
+  242:       let norm == lc(replace_usa(addr)) •
+  243:       (norm ∈ cache ⟹ result = cache[norm]) ∧
+  244:       (norm ∈ index ⟹ result = index[norm]) ∧
+  245:       (¬ result ⟹ result = parse_and_search(addr))
+  246: 
+  247: =head3 PSEUDOCODE
+  248: 
+  249:     normalise @_ into %params
+  250:     reject if location does not contain two or more commas (not a full address)
+  251:     check cache; return hit
+  252:     check hash index; return hit and cache it
+  253:     # index key includes the 'name' field; supply the venue/place name as the
+  254:     # leading address component to guarantee an index hit
+  255:     attempt country-specific parser (US, GB; skip CA/AU pending implementation)
+  256:     attempt Geo::StreetAddress::US for "..., USA" addresses
+  257:     attempt Geo::Address::Parser
+  258:     attempt Geo::libpostal (large memory footprint; loaded lazily)
+  259:     attempt 4-part regex decomposition (name/road/city/state/country)
+  260:     attempt %alternatives mapping
+  261:     return undef
+  262: 
+  263: =cut
+  264: 
+  265: sub geocode {
+  266: 	my $self = shift;
+  267: 
+  268: 	# Handle being called as a function rather than a method
+  269: 	if (!ref($self)) {
+  270: 		if (scalar @_) {
+  271: 			return __PACKAGE__-&gt;new()-&gt;geocode(@_);
+  272: 		} elsif (!defined($self)) {
+  273: 			Carp::croak('Usage: ', __PACKAGE__, '::geocode(location =&gt; $location)');
+  274: 		} elsif ($self eq __PACKAGE__) {
+  275: 			Carp::croak("Usage: $self", '::geocode(location =&gt; $location)');
+  276: 		}
+  277: 		return __PACKAGE__-&gt;new()-&gt;geocode($self);
+  278: 	} elsif (ref($self) eq 'HASH') {
+  279: 		return __PACKAGE__-&gt;new()-&gt;geocode($self);
+  280: 	}
+  281: 
+  282: 	my %params = _normalize_args(
+  283: 		'Usage: ' . __PACKAGE__ . '::geocode(location =&gt; $location)',
+  284: 		'location', @_
+  285: 	);
+  286: 
+  287: 	my $location = $params{'location'}
+  288: 		or Carp::croak('Usage: geocode(location =&gt; $location)');
+  289: 
+  290: 	# This backend only handles full addresses (at least "road, city, country")
+  291: 	return if $location !~ /,.+,/;
+  292: 
+  293: 	# Normalise the lookup key — "USA" is treated the same as "US"
+  294: 	my $lc = lc($location);
+  295: 	$lc =~ s/,\s*usa$/, us/i;
+  296: 
+  297: 	return $self-&gt;{'cache'}{$lc}  if exists $self-&gt;{'cache'}{$lc};
+  298: 	return $self-&gt;_cache_and_return($lc, $self-&gt;{'index'}{$lc})
+  299: 		if exists $self-&gt;{'index'}{$lc};
+  300: 
+  301: 	my $ap;
+  302: 	if ($location =~ /USA?$/ || $location =~ /United States$/) {
+  303: 		$ap = $self-&gt;{'ap'}{'us'} //= Lingua::EN::AddressParse-&gt;new(
+  304: 			country =&gt; 'US', auto_clean =&gt; 1, force_case =&gt; 1, force_post_code =&gt; 0
+  305: 		);
+  306: 	} elsif ($location =~ /(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) {
+  307: 		$ap = $self-&gt;{'ap'}{'gb'} //= Lingua::EN::AddressParse-&gt;new(
+  308: 			country =&gt; 'GB', auto_clean =&gt; 1, force_case =&gt; 1, force_post_code =&gt; 0
+  309: 		);
+  310: 	} elsif ($location =~ /Canada$/) {
+  311: 		# TODO: Canadian address parsing not yet implemented
+  312: 		return;
+  313: 	} elsif ($location =~ /Australia$/) {
+  314: 		# TODO: Australian address parsing not yet implemented
+  315: 		return;
+  316: 	}
+  317: 
+  318: 	if ($ap) {
+  319: 		my $l = $location;
+  320: 		$l =~ s/(.+), (England|UK)$/$1, GB/i;
+  321: 
+  322: 		if ($ap-&gt;parse($l) == 0) {
+  323: 			my %c = $ap-&gt;components();
+  324: 			my %addr = (location =&gt; $l);
+  325: 
+  326: 			if (my $street = $c{'street_name'}) {
+  327: 				if (my $type = $c{'street_type'}) {
+  328: 					my $abbrev = _abbreviate($type);
+  329: 					$street .= ' ' . ($abbrev || $type);
+  330: 					$street .= ' ' . $c{'street_direction_suffix'}
+  331: 						if $c{'street_direction_suffix'};
+  332: 					$street =~ s/^0+//;
+  333: 					$addr{'road'} = $street;
+  334: 				}
+  335: 			}
+  336: 
+  337: 			if (length($c{'subcountry'}) == 2) {
+  338: 				$addr{'state'} = $c{'subcountry'};
+  339: 			} else {
+  340: 				my $country_raw = $c{'country'} // '';
+  341: 				if ($country_raw =~ /Canada/i) {
+  342: 					$addr{'country'} = 'CA';
+  343: 					$addr{'state'}   = _to_two_letter_state('Canada', $c{'subcountry'});
+  344: 				} elsif ($country_raw =~ /^(United States|USA|US)$/i) {
+  345: 					$addr{'country'} = 'US';
+  346: 					$addr{'state'}   = _to_two_letter_state('US', $c{'subcountry'});
+  347: 				} elsif ($country_raw) {
+  348: 					$addr{'country'} = $country_raw;
+  349: 					$addr{'state'}   = $c{'subcountry'} if $c{'subcountry'};
+  350: 				}
+  351: 			}
+  352: 			$addr{'number'} = $c{'property_identifier'};
+  353: 			$addr{'city'}   = $c{'suburb'};
+  354: 
+  355: 			if (my $rc = $self-&gt;_search(\%addr, qw(number road city state country))) {
+  356: 				return $self-&gt;_cache_and_return($lc, $rc);
+  357: 			}
+  358: 			if ($addr{'number'}) {
+  359: 				if (my $rc = $self-&gt;_search(\%addr, qw(road city state country))) {
+  360: 					return $self-&gt;_cache_and_return($lc, $rc);
+  361: 				}
+  362: 			}
+  363: 
+  364: 			# Abort early if no data at all matches this state/country —
+  365: 			# saves traversing the full dataset for every remaining strategy.
+  366: 			if (!defined($addr{'country'})) {
+  367: 				$addr{'country'} = $l =~ /(United States|USA|US)$/i ? 'US'
+  368: 					: Carp::croak("TODO: extract country from $l");
+  369: 			}
+  370: 			# O(1) region check via index built in new() — replaces the former
+  371: 			# O(n) grep across all rows.
+  372: 			# Major: region_index maps every (state|country) pair in the dataset.
+  373: 			# Minor: if target pair is absent, no _search call can match.
+  374: 			# Conclusion: early return is equivalent and faster.
+  375: 			my $rk = uc($addr{'state'} // '') . '|' . uc($addr{'country'} // '');
+  376: 			return unless $self-&gt;{'region_index'}{$rk};
+  377: 		}
+  378: 	}
+  379: 
+  380: 	if ($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+  381: 		my $l = $1;
+  382: 		$l =~ tr/,/ /;
+  383: 		$l =~ s/\s{2,}/ /g;
+  384: 
+  385: 		# Geo::StreetAddress::US is buggy (RT#122617) — skip county-style addresses
+  386: 		if ($location !~ /\sCounty,/i) {
+  387: 			my $href = Geo::StreetAddress::US-&gt;parse_location($l)
+  388: 			        // Geo::StreetAddress::US-&gt;parse_address($l);
+  389: 
+  390: 			if ($href) {
+  391: 				if (my $state = $href-&gt;{'state'}) {
+  392: 					$state = _to_two_letter_state('US', $state) if length($state) &gt; 2;
+  393: 					my $city   = uc($href-&gt;{'city'} // '');
+  394: 					if (my $street = $href-&gt;{'street'}) {
+  395: 						if ($href-&gt;{'type'}) {
+  396: 							$street .= ' ' . _abbreviate($href-&gt;{'type'});
+  397: 						}
+  398: 						$street .= ' ' . $href-&gt;{'suffix'}  if $href-&gt;{'suffix'};
+  399: 						$street  = $href-&gt;{'prefix'} . " $street" if $href-&gt;{'prefix'};
+  400: 						my %addr = (
+  401: 							number  =&gt; $href-&gt;{'number'},
+  402: 							road    =&gt; $street,
+  403: 							city    =&gt; $city,
+  404: 							state   =&gt; $state,
+  405: 							country =&gt; 'US',
+  406: 						);
+  407: 						if ($href-&gt;{'number'}) {
+  408: 							if (my $rc = $self-&gt;_search(\%addr, qw(number road city state country))) {
+  409: 								$rc-&gt;{'country'} = 'US';
+  410: 								return $self-&gt;_cache_and_return($lc, $rc);
+  411: 							}
+  412: 						}
+  413: 						if (my $rc = $self-&gt;_search(\%addr, qw(road city state country))) {
+  414: 							$rc-&gt;{'country'} = 'US';
+  415: 							return $self-&gt;_cache_and_return($lc, $rc);
+  416: 						}
+  417: 						# G:S:US puts building name into street when number is absent
+  418: 						if ($street &amp;&amp; !$href-&gt;{'number'}) {
+  419: 							$addr{'name'} = delete $addr{'road'};
+  420: 							if (my $rc = $self-&gt;_search(\%addr, qw(name city state country))) {
+  421: 								$rc-&gt;{'country'} = 'US';
+  422: 								return $self-&gt;_cache_and_return($lc, $rc);
+  423: 							}
+  424: 						}
+  425: 					}
+  426: 				}
+  427: 			}
+  428: 		}
+  429: 
+  430: 		# Fallback: try "name, street, town, state, US" split
+  431: 		my @parts = split(/,\s*/, $location);
+  432: 		if (scalar(@parts) == 5) {
+  433: 			my $state = _to_two_letter_state('US', $parts[3]);
+  434: 			if (length($state) == 2) {
+  435: 				my %addr = (city =&gt; $parts[2], state =&gt; $state, country =&gt; 'US');
+  436: 				if ($parts[0] !~ /^\d/) {
+  437: 					$addr{'name'} = $parts[0];
+  438: 					if ($parts[1] =~ /^(\d+)\s+(.+)/) {
+  439: 						$addr{'number'} = $1;
+  440: 						$addr{'road'}   = _normalize($2);
+  441: 						if (my $rc = $self-&gt;_search(\%addr, qw(name number road city state country))) {
+  442: 							$rc-&gt;{'country'} = 'US';
+  443: 							return $self-&gt;_cache_and_return($lc, $rc);
+  444: 						}
+  445: 					} else {
+  446: 						$addr{'road'} = _normalize($parts[1]);
+  447: 						if (my $rc = $self-&gt;_search(\%addr, qw(name road city state country))) {
+  448: 							$rc-&gt;{'country'} = 'US';
+  449: 							return $self-&gt;_cache_and_return($lc, $rc);
+  450: 						}
+  451: 					}
+  452: 				} else {
+  453: 					$addr{'number'} = $parts[0];
+  454: 					$addr{'road'}   = _normalize($parts[1]);
+  455: 					if (my $rc = $self-&gt;_search(\%addr, qw(number road city state country))) {
+  456: 						$rc-&gt;{'country'} = 'US';
+  457: 						return $self-&gt;_cache_and_return($lc, $rc);
+  458: 					}
+  459: 				}
+  460: 			}
+  461: 		}
+  462: 	}
+  463: 
+  464: 	# Simple "Town, County, England" — no further sub-parsers will help
+  465: 	if (($location =~ /[^,]+,[^,]+,.*England$/) &amp;&amp; ($location !~ /[^,]+,[^,]+,[^,]+,.*England$/)) {
+  466: 		return;
+  467: 	}
+  468: 
+  469: 	# Geo::Address::Parser — optional; load lazily, skip if not installed
+  470: 	unless (Geo::Address::Parser-&gt;can('parse')) {
+  471: 		eval { require Geo::Address::Parser; Geo::Address::Parser-&gt;import() };
+  472: 	}
+  473: 	if (Geo::Address::Parser-&gt;can('parse')) {
+  474: 		my $addr_parser = Geo::Address::Parser-&gt;new(country =&gt; 'UK');
+  475: 		if (my $fields = $addr_parser-&gt;parse($location)) {
+  476: 			# Remove undef fields so _search only matches defined columns
+  477: 			delete $fields-&gt;{$_} for grep { !defined $fields-&gt;{$_} } keys %{$fields};
+  478: 			if (my $rc = $self-&gt;_search($fields, keys %{$fields})) {
+  479: 				$rc-&gt;{'country'} = 'UK';
+  480: 				return $self-&gt;_cache_and_return($lc, $rc);
+  481: 			}
+  482: 		}
+  483: 	}
+  484: 
+  485: 	# Geo::libpostal — accurate but uses enormous RAM; initialise at most once
+  486: 	if ($libpostal_is_installed == LIBPOSTAL_UNKNOWN) {
+  487: 		if (eval { require Geo::libpostal; 1 }) {
+  488: 			Geo::libpostal-&gt;import();
+  489: 			$libpostal_is_installed = LIBPOSTAL_INSTALLED;
+  490: 		} else {
+  491: 			$libpostal_is_installed = LIBPOSTAL_NOT_INSTALLED;
+  492: 		}
+  493: 	}
+  494: 
+  495: 	if ($libpostal_is_installed == LIBPOSTAL_INSTALLED) {
+  496: 		my %addr = Geo::libpostal::parse_address($location);
+  497: 		if (%addr) {
+  498: 			# Normalise field names to match our data schema
+  499: 			$addr{'number'} = delete $addr{'house_number'} if $addr{'house_number'} &amp;&amp; !$addr{'number'};
+  500: 			$addr{'name'}   = delete $addr{'house'}        if $addr{'house'}        &amp;&amp; !$addr{'name'};
+  501: 			$addr{'location'} = $location;
+  502: 
+  503: 			if (my $street = $addr{'road'}) {
+  504: 				$addr{'road'} = _normalize($street);
+  505: 			}
+  506: 
+  507: 			# libpostal returns "england" as a state — map to country code
+  508: 			if (defined($addr{'state'}) &amp;&amp; !defined($addr{'country'})
+  509: 			    &amp;&amp; $addr{'state'} eq 'england') {
+  510: 				delete $addr{'state'};
+  511: 				$addr{'country'} = 'GB';
+  512: 			}
+  513: 
+  514: 			if ($addr{'country'} &amp;&amp; ($addr{'state'} || $addr{'state_district'})) {
+  515: 				if ($addr{'country'} =~ /Canada/i) {
+  516: 					$addr{'country'} = 'Canada';
+  517: 					$addr{'state'}   = _to_two_letter_state('Canada', $addr{'state'})
+  518: 						if $addr{'state'} &amp;&amp; length($addr{'state'}) &gt; 2;
+  519: 				} elsif ($addr{'country'} =~ /^(United States|USA|US)$/i) {
+  520: 					$addr{'country'} = 'US';
+  521: 					$addr{'state'}   = _to_two_letter_state('US', $addr{'state'})
+  522: 						if $addr{'state'} &amp;&amp; length($addr{'state'}) &gt; 2;
+  523: 				}
+  524: 
+  525: 				if ($addr{'state_district'}) {
+  526: 					$addr{'state_district'} =~ s/^(.+)\s+COUNTY\s*$/$1/i;
+  527: 					if (my $rc = $self-&gt;_search(\%addr, qw(number road city state_district state country))) {
+  528: 						return $self-&gt;_cache_and_return($lc, $rc);
+  529: 					}
+  530: 				}
+  531: 				if (my $rc = $self-&gt;_search(\%addr, qw(number road city state country))) {
+  532: 					return $self-&gt;_cache_and_return($lc, $rc);
+  533: 				}
+  534: 				if ($addr{'number'}) {
+  535: 					if (my $rc = $self-&gt;_search(\%addr, qw(road city state country))) {
+  536: 						return $self-&gt;_cache_and_return($lc, $rc);
+  537: 					}
+  538: 				}
+  539: 			}
+  540: 		}
+  541: 	}
+  542: 
+  543: 	# Last resort: decompose "road, city, state, country" with a regex
+  544: 	if ($location =~ /^(.+?),\s*([\s\w]+),\s*([\s\w]+),\s*([\w\s]+)$/) {
+  545: 		my %addr = (
+  546: 			road    =&gt; $1,
+  547: 			city    =&gt; $2,
+  548: 			state   =&gt; $3,
+  549: 			country =&gt; $4,
+  550: 		);
+  551: 		$addr{'state'}   =~ s/\s+$//g;
+  552: 		$addr{'country'} =~ s/\s+$//g;
+  553: 
+  554: 		if ($addr{'road'} =~ /([\w\s]+),*\s+(.+)/) {
+  555: 			$addr{'name'} = $1;
+  556: 			$addr{'road'} = $2;
+  557: 		}
+  558: 		if ($addr{'road'} =~ /^(\d+)\s+(.+)/) {
+  559: 			$addr{'number'} = $1;
+  560: 			$addr{'road'}   = $2;
+  561: 			if (my $rc = $self-&gt;_search(\%addr, qw(name number road city state country))) {
+  562: 				return $self-&gt;_cache_and_return($lc, $rc);
+  563: 			}
+  564: 		} elsif (my $rc = $self-&gt;_search(\%addr, qw(name road city state country))) {
+  565: 			return $self-&gt;_cache_and_return($lc, $rc);
+  566: 		}
+  567: 		if ($addr{'name'} &amp;&amp; !defined($addr{'number'})) {
+  568: 			if (my $rc = $self-&gt;_search(\%addr, qw(name road city state country))) {
+  569: 				return $self-&gt;_cache_and_return($lc, $rc);
+  570: 			}
+  571: 		}
+  572: 	}
+  573: 
+  574: 	# Try the alternatives table — curated mappings for inconsistent names
+  575: 	$location = uc($location);
+  576: 	for my $left (keys %alternatives) {
+  577: 		next unless $location =~ $left;
+  578: 		(my $mapped = $location) =~ s/$left/$alternatives{$left}/;
+  579: 		$params{'location'} = $mapped;
+  580: 		if (my $rc = $self-&gt;geocode(\%params)) {
+  581: 			return $self-&gt;_cache_and_return($lc, $rc);
+  582: 		}
+  583: 		if ($mapped =~ /(.+), (England|UK)$/i) {
+  584: 			$params{'location'} = "$1, GB";
+  585: 			if (my $rc = $self-&gt;geocode(\%params)) {
+  586: 				return $self-&gt;_cache_and_return($lc, $rc);
+  587: 			}
+  588: 		}
+  589: 		$params{'location'} = $location;
+  590: 	}
+  591: 
+  592: 	return;
+  593: }
+  594: 
+  595: =head2 reverse_geocode
+  596: 
+  597: =head3 SYNOPSIS
+  598: 
+  599:     my $loc = $geocoder-&gt;reverse_geocode(latlng =&gt; '51.3341,-1.4159');
+  600:     # Returns the location string(s) for that lat/lon pair.
+  601: 
+  602: =head3 API SPECIFICATION
+  603: 
+  604: =head4 input
+  605: 
+  606:     # Input schema (Params::Validate::Strict) — latlng or lat+lon required
+  607:     latlng =&gt; { type =&gt; 'scalar', optional =&gt; 1 }  # "$lat,$long" comma-separated decimal degrees
+  608:     lat    =&gt; { type =&gt; 'scalar', optional =&gt; 1 }  # latitude  (alternative to latlng)
+  609:     lon    =&gt; { type =&gt; 'scalar', optional =&gt; 1 }  # longitude (alternative to latlng)
+  610:     long   =&gt; { type =&gt; 'scalar', optional =&gt; 1 }  # alias for lon
+  611: 
+  612: =head4 output
+  613: 
+  614:     # Output schema (Return::Set)
+  615:     # scalar context: { type =&gt; 'scalar',   optional =&gt; 1 }  # location string
+  616:     # list context:   { type =&gt; 'arrayref', of =&gt; { type =&gt; 'scalar' } }
+  617: 
+  618: =cut
+  619: 
+  620: sub reverse_geocode {
+  621: 	my $self = shift;
+  622: 
+  623: 	if (!ref($self)) {
+  624: 		if (scalar @_) {
+  625: 			return __PACKAGE__-&gt;new()-&gt;reverse_geocode(@_);
+  626: 		} elsif (!defined($self)) {
+  627: 			Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng =&gt; "$lat,$long")');
+  628: 		} elsif ($self eq __PACKAGE__) {
+  629: 			Carp::croak("Usage: $self", '::reverse_geocode(latlng =&gt; "$lat,$long")');
+  630: 		}
+  631: 		return __PACKAGE__-&gt;new()-&gt;reverse_geocode($self);
+  632: 	} elsif (ref($self) eq 'HASH') {
+  633: 		return __PACKAGE__-&gt;new()-&gt;reverse_geocode($self);
+  634: 	}
+  635: 
+  636: 	my %params = _normalize_args(
+  637: 		'Usage: ' . __PACKAGE__ . '::reverse_geocode(latlng =&gt; "$lat,$long")',
+  638: 		'latlng', @_
+  639: 	);
+  640: 
+  641: 	my ($latitude, $longitude);
+  642: 	if (my $latlng = $params{'latlng'}) {
+  643: 		($latitude, $longitude) = split /,/, $latlng;
+  644: 	} else {
+  645: 		$latitude  = $params{'lat'};
+  646: 		$longitude = $params{'lon'} // $params{'long'};
+  647: 	}
+  648: 
+  649: 	if (!defined($latitude) || !defined($longitude)) {
+  650: 		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng =&gt; "$lat,$long")');
+  651: 	}
+  652: 
+  653: 	my @rc;
+  654: 	for my $row (@{$self-&gt;{'data'}}) {
+  655: 		next unless defined($row-&gt;{'latitude'}) &amp;&amp; defined($row-&gt;{'longitude'});
+  656: 		next unless _equal($row-&gt;{'latitude'}, $latitude, 4)
+  657: 		         &amp;&amp; _equal($row-&gt;{'longitude'}, $longitude, 4);
+  658: 
+  659: 		# Rows in $self-&gt;{'data'} are blessed as Geo::Location::Point by
+  660: 		# the index-building loop in new() — calling as_string() is safe here.
+  661: 		my $location = uc($row-&gt;as_string());
+  662: 		if (wantarray) {
+  663: 			push @rc, $location;
+  664: 			# Add any reverse-alternative mappings for this location
+  665: 			while (my ($left, $right) = each %alternatives) {
+  666: 				if ($location =~ $right) {
+  667: 					(my $l = $location) =~ s/$right/$left/;
+  668: 					push @rc, $l;
+  669: 				}
+  670: 			}
+  671: 		} else {
+  672: 			return $location;
+  673: 		}
+  674: 	}
+  675: 	return @rc;
+  676: }
+  677: 
+  678: =head2 ua
+  679: 
+  680: Does nothing — present for drop-in compatibility with other Geo::Coder::* modules.
+  681: 
+  682: =cut
+  683: 
+<span class="dup-line">  684: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a>sub ua { }</span><span class="dup-line">  685: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a></span><span class="dup-line">  686: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a># -----------------------------------------------------------------------</span><span class="dup-line">  687: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a># Private helpers</span><span class="dup-line">  688: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a># -----------------------------------------------------------------------</span><span class="dup-line">  689: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a></span><span class="dup-line">  690: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a># Purpose:  Normalise the four calling conventions used by geocode/reverse_geocode:</span><span class="dup-line">  691: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a>#           hashref, even-length key-val list, single bare string.</span><span class="dup-line">  692: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a># Entry:    $error_msg  — croak message if an unsupported ref type is passed.</span><span class="dup-line">  693: <a href="../Free.pm.html" class="cpd-dot" title="Duplicate: lib/Geo/Coder/Free.pm line 208" target="_blank">&#9670;</a>#           $bare_key   — hash key to use when a single bare string is given</span>  694: #                         ('location' for geocode, 'latlng' for reverse_geocode).
+  695: #           @args       — raw @_ after $self has been shifted.
+  696: # Exit:     Flat %params hash.
+  697: # Side Effects: None; croaks on non-hash reference arguments.
+  698: sub _normalize_args {
+  699: 	my ($error_msg, $bare_key, @args) = @_;
+  700: 	return %{$args[0]}               if ref($args[0]) eq 'HASH';
+  701: 	Carp::croak($error_msg)          if ref($args[0]);
+  702: 	return @args                     if @args &amp;&amp; @args % 2 == 0;
+  703: 	return ($bare_key =&gt; $args[0])   if @args == 1;
+  704: 	# M7 (logic-gap closure): odd-count &gt; 1 is not a valid calling convention.
+  705: 	# Fail fast rather than silently discarding trailing arguments.
+  706: 	Carp::croak($error_msg)          if @args;
+  707: 	return ();
+  708: }
+  709: 
+  710: # Purpose:  Store $rc in the lookup cache under $key and return it.
+  711: #           Reduces the repeated "$self-&gt;{cache}{$k} = $r; return $r;" pattern
+  712: #           that appeared ~12 times across geocode.
+  713: # Entry:    $self, $key (lc string), $rc (Geo::Location::Point or undef).
+  714: # Exit:     $rc (returned transparently).
+  715: # Side Effects: Writes to $self-&gt;{cache}.
+  716: sub _cache_and_return {
+  717: 	my ($self, $key, $rc) = @_;
+  718: 	$self-&gt;{'cache'}{$key} = $rc;
+  719: 	return $rc;
+  720: }
+  721: 
+  722: # Purpose:  Resolve a full state/province name to its two-letter code using
+  723: #           the appropriate Locale:: module.  Returns the original string if
+  724: #           no mapping is found or the input is already two characters.
+  725: #           Locale::US and Locale::CA objects are cached as module-level
+  726: #           singletons to avoid repeated construction overhead.
+  727: # Entry:    $country — country name or ISO code; $state — state/province name.
+  728: # Exit:     Two-letter code or $state unchanged.
+  729: # Side Effects: May initialise $_locale_us or $_locale_ca singletons.
+  730: sub _to_two_letter_state {
+  731: 	my ($country, $state) = @_;
+  732: 	return $state // '' if !defined($state) || length($state) &lt;= 2;
+  733: 
+  734: 	if ($country =~ /^(United States|USA|US)$/i) {
+  735: 		$_locale_us //= Locale::US-&gt;new();
+  736: 		return $_locale_us-&gt;{'state2code'}{uc($state)} // $state;
+  737: 	} elsif ($country =~ /Canada/i) {
+  738: 		$_locale_ca //= Locale::CA-&gt;new();
+  739: 		return $_locale_ca-&gt;{'province2code'}{uc($state)} // $state;
+  740: 	}
+  741: 	return $state;
+  742: }
+  743: 
+  744: # Purpose:  Match parsed address components against all data rows.
+  745: #           Each named column must match (case-insensitively) the corresponding
+  746: #           data field; a minimum of 3 columns must match for a result.
+  747: # Entry:    $self, $data — hashref of address components,
+  748: #           @columns — ordered list of keys to compare.
+  749: # Exit:     Geo::Location::Point on match; undef otherwise.
+  750: # Side Effects: May delete undef entries from $data (for undefined optional fields).
+  751: sub _search {
+  752: 	my ($self, $data, @columns) = @_;
+  753: 
+  754: 	# M5 (boolean reduction): the $failed flag was set-and-break in the inner loop
+  755: 	# then tested in the outer loop — eliminated by using a labeled 'next ROW'
+  756: 	# that short-circuits directly, removing one boolean gate per iteration.
+  757: 	ROW: for my $row (@{$self-&gt;{'data'}}) {
+  758: 		my $matched = 0;
+  759: 
+  760: 		for my $column (@columns) {
+  761: 			if (defined($data-&gt;{$column})) {
+  762: 				next ROW unless defined($row-&gt;{$column});
+  763: 				next ROW if uc($row-&gt;{$column}) ne uc($data-&gt;{$column});
+  764: 				$matched++;
+  765: 			} elsif (exists $data-&gt;{$column}) {
+  766: 				delete $data-&gt;{$column};
+  767: 			}
+  768: 		}
+  769: 
+  770: 		next if $matched &lt; 3;
+  771: 
+  772: 		# Assign confidence based on how many columns contributed to the match
+  773: 		my $confidence = $matched == scalar(@columns) ? $CONF_EXACT
+  774: 		               : $matched &gt;= 4                ? $CONF_HIGH
+  775: 		               :                               $CONF_MEDIUM;
+  776: 
+  777: 		return Geo::Location::Point-&gt;new(
+  778: 			location   =&gt; $data-&gt;{'location'},
+  779: 			confidence =&gt; $confidence,
+  780: 			database   =&gt; __PACKAGE__,
+  781: 			%{$row},
+  782: 		);
+  783: 	}
+  784: 	return;
+  785: }
+  786: 
+  787: # Purpose:  Calculate the geographic centres (centroids) of all city/state/country
+  788: #           clusters in the parsed dataset that contain three or more data points.
+  789: #           Clusters with fewer than 3 entries are too sparse to be meaningful.
+  790: # Entry:    $rows — arrayref of hashrefs with latitude/longitude/city/state/country.
+  791: # Exit:     Arrayref of hashrefs (one per qualifying cluster), or undef if none.
+  792: # Side Effects: None.
+  793: sub _find_geographic_centres {
+  794: 	my $rows = $_[0];
+  795: 
+  796: 	# Group rows by normalised city|state|country key
+  797: 	my %groups;
+  798: 	for my $row (@{$rows}) {
+  799: 		next unless defined($row-&gt;{'latitude'})  &amp;&amp; defined($row-&gt;{'longitude'});
+  800: 		next unless $row-&gt;{'latitude'}  =~ /^-?\d+\.?\d*$/;
+  801: 		next unless $row-&gt;{'longitude'} =~ /^-?\d+\.?\d*$/;
+  802: 		my $key = join '|',
+  803: 			$row-&gt;{'city'}    // '',
+  804: 			$row-&gt;{'state'}   // '',
+  805: 			$row-&gt;{'country'} // '';
+  806: 		push @{$groups{$key}}, $row;
+  807: 	}
+  808: 
+  809: 	my @centres;
+  810: 	for my $key (keys %groups) {
+  811: 		my $locs = $groups{$key};
+  812: 		next if @{$locs} &lt; 3;
+  813: 
+  814: 		my ($city, $state, $country) = split /\|/, $key;
+  815: 		my ($lat, $lon) = _calculate_centre($locs);
+  816: 
+  817: 		push @centres, {
+  818: 			city      =&gt; $city,
+  819: 			state     =&gt; $state,
+  820: 			country   =&gt; $country,
+  821: 			lat       =&gt; $lat,
+  822: 			latitude  =&gt; $lat,
+  823: 			longitude =&gt; $lon,
+  824: 			long      =&gt; $lon,
+  825: 			lng       =&gt; $lon,
+  826: 		};
+  827: 	}
+  828: 
+  829: 	return @centres ? \@centres : undef;
+  830: }
+  831: 
+  832: # Purpose:  Compute the arithmetic mean of latitude and longitude for a group
+  833: #           of locations.  Accurate for small geographic areas; for large areas
+  834: #           or locations crossing the antimeridian, a vector-mean is needed.
+  835: # Entry:    $locs — arrayref of hashrefs each with 'latitude' and 'longitude'.
+  836: # Exit:     ($centre_lat, $centre_lon) as decimal degree strings to 6dp.
+  837: # Side Effects: None.
+  838: sub _calculate_centre {
+  839: 	my $locs  = $_[0];
+  840: 	my ($sum_lat, $sum_lon) = (0, 0);
+  841: 	$sum_lat += $_-&gt;{'latitude'}, $sum_lon += $_-&gt;{'longitude'} for @{$locs};
+  842: 	my $n = scalar @{$locs};
+  843: 	return (sprintf('%.6f', $sum_lat / $n), sprintf('%.6f', $sum_lon / $n));
+  844: }
+  845: 
+  846: # https://www.oreilly.com/library/view/perl-cookbook/1565922433/ch02s03.html
+  847: # Equal within $dp decimal places — avoids floating-point equality pitfalls.
+  848: sub _equal {
+  849: 	my ($A, $B, $dp) = @_;
+  850: 	return sprintf("%.${dp}g", $A) eq sprintf("%.${dp}g", $B);
+  851: }
+  852: 
+  853: =head1 AUTHOR
+  854: 
+  855: Nigel Horne C&lt;&lt; &lt;njh@nigelhorne.com&gt; &gt;&gt;
+  856: 
+  857: =head1 BUGS
+  858: 
+  859: The data are stored in the module source and must be maintained by the author.
+  860: A future version should load them from an external file to allow community contributions.
+  861: 
+  862: See also: L&lt;https://rt.cpan.org/NoAuth/Bugs.html?Dist=Geo-Coder-Free&gt;
+  863: 
+  864: =head1 SEE ALSO
+  865: 
+  866: L&lt;Geo::Coder::Free&gt;, L&lt;Geo::Coder::Free::OpenAddresses&gt;, L&lt;Geo::Coder::Free::MaxMind&gt;
+  867: 
+  868: =head1 LICENSE AND COPYRIGHT
+  869: 
+  870: Copyright 2020-2026 Nigel Horne.
+  871: 
+  872: The program code is released under the following licence: GPL2 for personal use on a single computer.
+  873: All other users (including Commercial, Charity, Educational, and Government)
+  874: must apply in writing for a licence for use from Nigel Horne at C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;.
+  875: 
+  876: =cut
+  877: 
+  878: 1;
+  879: 
+  880: # Use abbreviations in the data: RD not ROAD, ST not STREET, etc.
+  881: __DATA__
+  882: "name","number","road","city","state_district","state","country","latitude","longitude"
+  883: "ST ANDREWS CHURCH",,"CHURCH HILL","EARLS COLNE",,"ESSEX","GB",51.926793,0.70408
+  884: "WESTWOOD CROSS",23,"MARGATE RD","BROADSTAIRS",,"KENT","GB",51.358967,1.391367
+  885: "RECULVER ABBEY",,"RECULVER","HERNE BAY",,"KENT","GB",51.37875,1.1955
+  886: "NEW INN",2,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.334522,1.314417
+  887: "HOLIDAY INN EXPRESS",,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34320725,1.31680853
+  888: "",106,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.33995174,1.31570211
+  889: "",114,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34015944,1.31580976
+  890: "MINSTER CEMETERY",116,"TOTHILL ST","RAMSGATE",,"KENT","GB",51.34203083,1.31609075
+  891: "RAMSGATE STATION",,"STATION APPROACH RD","RAMSGATE","","KENT","GB",51.340826,1.406519
+  892: "ST MARY THE VIRGIN CHURCH",,"CHURCH ST","RAMSGATE",,"KENT","GB",51.33090893,1.31559716
+  893: "",20,"MELBOURNE AVE","RAMSGATE",,"KENT","GB",51.34772374,1.39532565
+  894: "TOBY CARVERY",,"NEW HAINE RD","RAMSGATE",,"KENT","GB",51.357510,1.388894
+  895: "",,"WESTCLIFF PROMENADE","RAMSGATE",,"KENT","GB",51.32711,1.406806
+  896: "TOWER OF LONDON",35,"TOWER HILL","LONDON",,"LONDON","GB",51.5082675,-0.0754225
+  897: "",5350,"CHILLUM PL NE","WASHINGTON",,"DC","US",38.955403,-76.996241
+  898: "WALTER E. WASHINGTON CONVENTION CENTER",801,"MT VERNON PL NW","WASHINGTON","","DC","US",38.904022,-77.023113
+  899: "",7,"JORDAN MILL COURT","WHITE HALL","BALTIMORE","MD","US",39.6852333333333,-76.6071166666667
+  900: "ALL SAINTS EPISCOPAL CHURCH",203,"E CHATSWORTH RD","REISTERSTOWN","BALTIMORE","MD","US",39.467270,-76.823947
+  901: "BALLPARK RESTAURANT",3418,"CONOWINGO RD","DUBLIN","HARFORD","MD","US",39.633018,-76.272558
+  902: "NCBI",,"MEDLARS DR","BETHESDA","MONTGOMERY","MD","US",38.99516556,-77.09943963
+  903: "",,"CENTER DR","BETHESDA","MONTGOMERY","MD","US",38.99698114,-77.10031119
+  904: "",,"NORFOLK AVE","BETHESDA","MONTGOMERY","MD","US",38.98939358,-77.09819543
+  905: "ROCK BOTTOM RESTAURANT &amp; BREWERY",,"NORFOLK AVE","BETHESDA","MONTGOMERY","MD","US",38.9890861111111,-77.0975722222222
+  906: "",3516,"SW MACVICAR AVE","TOPEKA","SHAWNEE","KS","US",39.005175,-95.706681
+  907: "THE ATRIUM AT ROCK SPRING PARK",6555,"ROCKLEDGE DR","BETHESDA","MONTGOMERY","MD","US",39.028326,-77.136774
+  908: "","","MOUTH OF MONOCACY RD","DICKERSON","MONTGOMERY","MD","US",39.2244603797302,-77.449615439877
+  909: "PATAPSCO VALLEY STATE PARK'",8020,"BALTIMORE NATIONAL PK","ELLICOTT CITY","HOWARD","MD","US",39.29491,-76.78051
+  910: "",,"ANNANDALE RD","EMMITSBURG","FREDERICK","MD","US",39.683529,-77.349405
+  911: "UTICA DISTRICT PARK",,,"FREDERICK","FREDERICK","MD","US",39.5167883333333,-77.4015166666667
+  912: "",3923,"SUGARLOAF CT","MONROVIA","FREDERICK","MD","US",39.342986,-77.239770
+  913: "ALBERT EINSTEIN HIGH SCHOOL",11135,"NEWPORT MILL RD","KENSINGTON","MONTGOMERY","MD","US",39.03869019,-77.0682871
+  914: "",10540,"METROPOLITAN AVE","KENSINGTON","MONTGOMERY","MD","US",39.028404,-77.073227
+  915: "POST OFFICE",10325,"KENSINGTON PKWY","KENSINGTON","MONTGOMERY","MD","US",39.02554455,-77.07178215
+  916: "NEWPORT MILL MIDDLE SCHOOL",11311,"NEWPORT MILL RD","KENSINGTON","MONTGOMERY","MD","US",39.0416107,-77.06884708
+  917: "SAFEWAY",10541,"HOWARD AVE","KENSINGTON","MONTGOMERY","MD","US",39.02822438,-77.0755196
+  918: "HAIR CUTTERY",3731,"CONNECTICUT AVE","KENSINGTON","MONTGOMERY","MD","US",39.03323865,-77.07368044
+  919: "STROSNIDERS",10504,"CONNECTICUT AVE","KENSINGTON","MONTGOMERY","MD","US",39.02781493,-77.07740792
+  920: "",8616,"SAVANNAH RIVER RD","LAUREL","ANNE ARUNDEL","MD","US",39.100869,-76.812162
+  921: "DOWNS PARK",,"CHESAPEAKE BAY DRIVE","PASADENA","ANNE ARUNDEL","MD","US",39.110711,-76.434062
+  922: "",1559,"GUERDON CT","PASADENA","ANNE ARUNDEL","MD","US",39.102637,-76.456384
+  923: "ARCOLA HEALTH AND REHABILITATION CENTER",901,"ARCOLA AVE","SILVER SPRING","MONTGOMERY","MD","US",39.036439,-77.025502
+  924: "",9904,"GARDINER AVE","SILVER SPRING","MONTGOMERY","MD","US",39.017633,-77.049551
+  925: "CVS",9520,"GEORGIA AVE","SILVER SPRING","MONTGOMERY","MD","US",39.010801,-77.041771
+  926: "FOREST GLEN MEDICAL CENTER",9801,"GEORGIA AVE","SILVER SPRING","MONTGOMERY","MD","US",39.016042,-77.042148
+  927: "",10009,"GREELEY AVE","SILVER SPRING","MONTGOMERY","MD","US",39.019575,-77.047453
+  928: "ADVENTIST HOSPITAL",11886,"HEALING WAY","SILVER SPRING","MONTGOMERY","MD","US",39.049570,-76.956882
+  929: "",2232,"HILDAROSE DR","SILVER SPRING","MONTGOMERY","MD","US",39.019385,-77.049779,
+  930: "LA CASITA PUPESERIA AND MARKET",8214,"PINEY BRANCH RD","SILVER SPRING","MONTGOMERY","MD","US",38.993369,-77.009501
+  931: "NOAA LIBRARY",1315,"EAST-WEST HIGHWAY","SILVER SPRING","MONTGOMERY","MD","US",38.991667,-77.030473
+  932: "SNIDERS",1936,"SEMINARY RD","SILVER SPRING","MONTGOMERY","MD","US",39.0088797,-77.04162824
+  933: "",1954,"SEMINARY RD","SILVER SPRING","MONTGOMERY","MD","US",39.008961,-77.04303
+  934: "",1956,"SEMINARY RD","SILVER SPRING","MONTGOMERY","MD","US",39.008845,-77.043317
+  935: "",9315,"WARREN ST","SILVER SPRING","MONTGOMERY","MD","US",39.00881,-77.048953
+  936: "",9411,"WARREN ST","SILVER SPRING","MONTGOMERY","MD","US",39.010447,-77.048548
+  937: "SILVER DINER",12276,"ROCKVILLE PK","ROCKVILLE","MONTGOMERY","MD","US",39.05798753,-77.12165374
+  938: "",1605,"VIERS MILL RD","ROCKVILLE","MONTGOMERY","MD","US",39.07669788,-77.12306436
+  939: "",1406,"LANGBROOK PL","ROCKVILLE","MONTGOMERY","MD","US",39.075583,-77.123833
+  940: "",2225,"FOREST GLEN RD","SILVER SPRING","MONTGOMERY","MD","US",39.015394,-77.048357
+  941: "BP",2601,"FOREST GLEN RD","SILVER SPRING","MONTGOMERY","MD","US",39.0147541,-77.05466857
+  942: "OMEGA STUDIOS",12412,,"ROCKVILLE","MONTGOMERY","MD","US",39.06412645,-77.11252263
+  943: "",10424,"43RD AVE","BELTSVILLE","PRINCE GEORGE","MD","US",39.033075,-76.923859
+  944: "NASA",,"TIROS RD","GREENBELT","PRINCE GEORGE","MD","US",38.996764,-76.849323
+  945: "",7001,"CRADLEROCK FARM COURT","COLUMBIA","HOWARD","MD","US",39.190009,-76.841152
+  946: "BANGOR AIRPORT",,"GODFREY BOULEVARD","BANGOR","PENOBSCOT","ME","US",44.406700,-68.597114
+  947: "",86,"ALLEN POINT LANE","BLUE HILLS","HANCOCK","ME","US",44.35378018,-68.57383976
+  948: "TRADEWINDS",15,"SOUTH STREET","BLUE HILLS","HANCOCK","ME","US",44.40670019,-68.59711438
+  949: "RITE AID",17,"SOUTH STREET","BLUE HILLS","HANCOCK","ME","US",44.40662476,-68.59610059
+  950: "",880,"SOUTH GREENSFERRY RD","COUER D'ALENE","KOOTENAI","ID","US",47.693615,-116.915357
+  951: "",898,"SOUTH GREENSFERRY RD","COUER D'ALENE","KOOTENAI","ID","US",47.69556,-116.91564
+  952: "",,"DOUGLAS AVE","FORT WAYNE","ALLEN","IN","US",41.074247,-85.138531
+  953: "JOHN GLENN AIRPORT",4600,,"COLUMBUS","FRANKLIN","OH","US",39.997959,-82.88132
+  954: "MIDDLE RIDGE PLAZA",,,"AMHERST","LOHRAIN","OH","US",41.379695,-82.222877
+  955: "RESIDENCE INN BY MARRIOTT",6364,"FRANTZ RD","DUBLIN",,"OH","US",40.097097,-83.123745
+  956: "TOWPATH TRAVEL PLAZA",,,"BROADVIEW HEIGHTS","CUYAHOGA","OH","US",41.291654,-81.675815
+  957: "NEW STANTON SERVICE PLAZA",,,"HEMPFIELD",,"PA","US",40.206267,-79.565682
+  958: "",,"","LITITZ","LANCASTER","PA","US",40.154989, -76.304266
+  959: "SOUTH SOMERSET SERVICE PLAZA",,,"SOMERSET","SOMERSET","PA","US",39.999154,-79.046526
+  960: "HUNTLEY MEADOWS PARK",3701,"LOCKHEED BLVD","ALEXANDRIA","","VA","US",38.75422, -77.1058666666667
+  961: "SHENANDOAH COOL SPRINGS BATTLEFIELD",,"","BLUEMONT","CLARKE","VA","US",39.142146,-77.866468
+  962: "",14900,"CONFERENCE CENTER DR","CHANTILLY","FAIRFAX","VA","US",38.873934,-77.461939
+  963: "THE PURE PASTY COMPANY",128C,"MAPLE AVE W","VIENNA","FAIRFAX","VA","US",44.40662476,-68.59610059
+  964: "DIRT FARM BREWERY",18701,"FOGGY BOTTOM RD","BLUEMONT","LOUDON","VA","US",39.099655,-77.836975
+  965: "",404,"BRINDLEY PL SW","LEESBURG","LOUDOUN","VA","US",39.092207,-77.591987
+  966: "",818,"FERNDALE TERRACE NE","LEESBURG","LOUDOUN","VA","US",39.124843,-77.535445
+  967: "",,"OATLANDS PLANTATION LN","OATLANDS","LOUDOUN","VA","US",39.04071,-77.61682
+  968: "",,"PURCELLVILLE GATEWAY DR","PURCELLVILLE","LOUDOUN","VA","US",39.136193,-77.693198
+  969: "THE CAPITAL GRILLE RESTAURANT",1861,,"MCLEAN","FAIRFAX","VA","US",38.915635,-77.22573
+  970: "",,"","COLONIAL BEACH","WESTMORELAND","VA","US",38.25075,-76.9602533333333
+</pre>
+
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+}
+
+(function() {
+    const saved = localStorage.getItem('theme');
+    if(saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+    }
+})();
+
+document.addEventListener("mousemove", function(e) {
+	document.querySelectorAll(".lcsaj-tip-text, .cpd-tip-text").forEach(function(tip) {
+		tip.style.left = (e.clientX + 12) + "px";
+		tip.style.top  = (e.clientY + 12) + "px";
+	});
+});
+</script>
+</body>
+</html>
+	
