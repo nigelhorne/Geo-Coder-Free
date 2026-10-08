@@ -6,8 +6,7 @@ use strict;
 use warnings;
 use Test::Most tests => 6;
 use Test::Number::Delta;
-use lib 't/lib';
-use MyLogger;
+use Test::Log::Abstraction;
 
 BEGIN {
 	use_ok('Geo::Coder::Free::DB::MaxMind::cities');
@@ -26,7 +25,7 @@ CITIES: {
 		{
 			my $cities = new_ok('Geo::Coder::Free::DB::MaxMind::cities' => [{
 				directory => 'lib/Geo/Coder/Free/MaxMind/databases',
-				logger => new_ok('MyLogger'),
+				logger => new_ok('Test::Log::Abstraction'),
 				no_entry => 1
 			}]);
 

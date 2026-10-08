@@ -1,5 +1,9 @@
 Revision history for Geo-Coder-Free
 
+0.44
+	[ Tests ]
+	- Use Test::Log::Abstraction
+
 0.43	Fri Aug 14 08:24:12 PM EDT 2026
 	[ Enhancements ]
 	- _normalize rewritten with split to eliminate O(N³) catastrophic backtracking from (.+)\s+(.+)\s+(.+)

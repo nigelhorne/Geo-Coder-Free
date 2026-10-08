@@ -5,8 +5,7 @@
 use strict;
 use warnings;
 use Test::Most tests => 6;
-use lib 't/lib';
-use MyLogger;
+use Test::Log::Abstraction;
 
 use constant	DATABASE => 'lib/Geo/Coder/Free/MaxMind/databases/admin1.db';
 
@@ -27,7 +26,7 @@ ADMIN1: {
 		{
 			my $admin1 = new_ok('Geo::Coder::Free::DB::MaxMind::admin1' => [
 				directory => 'lib/Geo/Coder/Free/MaxMind/databases',
-				logger => new_ok('MyLogger'),
+				logger => new_ok('Test::Log::Abstraction'),
 				no_entry => 1
 			]);
 
