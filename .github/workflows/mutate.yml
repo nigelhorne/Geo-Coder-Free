@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: '12 23 26 * *'
   workflow_dispatch:
+    inputs:
+      full:
+        description: 'Mutate every file, not only those changed in the last code commit'
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +28,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
-      - uses: shogo82148/actions-setup-perl@v1.44.0
+      - uses: shogo82148/actions-setup-perl@v1.44.2
 
       - run: cpanm --verbose --skip-satisfied --installdeps .
       - run: prove -l t/
@@ -85,12 +90,21 @@ jobs:
             else
               BASE_SHA_FLAG=""
             fi
+            # The monthly run, and a run requested with "full", mutate
+            # everything: --changed_only on a commit that did not touch
+            # lib/ generates no mutants and reports a vacuous 100%.
+            if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.full }}" = "true" ]; then
+              CHANGED_FLAG=""
+              BASE_SHA_FLAG=""
+            else
+              CHANGED_FLAG="--changed_only"
+            fi
             # shellcheck disable=SC2086
             $MUTATE_CMD \
               --lib lib \
               --tests t \
               --json mutation.json \
-              --changed_only \
+              $CHANGED_FLAG \
               $BASE_SHA_FLAG \
               --mutation_level fast
           fi

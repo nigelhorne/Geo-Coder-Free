@@ -18,9 +18,7 @@ use warnings;
 use Test::Most;
 use Test::Exception;
 
-use lib 'lib';
-use lib 't/lib';
-use MyLogger;
+use Test::Log::Abstraction;
 use Geo::Coder::Free::Local;
 use Geo::Coder::Free::Utils;
 
@@ -73,14 +71,14 @@ subtest 'REG-2: explicit import of _normalize and _abbreviate does not croak' =>
 subtest 'REG-3: MyLogger::error does not recurse into itself' => sub {
 	plan tests => 2;
 
-	my $logger = MyLogger->new();
+	my $logger = Test::Log::Abstraction->new();
 
-	# Before the fix this would die: "Deep recursion on subroutine MyLogger::error"
+	# Before the fix this would die: "Deep recursion on subroutine Test::Log::Abstraction::error"
 	lives_ok { $logger->error('test error') }
-		'MyLogger::error completes without deep-recursion fatal';
+		'Test::Log::Abstraction::error completes without deep-recursion fatal';
 
 	lives_ok { $logger->error(undef) }
-		'MyLogger::error handles undef without croak';
+		'Test::Log::Abstraction::error handles undef without croak';
 };
 
 # -----------------------------------------------------------------------
