@@ -6,7 +6,7 @@
 # REG-1  Utils.pm: _normalize/_abbreviate placed after __END__ — never compiled
 # REG-2  Utils.pm: _normalize/_abbreviate absent from @EXPORT_OK — explicit
 #         import croaked
-# REG-3  t/lib/MyLogger.pm: error() called itself — deep recursion fatal
+# REG-3  t/lib/MyLogger.pm (since removed, replaced by Test::Log::Abstraction): error() called itself — deep recursion fatal
 # REG-4  admin2.db + Makefile.PL: GB.ENG.G5 had 13 corrupt Tooting rows
 #         appended on every Makefile.PL run; non-Linux sort returned Tooting
 # REG-5  Local.pm: bare require Geo::Address::Parser died when module absent;
@@ -63,12 +63,12 @@ subtest 'REG-2: explicit import of _normalize and _abbreviate does not croak' =>
 };
 
 # -----------------------------------------------------------------------
-# REG-3: MyLogger::error called error(@_) — unconditional self-recursion.
+# REG-3: the old t/lib/MyLogger.pm error() called error(@_) — unconditional self-recursion.
 #         Database::Abstraction calls $logger->error() on init failures,
 #         which caused the test process to exhaust the call stack on BSD
 #         CI runners where the database file was absent.
 # -----------------------------------------------------------------------
-subtest 'REG-3: MyLogger::error does not recurse into itself' => sub {
+subtest 'REG-3: error() does not recurse into itself (old MyLogger defect)' => sub {
 	plan tests => 2;
 
 	my $logger = Test::Log::Abstraction->new();
