@@ -55,7 +55,7 @@ sub _declaration
 	# which every construction site in every backend now sets: 'database' names
 	# the backend, 'geocoder' the distribution, and 'confidence' and 'accuracy'
 	# say how good the match was and how precise the coordinate is.  The
-	# distribution string itself is defined once, in Geo::Coder::Free::Utils.
+	# distribution string itself is defined once, in Geo::Coder::Free::Provenance.
 	guaranteed => [qw(lat long lng database geocoder confidence accuracy)],
 
 	# Set by some backends or only by some paths through a backend.  A consumer

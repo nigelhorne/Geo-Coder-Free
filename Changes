@@ -13,8 +13,10 @@ Revision history for Geo-Coder-Free
 	  list or, in scalar context, as a hashref.  The backends' two spellings of database are reduced to one
 	  vocabulary there.  It returns undef rather than guessing for something with no provenance to report,
 	  such as a plain hash handed on by another geocoder
-	- Geo::Coder::Free::Utils exports GEOCODER and _accuracy_for(), so a backend describes a match without
-	  repeating the vocabulary
+	- Added Geo::Coder::Free::Provenance: the GEOCODER constant, the ACCURACY_LEVELS vocabulary and
+	  _accuracy_for(), so a backend describes a match without repeating the vocabulary.  They live in a
+	  module of their own because Geo::Coder::Free::Utils is synced from VWF master, where a geocoder
+	  result has no provenance - an addition there would not survive the next sync
 	- Requires Geo::Location::Point 0.16, which stores and returns false values: a confidence of 0 or an
 	  empty accuracy used to be discarded on write, so provenance could not have been reported honestly
 	[ Tests ]

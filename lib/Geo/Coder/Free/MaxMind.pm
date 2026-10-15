@@ -17,7 +17,7 @@ use autodie qw(:all);
 use Geo::Coder::Free::DB::MaxMind::admin1;
 use Geo::Coder::Free::DB::MaxMind::admin2;
 use Geo::Coder::Free::DB::MaxMind::cities;
-use Geo::Coder::Free::Utils qw(GEOCODER);
+use Geo::Coder::Free::Provenance qw(GEOCODER);
 use Geo::Location::Point;
 use Module::Info;
 use Carp;

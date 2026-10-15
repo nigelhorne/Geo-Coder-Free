@@ -21,6 +21,7 @@ BEGIN {
 	use_ok('Geo::Coder::Free')               or BAIL_OUT('Geo::Coder::Free failed to load');
 	use_ok('Geo::Coder::Free::Local')        or BAIL_OUT('Geo::Coder::Free::Local failed to load');
 	use_ok('Geo::Coder::Free::OpenAddresses') or BAIL_OUT('Geo::Coder::Free::OpenAddresses failed to load');
+	use_ok('Geo::Coder::Free::Provenance')    or BAIL_OUT('Geo::Coder::Free::Provenance failed to load');
 	use_ok('Geo::Coder::Free::Utils')        or BAIL_OUT('Geo::Coder::Free::Utils failed to load');
 	use_ok('Geo::Location::Point')           or BAIL_OUT('Geo::Location::Point failed to load');
 }
@@ -480,7 +481,7 @@ subtest 'Local::geocode — provenance on both paths' => sub {
 	# filehandle can only be read once, and its cache is warmed by the earlier
 	# subtests, so each lookup here is one the earlier ones did not make.
 	# The documented vocabulary, most precise first (Geo::Coder::Free::Utils).
-	my %level = map { $_ => 1 } @{Geo::Coder::Free::Utils::ACCURACY_LEVELS()};
+	my %level = map { $_ => 1 } @{Geo::Coder::Free::Provenance::ACCURACY_LEVELS()};
 
 	my $indexed = $local->geocode(location => (sort keys %{$local->{'index'}})[1]);
 	isa_ok($indexed, 'Geo::Location::Point', 'an index hit returns a Geo::Location::Point');

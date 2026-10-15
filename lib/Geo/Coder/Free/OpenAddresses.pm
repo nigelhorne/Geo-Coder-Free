@@ -6,7 +6,8 @@ use strict;
 use warnings;
 use autodie qw(:all);
 
-use Geo::Coder::Free::Utils qw(_abbreviate _normalize GEOCODER);
+use Geo::Coder::Free::Provenance qw(GEOCODER);
+use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
 use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
 use Geo::Coder::Free::DB::openaddresses;	# The original CSV files
 use Geo::Hash;

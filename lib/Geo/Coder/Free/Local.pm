@@ -6,7 +6,8 @@ use autodie qw(:all);
 
 use Carp;
 use Geo::Location::Point 0.16;	# 0.16 stores and returns false values, so provenance survives
-use Geo::Coder::Free::Utils qw(_abbreviate _normalize _accuracy_for GEOCODER);
+use Geo::Coder::Free::Provenance qw(_accuracy_for GEOCODER);
+use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
 use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
 use Locale::CA;
