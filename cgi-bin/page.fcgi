@@ -45,6 +45,7 @@ use Error qw(:try);
 use File::Spec;
 use POSIX qw(strftime);
 use Readonly;
+use Module::Runtime qw(require_module);	# Safe dynamic module loading; avoids string eval
 use Time::HiRes;
 
 # use lib '/usr/lib';	# This needs to point to the Geo::Coder::Free directory lives,

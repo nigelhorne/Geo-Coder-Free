@@ -8,12 +8,21 @@
 use strict;
 use warnings;
 
+use CHI;
 use File::Temp qw(tempdir);
 use Readonly;
 use Scalar::Util qw(blessed refaddr);
 use Test::Most;
 use Test::Mockingbird qw(mock restore_all);
 use Test::Returns;
+
+# The optional, heavyweight address parsers.  Either may be installed on a
+# developer's machine and neither is in CI, and they change which rows a plain
+# location string matches, so a test that leaned on one would pass locally and
+# fail in CI.  Hiding them makes the parse the same everywhere: the tests below
+# assert what this distribution does with the data it ships, not what a parser
+# it may not have does with a string.
+use Test::Without::Module qw(Geo::libpostal Geo::Address::Parser);
 
 use lib 'lib';
 
@@ -125,7 +134,7 @@ my %LEDGER = (
 	'Local::geocode bare string'          => 1,
 	'Local::geocode USA normalisation'    => 1,
 	'Local::geocode index provenance'     => 1,
-	'Local::geocode search provenance'    => 1,
+	'Local::search provenance'            => 1,
 
 	# Geo::Coder::Free::Local::reverse_geocode
 	'Local::reverse_geocode latlng'         => 1,
@@ -471,7 +480,7 @@ subtest 'Local::ua — compatibility stub' => sub {
 	delete $LEDGER{'Local::ua returns undef'};
 };
 
-subtest 'Local::geocode — provenance on both paths' => sub {
+subtest 'Local::provenance — the index path, the cache and the column scan' => sub {
 	my $local = $LOCAL_OBJ;
 
 	# Section 2.1 of BI-Phase6-Dependency-Specs.md: every result carries the four
@@ -502,14 +511,25 @@ subtest 'Local::geocode — provenance on both paths' => sub {
 	is($cached->{'accuracy'}, 'address', 'the bundled address row is an address');
 	is($cached->{'geocoder'}, 'Geo::Coder::Free', 'and carries the distribution');
 
-	# A town match: the call site offers 'number road city state country', and the
-	# answer has no number or road, so the accuracy has to describe the columns
-	# that matched rather than the widest attempt.
-	my $town = $local->geocode(location => 'Silver Spring, Montgomery, MD, US');
-	ok(defined($town), 'a town lookup is answered');
+	# The column scan, the backend's other way of answering.  It is driven with
+	# the components a row of the dataset really carries rather than with a
+	# location string for a parser to split, because which strings are understood
+	# depends on the optional parsers this file hides above - and this
+	# distribution should not be credited with, or blamed for, what a parser it
+	# may not have does.  The call site offers 'number road city state country';
+	# this row has no number or road to match, so the accuracy has to describe
+	# the city, the state and the country that did match, not the widest attempt.
+	my $town = $local->_search(
+		{ city => 'SILVER SPRING', state => 'MD', country => 'US' },
+		qw(number road city state country),
+	);
+	ok(defined($town), 'the column scan answers');
+	my @scan_missing = grep { !defined($town->{$_}) } qw(geocoder database confidence accuracy);
+	is_deeply(\@scan_missing, [], 'the scan path sets all four provenance keys')
+		or diag(explain(\@scan_missing));
 	is($town->{'accuracy'}, 'locality', 'a city match is a locality, not an address');
 	is($town->{'database'}, 'Geo::Coder::Free::Local', 'and the scan path names the backend');
-	delete $LEDGER{'Local::geocode search provenance'};
+	delete $LEDGER{'Local::search provenance'};
 };
 
 # ---------------------------------------------------------------------------
@@ -704,19 +724,42 @@ restore_all();
 # stamping geocode() itself does, so a point a test built would prove nothing.
 # ---------------------------------------------------------------------------
 
-# A stand-in for the MaxMind cities database.  geocode() asks it for one row by
-# city, so the lookup can be answered without a data file and the code after the
-# lookup - including the provenance stamping - stays real.
+# Stand-ins for the three MaxMind databases.  The real ones are hundreds of
+# megabytes and are not installed everywhere - CI deliberately has none - so
+# geocode() is given an object whose lookups are already answered instead of one
+# built by new().  Everything after the lookup, including the provenance
+# stamping, is the real code.
 package MaxMind_Stub_Cities;
 
 sub new { my ($class, $row) = @_; return bless { row => $row }, $class }
 sub fetchrow_hashref { return { %{$_[0]->{'row'}} } }
 
+# admin1 and admin2 are consulted only to turn a county into a region code; the
+# empty answer leaves the region undecided, which is also the state CI is in.
+package MaxMind_Stub_Empty;
+
+sub new { return bless {}, shift }
+sub fetchrow_hashref { return }
+sub selectall_hashref { return [] }
+sub selectall_hash { return }
+
 package main;
 
 subtest 'MaxMind::geocode — a real hit carries all four provenance keys' => sub {
-	# A hand-curated entry, returned without opening a database at all.
-	my $mm = Geo::Coder::Free::MaxMind->new();
+	my $mm = bless {
+		cache  => CHI->new(driver => 'Memory', datastore => {}),
+		cities => MaxMind_Stub_Cities->new({
+			Latitude  => $MOCK_LAT,
+			Longitude => $MOCK_LON,
+			City      => 'woking',
+			Country   => 'gb',
+			Region    => 'gb',
+		}),
+		admin1 => MaxMind_Stub_Empty->new(),
+		admin2 => MaxMind_Stub_Empty->new(),
+	}, 'Geo::Coder::Free::MaxMind';
+
+	# A hand-curated entry, answered without looking at a database at all.
 	my $known = $mm->geocode(location => $MM_KNOWN_ADDR);
 	isa_ok($known, 'Geo::Location::Point', 'the known_location path returns a GLP');
 
@@ -732,17 +775,7 @@ subtest 'MaxMind::geocode — a real hit carries all four provenance keys' => su
 	# confidence, the accuracy and the coordinate are what the module makes of a
 	# database answer rather than what this test made up.  Deeper in the module
 	# the match could be resolved to a region, hence the two accepted values.
-	my $stub = MaxMind_Stub_Cities->new({
-		Latitude  => $MOCK_LAT,
-		Longitude => $MOCK_LON,
-		City      => 'woking',
-		Country   => 'gb',
-		Region    => 'gb',
-	});
-	my $geocoder = Geo::Coder::Free::MaxMind->new();
-	$geocoder->{'cities'} = $stub;
-
-	my $city = $geocoder->geocode(location => 'Woking, Surrey, England');
+	my $city = $mm->geocode(location => 'Woking, Surrey, England');
 	isa_ok($city, 'Geo::Location::Point', 'a cities hit returns a GLP');
 
 	@missing = grep { !defined($city->{$_}) } qw(geocoder database confidence accuracy);

@@ -28,6 +28,13 @@ Revision history for Geo-Coder-Free
 	  second lookup are all the code under test
 	- t/consumer-contract.t: geocoder, database, confidence and accuracy are declared as guaranteed producer
 	  keys, so a backend that stops setting one of them fails here
+	- t/bin.t: the skip for a run without OPENADDR_HOME covers the 26 tests the plan declares, not 28, so a
+	  configuration that skips the whole file no longer ends with 'Bad plan' and a non-zero exit
+	- t/unit.t needs neither the downloaded databases nor an optional address parser: the MaxMind section
+	  answers the database lookups itself, Geo::libpostal and Geo::Address::Parser are hidden so that what a
+	  location string parses to cannot decide whether a documented state is reachable, and the column scan
+	  is driven with the components a dataset row really carries.  Both of those were passing on a machine
+	  with the data and the parsers installed and failing in CI, which has neither
 
 0.44	Thu Oct 15 10:22:42 AM EDT 2026
 	[ Tests ]
