@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.45	
+0.45	Thu Oct 15 01:23:24 PM EDT 2026
 	[ Enhancements ]
 	- Every Geo::Location::Point this distribution returns now carries geocoder, database, confidence and
 	  accuracy, so a caller can tell which distribution and
