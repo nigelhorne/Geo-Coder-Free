@@ -1,0 +1,722 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>File: lib/Geo/Coder/Free/Config.pm</title>
+<style>
+
+/* --------------------------------------------------
+   CSS Variables (Light Mode Default)
+-------------------------------------------------- */
+
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --table-header: #333;
+    --table-header-text: #ffffff;
+
+    --survived-1: #f8d7da;
+    --survived-2: #f5b7b1;
+    --survived-3: #ec7063;
+
+    --killed: #d4edda;
+    --border: #cccccc;
+}
+
+/* --------------------------------------------------
+   Dark Mode Overrides
+-------------------------------------------------- */
+
+html[data-theme='dark'] {
+    --bg: #1e1e1e;
+    --text: #dddddd;
+    --table-header: #222;
+    --table-header-text: #ffffff;
+
+    --survived-1: #5c2b2e;
+    --survived-2: #7b2c2f;
+    --survived-3: #a93226;
+
+    --killed: #1e4620;
+    --border: #555;
+}
+
+/* --------------------------------------------------
+   Global Styles
+-------------------------------------------------- */
+
+body {
+	font-family: sans-serif;
+	background: var(--bg);
+	color: var(--text);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    background: var(--table-header);
+    color: var(--table-header-text);
+}
+
+.survived-1 { background-color: var(--survived-1); }
+.survived-2 { background-color: var(--survived-2); }
+.survived-3 { background-color: var(--survived-3); }
+
+.killed { background-color: var(--killed); }
+
+.legend {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+}
+
+.legend pre {
+    background: #f4f4f4;
+    padding: 5px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0 6px 0 20px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+}
+
+/* White box for non-mutated lines */
+.legend-box.none {
+	background-color: var(--bg);
+}
+
+/* --------------------------------------------------
+   Suggested Test Box Styling
+   Theme-aware and readable in light & dark modes
+-------------------------------------------------- */
+
+.suggested-test {
+    margin-top: 6px;
+    margin-bottom: 12px;
+
+    /* Use theme variables instead of hardcoded colors */
+    background: var(--bg);
+    color: var(--text);
+
+    padding: 8px;
+    border-radius: 4px;
+
+    /* Subtle border for visual separation */
+    border: 1px solid var(--border);
+}
+
+/* Label styling */
+.suggest-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* Ensure the test code block inherits readable colors */
+.suggested-test pre {
+    background: transparent;   /* Prevent nested dark blocks */
+    color: inherit;            /* Match theme text color */
+    margin: 0;
+    font-family: monospace;
+}
+
+pre { line-height: 1.4; }
+
+pre > details {
+    margin: 0.2em 0;
+}
+
+pre > details:first-child {
+    margin-top: 0;
+}
+
+pre > details:last-child {
+    margin-bottom: 0;
+}
+
+pre details,
+pre summary,
+pre ul,
+pre li {
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.nav { margin-bottom: 1em; }
+
+.toggle {
+    float: right;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	cursor: help;
+}
+
+/* Tooltip bubble */
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: var(--table-header);
+    color: var(--table-header-text);
+    padding: 6px 10px;
+    white-space: normal;
+    max-width: 300px;
+    min-width: 30ch;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    margin-left: 10ch;   /* move tooltip ~10 characters to the right */
+}
+
+.mutant-details {
+	margin-left: 2em;
+	font-size: 0.9em;
+}
+
+/* Indent the list of mutations that displays when expanding by 8 characters */
+pre details.mutant-details ul {
+	padding-left: 8ch;
+	margin: 0.2em 0;
+}
+
+.mutant-details summary {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.lcsaj-dot {
+    color: #5555ff;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-dot-uncovered {
+    color: #cc4444;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-tip {
+	position: relative;
+	display: inline-block;
+}
+
+.lcsaj-tip .lcsaj-tip-text {
+	visibility: hidden;
+	background-color: #333;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	white-space: nowrap;
+	position: fixed;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.lcsaj-tip:hover .lcsaj-tip-text {
+	visibility: visible;
+}
+
+.cpd-dot {
+    color: #cc8800;
+    font-size: 10px;
+    margin-right: 3px;
+    cursor: help;
+    text-decoration: none;
+}
+a.cpd-dot { cursor: pointer; }
+a.cpd-dot:hover { color: #ff8800; }
+
+.cpd-tip {
+    position: relative;
+    display: inline-block;
+}
+
+.cpd-tip .cpd-tip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cpd-tip:hover .cpd-tip-text {
+    visibility: visible;
+}
+
+/* CPD drill-down page styles */
+.dup-line { background-color: #fff3cd; display: block; }
+.dup-line:hover { background-color: #ffe082; }
+.intra-dot { color: #9944cc; margin-right: 4px; cursor: help; text-decoration: none; }
+a.intra-dot { cursor: pointer; }
+a.intra-dot:hover { color: #7700bb; }
+.cpd-legend {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    font-size: 0.9em;
+}
+
+</style>
+</head>
+<body>
+<button class="toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+<h1>lib/Geo/Coder/Free/Config.pm</h1>
+<div class="nav"><a href="Utils.pm.html">⬅ Previous</a> <a href="../../../../../index.html">Index</a>
+</div><div class='summary'>
+<strong>Structural Coverage (Approximate)</strong><p>
+TER1 (Statement): 78.22%<br>
+TER2 (Branch): 45.45%<br>
+TER3 (LCSAJ): 100.0% (12/12)<br>
+Approximate LCSAJ segments: 67<br>
+</div>
+
+    <div class="legend">
+        <h3>LCSAJ Legend</h3>
+
+        <p>
+        <span class="lcsaj-dot">●</span>
+        <b>Covered</b> — this LCSAJ path was executed during testing.
+        </p>
+
+        <p>
+        <span class="lcsaj-dot-uncovered">●</span>
+        <b>Not covered</b> — this LCSAJ path was never executed. These are the paths to focus on.
+        </p>
+
+        <p>
+        Multiple dots on a line indicate that multiple control-flow paths begin at that line.
+        Hovering over any dot shows:
+        </p>
+
+        <pre>
+        start → end → jump
+        </pre>
+
+        <ul>
+        <li><b>start</b> – first line of the linear sequence</li>
+        <li><b>end</b> – last line before control flow changes</li>
+        <li><b>jump</b> – line execution jumps to next</li>
+        </ul>
+
+        <p>
+        Uncovered paths show <b>[NOT COVERED]</b> in the tooltip.
+	</p>
+    </div>
+
+		<div class="legend">
+			<h3>Mutant Testing Legend</h3>
+			<span class="legend-box survived-1"></span> Survived (tests missed this)
+			<span class="legend-box killed"></span> Killed (tests detected this)
+			<span class="legend-box none"></span> No mutation
+		</div>
+	<pre>
+<span class="">    1: package Geo::Coder::Free::Config;
+</span><span class="">    2: 
+</span><span class="">    3: # VWF is licensed under GPL2.0 for personal use only
+</span><span class="">    4: # njh@bandsman.co.uk
+</span><span class="">    5: 
+</span><span class="">    6: # Usage is subject to licence terms.
+</span><span class="">    7: # The licence terms of this software are as follows:
+</span><span class="">    8: # Personal single user, single computer use: GPL2
+</span><span class="">    9: # All other users (including Commercial, Charity, Educational, Government)
+</span><span class="">   10: #	must apply in writing for a licence for use from Nigel Horne at the
+</span><span class="">   11: #	above e-mail.
+</span><span class="">   12: 
+</span><span class="">   13: use warnings;
+</span><span class="">   14: use strict;
+</span><span class="">   15: 
+</span><span class="">   16: use Carp;
+</span><span class="">   17: use Config::Abstraction;
+</span><span class="">   18: use CGI::Info;
+</span><span class="">   19: use Data::Dumper;
+</span><span class="">   20: use Error::Simple;
+</span><span class="">   21: use File::Spec;
+</span><span class="">   22: use Params::Get 0.13;
+</span><span class="">   23: 
+</span><span class="">   24: =encoding utf-8
+</span><span class="">   25: 
+</span><span class="">   26: =head1 NAME
+</span><span class="">   27: 
+</span><span class="">   28: Geo::Coder::Free::Config - Site-independent configuration file for the Versatile Web Framework
+</span><span class="">   29: 
+</span><span class="">   30: =head1 VERSION
+</span><span class="">   31: 
+</span><span class="">   32: Version 0.46
+</span><span class="">   33: 
+</span><span class="">   34: =cut
+</span><span class="">   35: 
+</span><span class="">   36: our $VERSION = &#39;0.46&#39;;
+</span><span class="">   37: 
+</span><span class="">   38: =head1 SUBROUTINES/METHODS
+</span><span class="">   39: 
+</span><span class="">   40: =head2 new
+</span><span class="">   41: 
+</span><span class="">   42: Creates a new Geo::Coder::Free::Config instance with hierarchical configuration loading.
+</span><span class="">   43: 
+</span><span class="">   44: Takes four optional arguments:
+</span><span class="">   45: 	info (CGI::Info object)
+</span><span class="">   46: 	logger
+</span><span class="">   47: 	config_directory - used when the configuration directory can&#39;t be worked out
+</span><span class="">   48: 	config_file - name of the configuration file - otherwise determined dynamically
+</span><span class="">   49: 	config (ref to hash of values to override in the config file
+</span><span class="">   50: 
+</span><span class="">   51: Values in the file are overridden by what&#39;s in the environment
+</span><span class="">   52: 
+</span><span class="">   53: B&lt;Parameters:&gt;
+</span><span class="">   54: 
+</span><span class="">   55: =over 4
+</span><span class="">   56: 
+</span><span class="">   57: =item * C&lt;info&gt; - CGI::Info object (optional, created if not provided)
+</span><span class="">   58: 
+</span><span class="">   59: =item * C&lt;logger&gt; - Logger object with debug() method (optional)
+</span><span class="">   60: 
+</span><span class="">   61: =item * C&lt;config_directory&gt; - Additional config directory path (optional)
+</span><span class="">   62: 
+</span><span class="">   63: =item * C&lt;config_file&gt; - Specific config filename (optional)
+</span><span class="">   64: 
+</span><span class="">   65: =item * C&lt;config&gt; - Hash ref of override values (optional)
+</span><span class="">   66: 
+</span><span class="">   67: =back
+</span><span class="">   68: 
+</span><span class="">   69: B&lt;Configuration Resolution Order:&gt;
+</span><span class="">   70: 1. Base configuration files
+</span><span class="">   71: 2. Values from config parameter
+</span><span class="">   72: 3. Environment variable overrides
+</span><span class="">   73: 
+</span><span class="">   74: B&lt;Directory Search Order:&gt;
+</span><span class="">   75: 1. $ENV{CONFIG_DIR} (if set)
+</span><span class="">   76: 2. Provided config_directory
+</span><span class="">   77: 3. ../conf relative to script
+</span><span class="">   78: 4. ../../conf relative to script
+</span><span class="">   79: 5. $DOCUMENT_ROOT/../lib/conf
+</span><span class="">   80: 6. $HOME/lib/conf
+</span><span class="">   81: 
+</span><span class="">   82: B&lt;Returns:&gt; Blessed Geo::Coder::Free::Config object
+</span><span class="">   83: 
+</span><span class="">   84: B&lt;Throws:&gt; Error::Simple on configuration errors
+</span><span class="">   85: 
+</span><span class="">   86: =head3 FORMAL SPECIFICATION
+</span><span class="">   87: 
+</span><span class="">   88:     [STRING, HASH, LOGGER]
+</span><span class="">   89: 
+</span><span class="">   90:     ConfigState ::= &acirc;&#159;&uml;&acirc;&#159;&uml; config_dirs : &acirc;&#132;&#153; STRING;
+</span><span class="">   91:                       config_data : HASH;
+</span><span class="">   92:                       logger : LOGGER &acirc;&#159;&copy;&acirc;&#159;&copy;
+</span><span class="">   93: 
+</span><span class="">   94:     ConfigArgs ::= &acirc;&#159;&uml;&acirc;&#159;&uml; info : CGI_Info;
+</span><span class="">   95:                      logger : LOGGER;
+</span><span class="">   96:                      config_directory : STRING;
+</span><span class="">   97:                      config_file : STRING;
+</span><span class="">   98:                      config : HASH &acirc;&#159;&copy;&acirc;&#159;&copy;
+</span><span class="">   99: 
+</span><span class="">  100:     Init : ConfigArgs &acirc;&#134;&#146; ConfigState
+</span><span class="">  101: 
+</span><span class="">  102:     &acirc;&#136;&#128; params : ConfigArgs &acirc;&#128;&cent;
+</span><span class="">  103:       let dirs == if env.CONFIG_DIR &acirc;&#137;&nbsp; &acirc;&#136;&#133;
+</span><span class="">  104:                   then {env.CONFIG_DIR}
+</span><span class="">  105:                   else default_dirs &acirc;&#136;&ordf; {params.config_directory} fi &acirc;&#128;&cent;
+</span><span class="">  106:       let valid_dirs == {d : dirs | &acirc;&#136;&#131; f : FILE &acirc;&#128;&cent; readable(d, f)} &acirc;&#128;&cent;
+</span><span class="">  107:       valid_dirs &acirc;&#137;&nbsp; &acirc;&#136;&#133; &acirc;&#136;&sect;
+</span><span class="">  108:       config_data &acirc;&#136;&#136; HASH &acirc;&#136;&sect;
+</span><span class="">  109:       config_data = merge(file_config, params.config, env_overrides)
+</span><span class="">  110: 
+</span><span class="">  111:     ValidConfigKey == {k : STRING | k &acirc;&#136;&#136; dom config_data}
+</span><span class="">  112: 
+</span><span class="">  113:     GetConfigValue : ValidConfigKey &acirc;&#134;&#146; (STRING &acirc;&#136;&ordf; HASH &acirc;&#136;&ordf; ARRAY)
+</span><span class="">  114: 
+</span><span class="">  115: =cut
+</span><span class="">  116: 
+</span><span class="">  117: sub new
+</span><span class="">  118: {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">119 → 122 → 127</span></span>  119: 	my $proto = shift;
+</span><span class="">  120: 	my $params = Params::Get::get_params(undef, @_);
+</span><span class="">  121: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  122: 	if (exists $params-&gt;{logger} &amp;&amp; defined $params-&gt;{logger}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  123: 		throw Error::Simple(&#39;logger must be an object with debug method&#39;)
+</span><span class="">  124: 		    unless ref($params-&gt;{logger}) &amp;&amp; $params-&gt;{logger}-&gt;can(&#39;debug&#39;);
+</span><span class="">  125: 	}
+</span><span class="">  126: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">127 → 127 → 131</span></span>  127: 	if($params-&gt;{&#39;logger&#39;}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  128: 		$params-&gt;{&#39;logger&#39;}-&gt;debug(__PACKAGE__, &#39;-&gt;new()&#39;);
+</span><span class="">  129: 	}
+</span><span class="">  130: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">131 → 131 → 135</span></span>  131: 	if(exists $params-&gt;{config} &amp;&amp; defined $params-&gt;{config}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  132: 		throw Error::Simple(&#39;config must be a hash reference&#39;) unless ref($params-&gt;{config}) eq &#39;HASH&#39;;
+</span><span class="">  133: 	}
+</span><span class="">  134: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">135 → 139 → 185</span></span>  135: 	my $class = ref($proto) || $proto;
+</span><span class="">  136: 	my $info = $params-&gt;{info} || CGI::Info-&gt;new();
+</span><span class="">  137: 
+</span><span class="">  138: 	my @config_dirs;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  139: 	if($ENV{&#39;CONFIG_DIR&#39;}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  140: 		# Validate directory exists
+</span><span class="">  141: 		throw Error::Simple(&quot;CONFIG_DIR &#39;$ENV{CONFIG_DIR}&#39; does not exist or is not readable&quot;)
+</span><span class="">  142: 			unless -d $ENV{&#39;CONFIG_DIR&#39;} &amp;&amp; -r $ENV{&#39;CONFIG_DIR&#39;};
+</span><span class="">  143: 		@config_dirs = ($ENV{&#39;CONFIG_DIR&#39;});
+</span><span class="">  144: 	} else {
+</span><span class="">  145: 		# Build the standard search path; caller&#39;s config_directory is prepended below
+</span><span class="">  146: 		@config_dirs = (
+</span><span class="">  147: 			File::Spec-&gt;catdir(
+</span><span class="">  148: 				$info-&gt;script_dir(),
+</span><span class="">  149: 				File::Spec-&gt;updir(),
+</span><span class="">  150: 				File::Spec-&gt;updir(),
+</span><span class="">  151: 				&#39;conf&#39;
+</span><span class="">  152: 			), File::Spec-&gt;catdir(
+</span><span class="">  153: 				$info-&gt;script_dir(),
+</span><span class="">  154: 				File::Spec-&gt;updir(),
+</span><span class="">  155: 				&#39;conf&#39;
+</span><span class="">  156: 			)
+</span><span class="">  157: 		);
+</span><span class="">  158: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  159: 		if($ENV{&#39;DOCUMENT_ROOT&#39;}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  160: 			push(@config_dirs, File::Spec-&gt;catdir(
+</span><span class="">  161: 				$ENV{&#39;DOCUMENT_ROOT&#39;},
+</span><span class="">  162: 				File::Spec-&gt;updir(),
+</span><span class="">  163: 				&#39;lib&#39;,
+</span><span class="">  164: 				&#39;conf&#39;
+</span><span class="">  165: 			))
+</span><span class="">  166: 		}
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  167: 		if($ENV{&#39;HOME&#39;}) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_167_3: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  168: 			push(@config_dirs, File::Spec-&gt;catdir(
+</span><span class="">  169: 				$ENV{&#39;HOME&#39;},
+</span><span class="">  170: 				&#39;lib&#39;,
+</span><span class="">  171: 				&#39;conf&#39;
+</span><span class="">  172: 			));
+</span><span class="">  173: 		}
+</span><span class="">  174: 
+</span><span class="">  175: 		# Prepend the caller-supplied directory so it takes highest precedence
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  176: 		if($params-&gt;{config_directory}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  177: 			throw Error::Simple(&quot;config_directory must be a string&quot;) if ref($params-&gt;{config_directory});
+</span><span class="">  178: 			throw Error::Simple(&quot;config_directory &#39;$params-&gt;{config_directory}&#39; does not exist&quot;)
+</span><span class="">  179: 				unless -d $params-&gt;{config_directory};
+</span><span class="">  180: 			unshift @config_dirs, $params-&gt;{config_directory};
+</span><span class="">  181: 		}
+</span><span class="">  182: 	}
+</span><span class="">  183: 
+</span><span class="">  184: 	# Look for localised configurations
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">185 → 186 → 189</span></span>  185: 	my $language;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  186: 	if(my $lingua = $params-&gt;{&#39;lingua&#39;}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  187: 		$language = $lingua-&gt;language_code_alpha2();
+</span><span class="">  188: 	}
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">189 → 191 → 201</span></span>  189: 	$language ||= $info-&gt;lang();
+</span><span class="">  190: 
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  191: 	if($language) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_191_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  192: 		@config_dirs = map {
+</span><span class="">  193: 			($_, &quot;$_/default&quot;, &quot;$_/$language&quot;)
+</span><span class="">  194: 		} @config_dirs;
+</span><span class="">  195: 	} else {
+</span><span class="">  196: 		@config_dirs = map {
+</span><span class="">  197: 			($_, File::Spec-&gt;catdir($_, &#39;default&#39;))
+</span><span class="">  198: 		} @config_dirs;
+</span><span class="">  199: 	}
+</span><span class="">  200: 
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">201 → 201 → 214</span></span>  201: 	if($params-&gt;{&#39;debug&#39;}) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_201_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  202: 		# Not sure this really does anything
+</span><span class="">  203: 		# $Config::Auto::Debug = 1;
+</span><span class="">  204: 
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  205: 		if($params-&gt;{logger}) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_205_3: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  206: 			while(my ($key,$value) = each %ENV) {
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  207: 				if($value) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_207_5: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  208: 					$params-&gt;{logger}-&gt;debug(&quot;$key=$value&quot;);
+</span><span class="">  209: 				}
+</span><span class="">  210: 			}
+</span><span class="">  211: 		}
+</span><span class="">  212: 	}
+</span><span class="">  213: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">214 → 222 → 227</span></span>  214: 	my $config;
+</span><span class="">  215: 	eval {
+</span><span class="">  216: 		$config = Config::Abstraction-&gt;new(
+</span><span class="">  217: 			config_dirs =&gt; \@config_dirs,
+</span><span class="">  218: 			config_files =&gt; [&#39;default&#39;, $info-&gt;domain_name(), $ENV{&#39;CONFIG_FILE&#39;}, $params-&gt;{&#39;config_file&#39;}],
+</span><span class="">  219: 			logger =&gt; $params-&gt;{&#39;logger&#39;}
+</span><span class="">  220: 		)-&gt;all();
+</span><span class="">  221: 	};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  222: 	if($@ || !defined($config)) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  223: 		throw Error::Simple(&quot;Configuration error: $@&quot;);
+</span><span class="">  224: 	}
+</span><span class="">  225: 
+</span><span class="">  226: 	# Validate essential configuration structure
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">227 → 231 → 236</span></span>  227: 	throw Error::Simple(&#39;Configuration must be a hash reference&#39;) unless(ref($config) eq &#39;HASH&#39;);
+</span><span class="">  228: 
+</span><span class="">  229: 	# The values in config are defaults which can be overridden by
+</span><span class="">  230: 	# the values in params-&gt;{config}
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  231: 	if(defined($params-&gt;{&#39;config&#39;})) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  232: 		$config = { %{$config}, %{$params-&gt;{&#39;config&#39;}} };
+</span><span class="">  233: 	}
+</span><span class="">  234: 
+</span><span class="">  235: 	# Allow variables to be overridden by the environment
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">236 → 236 → 259</span></span>  236: 	foreach my $key(keys %{$config}) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  237: 		if(my $value = $ENV{$key}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  238: 			# Validate environment variable names
+</span><span class="">  239: 			# throw Error::Simple(&quot;Invalid environment variable name: $key&quot;)
+</span><span class="">  240: 				# unless $key =~ /^[A-Z_][A-Z0-9_]*$/;
+</span><span class="">  241: 
+</span><span class="">  242: 			# Sanitize values
+</span><span class="">  243: 			# $value =~ s/[^\w\s=\.\-]//g;	# Remove potentially dangerous characters
+</span><span class="">  244: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  245: 			if($params-&gt;{&#39;logger&#39;}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  246: 				$params-&gt;{&#39;logger&#39;}-&gt;debug(__PACKAGE__, &#39;: &#39;, __LINE__, &quot; overwriting $key, &quot;, $config-&gt;{$key}, &quot; with $value&quot;);
+</span><span class="">  247: 			}
+</span><span class="">  248: 			# If the value contains an equals make it into a hash value
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  249: 			if($value =~ /(.+)=(.+)/) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  250: 				delete $config-&gt;{$key} if(!ref($config-&gt;{$key}));
+</span><span class="">  251: 				$config-&gt;{$key}{$1} = $2;
+</span><span class="">  252: 			} else {
+</span><span class="">  253: 				$config-&gt;{$key} = $value;
+</span><span class="">  254: 			}
+</span><span class="">  255: 		}
+</span><span class="">  256: 	}
+</span><span class="">  257: 
+</span><span class="">  258: 	# Config::Any turns fields with spaces into arrays, put them back
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">259 → 259 → 271</span></span>  259: 	foreach my $field(&#39;Contents&#39;, &#39;SiteTitle&#39;) {
+</span><span class="">  260: 		next if(!exists $config-&gt;{$field});
+</span><span class="">  261: 		my $value = $config-&gt;{$field};
+</span><span class="">  262: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  263: 		if(ref($value) eq &#39;ARRAY&#39;) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  264: 			$config-&gt;{$field} = join(&#39; &#39;, @{$value});
+</span><span class="">  265: 		}
+</span><span class="">  266: 	}
+</span><span class="">  267: 
+</span><span class="">  268: 	# unless($config-&gt;{&#39;config_path&#39;}) {
+</span><span class="">  269: 		# $config-&gt;{&#39;config_path&#39;} = File::Spec-&gt;catdir($config_dir, $info-&gt;domain_name());
+</span><span class="">  270: 	# }
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">271 → 271 → 275</span></span>  271: 	if($params-&gt;{&#39;debug&#39;} &amp;&amp; $params-&gt;{&#39;logger&#39;}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  272: 		$params-&gt;{&#39;logger&#39;}-&gt;debug(__PACKAGE__, &#39;(&#39;, __LINE__, &#39;): &#39;, Data::Dumper-&gt;new([$config])-&gt;Dump());
+</span><span class="">  273: 	}
+</span><span class="">  274: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  275: 	return bless $config, $class;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  276: }
+</span><span class="">  277: 
+</span><span class="">  278: sub AUTOLOAD
+</span><span class="">  279: {
+</span><span class="">  280: 	our $AUTOLOAD;
+</span><span class="">  281: 	my $self = shift;
+</span><span class="">  282: 
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  283: 	return undef unless($self);
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_283_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_283_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  284: 	return unless defined($AUTOLOAD);
+</span><span class="">  285: 
+</span><span class="">  286: 	# Extract the key name from the AUTOLOAD variable
+</span><span class="">  287: 	(my $key = $AUTOLOAD) =~ s/.*:://;
+</span><span class="">  288: 
+</span><span class="">  289: 	return unless defined($key);
+</span><span class="">  290: 
+</span><span class="">  291: 	# Don&#39;t handle special methods
+</span><span class="">  292: 	return if $key eq &#39;DESTROY&#39;;
+</span><span class="">  293: 
+</span><span class="">  294: 	# Validate method name - only allow safe config keys
+</span><span class="">  295: 	Carp::croak(__PACKAGE__, &quot;: Invalid key name: $key&quot;) unless $key =~ /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+</span><span class="">  296: 
+</span><span class="">  297: 	# Return the value of the corresponding hash key
+</span><span class="">  298: 	# Only return existing keys to avoid auto-vivification
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  299: 	return exists $self-&gt;{$key} ? $self-&gt;{$key} : undef;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  300: }
+</span><span class="">  301: 
+</span><span class="">  302: 1;
+</span></pre>
+
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+}
+
+(function() {
+    const saved = localStorage.getItem('theme');
+    if(saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+    }
+})();
+
+document.addEventListener("mousemove", function(e) {
+	document.querySelectorAll(".lcsaj-tip-text, .cpd-tip-text").forEach(function(tip) {
+		tip.style.left = (e.clientX + 12) + "px";
+		tip.style.top  = (e.clientY + 12) + "px";
+	});
+});
+</script>
+</body>
+</html>
+	

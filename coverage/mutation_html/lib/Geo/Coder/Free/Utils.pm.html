@@ -1,0 +1,1256 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>File: lib/Geo/Coder/Free/Utils.pm</title>
+<style>
+
+/* --------------------------------------------------
+   CSS Variables (Light Mode Default)
+-------------------------------------------------- */
+
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --table-header: #333;
+    --table-header-text: #ffffff;
+
+    --survived-1: #f8d7da;
+    --survived-2: #f5b7b1;
+    --survived-3: #ec7063;
+
+    --killed: #d4edda;
+    --border: #cccccc;
+}
+
+/* --------------------------------------------------
+   Dark Mode Overrides
+-------------------------------------------------- */
+
+html[data-theme='dark'] {
+    --bg: #1e1e1e;
+    --text: #dddddd;
+    --table-header: #222;
+    --table-header-text: #ffffff;
+
+    --survived-1: #5c2b2e;
+    --survived-2: #7b2c2f;
+    --survived-3: #a93226;
+
+    --killed: #1e4620;
+    --border: #555;
+}
+
+/* --------------------------------------------------
+   Global Styles
+-------------------------------------------------- */
+
+body {
+	font-family: sans-serif;
+	background: var(--bg);
+	color: var(--text);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    background: var(--table-header);
+    color: var(--table-header-text);
+}
+
+.survived-1 { background-color: var(--survived-1); }
+.survived-2 { background-color: var(--survived-2); }
+.survived-3 { background-color: var(--survived-3); }
+
+.killed { background-color: var(--killed); }
+
+.legend {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+}
+
+.legend pre {
+    background: #f4f4f4;
+    padding: 5px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0 6px 0 20px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+}
+
+/* White box for non-mutated lines */
+.legend-box.none {
+	background-color: var(--bg);
+}
+
+/* --------------------------------------------------
+   Suggested Test Box Styling
+   Theme-aware and readable in light & dark modes
+-------------------------------------------------- */
+
+.suggested-test {
+    margin-top: 6px;
+    margin-bottom: 12px;
+
+    /* Use theme variables instead of hardcoded colors */
+    background: var(--bg);
+    color: var(--text);
+
+    padding: 8px;
+    border-radius: 4px;
+
+    /* Subtle border for visual separation */
+    border: 1px solid var(--border);
+}
+
+/* Label styling */
+.suggest-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* Ensure the test code block inherits readable colors */
+.suggested-test pre {
+    background: transparent;   /* Prevent nested dark blocks */
+    color: inherit;            /* Match theme text color */
+    margin: 0;
+    font-family: monospace;
+}
+
+pre { line-height: 1.4; }
+
+pre > details {
+    margin: 0.2em 0;
+}
+
+pre > details:first-child {
+    margin-top: 0;
+}
+
+pre > details:last-child {
+    margin-bottom: 0;
+}
+
+pre details,
+pre summary,
+pre ul,
+pre li {
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.nav { margin-bottom: 1em; }
+
+.toggle {
+    float: right;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	cursor: help;
+}
+
+/* Tooltip bubble */
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: var(--table-header);
+    color: var(--table-header-text);
+    padding: 6px 10px;
+    white-space: normal;
+    max-width: 300px;
+    min-width: 30ch;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    margin-left: 10ch;   /* move tooltip ~10 characters to the right */
+}
+
+.mutant-details {
+	margin-left: 2em;
+	font-size: 0.9em;
+}
+
+/* Indent the list of mutations that displays when expanding by 8 characters */
+pre details.mutant-details ul {
+	padding-left: 8ch;
+	margin: 0.2em 0;
+}
+
+.mutant-details summary {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.lcsaj-dot {
+    color: #5555ff;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-dot-uncovered {
+    color: #cc4444;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-tip {
+	position: relative;
+	display: inline-block;
+}
+
+.lcsaj-tip .lcsaj-tip-text {
+	visibility: hidden;
+	background-color: #333;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	white-space: nowrap;
+	position: fixed;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.lcsaj-tip:hover .lcsaj-tip-text {
+	visibility: visible;
+}
+
+.cpd-dot {
+    color: #cc8800;
+    font-size: 10px;
+    margin-right: 3px;
+    cursor: help;
+    text-decoration: none;
+}
+a.cpd-dot { cursor: pointer; }
+a.cpd-dot:hover { color: #ff8800; }
+
+.cpd-tip {
+    position: relative;
+    display: inline-block;
+}
+
+.cpd-tip .cpd-tip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cpd-tip:hover .cpd-tip-text {
+    visibility: visible;
+}
+
+/* CPD drill-down page styles */
+.dup-line { background-color: #fff3cd; display: block; }
+.dup-line:hover { background-color: #ffe082; }
+.intra-dot { color: #9944cc; margin-right: 4px; cursor: help; text-decoration: none; }
+a.intra-dot { cursor: pointer; }
+a.intra-dot:hover { color: #7700bb; }
+.cpd-legend {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    font-size: 0.9em;
+}
+
+</style>
+</head>
+<body>
+<button class="toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+<h1>lib/Geo/Coder/Free/Utils.pm</h1>
+<div class="nav"><a href="Provenance.pm.html">⬅ Previous</a> <a href="../../../../../index.html">Index</a>
+ <a href="Config.pm.html">Next ➡</a></div><div class='summary'>
+<strong>Structural Coverage (Approximate)</strong><p>
+TER1 (Statement): 70.70%<br>
+TER2 (Branch): 66.07%<br>
+TER3 (LCSAJ): 81.2% (13/16)<br>
+Approximate LCSAJ segments: 113<br>
+</div>
+
+    <div class="legend">
+        <h3>LCSAJ Legend</h3>
+
+        <p>
+        <span class="lcsaj-dot">●</span>
+        <b>Covered</b> — this LCSAJ path was executed during testing.
+        </p>
+
+        <p>
+        <span class="lcsaj-dot-uncovered">●</span>
+        <b>Not covered</b> — this LCSAJ path was never executed. These are the paths to focus on.
+        </p>
+
+        <p>
+        Multiple dots on a line indicate that multiple control-flow paths begin at that line.
+        Hovering over any dot shows:
+        </p>
+
+        <pre>
+        start → end → jump
+        </pre>
+
+        <ul>
+        <li><b>start</b> – first line of the linear sequence</li>
+        <li><b>end</b> – last line before control flow changes</li>
+        <li><b>jump</b> – line execution jumps to next</li>
+        </ul>
+
+        <p>
+        Uncovered paths show <b>[NOT COVERED]</b> in the tooltip.
+	</p>
+    </div>
+
+		<div class="legend">
+			<h3>Mutant Testing Legend</h3>
+			<span class="legend-box survived-1"></span> Survived (tests missed this)
+			<span class="legend-box killed"></span> Killed (tests detected this)
+			<span class="legend-box none"></span> No mutation
+		</div>
+	<pre>
+<span class="">    1: package Geo::Coder::Free::Utils;
+</span><span class="">    2: 
+</span><span class="">    3: # VWF is licensed under GPL2.0 for personal use only
+</span><span class="">    4: # njh@nigelhorne.com
+</span><span class="">    5: 
+</span><span class="">    6: =encoding utf-8
+</span><span class="">    7: 
+</span><span class="">    8: =head1 NAME
+</span><span class="">    9: 
+</span><span class="">   10: Geo::Coder::Free::Utils - Random subroutines for Geo::Coder::Free
+</span><span class="">   11: 
+</span><span class="">   12: =head1 DESCRIPTION
+</span><span class="">   13: 
+</span><span class="">   14: Utility module for cache management, geospatial calculations, and shared
+</span><span class="">   15: address-normalization helpers used by multiple backends.
+</span><span class="">   16: 
+</span><span class="">   17: =head1 VERSION
+</span><span class="">   18: 
+</span><span class="">   19: Version 0.46
+</span><span class="">   20: 
+</span><span class="">   21: =cut
+</span><span class="">   22: 
+</span><span class="">   23: our $VERSION = &#39;0.46&#39;;
+</span><span class="">   24: 
+</span><span class="">   25: use v5.20;
+</span><span class="">   26: use strict;
+</span><span class="">   27: use warnings;
+</span><span class="">   28: use feature qw(signatures);
+</span><span class="">   29: no warnings qw(experimental::signatures);
+</span><span class="">   30: 
+</span><span class="">   31: use Exporter qw(import);
+</span><span class="">   32: our @EXPORT = qw(create_disc_cache create_memory_cache distance _abbreviate _normalize);
+</span><span class="">   33: our @EXPORT_OK = qw(_abbreviate _normalize);
+</span><span class="">   34: 
+</span><span class="">   35: use CHI;
+</span><span class="">   36: use Data::Dumper;
+</span><span class="">   37: use Geo::Coder::Abbreviations;
+</span><span class="">   38: use DBI;
+</span><span class="">   39: use Error::Simple;
+</span><span class="">   40: use Module::Runtime qw(require_module);	# Safe dynamic loading; avoids string eval
+</span><span class="">   41: use Params::Get 0.13;
+</span><span class="">   42: use Try::Tiny;
+</span><span class="">   43: use Carp qw(croak carp);
+</span><span class="">   44: use Scalar::Util qw(looks_like_number);
+</span><span class="">   45: use Math::Trig qw(deg2rad rad2deg asin great_circle_distance);
+</span><span class="">   46: 
+</span><span class="">   47: # Constants for distance calculations
+</span><span class="">   48: use constant {
+</span><span class="">   49: 	EARTH_RADIUS_MILES =&gt; 3959,
+</span><span class="">   50: 	EARTH_RADIUS_KM =&gt; 6371,
+</span><span class="">   51: 	EARTH_RADIUS_NM =&gt; 3440,
+</span><span class="">   52: 	KM_PER_MILE =&gt; 1.609344,
+</span><span class="">   53: 	NM_PER_MILE =&gt; 0.8684
+</span><span class="">   54: };
+</span><span class="">   55: 
+</span><span class="">   56: =head1 SUBROUTINES/METHODS
+</span><span class="">   57: 
+</span><span class="">   58: =head2 FORMAL SPECIFICATION
+</span><span class="">   59: 
+</span><span class="">   60: 	[STRING, HASH, LOGGER, CHI_CACHE, COORDINATE]
+</span><span class="">   61: 
+</span><span class="">   62: 	CacheConfig ::= &acirc;&#159;&uml;&acirc;&#159;&uml; driver : STRING;
+</span><span class="">   63: 					 servers : seq STRING;
+</span><span class="">   64: 					 root_dir : STRING;
+</span><span class="">   65: 					 connect : STRING &acirc;&#159;&copy;&acirc;&#159;&copy;
+</span><span class="">   66: 
+</span><span class="">   67: 	CacheArgs ::= &acirc;&#159;&uml;&acirc;&#159;&uml; config : HASH;
+</span><span class="">   68: 					logger : LOGGER;
+</span><span class="">   69: 					namespace : STRING;
+</span><span class="">   70: 					root_dir : STRING &acirc;&#159;&copy;&acirc;&#159;&copy;
+</span><span class="">   71: 
+</span><span class="">   72: 	Point ::= &acirc;&#159;&uml;&acirc;&#159;&uml; latitude : COORDINATE;
+</span><span class="">   73: 				longitude : COORDINATE &acirc;&#159;&copy;&acirc;&#159;&copy;
+</span><span class="">   74: 	where
+</span><span class="">   75: 	  latitude &acirc;&#136;&#136; {x : &acirc;&#132;&#157; | -90 &acirc;&#137;&curren; x &acirc;&#137;&curren; 90} &acirc;&#136;&sect;
+</span><span class="">   76: 	  longitude &acirc;&#136;&#136; {x : &acirc;&#132;&#157; | -180 &acirc;&#137;&curren; x &acirc;&#137;&curren; 180}
+</span><span class="">   77: 
+</span><span class="">   78: 	Unit ::= K | N | M
+</span><span class="">   79: 
+</span><span class="">   80: 	CreateCache : CacheArgs &acirc;&#134;&#146; CHI_CACHE
+</span><span class="">   81: 
+</span><span class="">   82: 	&acirc;&#136;&#128; args : CacheArgs &acirc;&#128;&cent;
+</span><span class="">   83: 	  let driver == args.config.driver &acirc;&#136;&uml; default_driver &acirc;&#128;&cent;
+</span><span class="">   84: 	  validate_driver_config(driver, args.config) &acirc;&#136;&sect;
+</span><span class="">   85: 	  &acirc;&#136;&#131; cache : CHI_CACHE &acirc;&#128;&cent; cache = CHI.new(build_chi_args(driver, args))
+</span><span class="">   86: 
+</span><span class="">   87: 	Distance : Point &Atilde;&#151; Point &Atilde;&#151; Unit &acirc;&#134;&#146; &acirc;&#132;&#157;&acirc;&#130;&#138;
+</span><span class="">   88: 
+</span><span class="">   89: 	&acirc;&#136;&#128; p1, p2 : Point; u : Unit &acirc;&#128;&cent;
+</span><span class="">   90: 	  let d == great_circle_distance(p1, p2) &acirc;&#128;&cent;
+</span><span class="">   91: 	  d &acirc;&#137;&yen; 0 &acirc;&#136;&sect;
+</span><span class="">   92: 	  (u = K &acirc;&#159;&sup1; result = d &Atilde;&#151; 1.609344) &acirc;&#136;&sect;
+</span><span class="">   93: 	  (u = N &acirc;&#159;&sup1; result = d &Atilde;&#151; 0.8684) &acirc;&#136;&sect;
+</span><span class="">   94: 	  (u = M &acirc;&#159;&sup1; result = d)
+</span><span class="">   95: 
+</span><span class="">   96: =head2 create_disc_cache
+</span><span class="">   97: 
+</span><span class="">   98: Initialize a disc-based cache using the CHI module.
+</span><span class="">   99: Supports multiple cache drivers, including BerkeleyDB, DBI, and Redis.
+</span><span class="">  100: 
+</span><span class="">  101: Parameters:
+</span><span class="">  102: - config: Configuration hash reference (required)
+</span><span class="">  103: - logger: Logger object (optional)
+</span><span class="">  104: - namespace: Cache namespace (optional)
+</span><span class="">  105: - root_dir: Root directory override (optional)
+</span><span class="">  106: 
+</span><span class="">  107: Returns: CHI cache object
+</span><span class="">  108: 
+</span><span class="">  109: =cut
+</span><span class="">  110: 
+</span><span class="">  111: sub create_disc_cache {
+</span><span class="">  112: 	my $args = Params::Get::get_params(undef, @_);
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  113: 	return _create_cache(&#39;disc_cache&#39;, $args);
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  114: }
+</span><span class="">  115: 
+</span><span class="">  116: =head2 create_memory_cache
+</span><span class="">  117: 
+</span><span class="">  118: Initialize a memory-based cache using the CHI module.
+</span><span class="">  119: Supports multiple cache drivers, including SharedMem, Memory, and Redis.
+</span><span class="">  120: 
+</span><span class="">  121: Parameters:
+</span><span class="">  122: - config: Configuration hash reference (required)
+</span><span class="">  123: - logger: Logger object (optional)
+</span><span class="">  124: - namespace: Cache namespace (optional)
+</span><span class="">  125: - root_dir: Root directory override (optional)
+</span><span class="">  126: 
+</span><span class="">  127: Returns: CHI cache object
+</span><span class="">  128: 
+</span><span class="">  129: =cut
+</span><span class="">  130: 
+</span><span class="">  131: sub create_memory_cache {
+</span><span class="">  132: 	my $args = Params::Get::get_params(undef, @_);
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  133: 	return _create_cache(&#39;memory_cache&#39;, $args);
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  134: }
+</span><span class="">  135: 
+</span><span class="">  136: # Private helper functions
+</span><span class="">  137: 
+</span><span class="">  138: sub _create_cache($cache_type, $args) {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">139 → 149 → 157</span></span>  139: 	my $config = $args-&gt;{&#39;config&#39;};
+</span><span class="">  140: 	throw Error::Simple(&#39;config is not optional&#39;) unless($config);
+</span><span class="">  141: 
+</span><span class="">  142: 	_validate_cache_config($config, $cache_type);
+</span><span class="">  143: 
+</span><span class="">  144: 	my $logger = $args-&gt;{&#39;logger&#39;};
+</span><span class="">  145: 	my $cache_config = $config-&gt;{$cache_type} || {};
+</span><span class="">  146: 	my $driver = $cache_config-&gt;{driver};
+</span><span class="">  147: 
+</span><span class="">  148: 	# Set default driver with fallback strategy
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  149: 	unless (defined $driver) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  150: 		$driver = _get_default_driver($cache_type, $logger);
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  151: 		if ($logger) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_151_3: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  152: 			$logger-&gt;info(&quot;No driver specified for $cache_type, using $driver&quot;);
+</span><span class="">  153: 		}
+</span><span class="">  154: 	}
+</span><span class="">  155: 
+</span><span class="">  156: 	# Validate driver is available
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">157 → 157 → 166</span></span>  157: 	unless (_is_driver_available($driver)) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_157_2: Invert condition unless to if</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  158: 		my $fallback = _get_fallback_driver($cache_type);
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  159: 		if ($logger) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  160: 			$logger-&gt;warn(&quot;Driver $driver not available, falling back to $fallback&quot;);
+</span><span class="">  161: 		}
+</span><span class="">  162: 		$driver = $fallback;
+</span><span class="">  163: 	}
+</span><span class="">  164: 
+</span><span class="">  165: 	# Build CHI arguments
+</span><span class="">  166: 	my %chi_args = _build_chi_args($driver, $cache_config, $args, $logger, $cache_type);
+</span><span class="">  167: 
+</span><span class="">  168: 	# Create cache with error handling
+</span><span class="">  169: 	my $cache;
+</span><span class="">  170: 	try {
+</span><span class="">  171: 		$cache = CHI-&gt;new(%chi_args);
+</span><span class="">  172: 	} catch {
+</span><span class="">  173: 		my $error = &quot;Failed to create $cache_type cache with driver $driver: $_&quot;;
+</span><span class="">  174: 		$logger-&gt;error($error) if $logger;
+</span><span class="">  175: 		throw Error::Simple($error);
+</span><span class="">  176: 	};
+</span><span class="">  177: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  178: 	return $cache;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  179: }
+</span><span class="">  180: 
+</span><span class="">  181: sub _validate_cache_config($config, $cache_type) {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">182 → 189 → 197</span></span>  182: 	return unless exists $config-&gt;{$cache_type};
+</span><span class="">  183: 
+</span><span class="">  184: 	my $cache_config = $config-&gt;{$cache_type};
+</span><span class="">  185: 	croak(&#39;Cache configuration must be a hash reference&#39;)
+</span><span class="">  186: 		unless ref($cache_config) eq &#39;HASH&#39;;
+</span><span class="">  187: 
+</span><span class="">  188: 	# Validate driver if specified
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  189: 	if (exists $cache_config-&gt;{driver}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  190: 		my $driver = $cache_config-&gt;{driver};
+</span><span class="">  191: 		my @valid_drivers = qw(Memory BerkeleyDB DBI Redis Memcached SharedMem File Null);
+</span><span class="">  192: 		croak &quot;Invalid driver &#39;$driver&#39;. Valid drivers: &quot; . join(&#39;, &#39;, @valid_drivers)
+</span><span class="">  193: 			unless grep { $_ eq $driver } @valid_drivers;
+</span><span class="">  194: 	}
+</span><span class="">  195: 
+</span><span class="">  196: 	# Validate numeric parameters
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">197 → 197 → 205</span></span>  197: 	for my $param (qw(port shm_size max_size)) {
+</span><span class="">  198: 		next unless exists $cache_config-&gt;{$param};
+</span><span class="">  199: 		my $value = $cache_config-&gt;{$param};
+</span><span class="">  200: 		croak &quot;$param must be a positive integer&quot;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  201: 			unless defined $value &amp;&amp; $value =~ /^\d+$/ &amp;&amp; $value &gt; 0;
+</span><p> <b> Mutants (Total: 3, Killed: 3, Survived: 0)</b><p><span class="">  202: 	}
+</span><span class="">  203: 
+</span><span class="">  204: 	# Validate port range
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">205 → 205 → 212</span></span>  205: 	if (exists $cache_config-&gt;{port}) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  206: 		my $port = $cache_config-&gt;{port};
+</span><span class="">  207: 		croak(&#39;Port must be between 1 and 65535&#39;)
+</span><span class="survived-3 tooltip" data-tooltip="Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one).">  208: 			unless $port &gt;= 1 &amp;&amp; $port &lt;= 65535;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 6, Killed: 0, Survived: 6)</summary>
+					<ul>
+				<li><b>NUM_BOUNDARY_208_31_&lt;: Numeric boundary flip &lt;= to &lt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_208_31_&gt;: Numeric boundary flip &lt;= to &gt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_208_31_&gt;=: Numeric boundary flip &lt;= to &gt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_208_17_&gt;: Numeric boundary flip &gt;= to &gt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_208_17_&lt;: Numeric boundary flip &gt;= to &lt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_208_17_&lt;=: Numeric boundary flip &gt;= to &lt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  209: 	}
+</span><span class="">  210: 
+</span><span class="">  211: 	# Validate memory parameters
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">212 → 212 → 0</span></span>  212: 	if(exists($cache_config-&gt;{&#39;datastore&#39;}) &amp;&amp; exists($cache_config-&gt;{&#39;global&#39;}) &amp;&amp; (my $driver = $cache_config-&gt;{&#39;driver&#39;})) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  213: 		# CHI catches this as well, but putting it here helps to track the error
+</span><span class="">  214: 		croak(&#39;Memory cache cannot have both global and datastore&#39;);
+</span><span class="">  215: 	}
+</span><span class="">  216: }
+</span><span class="">  217: 
+</span><span class="">  218: sub _get_default_driver($cache_type, $logger) {
+</span><span class="">  219: 	# Allow override for testing
+</span><span class="">  220: 	my $env_var = &#39;TEST_&#39; . uc($cache_type) . &#39;_DRIVER&#39;;
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  221: 	return $ENV{$env_var} if $ENV{$env_var};
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_221_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_221_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  222: 
+</span><span class="">  223: 	# Production defaults
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  224: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;BerkeleyDB&#39; : &#39;Memory&#39;;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_224_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_224_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  225: }
+</span><span class="">  226: 
+</span><span class="">  227: sub _get_fallback_driver($cache_type) {
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  228: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;File&#39; : &#39;Memory&#39;;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_228_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_228_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  229: }
+</span><span class="">  230: 
+</span><span class="">  231: sub _is_driver_available($driver) {
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">232 → 245 → 253</span></span>  232: 	return 1 if $driver =~ /^(Memory|Null)$/;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_232_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_232_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  233: 
+</span><span class="">  234: 	my %driver_modules = (
+</span><span class="">  235: 		&#39;DBI&#39; =&gt; &#39;CHI::Driver::DBI&#39;,
+</span><span class="">  236: 		&#39;BerkeleyDB&#39; =&gt; &#39;CHI::Driver::BerkeleyDB&#39;,
+</span><span class="">  237: 		&#39;File&#39; =&gt; &#39;CHI::Driver::File&#39;,
+</span><span class="">  238: 		&#39;Memcached&#39; =&gt; &#39;CHI::Driver::Memcached&#39;,
+</span><span class="">  239: 		&#39;SharedMem&#39; =&gt; &#39;CHI::Driver::SharedMem&#39;,
+</span><span class="">  240: 		&#39;Redis&#39; =&gt; &#39;CHI::Driver::Redis&#39;
+</span><span class="">  241: 	);
+</span><span class="">  242: 
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  243: 	return 1 unless exists $driver_modules{$driver};
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_243_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_243_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  244: 
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  245: 	if($driver_modules{$driver}-&gt;can(&#39;new&#39;)) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_245_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  246: 		return 1;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_246_3: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_246_3: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  247: 	}
+</span><span class="">  248: 	# SECURITY &acirc;&#128;&#148; string-eval elimination:
+</span><span class="">  249: 	#   eval &quot;require $module_name&quot; is a string eval; if $driver ever escaped
+</span><span class="">  250: 	#   the hash-key whitelist (e.g. through a future regression in the caller),
+</span><span class="">  251: 	#   it could execute arbitrary code.  A block eval with require_module() is
+</span><span class="">  252: 	#   semantically identical but has no string-eval surface.
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">253 → 254 → 257</span></span>  253: 	eval { require_module($driver_modules{$driver}) };
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  254: 	if($@) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_254_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  255: 		return 0;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_255_3: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_255_3: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  256: 	}
+</span><span class="">  257: 	$driver_modules{$driver}-&gt;import();
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  258: 	return 1;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_258_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_258_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  259: }
+</span><span class="">  260: 
+</span><span class="">  261: sub _build_chi_args($driver, $cache_config, $args, $logger, $cache_type) {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">262 → 268 → 277</span></span>  262: 	my %chi_args = (
+</span><span class="">  263: 		driver =&gt; $driver,
+</span><span class="">  264: 		namespace =&gt; $args-&gt;{&#39;namespace&#39;} || &#39;default&#39;
+</span><span class="">  265: 	);
+</span><span class="">  266: 
+</span><span class="">  267: 	# Configure error handling
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  268: 	if ($logger &amp;&amp; $logger-&gt;can(&#39;error&#39;)) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_268_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  269: 		$chi_args{on_get_error} = sub { $logger-&gt;warn(&quot;Cache get error: $_[0]&quot;) };
+</span><span class="">  270: 		$chi_args{on_set_error} = sub { $logger-&gt;error(&quot;Cache set error: $_[0]&quot;) };
+</span><span class="">  271: 	} else {
+</span><span class="">  272: 		$chi_args{on_get_error} = &#39;warn&#39;;
+</span><span class="">  273: 		$chi_args{on_set_error} = &#39;die&#39;;
+</span><span class="">  274: 	}
+</span><span class="">  275: 
+</span><span class="">  276: 	# Driver-specific configuration
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">277 → 277 → 291</span></span>  277: 	if ($driver eq &#39;Redis&#39;) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  278: 		_configure_redis(\%chi_args, $cache_config, $args, $logger);
+</span><span class="">  279: 	} elsif ($driver eq &#39;DBI&#39;) {
+</span><span class="">  280: 		_configure_dbi(\%chi_args, $cache_config, $args, $logger);
+</span><span class="">  281: 	} elsif ($driver eq &#39;SharedMem&#39;) {
+</span><span class="">  282: 		_configure_shared_memory(\%chi_args, $cache_config, $args);
+</span><span class="">  283: 	} elsif ($driver eq &#39;Memory&#39;) {
+</span><span class="">  284: 		_configure_memory(\%chi_args, $cache_config);
+</span><span class="">  285: 	} elsif ($driver eq &#39;Memcached&#39;) {
+</span><span class="">  286: 		_configure_memcached(\%chi_args, $cache_config, $args, $logger);
+</span><span class="">  287: 	} elsif ($driver !~ /^(Null)$/) {
+</span><span class="">  288: 		_configure_file_based(\%chi_args, $cache_config, $args);
+</span><span class="">  289: 	}
+</span><span class="">  290: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  291: 	return %chi_args;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  292: }
+</span><span class="">  293: 
+</span><span class="">  294: sub _configure_redis($chi_args, $config, $args, $logger) {
+</span><span class="">  295: 	# Parse server configuration
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot-uncovered">●</span><span class="lcsaj-tip-text">[NOT COVERED] 296 → 297 → 303</span></span>  296: 	my @servers = _parse_server_config($config, $logger);
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  297: 	if (@servers) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_297_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  298: 		$chi_args-&gt;{servers} = \@servers;
+</span><span class="">  299: 		$chi_args-&gt;{server} = $servers[0];	# Primary server
+</span><span class="">  300: 	}
+</span><span class="">  301: 
+</span><span class="">  302: 	# Redis-specific options with sensible defaults
+</span><span class="">  303: 	$chi_args-&gt;{redis_options} = {
+</span><span class="">  304: 		reconnect =&gt; $config-&gt;{reconnect} || 60,
+</span><span class="">  305: 		every =&gt; $config-&gt;{every} || 1_000_000,
+</span><span class="">  306: 		encoding =&gt; $config-&gt;{encoding} || &#39;utf8&#39;,
+</span><span class="">  307: 		%{$config-&gt;{redis_options} || {}}
+</span><span class="">  308: 	};
+</span><span class="">  309: }
+</span><span class="">  310: 
+</span><span class="">  311: sub _configure_dbi($chi_args, $config, $args, $logger) {
+</span><span class="">  312: 	my $connect_string = $config-&gt;{connect};
+</span><span class="">  313: 	croak &quot;DBI driver requires &#39;connect&#39; parameter&quot; unless $connect_string;
+</span><span class="">  314: 
+</span><span class="">  315: 	my $dbh;
+</span><span class="">  316: 	try {
+</span><span class="">  317: 		$dbh = DBI-&gt;connect($connect_string, &#39;&#39;, &#39;&#39;, {
+</span><span class="">  318: 			RaiseError =&gt; 1,
+</span><span class="">  319: 			PrintError =&gt; 0,
+</span><span class="">  320: 			AutoCommit =&gt; 1
+</span><span class="">  321: 		});
+</span><span class="">  322: 	} catch {
+</span><span class="">  323: 		my $error = &quot;Failed to connect to database: $_&quot;;
+</span><span class="">  324: 		$logger-&gt;error($error) if $logger;
+</span><span class="">  325: 		croak $error;
+</span><span class="">  326: 	};
+</span><span class="">  327: 
+</span><span class="">  328: 	$chi_args-&gt;{dbh} = $dbh;
+</span><span class="">  329: 	$chi_args-&gt;{create_table} = $config-&gt;{create_table} // 1;
+</span><span class="">  330: }
+</span><span class="">  331: 
+</span><span class="">  332: sub _configure_shared_memory($chi_args, $config, $args) {
+</span><span class="">  333: 	$chi_args-&gt;{shm_key} = $args-&gt;{&#39;shm_key&#39;} || $config-&gt;{shm_key}
+</span><span class="">  334: 		|| croak &quot;SharedMem driver requires &#39;shm_key&#39; parameter&quot;;
+</span><span class="">  335: 
+</span><span class="">  336: 	$chi_args-&gt;{shm_size} = $args-&gt;{&#39;shm_size&#39;} || $config-&gt;{shm_size} || 16 * 1024;
+</span><span class="">  337: 	$chi_args-&gt;{max_size} = $args-&gt;{&#39;max_size&#39;} || $config-&gt;{max_size} || 1024;
+</span><span class="">  338: }
+</span><span class="">  339: 
+</span><span class="">  340: sub _configure_memory($chi_args, $config)
+</span><span class="">  341: {
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch."><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">342 → 342 → 0</span></span>  342: 	if(exists $config-&gt;{&#39;global&#39;}) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_342_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  343: 		$chi_args-&gt;{&#39;global&#39;} = $config-&gt;{&#39;global&#39;};
+</span><span class="">  344: 	} else {
+</span><span class="">  345: 		$chi_args-&gt;{&#39;datastore&#39;} = {};
+</span><span class="">  346: 	}
+</span><span class="">  347: }
+</span><span class="">  348: 
+</span><span class="">  349: sub _configure_memcached($chi_args, $config, $args, $logger) {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot-uncovered">●</span><span class="lcsaj-tip-text">[NOT COVERED] 350 → 351 → 0</span></span>  350: 	my @servers = _parse_server_config($config, $logger);
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  351: 	if (@servers) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_351_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  352: 		$chi_args-&gt;{servers} = \@servers;
+</span><span class="">  353: 	} else {
+</span><span class="">  354: 		# Default to localhost
+</span><span class="">  355: 		$chi_args-&gt;{servers} = [&#39;127.0.0.1:11211&#39;];
+</span><span class="">  356: 		$logger-&gt;debug(&#39;Using default Memcached server: 127.0.0.1:11211&#39;) if $logger;
+</span><span class="">  357: 	}
+</span><span class="">  358: }
+</span><span class="">  359: 
+</span><span class="">  360: sub _configure_file_based($chi_args, $config, $args) {
+</span><span class="">  361: 	my $root_dir = $ENV{&#39;root_dir&#39;} || $args-&gt;{&#39;root_dir&#39;} || $config-&gt;{root_dir} || $args-&gt;{&#39;config&#39;}-&gt;{root_dir};
+</span><span class="">  362: 
+</span><span class="">  363: 	croak &quot;File-based cache drivers require &#39;root_dir&#39; parameter&quot; unless $root_dir;
+</span><span class="">  364: 	croak &quot;Root directory &#39;$root_dir&#39; does not exist or is not writable&quot;
+</span><span class="">  365: 		unless -d $root_dir &amp;&amp; -w $root_dir;
+</span><span class="">  366: 
+</span><span class="">  367: 	$chi_args-&gt;{root_dir} = $root_dir;
+</span><span class="">  368: }
+</span><span class="">  369: 
+</span><span class="">  370: sub _parse_server_config($config, $logger) {
+</span><span class="">  371: 	# Handle host/server naming inconsistency
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot-uncovered">●</span><span class="lcsaj-tip-text">[NOT COVERED] 372 → 376 → 396</span></span>  372: 	my $server_config = $config-&gt;{server} || $config-&gt;{host};
+</span><span class="">  373: 	return () unless $server_config;
+</span><span class="">  374: 
+</span><span class="">  375: 	my @servers;
+</span><span class="">  376: 	for my $server_entry (split /,/, $server_config) {
+</span><span class="">  377: 		$server_entry =~ s/^\s+|\s+$//g;	# trim whitespace
+</span><span class="">  378: 
+</span><span class="">  379: 		# If no port specified, add default port
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  380: 		unless ($server_entry =~ /:/) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_380_3: Invert condition unless to if</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  381: 			my $port = $config-&gt;{port} || croak &quot;Port not specified for server &#39;$server_entry&#39;&quot;;
+</span><span class="">  382: 			$server_entry .= &quot;:$port&quot;;
+</span><span class="">  383: 		}
+</span><span class="">  384: 
+</span><span class="">  385: 		# Validate server format
+</span><span class="survived-1 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch.">  386: 		if ($server_entry =~ /^([a-zA-Z0-9.-]+):(\d+)$/) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 1, Killed: 0, Survived: 1)</summary>
+					<ul>
+				<li><b>COND_INV_386_3: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  387: 			my ($host, $port) = ($1, $2);
+</span><span class="survived-3 tooltip" data-tooltip="Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one).">  388: 			croak &quot;Invalid port number: $port&quot; unless $port &gt; 0 &amp;&amp; $port &lt;= 65535;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 6, Killed: 0, Survived: 6)</summary>
+					<ul>
+				<li><b>NUM_BOUNDARY_388_52_&lt;: Numeric boundary flip &gt; to &lt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_388_52_&gt;=: Numeric boundary flip &gt; to &gt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_388_52_&lt;=: Numeric boundary flip &gt; to &lt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_388_65_&lt;: Numeric boundary flip &lt;= to &lt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_388_65_&gt;: Numeric boundary flip &lt;= to &gt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_388_65_&gt;=: Numeric boundary flip &lt;= to &gt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  389: 			push @servers, $server_entry;
+</span><span class="">  390: 			$logger-&gt;debug(&quot;Added server: $server_entry&quot;) if $logger;
+</span><span class="">  391: 		} else {
+</span><span class="">  392: 			croak &quot;Invalid server format: &#39;$server_entry&#39; (expected host:port)&quot;;
+</span><span class="">  393: 		}
+</span><span class="">  394: 	}
+</span><span class="">  395: 
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  396: 	return @servers;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_396_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_396_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  397: }
+</span><span class="">  398: 
+</span><span class="">  399: =head2 distance
+</span><span class="">  400: 
+</span><span class="">  401: Calculate the great circle distance between two points on Earth using the Haversine formula.
+</span><span class="">  402: More accurate than the original implementation, especially for short distances.
+</span><span class="">  403: 
+</span><span class="">  404: Parameters:
+</span><span class="">  405: - lat1, lon1: Latitude and longitude of first point (decimal degrees)
+</span><span class="">  406: - lat2, lon2: Latitude and longitude of second point (decimal degrees)
+</span><span class="">  407: - unit: &#39;K&#39; for kilometers, &#39;N&#39; for nautical miles, &#39;M&#39; or undef for statute miles
+</span><span class="">  408: 
+</span><span class="">  409: Returns: Distance in specified units
+</span><span class="">  410: 
+</span><span class="">  411: Throws: Error on invalid input parameters
+</span><span class="">  412: 
+</span><span class="">  413: =cut
+</span><span class="">  414: 
+</span><span class="">  415: sub distance($lat1, $lon1, $lat2, $lon2, $unit = &#39;M&#39;) {
+</span><span class="">  416: 	# Input validation
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">417 → 417 → 424</span></span>  417: 	for my $coord_ref ([\$lat1, &#39;lat1&#39;], [\$lon1, &#39;lon1&#39;], [\$lat2, &#39;lat2&#39;], [\$lon2, &#39;lon2&#39;]) {
+</span><span class="">  418: 		my ($coord, $name) = @$coord_ref;
+</span><span class="">  419: 		croak &quot;$name must be defined&quot; unless defined $$coord;
+</span><span class="">  420: 		croak &quot;$name must be numeric&quot; unless looks_like_number($$coord);
+</span><span class="">  421: 	}
+</span><span class="">  422: 
+</span><span class="">  423: 	# Range validation
+</span><span class="">  424: 	croak(&#39;Latitude must be between -90 and 90 degrees&#39;)
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  425: 		if abs($lat1) &gt; 90 || abs($lat2) &gt; 90;
+</span><p> <b> Mutants (Total: 3, Killed: 3, Survived: 0)</b><p><span class="">  426: 	croak(&#39;Longitude must be between -180 and 180 degrees&#39;)
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  427: 		if abs($lon1) &gt; 180 || abs($lon2) &gt; 180;
+</span><p> <b> Mutants (Total: 3, Killed: 3, Survived: 0)</b><p><span class="">  428: 
+</span><span class="">  429: 	# Handle identical points
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  430: 	return 0 if $lat1 == $lat2 &amp;&amp; $lon1 == $lon2;
+</span><p> <b> Mutants (Total: 3, Killed: 3, Survived: 0)</b><p><span class="">  431: 
+</span><span class="">  432: 	# Validate unit
+</span><span class="">  433: 	$unit = uc($unit || &#39;M&#39;);
+</span><span class="">  434: 	croak &quot;Unknown unit &#39;$unit&#39;. Use &#39;K&#39;, &#39;N&#39;, or &#39;M&#39;&quot;
+</span><span class="">  435: 		unless $unit =~ /^[KNM]$/;
+</span><span class="">  436: 
+</span><span class="">  437: 	# Use optimized calculation with appropriate radius
+</span><span class="">  438: 	my $radius = $unit eq &#39;K&#39; ? EARTH_RADIUS_KM :
+</span><span class="">  439: 				 $unit eq &#39;N&#39; ? EARTH_RADIUS_NM :
+</span><span class="">  440: 				 EARTH_RADIUS_MILES;
+</span><span class="">  441: 
+</span><span class="">  442: 	# Haversine formula
+</span><span class="">  443: 	my $dlat = deg2rad($lat2 - $lat1);
+</span><span class="">  444: 	my $dlon = deg2rad($lon2 - $lon1);
+</span><span class="">  445: 	my $a = sin($dlat/2)**2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dlon/2)**2;
+</span><span class="">  446: 	my $c = 2 * asin(sqrt($a));
+</span><span class="">  447: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  448: 	return $radius * $c;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  449: }
+</span><span class="">  450: 
+</span><span class="">  451: # Singleton shared across all callers; lazy-initialised on first use.
+</span><span class="">  452: my $abbreviations;
+</span><span class="">  453: 
+</span><span class="">  454: =head2 _normalize
+</span><span class="">  455: 
+</span><span class="">  456: Normalise a street name to its abbreviated canonical form.  Uppercases the
+</span><span class="">  457: input, then abbreviates the second-to-last or last word (whichever is a
+</span><span class="">  458: recognised street type) using C&lt;Geo::Coder::Abbreviations&gt;.  Leading zeros
+</span><span class="">  459: are also stripped (C&lt;&quot;04th St&quot;&gt; &acirc;&#134;&#146; C&lt;&quot;4th St&quot;&gt;).
+</span><span class="">  460: 
+</span><span class="">  461: Exported so that C&lt;Local.pm&gt; and C&lt;OpenAddresses.pm&gt; can call it without
+</span><span class="">  462: importing C&lt;Geo::Coder::Free&gt;.
+</span><span class="">  463: 
+</span><span class="">  464: =cut
+</span><span class="">  465: 
+</span><span class="">  466: sub _normalize {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">467 → 471 → 484</span></span>  467: 	my $street = uc(shift);
+</span><span class="">  468: 	$abbreviations ||= Geo::Coder::Abbreviations-&gt;new();
+</span><span class="">  469: 
+</span><span class="">  470: 	my @words = split /\s+/, $street;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  471: 	if (@words &gt;= 3) {
+</span><p> <b> Mutants (Total: 4, Killed: 4, Survived: 0)</b><p><span class="">  472: 		my $a;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  473: 		if (lc($words[-2]) ne &#39;cross&#39; &amp;&amp; ($a = $abbreviations-&gt;abbreviate($words[-2]))) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  474: 			$words[-2] = $a;
+</span><span class="">  475: 		} elsif ($a = $abbreviations-&gt;abbreviate($words[-1])) {
+</span><span class="">  476: 			$words[-1] = $a;
+</span><span class="">  477: 		}
+</span><span class="">  478: 		$street = join &#39; &#39;, @words;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  479: 	} elsif (@words == 2) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  480: 		if (my $a = $abbreviations-&gt;abbreviate($words[-1])) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  481: 			$street = &quot;$words[0] $a&quot;;
+</span><span class="">  482: 		}
+</span><span class="">  483: 	}
+</span><span class="">  484: 	$street =~ s/^0+//;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  485: 	return $street;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  486: }
+</span><span class="">  487: 
+</span><span class="">  488: =head2 _abbreviate
+</span><span class="">  489: 
+</span><span class="">  490: Abbreviate a single street-type word (e.g. C&lt;&quot;Street&quot;&gt; &acirc;&#134;&#146; C&lt;&quot;ST&quot;&gt;).  Returns
+</span><span class="">  491: the original word uppercased if no abbreviation is found.
+</span><span class="">  492: 
+</span><span class="">  493: Exported so that C&lt;Local.pm&gt; and C&lt;OpenAddresses.pm&gt; can call it without
+</span><span class="">  494: importing C&lt;Geo::Coder::Free&gt;.
+</span><span class="">  495: 
+</span><span class="">  496: =cut
+</span><span class="">  497: 
+</span><span class="">  498: sub _abbreviate {
+</span><span class="">  499: 	my $type = uc(shift);
+</span><span class="">  500: 	$abbreviations ||= Geo::Coder::Abbreviations-&gt;new();
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  501: 	return $abbreviations-&gt;abbreviate($type) || $type;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  502: }
+</span><span class="">  503: 
+</span><span class="">  504: 
+</span><span class="">  505: 1;
+</span><span class="">  506: 
+</span><span class="">  507: __END__
+</span><span class="">  508: 
+</span><span class="">  509: =head1 AUTHOR
+</span><span class="">  510: 
+</span><span class="">  511: Nigel Horne, C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;
+</span><span class="">  512: 
+</span><span class="">  513: =head1 BUGS
+</span><span class="">  514: 
+</span><span class="">  515: Please report any bugs or feature requests to the author.
+</span><span class="">  516: 
+</span><span class="">  517: =head1 SUPPORT
+</span><span class="">  518: 
+</span><span class="">  519: You can find documentation for this module with the perldoc command.
+</span><span class="">  520: 
+</span><span class="">  521:     perldoc Geo::Coder::Free::Utils
+</span><span class="">  522: 
+</span><span class="">  523: =head1 LICENSE AND COPYRIGHT
+</span><span class="">  524: 
+</span><span class="">  525: Geo::Coder::Free is licensed under GPL2.0 for personal use only.
+</span><span class="">  526: Commercial users must apply in writing for a licence.
+</span><span class="">  527: 
+</span><span class="">  528: =head1 SEE ALSO
+</span><span class="">  529: 
+</span><span class="">  530: L&lt;CHI&gt;, L&lt;Math::Trig&gt;, L&lt;DBI&gt;
+</span><span class="">  531: 
+</span><span class="">  532: =cut
+</span></pre>
+
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+}
+
+(function() {
+    const saved = localStorage.getItem('theme');
+    if(saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+    }
+})();
+
+document.addEventListener("mousemove", function(e) {
+	document.querySelectorAll(".lcsaj-tip-text, .cpd-tip-text").forEach(function(tip) {
+		tip.style.left = (e.clientX + 12) + "px";
+		tip.style.top  = (e.clientY + 12) + "px";
+	});
+});
+</script>
+</body>
+</html>
+	
