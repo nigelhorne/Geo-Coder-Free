@@ -54,6 +54,10 @@ Readonly::Scalar my $US_ADDR_LAT => '38.955403';
 
 # A hard-coded OA known_location entry — returns a GLP without any DB access.
 Readonly::Scalar my $OA_KNOWN_ADDR => 'Newport Pagnell, Buckinghamshire, England';
+
+# MaxMind.pm hard-codes the same entry in its own %known_locations, so this is
+# the one MaxMind address a test can look up without a database file.
+Readonly::Scalar my $MM_KNOWN_ADDR => 'Newport Pagnell, Buckinghamshire, England';
 Readonly::Scalar my $OA_KNOWN_LAT  => '52.08675';
 
 # Coordinates used for the mocked MaxMind / OA responses.
@@ -102,6 +106,11 @@ my %LEDGER = (
 	# Geo::Coder::Free::ua
 	'GCF::ua returns undef'          => 1,
 
+	# Geo::Coder::Free::provenance
+	'GCF::provenance four keys'      => 1,
+	'GCF::provenance undef point'    => 1,
+	'GCF::provenance plain hash'     => 1,
+
 	# Geo::Coder::Free::Local::new
 	'Local::new returns object'      => 1,
 	'Local::new loads data rows'     => 1,
@@ -114,6 +123,8 @@ my %LEDGER = (
 	'Local::geocode arrayref croak'       => 1,
 	'Local::geocode bare string'          => 1,
 	'Local::geocode USA normalisation'    => 1,
+	'Local::geocode index provenance'     => 1,
+	'Local::geocode search provenance'    => 1,
 
 	# Geo::Coder::Free::Local::reverse_geocode
 	'Local::reverse_geocode latlng'         => 1,
@@ -132,11 +143,16 @@ my %LEDGER = (
 
 	# Geo::Coder::Free::OpenAddresses::geocode
 	'OA::geocode known_location hit'      => 1,
+	'OA::geocode known_location provenance' => 1,
 	'OA::geocode numeric returns undef'   => 1,
 	'OA::geocode too-short returns undef' => 1,
 
 	# Geo::Coder::Free::OpenAddresses::ua
 	'OA::ua returns undef'           => 1,
+
+	# Geo::Coder::Free::MaxMind::geocode — the real backend, in section 5 below
+	'MaxMind::geocode known_location provenance' => 1,
+	'MaxMind::geocode city provenance'           => 1,
 
 	# Geo::Coder::Free::Utils::distance
 	'Utils::distance same point'     => 1,
@@ -302,6 +318,51 @@ subtest 'GCF::ua — compatibility stub' => sub {
 	delete $LEDGER{'GCF::ua returns undef'};
 };
 
+subtest 'GCF::provenance — the four keys' => sub {
+	my $geo = Geo::Coder::Free->new();
+
+	# A result as a backend builds one (section 2.1 of
+	# BI-Phase6-Dependency-Specs.md).  The backend's own provenance is asserted
+	# on results the backends really produced, in the Local and OA subtests.
+	my $point = Geo::Location::Point->new({
+		lat        => $MOCK_LAT,
+		long       => $MOCK_LON,
+		geocoder   => 'Geo::Coder::Free',
+		database   => 'Geo::Coder::Free::Local',
+		confidence => 0.7,
+		accuracy   => 'street',
+	});
+
+	my ($dist, $backend, $confidence, $accuracy) = $geo->provenance($point);
+	is($dist, 'Geo::Coder::Free', 'the distribution is reported');
+	is($backend, 'Local', "the backend is reported short, without the distribution's prefix");
+	is($confidence, 0.7, 'the confidence is reported');
+	is($accuracy, 'street', 'the accuracy is reported');
+	delete $LEDGER{'GCF::provenance four keys'};
+
+	# Assigned to a scalar first: as an argument to is_deeply() the call would be
+	# in list context, which is the other documented return.
+	my $as_hashref = $geo->provenance($point);
+	is_deeply($as_hashref, {
+		dist       => 'Geo::Coder::Free',
+		backend    => 'Local',
+		confidence => 0.7,
+		accuracy   => 'street',
+	}, 'scalar context gives the same four as a hashref');
+
+	# Nothing to report: not a result at all.
+	is_deeply([$geo->provenance(undef)], [], 'an undefined point has no provenance');
+	my $nothing = $geo->provenance(undef);
+	is_deeply($nothing, {}, 'and an empty hashref in scalar context');
+	delete $LEDGER{'GCF::provenance undef point'};
+
+	# A plain hash handed on by another geocoder has no provenance to report,
+	# and is not guessed at.
+	is_deeply([$geo->provenance({ lat => 1, long => 2 })], [undef, undef, undef, undef],
+		'a result with no provenance keys reports undef rather than a guess');
+	delete $LEDGER{'GCF::provenance plain hash'};
+};
+
 # ---------------------------------------------------------------------------
 # SECTION 2: Geo::Coder::Free::Local
 # ---------------------------------------------------------------------------
@@ -409,6 +470,47 @@ subtest 'Local::ua — compatibility stub' => sub {
 	delete $LEDGER{'Local::ua returns undef'};
 };
 
+subtest 'Local::geocode — provenance on both paths' => sub {
+	my $local = $LOCAL_OBJ;
+
+	# Section 2.1 of BI-Phase6-Dependency-Specs.md: every result carries the four
+	# keys.  This backend has two ways to answer that used to differ - the index,
+	# which matched a row and returned it without provenance, and the column
+	# scan - so both are checked.  The object is shared because its __DATA__
+	# filehandle can only be read once, and its cache is warmed by the earlier
+	# subtests, so each lookup here is one the earlier ones did not make.
+	# The documented vocabulary, most precise first (Geo::Coder::Free::Utils).
+	my %level = map { $_ => 1 } @{Geo::Coder::Free::Utils::ACCURACY_LEVELS()};
+
+	my $indexed = $local->geocode(location => (sort keys %{$local->{'index'}})[1]);
+	isa_ok($indexed, 'Geo::Location::Point', 'an index hit returns a Geo::Location::Point');
+	my @missing = grep { !defined($indexed->{$_}) } qw(geocoder database confidence accuracy);
+	is_deeply(\@missing, [], 'the index path sets all four provenance keys')
+		or diag(explain(\@missing));
+	is($indexed->{'geocoder'}, 'Geo::Coder::Free', 'the index path names the distribution');
+	is($indexed->{'database'}, 'Geo::Coder::Free::Local', 'the index path names the backend');
+	cmp_ok($indexed->{'confidence'}, '==', 1.0, 'an index hit is an exact match');
+	ok($level{$indexed->{'accuracy'}},
+		"the index path reports a documented accuracy ($indexed->{'accuracy'})");
+	delete $LEDGER{'Local::geocode index provenance'};
+
+	# A lookup the earlier subtests warmed: the cached result must carry the
+	# keys too, since a second lookup of the same address must not report less
+	# than the first.
+	my $cached = $local->geocode(location => $LOCAL_ADDR);
+	is($cached->{'accuracy'}, 'address', 'the bundled address row is an address');
+	is($cached->{'geocoder'}, 'Geo::Coder::Free', 'and carries the distribution');
+
+	# A town match: the call site offers 'number road city state country', and the
+	# answer has no number or road, so the accuracy has to describe the columns
+	# that matched rather than the widest attempt.
+	my $town = $local->geocode(location => 'Silver Spring, Montgomery, MD, US');
+	ok(defined($town), 'a town lookup is answered');
+	is($town->{'accuracy'}, 'locality', 'a city match is a locality, not an address');
+	is($town->{'database'}, 'Geo::Coder::Free::Local', 'and the scan path names the backend');
+	delete $LEDGER{'Local::geocode search provenance'};
+};
+
 # ---------------------------------------------------------------------------
 # SECTION 3: Geo::Coder::Free::OpenAddresses
 # ---------------------------------------------------------------------------
@@ -445,6 +547,17 @@ subtest 'OA::geocode — early-return paths (no DB required)' => sub {
 	isa_ok($known, 'Geo::Location::Point', 'known_location returns GLP without DB');
 	ok(abs($known->lat() - $OA_KNOWN_LAT) < 0.001, 'latitude matches known value');
 	delete $LEDGER{'OA::geocode known_location hit'};
+
+	# Provenance (section 2.1 of BI-Phase6-Dependency-Specs.md).  A hand-curated
+	# entry matched the string exactly, and its coordinate is a town's.
+	my @missing = grep { !defined($known->{$_}) } qw(geocoder database confidence accuracy);
+	is_deeply(\@missing, [], 'the known_location hit sets all four provenance keys')
+		or diag(explain(\@missing));
+	is($known->{'geocoder'}, 'Geo::Coder::Free', 'the known_location hit names the distribution');
+	is($known->{'database'}, 'OpenAddresses', 'the known_location hit names the backend');
+	cmp_ok($known->{'confidence'}, '==', 1.0, 'the known_location hit is an exact match');
+	is($known->{'accuracy'}, 'locality', 'and its coordinate is a town, not an address');
+	delete $LEDGER{'OA::geocode known_location provenance'};
 
 	# A purely numeric location is rejected before any DB access.
 	my $numeric = $oa->geocode(location => '12345');
@@ -577,9 +690,81 @@ subtest 'Utils::create_memory_cache — CHI memory cache' => sub {
 };
 
 # ---------------------------------------------------------------------------
-# Restore all mocks before the ledger check so teardown is clean.
+# Restore all mocks so that section 5 can run the real backends, and so that
+# teardown is clean.
 # ---------------------------------------------------------------------------
 restore_all();
+
+# ---------------------------------------------------------------------------
+# SECTION 5: provenance from a real backend (section 2.1 of the specs)
+#
+# Everywhere above, MaxMind is mocked so that the facade can be tested without a
+# GeoNames file.  That mock is gone here: the point of these subtests is the
+# stamping geocode() itself does, so a point a test built would prove nothing.
+# ---------------------------------------------------------------------------
+
+# A stand-in for the MaxMind cities database.  geocode() asks it for one row by
+# city, so the lookup can be answered without a data file and the code after the
+# lookup - including the provenance stamping - stays real.
+package MaxMind_Stub_Cities;
+
+sub new { my ($class, $row) = @_; return bless { row => $row }, $class }
+sub fetchrow_hashref { return { %{$_[0]->{'row'}} } }
+
+package main;
+
+subtest 'MaxMind::geocode — a real hit carries all four provenance keys' => sub {
+	# A hand-curated entry, returned without opening a database at all.
+	my $mm = Geo::Coder::Free::MaxMind->new();
+	my $known = $mm->geocode(location => $MM_KNOWN_ADDR);
+	isa_ok($known, 'Geo::Location::Point', 'the known_location path returns a GLP');
+
+	my @missing = grep { !defined($known->{$_}) } qw(geocoder database confidence accuracy);
+	is_deeply(\@missing, [], 'the known_location hit sets all four provenance keys')
+		or diag(explain(\@missing));
+	is($known->{'geocoder'}, 'Geo::Coder::Free', 'the distribution is named');
+	is($known->{'database'}, 'MaxMind', 'the backend is named');
+	is($known->{'accuracy'}, 'locality', 'a hand-curated town is a locality, not an address');
+	delete $LEDGER{'MaxMind::geocode known_location provenance'};
+
+	# The cities lookup.  The row is supplied at the seam geocode() uses, so the
+	# confidence, the accuracy and the coordinate are what the module makes of a
+	# database answer rather than what this test made up.  Deeper in the module
+	# the match could be resolved to a region, hence the two accepted values.
+	my $stub = MaxMind_Stub_Cities->new({
+		Latitude  => $MOCK_LAT,
+		Longitude => $MOCK_LON,
+		City      => 'woking',
+		Country   => 'gb',
+		Region    => 'gb',
+	});
+	my $geocoder = Geo::Coder::Free::MaxMind->new();
+	$geocoder->{'cities'} = $stub;
+
+	my $city = $geocoder->geocode(location => 'Woking, Surrey, England');
+	isa_ok($city, 'Geo::Location::Point', 'a cities hit returns a GLP');
+
+	@missing = grep { !defined($city->{$_}) } qw(geocoder database confidence accuracy);
+	is_deeply(\@missing, [], 'the cities hit sets all four provenance keys')
+		or diag(explain(\@missing));
+	is($city->{'geocoder'}, 'Geo::Coder::Free', 'the cities hit names the distribution');
+	is($city->{'database'}, 'MaxMind', 'the cities hit names the backend');
+	ok($city->{'accuracy'} =~ /^(?:city|region)$/,
+		"a MaxMind answer is a city or a region, never an address ($city->{'accuracy'})");
+	ok(defined($city->{'confidence'}) && ($city->{'confidence'} >= 0) && ($city->{'confidence'} <= 1),
+		"the confidence is a defined probability ($city->{'confidence'})");
+	ok(abs($city->lat() - $MOCK_LAT) < 0.001, 'and the coordinate is the row the database gave');
+	delete $LEDGER{'MaxMind::geocode city provenance'};
+
+	# provenance() reads the same four back, and reduces the two spellings of
+	# the backend name ('MaxMind' and 'Geo::Coder::Free::MaxMind') to one.
+	my $facade = Geo::Coder::Free->new();
+	my ($dist, $backend, $confidence, $accuracy) = $facade->provenance($city);
+	is($dist, 'Geo::Coder::Free', 'provenance() reports the distribution');
+	is($backend, 'MaxMind', 'provenance() reports the short backend name');
+	is($confidence, $city->{'confidence'}, 'provenance() reports the confidence');
+	is($accuracy, $city->{'accuracy'}, 'provenance() reports the accuracy');
+};
 
 # ---------------------------------------------------------------------------
 # LEDGER ASSERTION — every documented API state must have been exercised.

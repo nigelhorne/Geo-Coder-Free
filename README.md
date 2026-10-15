@@ -155,6 +155,14 @@ to those shared references are immediately visible in both objects.
     # scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
     # list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
 
+#### provenance
+
+Every result carries `geocoder`, `database`, `confidence` and `accuracy`
+(section 2.1 of `BI-Phase6-Dependency-Specs.md`): which distribution
+produced it, which backend answered, how good the match was, and how precise the coordinate is.
+`provenance()` reads the four back.  `location` is set by every path but the MaxMind cities one, and
+`text` only by a scantext lookup; `lat`, `long` and `lng` come from the value object itself.
+
 ### MESSAGES
 
     Usage: ...::geocode(...)        No location or scantext argument given.
@@ -181,6 +189,37 @@ to those shared references are immediately visible in both objects.
             try __DATA__ alternatives map
     try maxmind backend for location lookups
     croak if no scantext and no location
+
+## provenance
+
+### SYNOPSIS
+
+    my ($dist, $backend, $confidence, $accuracy) = $geocoder->provenance($point);
+
+or, in scalar context, the same four as a hashref:
+
+    my $provenance = $geocoder->provenance($point);
+    print $provenance->{'backend'};
+
+### DESCRIPTION
+
+Where a result came from and how good it is, so that a caller does not have to reach for the hash
+keys itself (section 2.1 of `BI-Phase6-Dependency-Specs.md`):
+
+- `$dist` — the distribution that produced the result: the `geocoder` key, `Geo::Coder::Free` for a
+  result from this distribution, or the wrapper that passed it on, such as `Geo::Coder::List`.
+- `$backend` — which backend answered, in a short vocabulary: `Local`, `MaxMind`, `OpenAddresses` or
+  `GeoNames`.  This is the `database` key with the distribution's prefix removed, so that the two
+  spellings the backends use — `Geo::Coder::Free::Local` from `Local`, and `MaxMind` from `MaxMind` —
+  speak the same vocabulary here.  **The `database` key itself is unchanged**, for the consumers that
+  already match on it.
+- `$confidence` — how good the match was, 0.0 to 1.0, where 1.0 is exact.
+- `$accuracy` — how precise the coordinate is: `address`, `street`, `postcode`, `locality`, `city`,
+  `region` or `country`.
+
+Returns an empty list — and an empty hashref in scalar context — when handed something that is not a
+result.  A key a result does not carry comes back `undef` rather than being guessed at, because a
+plain hash from another geocoder has no provenance to report.
 
 ## reverse\_geocode
 
@@ -321,6 +360,17 @@ Nigel Horne `<njh@nigelhorne.com>`
       let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
                     ∧ (openaddr = undef ⟹ [MaxMind]) •
       result = first { defined } map { b.geocode(addr, r) } backends
+
+## provenance
+
+    Provenance : Point? → (DISTRIBUTION?, BACKEND?, CONFIDENCE?, ACCURACY?)
+    ∀ p : Point? •
+      Provenance(p) = if p ≠ ∅ ∧ is_a_result(p)
+                      then ⟨⟨ p.geocoder,
+                              strip("Geo::Coder::Free::", p.database),
+                              p.confidence,
+                              p.accuracy ⟩⟩
+                      else ∅ fi
 
 # LICENSE AND COPYRIGHT
 

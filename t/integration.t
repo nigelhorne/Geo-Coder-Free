@@ -15,9 +15,12 @@
 use strict;
 use warnings;
 
+use CHI;
 use File::Temp qw(tempdir);
+use Geo::Hash;
 use Readonly;
 use Scalar::Util qw(blessed refaddr);
+use Storable;
 use Test::Most;
 use Test::Mockingbird qw(mock spy restore_all);
 use Test::Returns;
@@ -64,6 +67,19 @@ Readonly::Scalar my $TOWER_LON  => -0.075423;
 Readonly::Scalar my $RAMSGATE_STN_ADDR => 'Ramsgate Station, Station Approach Rd, Ramsgate, Kent, GB';
 Readonly::Scalar my $RAMSGATE_STN_LAT  => 51.340826;
 Readonly::Scalar my $RAMSGATE_STN_LON  => 1.406519;
+
+# ---------------------------------------------------------------------------
+# A stand-in for the OpenAddresses database handle.  _get() asks it only for the
+# geohash of an address digest, so the lookup can be answered without a data
+# file, leaving the provenance stamping and the Storable round trip in the code
+# under test.
+# ---------------------------------------------------------------------------
+package OA_Stub_DB;
+
+sub new { my ($class, $geohash) = @_; return bless { geohash => $geohash }, $class }
+sub geohash { return $_[0]->{'geohash'} }
+
+package main;
 
 # OA hard-coded known_locations entry — no database access required.
 Readonly::Scalar my $NEWPORT_ADDR => 'Newport Pagnell, Buckinghamshire, England';
@@ -753,6 +769,55 @@ subtest 'Normalisation — "USA" and "US" both resolve via Local' => sub {
 	ok(abs($r_usa->lat() - $EXPECTED_LAT) < $COORD_TOL, '"USA" latitude correct');
 	ok(abs($r_us->lat()  - $r_usa->lat()) < $COORD_TOL,
 		'"USA" and "US" resolve to the same latitude');
+};
+
+# ============================================================================
+# SECTION 15 — Provenance on the OpenAddresses path, and through its cache
+#
+# _get() is the path a location => lookup takes: it finds the address in the
+# OpenAddresses database, stamps the provenance of the match on the point, and
+# freezes it with Storable for the next lookup of the same address.  Section 2.1
+# of BI-Phase6-Dependency-Specs.md requires all four keys, and a key that does
+# not survive that round trip would come back undef on the second lookup and
+# nowhere else.
+#
+# This checkout has no OpenAddresses data file, so the lookup seam is what is
+# stubbed - everything after it, the stamping and the Storable round trip, is
+# the real code.  geocode() is skipped because reaching the thaw path through
+# the public API needs the location string to survive the whole parse, and its
+# fallback then asks for a database this checkout does not have.
+# ============================================================================
+
+subtest 'Provenance on the OpenAddresses path survives the cache' => sub {
+	my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => tempdir(CLEANUP => 1));
+	$oa->{'cache'} = CHI->new(driver => 'Memory', datastore => {});
+	$oa->{openaddr_db} = OA_Stub_DB->new(Geo::Hash->new()->encode($NEWPORT_LAT, $NEWPORT_LON));
+
+	# The database answered for the md5 of the normalised address, so this is an
+	# address-level exact match and the point must say so.
+	my $location = 'Provenance Road';
+	my $found = $oa->_get($location);
+	isa_ok($found, 'Geo::Location::Point', 'a database hit returns a GLP');
+
+	my @missing = grep { !defined($found->{$_}) } qw(geocoder database confidence accuracy);
+	is_deeply(\@missing, [], 'the database hit sets all four provenance keys')
+		or diag(explain(\@missing));
+	is($found->{'geocoder'}, 'Geo::Coder::Free', 'the hit names the distribution');
+	is($found->{'database'}, 'OpenAddresses', 'the hit names the backend');
+	cmp_ok($found->{'confidence'}, '==', 1.0, 'an address found by digest is an exact match');
+	is($found->{'accuracy'}, 'address', 'and its coordinate is an address, not a locality');
+	ok(abs($found->lat() - $NEWPORT_LAT) < $COORD_TOL, 'the geohash decoded to the expected latitude');
+
+	# The second lookup of the same address is served from the cache, through
+	# Storable::freeze/thaw - the regression this section exists for.
+	my $cached = $oa->_get($location);
+	isa_ok($cached, 'Geo::Location::Point', 'the cached result is still a Geo::Location::Point');
+	isnt(refaddr($cached), refaddr($found), 'the second lookup is a thawed copy, not the original');
+
+	for my $key (qw(geocoder database confidence accuracy)) {
+		is($cached->{$key}, $found->{$key}, "the $key key survives the cache");
+	}
+	is($cached->{'accuracy'}, 'address', 'a thawed address is still an address');
 };
 
 # ---------------------------------------------------------------------------

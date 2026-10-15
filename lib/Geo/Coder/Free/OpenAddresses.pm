@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use autodie qw(:all);
 
-use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
+use Geo::Coder::Free::Utils qw(_abbreviate _normalize GEOCODER);
 use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
 use Geo::Coder::Free::DB::openaddresses;	# The original CSV files
 use Geo::Hash;
@@ -57,11 +57,11 @@ Provides a geocoding functionality to a local SQLite database containing geo-cod
 
 =head1 VERSION
 
-Version 0.44
+Version 0.45
 
 =cut
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 =head1 SYNOPSIS
 
@@ -174,6 +174,14 @@ that either C<Leesburg, Loudoun County, Virginia, US> or C<Leesburg, Loudoun, Vi
     # Output schema (Return::Set)
     # scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
     # list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
+
+=head4 provenance
+
+Every result carries C<geocoder>, C<database>, C<confidence> and C<accuracy>
+(section 2.1 of F<BI-Phase6-Dependency-Specs.md>).  This backend reports
+C<database> as C<OpenAddresses>, and C<accuracy> is C<address> when the database
+answered for the address itself and C<locality> when a hand-curated
+C<%known_locations> entry did, since that entry's coordinate is a town's.
 
 =cut
 
@@ -323,7 +331,12 @@ sub geocode
 			'long' => $rc->{'longitude'},
 			'lng' => $rc->{'longitude'},
 			'location' => $location,
-			'database' => 'OpenAddresses'
+			'geocoder' => GEOCODER,
+			'database' => 'OpenAddresses',
+			# A hand-curated entry: the string matched it exactly, and the
+			# coordinate it carries is a town's, not an address's.
+			'confidence' => 1.0,
+			'accuracy' => 'locality'
 		});
 	}
 
@@ -1015,7 +1028,12 @@ sub _get {
 			'long' => $longitude,
 			'lng' => $longitude,
 			'location' => $location,
-			'database' => 'OpenAddresses'
+			'geocoder' => GEOCODER,
+			'database' => 'OpenAddresses',
+			# The database answered for the md5 of the normalised address, so the
+			# string matched exactly and the geohash is the address's position.
+			'confidence' => 1.0,
+			'accuracy' => 'address'
 		});
 
 		if(my $cache = $self->{'cache'}) {

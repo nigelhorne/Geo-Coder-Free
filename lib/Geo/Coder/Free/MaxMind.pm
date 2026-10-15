@@ -17,6 +17,7 @@ use autodie qw(:all);
 use Geo::Coder::Free::DB::MaxMind::admin1;
 use Geo::Coder::Free::DB::MaxMind::admin2;
 use Geo::Coder::Free::DB::MaxMind::cities;
+use Geo::Coder::Free::Utils qw(GEOCODER);
 use Geo::Location::Point;
 use Module::Info;
 use Carp;
@@ -56,11 +57,11 @@ Geo::Coder::Free::MaxMind - Provides a geocoding functionality using the MaxMind
 
 =head1 VERSION
 
-Version 0.44
+Version 0.45
 
 =cut
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 =head1 SYNOPSIS
 
@@ -170,6 +171,16 @@ sub new
     my @locations = $geocoder->geocode({ location => 'New Brunswick, Canada' });
     die if(scalar(@locations) != 1);
 
+=head3 provenance
+
+Every result carries C<geocoder>, C<database>, C<confidence> and C<accuracy>
+(section 2.1 of F<BI-Phase6-Dependency-Specs.md>).  This backend reports
+C<database> as C<MaxMind>.  C<accuracy> is C<city> when the row was chosen by
+city name, C<region> when the lookup named only a region or a country - the row
+is then the first match in that region, not a city the caller asked for - and
+C<locality> for a hand-curated C<%known_locations> entry, whose coordinate is a
+town's.
+
 =cut
 
 sub geocode {
@@ -221,7 +232,12 @@ sub geocode {
 			'lon' => $rc->{'longitude'},
 			'lng' => $rc->{'longitude'},
 			'location' => $location,
-			'database' => 'MaxMind'
+			'geocoder' => GEOCODER,
+			'database' => 'MaxMind',
+			# A hand-curated entry: the string matched it exactly, and the
+			# coordinate it carries is a town's, not an address's.
+			'confidence' => 1.0,
+			'accuracy' => 'locality'
 		});
 	}
 
@@ -580,7 +596,12 @@ sub geocode {
 		delete $city->{'Population'} if(defined($city->{'Population'}) && (length($city->{'Population'}) == 0));
 		my $rc = Geo::Location::Point->new({
 			%{$city},
-			('database' => 'MaxMind', 'confidence' => $confidence)
+			('geocoder' => GEOCODER,
+			 'database' => 'MaxMind',
+			 'confidence' => $confidence,
+			 # A row chosen for its city name is a city; one chosen by region or
+			 # country alone is the first match in that region.
+			 'accuracy' => $options->{'City'} ? 'city' : 'region')
 		});
 		$self->{cache}->set($location, $rc);
 		return $rc;

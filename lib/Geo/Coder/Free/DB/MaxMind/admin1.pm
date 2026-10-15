@@ -10,11 +10,11 @@ Geo::Coder::Free::DB::MaxMind::admin1 - driver for http://download.geonames.org/
 
 =head1 VERSION
 
-Version 0.44
+Version 0.45
 
 =cut
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 # It contains admin areas such as counties, states and provinces
 # Note that GB has England, Scotland and Wales at this level, not the counties

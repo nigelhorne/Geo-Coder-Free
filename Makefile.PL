@@ -282,7 +282,7 @@ my $build_requires = {
 	'File::Spec' => 0,
 	'autodie' => 0,
 	'Geo::Coder::Abbreviations' => 0.03,
-	'Geo::Location::Point' => 0.14,
+	'Geo::Location::Point' => 0.16,
 	'IPC::System::Simple' => 0,
 	'JSON::MaybeXS' => 0,
 	'LWP::ConnCache' => 0,
@@ -312,6 +312,7 @@ if($ENV{OPENADDR_HOME}) {
 
 my $test_requires = {
 	'CGI::IDS' => 0,
+	'CGI::Info' => 0,
 	'CGI::Lingua' => 0,
 	'CHI::Driver::Null' => 0,
 	'Data::Throttler' => 0,
@@ -383,7 +384,7 @@ WriteMakefile(
 		'Encode' => 0,
 		'Geo::Coder::Abbreviations' => 0.03,
 		'Geo::Hash' => 0,
-		'Geo::Location::Point' => 0.14,
+		'Geo::Location::Point' => 0.16,
 		'Geo::StreetAddress::US' => 0,
 		'Lingua::EN::AddressParse' => 0,
 		'Locale::CA' => 0,

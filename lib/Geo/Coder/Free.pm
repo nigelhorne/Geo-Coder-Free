@@ -21,11 +21,11 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
-Version 0.44
+Version 0.45
 
 =cut
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 =encoding utf-8
 
@@ -287,6 +287,15 @@ sub new {
     # scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
     # list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
 
+=head4 provenance
+
+Every result carries C<geocoder>, C<database>, C<confidence> and C<accuracy>
+(section 2.1 of F<BI-Phase6-Dependency-Specs.md>): which distribution produced
+it, which backend answered, how good the match was, and how precise the
+coordinate is.  C<provenance()> reads the four back.  C<location> is set by every
+path but the MaxMind cities one, and C<text> only by a scantext lookup; C<lat>,
+C<long> and C<lng> come from the value object itself.
+
 =head3 MESSAGES
 
     Usage: ...::geocode(...)        No location or scantext argument given.
@@ -483,6 +492,65 @@ sub geocode {
 
 	Carp::croak(_i18n('usage_geocode', __PACKAGE__)) unless $params{'scantext'};
 	return;
+}
+
+=head2 provenance
+
+    my ($dist, $backend, $confidence, $accuracy) = $geocoder->provenance($point);
+
+or, in scalar context, the same four as a hashref:
+
+    my $provenance = $geocoder->provenance($point);
+    print $provenance->{'backend'};
+
+Where a result came from and how good it is, so that a caller does not have to
+reach for the hash keys itself (section 2.1 of F<BI-Phase6-Dependency-Specs.md>):
+
+=over 4
+
+=item * C<$dist> - the distribution that produced the result: the C<geocoder>
+key, C<Geo::Coder::Free> for a result from this distribution, or the wrapper
+that passed it on, such as C<Geo::Coder::List>.
+
+=item * C<$backend> - which backend answered, in a short vocabulary: C<Local>,
+C<MaxMind>, C<OpenAddresses> or C<GeoNames>.  This is the C<database> key with
+the distribution's prefix removed, so that the two spellings the backends use -
+C<Geo::Coder::Free::Local> from C<Local>, and C<MaxMind> from C<MaxMind> - speak
+the same vocabulary here.  B<The C<database> key itself is unchanged>, for the
+consumers that already match on it.
+
+=item * C<$confidence> - how good the match was, 0.0 to 1.0, where 1.0 is exact.
+
+=item * C<$accuracy> - how precise the coordinate is: C<address>, C<street>,
+C<postcode>, C<locality>, C<city>, C<region> or C<country>.
+
+=back
+
+Returns an empty list - and an empty hashref in scalar context - when handed
+something that is not a result.  A key a result does not carry comes back
+C<undef> rather than being guessed at, because a plain hash from another
+geocoder has no provenance to report.
+
+=cut
+
+sub provenance {
+	my ($self, $point) = @_;
+
+	return wantarray ? () : {} unless defined($point) && ref($point)
+		&& ((Scalar::Util::reftype($point) || '') eq 'HASH');
+
+	my $dist    = $point->{'geocoder'};
+	my $backend = $point->{'database'};
+	$backend =~ s/^Geo::Coder::Free::// if defined($backend);
+
+	my %provenance = (
+		dist       => $dist,
+		backend    => $backend,
+		confidence => $point->{'confidence'},
+		accuracy   => $point->{'accuracy'},
+	);
+
+	return wantarray ? @provenance{qw(dist backend confidence accuracy)} : \%provenance;
 }
 
 =head2 reverse_geocode
@@ -859,6 +927,17 @@ Nigel Horne C<< <njh@nigelhorne.com> >>
       let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
                     ∧ (openaddr = undef ⟹ [MaxMind]) •
       result = first { defined } map { b.geocode(addr, r) } backends
+
+=head2 provenance
+
+    Provenance : Point? → (DISTRIBUTION?, BACKEND?, CONFIDENCE?, ACCURACY?)
+    ∀ p : Point? •
+      Provenance(p) = if p ≠ ∅ ∧ is_a_result(p)
+                      then ⟨⟨ p.geocoder,
+                              strip("Geo::Coder::Free::", p.database),
+                              p.confidence,
+                              p.accuracy ⟩⟩
+                      else ∅ fi
 
 =head1 LICENSE AND COPYRIGHT
 

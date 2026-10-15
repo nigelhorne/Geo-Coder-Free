@@ -5,8 +5,8 @@ use warnings;
 use autodie qw(:all);
 
 use Carp;
-use Geo::Location::Point 0.14;
-use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
+use Geo::Location::Point 0.16;	# 0.16 stores and returns false values, so provenance survives
+use Geo::Coder::Free::Utils qw(_abbreviate _normalize _accuracy_for GEOCODER);
 use Geo::StreetAddress::US;
 use Lingua::EN::AddressParse;
 use Locale::CA;
@@ -24,11 +24,11 @@ Geo::Coder::Free::Local - Geocode using user-curated local data
 
 =head1 VERSION
 
-Version 0.44
+Version 0.45
 
 =cut
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 =head1 SYNOPSIS
 
@@ -231,6 +231,18 @@ sub new {
     # Output schema (Return::Set)
     { type => 'object', isa => 'Geo::Location::Point', optional => 1 }
 
+=head3 PROVENANCE
+
+Every result carries C<geocoder>, C<database>, C<confidence> and C<accuracy>
+(section 2.1 of F<BI-Phase6-Dependency-Specs.md>).  This backend reports
+C<database> as C<Geo::Coder::Free::Local>, and C<accuracy> is what the matched
+columns justify: a house number makes it an C<address>, a road a C<street>, a
+name or city a C<locality>, a state a C<region> and a country a C<country>.  A
+lookup answered from the index, which matches a whole row, is an exact match
+(C<confidence> of 1.0) whose accuracy comes from the row's own fields - so a
+derived geographic centre, which carries a city, state and country and nothing
+narrower, is a C<locality>.
+
 =head3 MESSAGES
 
     Usage: ...::geocode(...)   No location argument given.
@@ -295,7 +307,7 @@ sub geocode {
 	$lc =~ s/,\s*usa$/, us/i;
 
 	return $self->{'cache'}{$lc}  if exists $self->{'cache'}{$lc};
-	return $self->_cache_and_return($lc, $self->{'index'}{$lc})
+	return $self->_cache_and_return($lc, $self->_result_for($self->{'index'}{$lc}))
 		if exists $self->{'index'}{$lc};
 
 	my $ap;
@@ -756,12 +768,18 @@ sub _search {
 	# that short-circuits directly, removing one boolean gate per iteration.
 	ROW: for my $row (@{$self->{'data'}}) {
 		my $matched = 0;
+		my @matched_columns;
 
 		for my $column (@columns) {
 			if (defined($data->{$column})) {
 				next ROW unless defined($row->{$column});
 				next ROW if uc($row->{$column}) ne uc($data->{$column});
 				$matched++;
+				# The accuracy is reported from the columns that matched, not
+				# every column this call site offered: a caller trying
+				# 'number road city...' for a town that has no road must not have
+				# its match described as an address.
+				push @matched_columns, $column;
 			} elsif (exists $data->{$column}) {
 				delete $data->{$column};
 			}
@@ -774,14 +792,45 @@ sub _search {
 		               : $matched >= 4                ? $CONF_HIGH
 		               :                               $CONF_MEDIUM;
 
+		# Provenance (Phase 6 dependency specs section 2.1).  Set after %{$row}
+		# so that a dataset column that happens to be called accuracy cannot stand
+		# in for the match this code actually made.
 		return Geo::Location::Point->new(
 			location   => $data->{'location'},
 			confidence => $confidence,
 			database   => __PACKAGE__,
 			%{$row},
+			geocoder   => GEOCODER,
+			accuracy   => _accuracy_for(@matched_columns),
 		);
 	}
 	return;
+}
+
+=head2 _result_for
+
+Build the result for a dataset row that the index matched.  The index holds the
+rows themselves - the same hashrefs C<_search> scans - so the object is built
+as a copy rather than blessed in place, and the provenance keys every result
+carries (section 2.1 of F<BI-Phase6-Dependency-Specs.md>) are added where the
+row does not already record them.
+
+An index hit is an exact match on the row's string, so the confidence is
+C<$CONF_EXACT>, and the accuracy is what the row's own fields justify, through
+C<_accuracy_for()>.
+
+=cut
+
+sub _result_for {
+	my ($self, $row) = @_;
+
+	my %attributes = %{$row};
+	$attributes{'geocoder'}   = GEOCODER;
+	$attributes{'database'}   = __PACKAGE__;
+	$attributes{'confidence'} = $CONF_EXACT;
+	$attributes{'accuracy'}   = _accuracy_for(keys %attributes);
+
+	return Geo::Location::Point->new(\%attributes);
 }
 
 # Purpose:  Calculate the geographic centres (centroids) of all city/state/country

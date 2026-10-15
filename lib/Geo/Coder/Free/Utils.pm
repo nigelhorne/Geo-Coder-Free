@@ -16,11 +16,11 @@ address-normalization helpers used by multiple backends.
 
 =head1 VERSION
 
-Version 0.44
+Version 0.45
 
 =cut
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 
 use v5.20;
 use strict;
@@ -30,7 +30,7 @@ no warnings qw(experimental::signatures);
 
 use Exporter qw(import);
 our @EXPORT = qw(create_disc_cache create_memory_cache distance _abbreviate _normalize);
-our @EXPORT_OK = qw(_abbreviate _normalize);
+our @EXPORT_OK = qw(_abbreviate _normalize _accuracy_for GEOCODER);
 
 use CHI;
 use Data::Dumper;
@@ -52,6 +52,17 @@ use constant {
 	KM_PER_MILE => 1.609344,
 	NM_PER_MILE => 0.8684
 };
+
+# The distribution that produced a result.  Every backend stamps this on the
+# Geo::Location::Point it hands back, so a consumer can tell a result from this
+# distribution from one passed on by a wrapper such as Geo::Coder::List.
+# Section 2.1 of BI-Phase6-Dependency-Specs.md.
+use constant GEOCODER => 'Geo::Coder::Free';
+
+# How precise the coordinates behind a match can claim to be, most precise
+# first.  _accuracy_for() returns one of these, and anything that validates an
+# accuracy (section 3.2) validates against this list.
+use constant ACCURACY_LEVELS => [qw(address street postcode locality city region country)];
 
 =head1 SUBROUTINES/METHODS
 
@@ -499,6 +510,37 @@ sub _abbreviate {
 	my $type = uc(shift);
 	$abbreviations ||= Geo::Coder::Abbreviations->new();
 	return $abbreviations->abbreviate($type) || $type;
+}
+
+=head2 _accuracy_for
+
+The precision a match can claim, from the fields that made it.  The most
+precise field present decides: a house number makes it an C<address>, a road a
+C<street>, a postcode a C<postcode>, a name or a city a C<locality>, a state or
+region a C<region>, and a country a C<country>.  So a dataset row carrying only
+a city, state and country is a C<locality>, which is what the geographic centres
+C<Local.pm> derives are.
+
+Always returns one of the C<ACCURACY_LEVELS>: a match on a row with none of the
+fields above is still a named place, so it is reported as a C<locality> rather
+than left unsaid, because every result promises an accuracy.
+
+Exported so that a backend can describe the match it made without repeating the
+vocabulary.
+
+=cut
+
+sub _accuracy_for(@fields) {
+	my %field = map { lc($_) => 1 } @fields;
+
+	return 'address'  if($field{'house_number'} || $field{'number'});
+	return 'street'   if($field{'road'} || $field{'street'});
+	return 'postcode' if($field{'postcode'} || $field{'post_code'} || $field{'zip'});
+	return 'locality' if($field{'city'} || $field{'town'} || $field{'name'});
+	return 'region'   if($field{'state'} || $field{'state_district'} || $field{'county'} || $field{'region'});
+	return 'country'  if($field{'country'});
+
+	return 'locality';
 }
 
 1;

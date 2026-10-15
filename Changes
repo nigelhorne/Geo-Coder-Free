@@ -1,5 +1,32 @@
 Revision history for Geo-Coder-Free
 
+0.45	
+	[ Enhancements ]
+	- Every Geo::Location::Point this distribution returns now carries geocoder, database, confidence and
+	  accuracy, so a caller can tell which distribution and
+	  which backend produced it, how good the match was and how precise the coordinate is.  geocoder is new
+	  and additive, and the existing database values are unchanged for the consumers that match on them
+	- Local, MaxMind and OpenAddresses each describe the match they actually made: an OpenAddresses geohash
+	  hit is an address and a hand-curated entry a locality, a Local match is graded from the columns that
+	  matched rather than the ones the call site offered, and a MaxMind cities row is a city or a region
+	- Added provenance(), which returns the distribution, backend, confidence and accuracy of a result, as a
+	  list or, in scalar context, as a hashref.  The backends' two spellings of database are reduced to one
+	  vocabulary there.  It returns undef rather than guessing for something with no provenance to report,
+	  such as a plain hash handed on by another geocoder
+	- Geo::Coder::Free::Utils exports GEOCODER and _accuracy_for(), so a backend describes a match without
+	  repeating the vocabulary
+	- Requires Geo::Location::Point 0.16, which stores and returns false values: a confidence of 0 or an
+	  empty accuracy used to be discarded on write, so provenance could not have been reported honestly
+	[ Tests ]
+	- t/unit.t: the API ledger gains the provenance states, and a new section runs the real MaxMind backend
+	  (the mock is restored first) to assert that a hit carries all four keys with an accuracy of city or
+	  region - a point the test built itself would prove nothing about the stamping
+	- t/integration.t: the OpenAddresses path is now asserted end to end - the database lookup is stubbed at
+	  the seam _get() uses, so the stamping, the Storable round trip through the result cache and the thawed
+	  second lookup are all the code under test
+	- t/consumer-contract.t: geocoder, database, confidence and accuracy are declared as guaranteed producer
+	  keys, so a backend that stops setting one of them fails here
+
 0.44	Thu Oct 15 10:22:42 AM EDT 2026
 	[ Tests ]
 	- Use Test::Log::Abstraction
