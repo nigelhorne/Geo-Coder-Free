@@ -5,7 +5,7 @@ package Geo::Coder::Free::Display;
 
 =head1 VERSION
 
-Version 0.45
+Version 0.46
 
 =cut
 
@@ -93,7 +93,7 @@ server-side form handling and do not need CSRF tokens at all:
 
 # -----------------------------------------------------------------------
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 
 use v5.20;
 use strict;

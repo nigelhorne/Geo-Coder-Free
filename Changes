@@ -1,5 +1,27 @@
 Revision history for Geo-Coder-Free
 
+0.46	
+	[ Enhancements ]
+	- Added valid_location(), which answers whether a string is a location at all: the rule geocode()
+	  applies before it touches a backend, made public.  A caller working down a spreadsheet column can
+	  skip a row whose value is a bare number, or empty, instead of catching the croak that would
+	  otherwise end the run.  The regex it replaces was private to this module, so no caller could
+	  pre-filter with the module's own rule
+	- geocode() takes on_error => 'croak' (the default, and the behaviour every existing caller already
+	  has) or 'undef'.  'undef' returns undef - an empty list in list context - for the two documented
+	  input errors, invalid_location and invalid_scantext, and for nothing else: a backend that throws
+	  still throws, because nothing is wrapped in an eval, and a call with neither a location nor a
+	  scantext is still a usage croak.  An on_error with any other value is refused by name rather than
+	  ignored, so a caller who misspells it does not ship a batch job that dies on its first bad row
+	[ Tests ]
+	- t/edge_cases.t: valid_location() is false for '0044' and true for 'Ramsgate, Kent'; geocode() with
+	  on_error => 'undef' returns undef where the default still croaks, in both contexts; and a mocked
+	  backend that dies still propagates the exception under on_error => 'undef' - the assertion that
+	  fails if the option is ever implemented by wrapping the whole call in an eval
+	- t/unit.t: the API ledger gains the three new documented states - valid_location, on_error => 'undef'
+	  and the new on_error message - so none of them can go unexercised
+	- t/path.t: the numeric guard's second exit is mapped like the first
+
 0.45	Thu Oct 15 01:23:24 PM EDT 2026
 	[ Enhancements ]
 	- Every Geo::Location::Point this distribution returns now carries geocoder, database, confidence and

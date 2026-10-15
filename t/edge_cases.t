@@ -260,6 +260,79 @@ subtest 'GCF geocode() — purely numeric inputs croak' => sub {
 };
 
 # -----------------------------------------------------------------------
+# 9b. Geo::Coder::Free::valid_location() and geocode(on_error => 'undef')
+# Strategy: a batch caller working down a dirty column must be able to skip a
+# row rather than have the croak above kill the run (section 2.4 of
+# BI-Phase6-Dependency-Specs.md).  Three things must hold: the predicate and
+# the guard agree; 'undef' changes the answer for the two documented input
+# errors only, so the default is still a croak and a backend that dies still
+# dies; and an on_error nobody understands is refused rather than ignored.
+# -----------------------------------------------------------------------
+subtest 'GCF valid_location() — the rule the guard applies, made public' => sub {
+	my $geo = Geo::Coder::Free->new();
+
+	ok(!$geo->valid_location('0044'), '0044 is not a location');
+	ok(!$geo->valid_location('12345'), 'a longer bare number is not a location');
+	ok(!$geo->valid_location(''), 'the empty string is not a location');
+	ok(!$geo->valid_location(undef), 'undef is not a location');
+
+	ok($geo->valid_location('Ramsgate, Kent'), 'an address is a location');
+	# The guard has always rejected digits only, so anything holding a non-digit
+	# passes: '3.14' and '-' are not addresses, but they are not a numeric column
+	# read by mistake either, and answering otherwise here would make the
+	# predicate disagree with the croak it is supposed to explain.
+	ok($geo->valid_location('3.14'), 'a decimal has a non-digit in it, so it passes');
+	ok($geo->valid_location('-'), 'a dash passes');
+
+	# The three calling conventions the rest of the module accepts.
+	ok(!Geo::Coder::Free->valid_location('0044'), 'class-method form');
+	ok(!Geo::Coder::Free::valid_location('0044'), 'function form');
+};
+
+subtest "GCF geocode() — on_error => 'undef' skips the row" => sub {
+	my $geo = Geo::Coder::Free->new();
+
+	# The row the guard would have killed, skipped instead.  In both contexts:
+	# a scalar caller gets undef, a list caller gets an empty list.
+	is($geo->geocode(location => '0044', on_error => 'undef'), undef,
+		'numeric location returns undef');
+	is($geo->geocode(scantext => '99', on_error => 'undef'), undef,
+		'numeric scantext returns undef');
+	my @list = $geo->geocode(location => '0044', on_error => 'undef');
+	is(scalar @list, 0, 'list context returns an empty list, not a one-element undef');
+
+	# ...and nothing else changes: the default is still the croak it always was,
+	# and saying so explicitly is the same as saying nothing.
+	throws_ok { $geo->geocode(location => '0044') }
+		qr/invalid location/, 'still croaks by default';
+	throws_ok { $geo->geocode(location => '0044', on_error => 'croak') }
+		qr/invalid location/, "still croaks with on_error => 'croak'";
+	throws_ok { $geo->geocode(scantext => '99', on_error => 'croak') }
+		qr/invalid scantext/, 'scantext still croaks';
+
+	# The empty string is not an error the option has anything to do with: it has
+	# always returned undef without croaking, on either setting.
+	is($geo->geocode(location => '', on_error => 'croak'), undef, 'empty location → undef either way');
+
+	# An option that changes error handling must not be guessed at: a caller who
+	# misspells it would otherwise ship a batch job that dies on row one.
+	throws_ok { $geo->geocode(location => 'Ramsgate, Kent', on_error => 'ignore') }
+		qr/on_error must be/, 'an unknown on_error is refused, not ignored';
+
+	# The guard is the only thing the option changes.  A backend that throws must
+	# still throw, or on_error would have swallowed the OA failure that
+	# t/transaction.t's TX4 exists to protect.
+	my $oa_geo = Geo::Coder::Free->new(openaddr => $TMPDIR);
+	mock('Geo::Coder::Free::OpenAddresses', 'geocode', sub { die "simulated DB connection failure\n" });
+	throws_ok { $oa_geo->geocode(location => 'Somewhere, Someplace', on_error => 'undef') }
+		qr/simulated DB connection failure/,
+		'a backend exception still propagates under on_error => undef';
+
+	restore_all();
+	_remock_maxmind();
+};
+
+# -----------------------------------------------------------------------
 # 10. Geo::Coder::Free::geocode() — empty/undef inputs
 # Strategy:
 #   - empty string location: defined, no \D chars, length=0 → early 'return'

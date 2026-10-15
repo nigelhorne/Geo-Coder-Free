@@ -42,11 +42,11 @@ meaning; an addition there would be lost the next time that sync runs.
 
 =head1 VERSION
 
-Version 0.45
+Version 0.46
 
 =cut
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 
 # The distribution that produced a result.  Every backend stamps this on the
 # Geo::Location::Point it hands back, so a consumer can tell a result from this

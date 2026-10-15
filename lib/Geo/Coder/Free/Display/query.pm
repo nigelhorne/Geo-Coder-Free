@@ -10,11 +10,11 @@ use Carp;
 
 =head1 VERSION
 
-Version 0.45
+Version 0.46
 
 =cut
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 
 use parent -norequire, 'Geo::Coder::Free::Display';
 use JSON::MaybeXS;

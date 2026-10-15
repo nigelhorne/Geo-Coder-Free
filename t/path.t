@@ -228,6 +228,15 @@ subtest 'geocode() — gc_C_numeric_loc: non-empty numeric → croak invalid_loc
 	throws_ok { $geo->geocode(location => '0')  } qr/invalid location/, '0 → croak';
 };
 
+subtest 'geocode() — gc_C_numeric_loc_undef: numeric + on_error => undef → undef, no croak' => sub {
+	# The same guard as gc_C_numeric_loc, with the batch caller's setting: the
+	# croak becomes the undef that lets the row be skipped (section 2.4 of
+	# BI-Phase6-Dependency-Specs.md).
+	my $geo = Geo::Coder::Free->new();
+	is($geo->geocode(location => '42', on_error => 'undef'), undef, '42 → undef');
+	lives_ok { $geo->geocode(location => '0', on_error => 'undef') } '0 → no croak';
+};
+
 subtest 'geocode() — gc_C_empty_scan: zero-length scantext → undef (not croak)' => sub {
 	my $geo = Geo::Coder::Free->new();
 	is($geo->geocode(scantext => ''), undef, 'empty scantext → undef');

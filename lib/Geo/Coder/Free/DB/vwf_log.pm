@@ -10,11 +10,11 @@ Geo::Coder::Free::DB::vwf_log - Driver for /tmp/vwf.log
 
 =head1 VERSION
 
-Version 0.45
+Version 0.46
 
 =cut
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 
 use parent 'Database::Abstraction';
 use DBD::CSV;

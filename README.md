@@ -4,7 +4,7 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 ## Version
 
-Version 0.45
+Version 0.46
 
 ## Synopsis
 
@@ -135,6 +135,65 @@ my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
 use ->new() not ::new()   Called as a function; use arrow syntax.
 ```
 
+### Valid\_Location
+
+#### Synopsis
+
+```perl
+if ($geo->valid_location($row->{'place'})) {
+    push @found, $geo->geocode(location => $row->{'place'});
+}
+```
+
+#### Description
+
+Answers whether a string is something this module will even try to look up.
+It is the public form of the rule `geocode()` applies before it touches a
+backend, so a caller working down a spreadsheet column can skip a row whose
+value is a bare number - or is empty - instead of catching the croak that
+would otherwise kill the whole run.
+
+Only that cheap syntactic test is answered.  A true result means the string is
+not disqualified, **not** that a backend knows it: `'Ramsgate, Kent'` is valid
+and may still find nothing, while `'0044'` is invalid and is never looked up.
+The rule rejects a string of digits only, which is what a numeric column holds
+when the wrong column has been read, so anything with a non-digit in it counts
+as valid - `'3.14'` and `'-'` included.  `undef`, `''` and a reference are
+not valid.
+
+#### Api Specification
+
+##### Input
+
+```perl
+location => { type => 'scalar', optional => 1 }  # the string to test
+```
+
+##### Output
+
+```perl
+{ type => 'boolean' }  # false for undef, '' and a digit-only string
+```
+
+#### Example
+
+```perl
+my $geo = Geo::Coder::Free->new();
+
+$geo->valid_location('Ramsgate, Kent');   # true
+$geo->valid_location('0044');             # false - never a location
+$geo->valid_location('');                 # false
+$geo->valid_location(undef);              # false
+```
+
+Accepts the three calling conventions the rest of this module does:
+
+```perl
+$geo->valid_location('0044');
+Geo::Coder::Free->valid_location('0044');
+Geo::Coder::Free::valid_location('0044');
+```
+
 ### Geocode
 
 #### Synopsis
@@ -155,7 +214,34 @@ my @hits = $geo->geocode(
 $geo->geocode('Ramsgate, Kent, UK');
 $geo->geocode({ location => 'Ramsgate, Kent, UK' });
 $geo->geocode(location => 'Ramsgate, Kent, UK');
+
+# A batch caller with a dirty column: skip the row, do not kill the run
+for my $place (@column) {
+    my $pt = $geo->geocode(location => $place, on_error => 'undef');
+    next unless defined $pt;
+    push @found, $pt;
+}
 ```
+
+#### Description
+
+A location or a scantext that is not a location at all - a bare number, such as
+the `0044` a numeric column holds - is refused before any backend is
+touched.  `valid_location()` answers the same question, so a caller can filter
+first; `on_error` chooses what happens when one gets through anyway:
+
+- `'croak'` (the default) - `Carp::croak`, the behaviour every existing
+caller already has.
+- `'undef'` - return `undef`, so one bad row in a spreadsheet column is
+skipped rather than ending the run.  It changes the answer for **only** the two
+documented input errors below; an exception from a backend is still an
+exception, and a malformed argument list still croaks.
+
+The option is deliberately narrow, so a batch caller wants `valid_location()`
+with it: that predicate answers false for `undef` and `''` as well, which are
+the other two things an empty cell holds.  A call with neither a location nor a
+scantext is a usage error rather than an input error - the same croak as calling
+`geocode()` with no arguments - and stays a croak on either setting.
 
 #### Api Specification
 
@@ -167,6 +253,7 @@ location     => { type => 'scalar',   optional => 1 }  # address string (exclusi
 scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
 region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
 ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
+on_error     => { type => 'scalar',   optional => 1 }  # 'croak' (default) or 'undef'
 ```
 
 ##### Output
@@ -192,6 +279,7 @@ path but the MaxMind cities one, and `text` only by a scantext lookup; `lat`,
 Usage: ...::geocode(...)        No location or scantext argument given.
 invalid location to geocode()   location is purely numeric.
 invalid scantext to geocode()   scantext is purely numeric.
+on_error must be ...            on_error is neither 'croak' nor 'undef'.
 ```
 
 #### Pseudocode
@@ -199,7 +287,9 @@ invalid scantext to geocode()   scantext is purely numeric.
 ```perl
 if self is not a blessed object → delegate to new()->geocode(@args)
 normalise @_ into %params
+validate: on_error is 'croak' or 'undef' (croak if not)
 validate: location is not purely numeric; scantext is not purely numeric
+          (undef instead of croaking when on_error is 'undef')
 if openaddr backend is available:
     if scantext:
         try the raw scantext string as a direct location
@@ -393,13 +483,26 @@ Init : Params → GeoCoderFreeState
   GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
 ```
 
+### Valid\_Location
+
+```
+ValidLocation : Any → BOOLEAN
+∀ x : Any •
+  ValidLocation(x) = (x ≠ ∅ ∧ ¬ ref(x) ∧ x ≠ "" ∧ x ∋ non-digit)
+```
+
 ### Geocode
 
 ```
-Geocode : Address × Region? → Point?
-∀ addr : Address; r : Region? •
+ErrorMode ::= "croak" | "undef"
+
+Geocode : Address × Region? × ErrorMode? → Point?
+∀ addr : Address; r : Region?; e : ErrorMode? •
+  let mode == e ∨ "croak" •
   let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
                 ∧ (openaddr = undef ⟹ [MaxMind]) •
+  ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
+  ∧ ValidLocation(addr) ⟹
   result = first { defined } map { b.geocode(addr, r) } backends
 ```
 

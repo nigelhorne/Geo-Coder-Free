@@ -105,8 +105,13 @@ my %LEDGER = (
 	'GCF::geocode invalid_location'  => 1,
 	'GCF::geocode invalid_scantext'  => 1,
 	'GCF::geocode usage_geocode'     => 1,
+	'GCF::geocode on_error undef'    => 1,
+	'GCF::geocode invalid_on_error'  => 1,
 	'GCF::geocode bare string'       => 1,
 	'GCF::geocode hashref'           => 1,
+
+	# Geo::Coder::Free::valid_location
+	'GCF::valid_location'            => 1,
 
 	# Geo::Coder::Free::reverse_geocode
 	'GCF::reverse_geocode usage_reverse'  => 1,
@@ -295,6 +300,33 @@ subtest 'GCF::geocode — standard and invalid inputs' => sub {
 	delete $LEDGER{'GCF::geocode hashref'};
 
 	diag 'GCF::geocode: all standard paths exercised' if $ENV{TEST_VERBOSE};
+};
+
+subtest 'GCF::valid_location — the predicate, and the non-croaking mode' => sub {
+	my $geo = Geo::Coder::Free->new();
+
+	# The rule geocode() applies, made public so a batch caller can pre-filter a
+	# dirty column (section 2.4 of BI-Phase6-Dependency-Specs.md).
+	ok(!$geo->valid_location('0044'), 'a bare number is not a location');
+	ok(!$geo->valid_location(undef), 'undef is not a location');
+	ok($geo->valid_location('Ramsgate, Kent'), 'an address is a location');
+	delete $LEDGER{'GCF::valid_location'};
+
+	# The same question, answered the same way from the class and as a function.
+	ok(!Geo::Coder::Free->valid_location('0044'), 'class-method form agrees');
+	ok(!Geo::Coder::Free::valid_location('0044'), 'function form agrees');
+
+	# The row that would have ended the run comes back undef instead, and the
+	# default is still the croak every existing caller has.
+	is($geo->geocode(location => '0044', on_error => 'undef'), undef,
+		'on_error undef returns undef for a numeric location');
+	delete $LEDGER{'GCF::geocode on_error undef'};
+
+	# An on_error nobody understands is refused rather than ignored: silently
+	# croaking would be the very failure the option exists to prevent.
+	throws_ok { $geo->geocode(location => 'Ramsgate, Kent', on_error => 'ignore') }
+		qr/on_error must be/, 'unknown on_error croaks invalid_on_error';
+	delete $LEDGER{'GCF::geocode invalid_on_error'};
 };
 
 subtest 'GCF::reverse_geocode — error states and delegation' => sub {

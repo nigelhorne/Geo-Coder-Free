@@ -6,11 +6,11 @@ use autodie qw(:all);
 
 =head1 VERSION
 
-Version 0.45
+Version 0.46
 
 =cut
 
-our $VERSION = '0.45';
+our $VERSION = '0.46';
 
 # Display the index page
 
