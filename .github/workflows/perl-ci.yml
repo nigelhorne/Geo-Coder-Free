@@ -48,7 +48,7 @@ jobs:
 
       - name: Setup Perl
         id: setup-perl
-        uses: shogo82148/actions-setup-perl@v1.44.2
+        uses: shogo82148/actions-setup-perl@v1.44.0
         with:
           perl-version: ${{ matrix.perl }}
 
@@ -88,16 +88,16 @@ jobs:
         run: cpanm --notest App::cpanminus local::lib
 
       - name: Install DB_File, needed for a lot of CPAN modules
-        run: |
-          sudo apt install libdb-dev libperl-dev
         if: runner.os == 'Linux'
-
+        run: |
+           sudo apt update
+           sudo apt install libdb-dev libperl-dev
       - name: Install dependencies
         if: runner.os != 'Windows'
         shell: bash
         run: |
           eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
-          cpanm --verbose --notest --installdeps .
+          cpanm --notest --installdeps --verbose .
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
@@ -106,7 +106,7 @@ jobs:
           @echo off
           set "PATH=%USERPROFILE%\perl5\bin;%PATH%"
           set "PERL5LIB=%USERPROFILE%\perl5\lib\perl5"
-          cpanm --verbose --notest --installdeps .
+          cpanm --notest --installdeps --verbose .
 
       - name: Reinstall YAML::XS against current Perl (Windows)
         if: runner.os == 'Windows'

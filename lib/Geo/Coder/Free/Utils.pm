@@ -16,11 +16,11 @@ address-normalization helpers used by multiple backends.
 
 =head1 VERSION
 
-Version 0.03
+Version 0.44
 
 =cut
 
-our $VERSION = '0.03';
+our $VERSION = '0.44';
 
 use v5.20;
 use strict;

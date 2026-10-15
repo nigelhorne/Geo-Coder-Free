@@ -4,7 +4,7 @@
 name: Test Dashboard
 
 permissions:
-  contents: write  # needed to push to gh-pages
+  contents: write # needed to push to gh-pages
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
         perl: ["5.40"]
     steps:
       # Checkout repository
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
 
@@ -202,4 +202,4 @@ jobs:
           user_name: github-actions
           user_email: github-actions@github.com
           keep_files: true
-          enable_jekyll: false   # adds .nojekyll automatically, it adds nothing in prebuilt pages
+          enable_jekyll: false # adds .nojekyll automatically, it adds nothing in prebuilt pages

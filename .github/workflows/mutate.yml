@@ -7,11 +7,11 @@ permissions:
 # on: [push, pull_request]
 on:
   schedule:
-    - cron: '12 23 26 * *'
+    - cron: "12 23 26 * *"
   workflow_dispatch:
     inputs:
       full:
-        description: 'Mutate every file, not only those changed in the last code commit'
+        description: "Mutate every file, not only those changed in the last code commit"
         type: boolean
         default: false
 

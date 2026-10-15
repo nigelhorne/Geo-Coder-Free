@@ -29,11 +29,11 @@ Geo::Coder::Free::Config - Site-independent configuration file for the Versatile
 
 =head1 VERSION
 
-Version 0.01
+Version 0.44
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.44';
 
 =head1 SUBROUTINES/METHODS
 

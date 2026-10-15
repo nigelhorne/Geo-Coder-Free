@@ -1,8 +1,12 @@
 Revision history for Geo-Coder-Free
 
-0.44
+0.44	Thu Oct 15 10:22:42 AM EDT 2026
 	[ Tests ]
 	- Use Test::Log::Abstraction
+	- Added t/consumer-contract.t: the reader/producer contract for the Geo::Location::Point this dist returns. It checks that each backend still sets
+	  the keys the contract claims, and that every registered consumer in the workspace reads only the keys every backend guarantees - reading a key that
+	  only one backend sets is undef for the others, which is how a caller silently takes the wrong branch. A consumer that is not registered fails the
+	  discovery test, so the check cannot go stale
 
 0.43	Fri Aug 14 08:24:12 PM EDT 2026
 	[ Enhancements ]

@@ -21,11 +21,11 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
-Version 0.43
+Version 0.44
 
 =cut
 
-our $VERSION = '0.43';
+our $VERSION = '0.44';
 
 =encoding utf-8
 
