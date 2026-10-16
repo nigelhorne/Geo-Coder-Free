@@ -1,5 +1,48 @@
 Revision history for Geo-Coder-Free
 
+0.47
+	[ Enhancements ]
+	- Added geocode_many(), the loop a batch caller writes around geocode() run for it (section 2.5 of
+	  BI-Phase6-Dependency-Specs.md).  It takes an arrayref of locations and answers with one entry
+	  per distinct value - the point it resolved to, or undef - plus lookups (how many values were
+	  looked up), resolved and unresolved (which add up to the number of distinct values) and
+	  unresolved_values (the values that produced nothing, in the order they were first seen, which
+	  is what a caller records as tried-and-failed instead of retrying them on every request).  A
+	  value repeated in the batch is one lookup, so a column holding the same handful of places
+	  thousands of times costs the handful; a value the module refuses before any backend is touched
+	  - a bare number, the empty string, undef, a reference - costs no lookup at all and is counted
+	  unresolved, so the count a caller caps its work by is the number of backends asked.  An undef
+	  is the empty string and shares its entry; region and on_error are handed to every lookup and
+	  mean there what they mean in geocode(), croak by default; and a backend exception is still an
+	  exception.  The four keys the answer carries besides the values are reserved, and a value
+	  spelled like one is refused by name rather than overwriting a count.  A batch of no values
+	  answers with counts of zero
+	- The token filter in _find_word_ngrams() asks the shared location rule what a bare number
+	  is instead of spelling the rule out again with its own regex.  The answer is the same for
+	  every token that can reach it - the text is trimmed and its whitespace collapsed before the
+	  split, so no empty token can arise - and the rule is now answered in one place (below)
+	[ Tests ]
+	- t/unit.t: the API ledger gains the geocode_many states (the map and the counts, the
+	  distinct-value reduction, the region pass-through, the default croak and its message, an undef
+	  cell, the reserved key, an empty batch, both calling conventions, the usage errors and a
+	  backend that dies), and a subtest drives them against a backend that is asked once per call and
+	  answers per location
+	- t/edge_cases.t: section 9d runs a 401-row column holding four distinct values to hold "one
+	  lookup per distinct value" to two backend calls rather than 397, and a column of nothing but
+	  unusable values to zero lookups at all - the backend is mocked to die if it is called for one
+	- t/location-rule.t: the location rule is written out in one file and no other.  It scans every
+	  module under lib/, every script under bin/ and every program under cgi-bin/ for the rule's
+	  question as source text - a negated digit class or an anchored all-digits test - and fails
+	  naming the file, the line, the sub and the spelling, so a renamed copy of _valid_location(),
+	  or the guard typed straight into a caller, is caught as well as a second copy of the sub.
+	  POD, comments and anything after __END__/__DATA__ are masked, since prose that describes the
+	  rule is not a copy of it, and regexes that merely resemble it (a postcode, a coordinate,
+	  /^\d/, /\d+=\d+/) are not reported.  The scan is run first on source whose answer is known,
+	  so it is shown to tell the rule from code that merely uses digits.  Sites that ask one of
+	  those questions about something that is not a location - the CGI test number, a cache
+	  configuration value - are listed with their reason, and an exemption that no longer names a
+	  site fails too, so the table cannot outlive the code it was written for
+
 0.46	Thu Oct 15 09:06:24 PM EDT 2026
 	[ Enhancements ]
 	- Added valid_location(), which answers whether a string is a location at all: the rule geocode()
@@ -13,6 +56,22 @@ Revision history for Geo-Coder-Free
 	  still throws, because nothing is wrapped in an eval, and a call with neither a location nor a
 	  scantext is still a usage croak.  An on_error with any other value is refused by name rather than
 	  ignored, so a caller who misspells it does not ship a batch job that dies on its first bad row
+	- Geo::Coder::Free::Provenance reads the accuracy vocabulary from Geo::Location::Point instead of
+	  keeping a second copy of it.  The levels a backend reports and the levels a point accepts are now
+	  one list - Geo::Location::Point::ACCURACY_LEVELS(), re-exported as Provenance's ACCURACY_LEVELS -
+	  so a level added to one cannot go missing from the other, and the prerequisite is Geo::Location::Point
+	  0.18, which is the version that defines it.  t/accuracy-vocabulary.t asserts the two names are the
+	  same list, that a point accepts every level in it and refuses one outside it, and that every level
+	  _accuracy_for() can derive from the fields a backend matches on is one of them
+	[ Tests ]
+	- t/consumer-contract.t: the declaration now accounts for every accessor Geo::Location::Point
+	  documents, and the checker (Test-Consumer-Contract 0.02) fails when the value object gains an
+	  accessor that is in none of the declaration's lists.  geocoder, database, confidence and
+	  accuracy are named as accessors a consumer may read off a result, country, city and state as
+	  documented accessors only some results carry, and new, AUTOLOAD and ACCURACY_LEVELS as
+	  documented but not slots of one result.  The four provenance accessors and the three attribute
+	  accessors had been absent from the declaration since they were added to the value object, which
+	  is the drift the new direction of the check is for
 
 0.45	Thu Oct 15 01:23:24 PM EDT 2026
 	[ Enhancements ]

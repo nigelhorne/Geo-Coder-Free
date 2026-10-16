@@ -43,6 +43,7 @@ README.md
 t/00-load.t
 t/10-new.t
 t/30-basics.t
+t/accuracy-vocabulary.t
 t/admin1.t
 t/admin2.t
 t/bare-environment.pl
@@ -65,6 +66,7 @@ t/kwalitee.t
 t/links.t
 t/local.t
 t/locales.t
+t/location-rule.t
 t/logic-reducer.t
 t/manifest.t
 t/maxmind.t

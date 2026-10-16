@@ -42,7 +42,7 @@ jobs:
           AUTOMATED_TESTING: 1
           OPENADDR_HOME: /tmp
         run: |
-          cpanm -ivn ExtUtils::MakeMaker Test::Most Clone Data::Serializer
+          cpanm -ivn ExtUtils::MakeMaker Test::Most Test::Script Clone Data::Serializer
           cpanm -ivnf LWP::Simple::WithCache CGI::IDS DB_File
           cpanm -ivn CGI::Carp FCGI::Buffer Taint::Runtime FCGI
           cpanm -ivfn Data::Throttler CGI::ACL B::Lint
@@ -68,3 +68,9 @@ jobs:
           cd .. && root_dir=$(pwd) perl -Ilib cgi-bin/page.fcgi page=index
           root_dir=$(pwd) perl -Ilib cgi-bin/page.fcgi page=meta_data
           root_dir=$(pwd) perl -Ilib cgi-bin/page.fcgi page=query query='Stock%20or%20(1,2\)=(select*from(select%20name_const(CHAR(111,108,111,108,111,115,104,101,114\),1\),name_const(CHAR( <-- HERE 111,108,111,108,111,115,104,101,114\),1\)\)a\)%20--%20and%201%3D1'
+      - name: Run the command line programs
+        # t/bin.t builds its own small OpenAddresses database and configuration,
+        # so the scripts are exercised without downloading the real data.
+        env:
+          AUTHOR_TESTING: 1
+        run: prove -l t/bin.t

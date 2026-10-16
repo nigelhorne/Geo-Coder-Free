@@ -92,13 +92,20 @@ ok($rows > 0, "the stub database holds $rows keys for the addresses the scripts 
 #
 # page.fcgi treats every warning as fatal, and the page warns when
 # security.csrf.secret is missing, so the page this test drives is given a
-# configuration that has one.  It is a fixture value, not a deployment
-# credential, and it never leaves the temporary directory.
+# configuration that has one.  The cache settings matter for the same reason:
+# without them the page probes cache drivers that are not installed and warns
+# about each one.  The secret is a fixture value, not a deployment credential,
+# and nothing here leaves the temporary directory.
 # ---------------------------------------------------------------------------
+
+my $cache_dir = File::Spec->catdir($stub, 'cache');
+mkdir $cache_dir or BAIL_OUT("Cannot create $cache_dir: $!");
 
 my $conf_file = File::Spec->catfile($conf_dir, 'default');
 open(my $conf_fh, '>', $conf_file) or BAIL_OUT("Cannot write $conf_file: $!");
 print $conf_fh "OPENADDR_HOME: $data_dir\n",
+	"memory_cache: driver=Memory, global=1\n",
+	"disc_cache: driver=File, root_dir=$cache_dir\n",
 	"security:\n",
 	"  csrf:\n",
 	"    secret: ", ('a1' x 32), "\n";
@@ -117,10 +124,6 @@ script_compiles('bin/testcgibin');
 script_compiles('bin/address_lookup');
 
 if($ENV{'AUTHOR_TESTING'}) {
-	my $output;
-	script_runs(['bin/testcgibin', 3], { stdout => \$output });
-	diag($output);
-
 	# Test 1 looks a US postal address up in the stub.
 	script_runs(['bin/testcgibin', 1]);
 	script_stdout_like(qr/\-76\.84/, 'test 1: the Greenbelt address prints the stub longitude');

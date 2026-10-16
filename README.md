@@ -4,7 +4,7 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 # VERSION
 
-Version 0.46
+Version 0.47
 
 # SYNOPSIS
 
@@ -272,6 +272,126 @@ path but the MaxMind cities one, and `text` only by a scantext lookup; `lat`,
             try __DATA__ alternatives map
     try maxmind backend for location lookups
     croak if no scantext and no location
+
+## geocode\_many
+
+### SYNOPSIS
+
+    my $batch = $geo->geocode_many(\@places, region => 'GB', on_error => 'undef');
+
+    for my $place (@places) {
+        my $pt = $batch->{$place};              # a Geo::Location::Point, or undef
+        next unless defined $pt;
+        printf "%s is at %.4f, %.4f\n", $place, $pt->lat(), $pt->long();
+    }
+
+    printf "geocoded %d of %d places in %d lookups\n",
+        $batch->{'resolved'},
+        $batch->{'resolved'} + $batch->{'unresolved'},
+        $batch->{'lookups'};
+
+### DESCRIPTION
+
+The loop a batch caller writes around `geocode()`, run for it: one lookup per
+**distinct** value, with the same options and the same results, plus the counts
+that caller would otherwise keep itself - how many values were looked up, how
+many resolved, how many did not, and which ones (section 2.5 of
+`BI-Phase6-Dependency-Specs.md`).
+
+The hashref returned holds one entry per distinct value given, keyed by the
+value, plus four keys of its own:
+
+- `$batch->{$value}` - the `Geo::Location::Point` the value resolved
+to, or `undef` if nothing did.  Every distinct value in the input is keyed, so
+a caller walking a column can look each row up without first asking whether the
+batch covered it.  An `undef` in the input has no key of its own and shares the
+entry of the empty string, which is not a location either.
+- `lookups` - how many values were looked up: one per distinct value this
+module agreed to query a backend for.  A value it refuses before any backend is
+touched - a bare number, `''`, `undef`, a reference - is not looked up, so it
+is not counted, which is what makes this the number a caller caps its work by.
+A value repeated in the batch is one lookup.  A lookup that is counted may still
+be answered without reading a database: the backends cache their answers, and
+OpenAddresses remembers the values it has already missed for the life of the
+process (`%unknown_locations`, shared across instances and cannot be cleared), so
+this is the number of lookups asked for rather than of rows read.  A later batch
+in the same process is answered from those caches and does correspondingly less
+work.
+- `resolved` - how many distinct values produced a point.
+- `unresolved` - how many produced nothing, the refused values included.
+- `unresolved_values` - those values, in the order they were first seen,
+so that a caller can record them as tried-and-failed rather than retrying them
+on every request.  Section 2.5 sketches this list under the name `unresolved`;
+here `unresolved` is the count a "geocoded N of M" message needs and the values
+themselves are `unresolved_values`.
+
+`resolved` and `unresolved` always add up to the number of distinct values
+given, and the four keys above are reserved: a value equal to one of them is
+refused by name, before anything is looked up, rather than allowed to overwrite
+a count.
+
+`region` and `on_error` are handed to every lookup and mean there what they
+mean in `geocode()`, including the rule that a backend exception is still an
+exception - nothing here is wrapped in an `eval`.  `on_error` defaults to
+`'croak'` for the same reason it does there: a batch should not quietly plot
+fewer points than its column holds unless the caller asked it to, and a caller
+working down a dirty column asks for `'undef'`.  The two settings do not differ
+in which values are looked up, only in what happens to a value the module
+refuses: `'croak'` dies on it with the message `geocode()` gives for it,
+`'undef'` counts it unresolved and carries on.
+
+A batch of no values is not an error: the counts come back zero.
+
+The values are treated as a set.  Repeating a value in the input looks it up
+once and every row is keyed to the same point object, so a column that repeats
+the same handful of places thousands of times costs the handful of lookups.
+
+### API SPECIFICATION
+
+#### input
+
+    # Input schema (Params::Validate::Strict) — values required, options optional
+    values   => { type => 'arrayref' }                  # location strings, one per row
+    region   => { type => 'scalar', optional => 1 }     # ISO 3166-1 alpha-2 country code hint
+    on_error => { type => 'scalar', optional => 1 }     # 'croak' (the default) or 'undef'
+
+#### output
+
+    # Output schema (Return::Set)
+    { type => 'hashref' }
+    #   $result->{$value}            => { isa => 'Geo::Location::Point', optional => 1 }
+    #   $result->{lookups}           => { type => 'integer' }
+    #   $result->{resolved}          => { type => 'integer' }
+    #   $result->{unresolved}        => { type => 'integer' }
+    #   $result->{unresolved_values} => { type => 'arrayref' }
+
+### MESSAGES
+
+    Usage: ...::geocode_many(...)   No values argument, one that is not an arrayref,
+                                    or options that are neither a list nor a hashref.
+    invalid location to geocode()   A value refused under on_error => 'croak', with the
+                                    message geocode() gives for that value.
+    on_error must be ...            on_error is neither 'croak' nor 'undef'.
+    <value> is one of the keys ...  A value spelled like one of the four returned keys.
+
+### EXAMPLE
+
+    my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
+
+    # A log file's place column: repeats, a few unreadable values, one empty cell.
+    my @places = ('Ramsgate, Kent', '0044', 'Nowhere, Imaginary, ZZ',
+                  'Ramsgate, Kent', undef);
+
+    my $batch = $geo->geocode_many(\@places, region => 'GB', on_error => 'undef');
+
+    printf "geocoded %d of %d distinct places in %d lookups\n",
+        $batch->{'resolved'},
+        $batch->{'resolved'} + $batch->{'unresolved'},
+        $batch->{'lookups'};        # 4 distinct places, 2 of them looked up
+
+    for my $place ($batch->{'unresolved_values'}) {
+        warn "no coordinates for '" . (defined($place) ? $place : '') . "'\n";
+    }
 
 ## provenance
 

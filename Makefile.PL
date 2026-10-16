@@ -282,7 +282,7 @@ my $build_requires = {
 	'File::Spec' => 0,
 	'autodie' => 0,
 	'Geo::Coder::Abbreviations' => 0.03,
-	'Geo::Location::Point' => 0.16,
+	'Geo::Location::Point' => 0.18,	# 0.18 defines the accuracy vocabulary
 	'IPC::System::Simple' => 0,
 	'JSON::MaybeXS' => 0,
 	'LWP::ConnCache' => 0,
@@ -328,6 +328,7 @@ my $test_requires = {
 	'Test::NoWarnings' => 0,
 	'Test::Number::Delta' => 0,
 	'Test::Returns' => 0,
+	'Test::Script' => 1.12,	# t/bin.t runs the command line programs
 	'Test::Without::Module' => 0,
 };
 
@@ -384,7 +385,7 @@ WriteMakefile(
 		'Encode' => 0,
 		'Geo::Coder::Abbreviations' => 0.03,
 		'Geo::Hash' => 0,
-		'Geo::Location::Point' => 0.16,
+		'Geo::Location::Point' => 0.18,	# 0.18 defines the accuracy vocabulary
 		'Geo::StreetAddress::US' => 0,
 		'Lingua::EN::AddressParse' => 0,
 		'Locale::CA' => 0,
