@@ -28,9 +28,10 @@ use lib 'lib';
 # Module loading — bail out early so later subtests don't get garbled errors
 # -----------------------------------------------------------------------
 BEGIN {
-	use_ok('Geo::Coder::Free')        or BAIL_OUT('Geo::Coder::Free failed to load');
-	use_ok('Geo::Coder::Free::Local') or BAIL_OUT('Geo::Coder::Free::Local failed to load');
-	use_ok('Geo::Coder::Free::Utils') or BAIL_OUT('Geo::Coder::Free::Utils failed to load');
+	use_ok('Geo::Coder::Free')            or BAIL_OUT('Geo::Coder::Free failed to load');
+	use_ok('Geo::Coder::Free::Local')     or BAIL_OUT('Geo::Coder::Free::Local failed to load');
+	use_ok('Geo::Coder::Free::Utils')     or BAIL_OUT('Geo::Coder::Free::Utils failed to load');
+	use_ok('Geo::Coder::Free::Validate')  or BAIL_OUT('Geo::Coder::Free::Validate failed to load');
 	use_ok('Geo::Coder::Abbreviations');
 	use_ok('Geo::Location::Point');
 }
@@ -38,9 +39,10 @@ BEGIN {
 # -----------------------------------------------------------------------
 # Named constants — never embed magic strings/numbers in assertions
 # -----------------------------------------------------------------------
-Readonly::Scalar my $PKG_FREE  => 'Geo::Coder::Free';
-Readonly::Scalar my $PKG_LOCAL => 'Geo::Coder::Free::Local';
-Readonly::Scalar my $PKG_UTILS => 'Geo::Coder::Free::Utils';
+Readonly::Scalar my $PKG_FREE     => 'Geo::Coder::Free';
+Readonly::Scalar my $PKG_LOCAL    => 'Geo::Coder::Free::Local';
+Readonly::Scalar my $PKG_UTILS    => 'Geo::Coder::Free::Utils';
+Readonly::Scalar my $PKG_VALIDATE => 'Geo::Coder::Free::Validate';
 
 # Coordinates for NYC and LA used across Utils::distance tests
 Readonly::Scalar my $NYC_LAT => 40.7128;
@@ -689,6 +691,58 @@ subtest 'Utils::create_memory_cache: returns a usable CHI object' => sub {
 		qr//, 'croak on empty config (no driver or root_dir)';
 
 	diag('cache class: ' . ref($cache)) if $ENV{TEST_VERBOSE};
+};
+
+# =====================================================================
+# SECTION 5: Geo::Coder::Free::Validate — the one definition of the rule
+# =====================================================================
+
+# The rule the facade applies before it queries a backend, and the backends apply
+# to what a caller hands them directly.  Its equivalence classes are: a string of
+# digits only (the numeric column read by mistake) and undef/''/a reference, all
+# false; and anything holding a non-digit character, true.  The last two cases
+# matter as much as the first: '3.14' and '-' are not addresses, but they are not
+# a numeric column either, and the guard has never rejected them.
+subtest "$PKG_VALIDATE\::_valid_location: the rule, by equivalence class" => sub {
+	use Geo::Coder::Free::Validate qw(_valid_location);
+
+	# The candidates are held as strings so that a case cannot be confused with
+	# the assertion it feeds: '0' and 0 are different questions.
+	my @not_locations = (
+		[undef,  'undef'],
+		['',     'the empty string'],
+		['0044', 'a zero-padded number'],
+		['12345', 'a bare number'],
+		['0',    'the number zero'],
+		[\42,    'a reference'],
+	);
+	for my $case (@not_locations) {
+		my ($value, $what) = @$case;
+		# Exactly 0, not merely false: the callers put this straight into an
+		# if(), but the value is also the documented answer.
+		is(_valid_location($value), 0, "$what is not a location");
+	}
+
+	my @locations = (
+		['Ramsgate, Kent', 'an address'],
+		['London',         'a single word'],
+		['3.14',           'a decimal - it has a non-digit in it'],
+		['-',              'a lone punctuation character'],
+		['0044 ',          'a number with a trailing space'],
+		[' a',             'text with leading whitespace'],
+		[12345.5,          'a number in a scalar (not a string of digits only)'],
+	);
+	for my $case (@locations) {
+		my ($value, $what) = @$case;
+		is(_valid_location($value), 1, "$what is a location");
+	}
+
+	# The facade imports this sub rather than owning a copy of it, which is what
+	# keeps the public predicate and the backends on one answer (t/edge_cases.t
+	# checks all three call sites).  refaddr() is the identity of the code
+	# reference itself; two copies of the same body would not match.
+	is(refaddr($PKG_FREE->can('_valid_location')), refaddr(\&_valid_location),
+		'the facade holds the rule itself, not a copy of its body');
 };
 
 done_testing();

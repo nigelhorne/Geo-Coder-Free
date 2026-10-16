@@ -10,6 +10,7 @@ use Geo::Coder::Free::Local;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
+use Geo::Coder::Free::Validate qw(_valid_location);
 use Object::Configure;
 use Params::Get;
 use Readonly;
@@ -266,7 +267,9 @@ Answers whether a string is something this module will even try to look up.
 It is the public form of the rule C<geocode()> applies before it touches a
 backend, so a caller working down a spreadsheet column can skip a row whose
 value is a bare number - or is empty - instead of catching the croak that
-would otherwise kill the whole run.
+would otherwise kill the whole run.  That rule is defined once, in
+L<Geo::Coder::Free::Validate>, and the backends apply it too: what
+C<valid_location()> refuses is refused wherever it is looked up.
 
 Only that cheap syntactic test is answered.  A true result means the string is
 not disqualified, B<not> that a backend knows it: C<'Ramsgate, Kent'> is valid
@@ -462,8 +465,9 @@ sub geocode {
 		unless $on_error eq 'croak' || $on_error eq 'undef';
 
 	# Reject pure-numeric inputs early — they are never valid addresses.
-	# valid_location() answers the same question, so a caller can pre-filter
-	# with it and never reach this croak at all.
+	# The rule is Geo::Coder::Free::Validate's, the same one the backends
+	# apply, and valid_location() answers it in public, so a caller can
+	# pre-filter with it and never reach this croak at all.
 	if (defined($params{'location'}) && !_valid_location($params{'location'})) {
 		return if !length($params{'location'}) || ($on_error eq 'undef');
 		Carp::croak(_i18n('invalid_location', __PACKAGE__, $params{'location'}));
@@ -767,20 +771,11 @@ sub run {
 # Private helpers
 # -----------------------------------------------------------------------
 
-# Purpose:  Decide whether a string could be a location at all.  This is the
-#           one definition of the rule geocode() rejects on, so that
-#           valid_location() and the guard that croaks cannot disagree, and
-#           the regex is no longer private to this file.
-# Entry:    $location — the candidate, in any form.
-# Exit:     True for anything with a non-digit character in it; false for undef,
-#           for a reference and for a string of digits only (a numeric column
-#           read by mistake, which is never an address).
-sub _valid_location {
-	my $location = shift;
-
-	return 0 unless defined($location) && !ref($location) && length($location);
-	return $location =~ /\D/ ? 1 : 0;
-}
+# The rule geocode() rejects on - whether a string could be a location at all -
+# is defined in Geo::Coder::Free::Validate, and imported above.  It is not
+# written out here as well: the backends ask the same question of what a caller
+# hands them, so one definition is what keeps valid_location(), the guard that
+# croaks and the backends from disagreeing about it.
 
 # Purpose:  Return a formatted message string from the message table.
 #           Falls back to the raw key so call sites never die on a missing key.

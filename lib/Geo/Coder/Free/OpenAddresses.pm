@@ -8,6 +8,7 @@ use autodie qw(:all);
 
 use Geo::Coder::Free::Provenance qw(GEOCODER);
 use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
+use Geo::Coder::Free::Validate qw(_valid_location);
 use Geo::Coder::Free::DB::OpenAddr;	# SQLite database
 use Geo::Coder::Free::DB::openaddresses;	# The original CSV files
 use Geo::Hash;
@@ -311,11 +312,12 @@ sub geocode
 		$location = $1;
 	}
 
-	# Fail when the input is just a set of numbers
-	if($location !~ /\D/) {
-		# Carp::croak('Usage: ', __PACKAGE__, ": invalid input to geocode(), $location");
-		return;
-	}
+	# Fail when the input is just a set of numbers.  The rule is the one
+	# Geo::Coder::Free::Validate defines and the facade applies too, so what this
+	# backend refuses cannot drift away from what valid_location() answers.  As
+	# before, the answer is a miss rather than an error, because the caller may
+	# have another backend to try.
+	return unless _valid_location($location);
 	return if(length($location) <= 1);
 
 	if($location =~ /^(.+),?\s*Washington\s*DC$/i) {

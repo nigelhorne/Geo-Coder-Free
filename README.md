@@ -151,7 +151,10 @@ Answers whether a string is something this module will even try to look up.
 It is the public form of the rule `geocode()` applies before it touches a
 backend, so a caller working down a spreadsheet column can skip a row whose
 value is a bare number - or is empty - instead of catching the croak that
-would otherwise kill the whole run.
+would otherwise kill the whole run.  That rule is defined once, in
+`Geo::Coder::Free::Validate`, and the backends apply it to what a caller hands
+them directly: what `valid_location()` refuses is refused wherever it is looked
+up.
 
 Only that cheap syntactic test is answered.  A true result means the string is
 not disqualified, **not** that a backend knows it: `'Ramsgate, Kent'` is valid

@@ -333,6 +333,77 @@ subtest "GCF geocode() — on_error => 'undef' skips the row" => sub {
 };
 
 # -----------------------------------------------------------------------
+# 9c. One definition of what counts as a location
+# Strategy: the rule geocode() applies before it touches a backend was written
+# out a second time in MaxMind.pm (with a croak) and a third in
+# OpenAddresses.pm (with a miss), so a string the facade refused could still be
+# looked up by a backend called directly.  The rule now lives once, in
+# Geo::Coder::Free::Validate, and all three callers hold that one sub.  A second
+# copy of the sub fails the identity assertions below, and a backend that goes
+# back to testing for a digit in the stringified value - the shape of the old
+# guard - fails the reference case; both are the failure mode section 2.4 of
+# BI-Phase6-Dependency-Specs.md is about.
+# -----------------------------------------------------------------------
+subtest 'One rule for the facade and both backends' => sub {
+	# The real MaxMind backend is called below, so the module-wide mock that the
+	# facade tests in this file rely on is removed first and reinstated at the
+	# end: asserting against a mock would prove nothing about the guard.
+	restore_all();
+
+	my $geo = Geo::Coder::Free->new();
+
+	# The rule, and the public predicate that is its public form.
+	ok(!Geo::Coder::Free::Validate::_valid_location('0044'), 'the rule refuses a bare number');
+	ok(Geo::Coder::Free::Validate::_valid_location('Ramsgate, Kent'), 'the rule accepts an address');
+	ok(!$geo->valid_location('0044'), 'and the public predicate gives the same answer');
+
+	# One definition, not three: each package's _valid_location is the same code
+	# reference as the others', so a backend that pasted the rule back in as a sub
+	# of its own fails here even though its answers would be identical.
+	my $rule = refaddr(\&Geo::Coder::Free::Validate::_valid_location);
+	is(refaddr(\&Geo::Coder::Free::_valid_location), $rule,
+		'the facade calls the shared rule, not a copy of it');
+	is(refaddr(\&Geo::Coder::Free::MaxMind::_valid_location), $rule,
+		'MaxMind calls the shared rule');
+	is(refaddr(\&Geo::Coder::Free::OpenAddresses::_valid_location), $rule,
+		'OpenAddresses calls the shared rule');
+
+	# MaxMind, called directly rather than through the facade: a bare number is
+	# refused by the same rule, and with the error this backend has always given.
+	# Nothing below the guard is reached, so this needs no database.
+	my $mm = bless {}, 'Geo::Coder::Free::MaxMind';
+	throws_ok { $mm->geocode(location => '0044') }
+		qr/invalid input to geocode/,
+		'a bare number is refused by MaxMind itself, not only by the facade';
+
+	# ...and the guard is a filter, not a wall in front of every lookup: an
+	# address gets past it.  What happens next is this stub object's business
+	# (there is no database behind it), so the assertion is that whatever
+	# happened, it was not the numeric refusal.
+	my $err = do { local $@; eval { $mm->geocode(location => 'Ramsgate, Kent, England') }; $@ };
+	unlike($err, qr/invalid input to geocode/,
+		'an address is not refused as though it were a number');
+
+	# The case that tells the shared rule apart from the regex it replaced: the
+	# rule rejects a reference, while the old guard asked only whether the
+	# stringified value held a digit, and 'SCALAR(0x...)' does, so it let the
+	# reference through.  That is what makes this a regression test rather than a
+	# restatement of an answer both forms give.
+	throws_ok { $mm->geocode(location => \42) }
+		qr/invalid input to geocode/, 'a reference is refused by MaxMind as well';
+
+	# OpenAddresses answers every input the way it always did - a miss rather
+	# than an error, because its caller may have another backend to try - so no
+	# behaviour here can tell the shared rule apart from the regex it replaced.
+	# The identity assertion above is what holds it to the shared rule.
+	my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $TMPDIR);
+	is($oa->geocode(location => \42), undef,
+		'and OpenAddresses treats a reference as a miss, not as a place to look up');
+
+	_remock_maxmind();
+};
+
+# -----------------------------------------------------------------------
 # 10. Geo::Coder::Free::geocode() — empty/undef inputs
 # Strategy:
 #   - empty string location: defined, no \D chars, length=0 → early 'return'
