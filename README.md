@@ -1,30 +1,28 @@
-## Name
+# NAME
 
 Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
-## Version
+# VERSION
 
 Version 0.46
 
-## Synopsis
+# SYNOPSIS
 
-```perl
-use Geo::Coder::Free;
+    use Geo::Coder::Free;
 
-my $geo = Geo::Coder::Free->new();
-my $pt  = $geo->geocode(location => 'Ramsgate, Kent, UK');
-printf "%.6f, %.6f\n", $pt->lat(), $pt->long();
+    my $geo = Geo::Coder::Free->new();
+    my $pt  = $geo->geocode(location => 'Ramsgate, Kent, UK');
+    printf "%.6f, %.6f\n", $pt->lat(), $pt->long();
 
-# With OpenAddresses/WhoOnFirst data:
-my $geo2 = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
-my $pt2  = $geo2->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
+    # With OpenAddresses/WhoOnFirst data:
+    my $geo2 = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
+    my $pt2  = $geo2->geocode(location => '1600 Pennsylvania Avenue NW, Washington DC, USA');
 
-# Free-text scanning:
-my @hits = $geo2->geocode(scantext => 'She grew up in Ramsgate, Kent.',
-                          region   => 'GB');
-```
+    # Free-text scanning:
+    my @hits = $geo2->geocode(scantext => 'She grew up in Ramsgate, Kent.',
+                              region   => 'GB');
 
-## Description
+# DESCRIPTION
 
 `Geo::Coder::Free` translates addresses into latitude/longitude coordinates
 using local SQLite databases built from free data sources - MaxMind/GeoNames,
@@ -47,18 +45,14 @@ Geocoding dispatch order depends on whether `OPENADDR_HOME` (or `openaddr`) is s
 
 The `cgi-bin` directory contains a simple DIY geo-coding website:
 
-```
-cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
-```
+    cgi-bin/page.fcgi page=query q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA
 
 The sample website is currently down while a new host is sought.
 When it returns, you will be able to test it with:
 
-```
-curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
-```
+    curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsylvania+Avenue+NW+Washington+DC+USA'
 
-## Limitations
+# LIMITATIONS
 
 - `scantext` mode only finds locations in OpenAddresses; it falls back
 silently when `OPENADDR_HOME` is not set (**FIXME**: should warn).
@@ -76,19 +70,17 @@ the next `geocode()` call on the same input starts iterating from the key
 wraps around.  Workaround: call `keys %{$alt}` once to reset the iterator
 before iterating.
 
-## Methods
+# METHODS
 
-### New
+## new
 
-#### Synopsis
+### SYNOPSIS
 
-```perl
-my $geo = Geo::Coder::Free->new();
-my $geo = Geo::Coder::Free->new(openaddr => '/data/openaddr');
-my $geo = Geo::Coder::Free->new(directory => '/data/maxmind');
-```
+    my $geo = Geo::Coder::Free->new();
+    my $geo = Geo::Coder::Free->new(openaddr => '/data/openaddr');
+    my $geo = Geo::Coder::Free->new(directory => '/data/maxmind');
 
-#### Description
+### DESCRIPTION
 
 Constructor.  Accepts a hash or hashref of options.  If called without
 `openaddr`, the module checks `$ENV{OPENADDR_HOME}` before giving up.
@@ -99,62 +91,51 @@ fields (`alternatives`, `scantext_misses`, `maxmind`, `openaddr`) share the
 same underlying object or hashref between the original and the clone.  Mutations
 to those shared references are immediately visible in both objects.
 
-#### Api Specification
+### API SPECIFICATION
 
-##### Input
+#### input
 
-```perl
-# Input schema (Params::Validate::Strict)
-openaddr  => { type => 'scalar', optional => 1 }                          # path to OpenAddresses/WOF data dir
-directory => { type => 'scalar', optional => 1 }                          # path to MaxMind/GeoNames files
-cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible cache object
-```
+    # Input schema (Params::Validate::Strict)
+    openaddr  => { type => 'scalar', optional => 1 }                          # path to OpenAddresses/WOF data dir
+    directory => { type => 'scalar', optional => 1 }                          # path to MaxMind/GeoNames files
+    cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible cache object
 
-##### Output
+#### output
 
-```perl
-# Output schema (Return::Set)
-{ type => 'object', isa => 'Geo::Coder::Free' }
-```
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Coder::Free' }
 
-#### Example
+### EXAMPLE
 
-```perl
-use Geo::Coder::Free;
+    use Geo::Coder::Free;
 
-# Minimal - uses only the bundled MaxMind data:
-my $geo = Geo::Coder::Free->new();
+    # Minimal - uses only the bundled MaxMind data:
+    my $geo = Geo::Coder::Free->new();
 
-# Full - also searches OpenAddresses/WOF:
-my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
-```
+    # Full - also searches OpenAddresses/WOF:
+    my $geo = Geo::Coder::Free->new(openaddr => $ENV{OPENADDR_HOME});
 
-#### Messages
+### MESSAGES
 
-```perl
-use ->new() not ::new()   Called as a function; use arrow syntax.
-```
+    use ->new() not ::new()   Called as a function; use arrow syntax.
 
-### Valid\_Location
+## valid\_location
 
-#### Synopsis
+### SYNOPSIS
 
-```perl
-if ($geo->valid_location($row->{'place'})) {
-    push @found, $geo->geocode(location => $row->{'place'});
-}
-```
+    if ($geo->valid_location($row->{'place'})) {
+        push @found, $geo->geocode(location => $row->{'place'});
+    }
 
-#### Description
+### DESCRIPTION
 
 Answers whether a string is something this module will even try to look up.
 It is the public form of the rule `geocode()` applies before it touches a
 backend, so a caller working down a spreadsheet column can skip a row whose
 value is a bare number - or is empty - instead of catching the croak that
 would otherwise kill the whole run.  That rule is defined once, in
-`Geo::Coder::Free::Validate`, and the backends apply it to what a caller hands
-them directly: what `valid_location()` refuses is refused wherever it is looked
-up.
+[Geo::Coder::Free::Validate](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AValidate), and the backends apply it too: what
+`valid_location()` refuses is refused wherever it is looked up.
 
 Only that cheap syntactic test is answered.  A true result means the string is
 not disqualified, **not** that a backend knows it: `'Ramsgate, Kent'` is valid
@@ -164,69 +145,59 @@ when the wrong column has been read, so anything with a non-digit in it counts
 as valid - `'3.14'` and `'-'` included.  `undef`, `''` and a reference are
 not valid.
 
-#### Api Specification
+### API SPECIFICATION
 
-##### Input
+#### input
 
-```perl
-location => { type => 'scalar', optional => 1 }  # the string to test
-```
+    location => { type => 'scalar', optional => 1 }  # the string to test
 
-##### Output
+#### output
 
-```perl
-{ type => 'boolean' }  # false for undef, '' and a digit-only string
-```
+    { type => 'boolean' }  # false for undef, '' and a digit-only string
 
-#### Example
+### EXAMPLE
 
-```perl
-my $geo = Geo::Coder::Free->new();
+    my $geo = Geo::Coder::Free->new();
 
-$geo->valid_location('Ramsgate, Kent');   # true
-$geo->valid_location('0044');             # false - never a location
-$geo->valid_location('');                 # false
-$geo->valid_location(undef);              # false
-```
+    $geo->valid_location('Ramsgate, Kent');   # true
+    $geo->valid_location('0044');             # false - never a location
+    $geo->valid_location('');                 # false
+    $geo->valid_location(undef);              # false
 
 Accepts the three calling conventions the rest of this module does:
 
-```perl
-$geo->valid_location('0044');
-Geo::Coder::Free->valid_location('0044');
-Geo::Coder::Free::valid_location('0044');
-```
+    $geo->valid_location('0044');
+    Geo::Coder::Free->valid_location('0044');
+    Geo::Coder::Free::valid_location('0044');
 
-### Geocode
+## geocode
 
-#### Synopsis
+### SYNOPSIS
 
-```perl
-# Standard lookup (returns a Geo::Location::Point or undef)
-my $pt = $geo->geocode(location => 'Ramsgate, Kent, UK');
-printf "lat=%.6f lon=%.6f\n", $pt->lat(), $pt->long();
+    # Standard lookup (returns a Geo::Location::Point or undef)
+    my $pt = $geo->geocode(location => 'Ramsgate, Kent, UK');
+    printf "lat=%.6f lon=%.6f\n", $pt->lat(), $pt->long();
 
-# Scantext - returns a list of Geo::Location::Point objects
-my @hits = $geo->geocode(
-    scantext     => 'She lived in Ramsgate, Kent.',
-    region       => 'GB',
-    ignore_words => [qw(lived)],
-);
+    # Scantext - returns a list of Geo::Location::Point objects
+    my @hits = $geo->geocode(
+        scantext     => 'She lived in Ramsgate, Kent.',
+        region       => 'GB',
+        ignore_words => [qw(lived)],
+    );
 
-# Invocation flexibility (all equivalent)
-$geo->geocode('Ramsgate, Kent, UK');
-$geo->geocode({ location => 'Ramsgate, Kent, UK' });
-$geo->geocode(location => 'Ramsgate, Kent, UK');
+    # Invocation flexibility (all equivalent)
+    $geo->geocode('Ramsgate, Kent, UK');
+    $geo->geocode({ location => 'Ramsgate, Kent, UK' });
+    $geo->geocode(location => 'Ramsgate, Kent, UK');
 
-# A batch caller with a dirty column: skip the row, do not kill the run
-for my $place (@column) {
-    my $pt = $geo->geocode(location => $place, on_error => 'undef');
-    next unless defined $pt;
-    push @found, $pt;
-}
-```
+    # A batch caller with a dirty column: skip the row, do not kill the run
+    for my $place (@column) {
+        my $pt = $geo->geocode(location => $place, on_error => 'undef');
+        next unless defined $pt;
+        push @found, $pt;
+    }
 
-#### Description
+### DESCRIPTION
 
 A location or a scantext that is not a location at all - a bare number, such as
 the `0044` a numeric column holds - is refused before any backend is
@@ -246,28 +217,24 @@ the other two things an empty cell holds.  A call with neither a location nor a
 scantext is a usage error rather than an input error - the same croak as calling
 `geocode()` with no arguments - and stays a croak on either setting.
 
-#### Api Specification
+### API SPECIFICATION
 
-##### Input
+#### input
 
-```perl
-# Input schema (Params::Validate::Strict) - exactly one of location or scantext is required
-location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
-scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
-region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
-ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
-on_error     => { type => 'scalar',   optional => 1 }  # 'croak' (default) or 'undef'
-```
+    # Input schema (Params::Validate::Strict) - exactly one of location or scantext is required
+    location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
+    scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
+    region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
+    ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
+    on_error     => { type => 'scalar',   optional => 1 }  # 'croak' (default) or 'undef'
 
-##### Output
+#### output
 
-```perl
-# Output schema (Return::Set)
-# scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
-# list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
-```
+    # Output schema (Return::Set)
+    # scalar context: { type => 'object',   isa => 'Geo::Location::Point', optional => 1 }
+    # list context:   { type => 'arrayref', of  => { isa => 'Geo::Location::Point' } }
 
-##### Provenance
+#### provenance
 
 Every result carries `geocoder`, `database`, `confidence` and `accuracy`
 (section 2.1 of `BI-Phase6-Dependency-Specs.md`): which distribution produced
@@ -276,52 +243,44 @@ coordinate is.  `provenance()` reads the four back.  `location` is set by every
 path but the MaxMind cities one, and `text` only by a scantext lookup; `lat`,
 `long` and `lng` come from the value object itself.
 
-#### Messages
+### MESSAGES
 
-```
-Usage: ...::geocode(...)        No location or scantext argument given.
-invalid location to geocode()   location is purely numeric.
-invalid scantext to geocode()   scantext is purely numeric.
-on_error must be ...            on_error is neither 'croak' nor 'undef'.
-```
+    Usage: ...::geocode(...)        No location or scantext argument given.
+    invalid location to geocode()   location is purely numeric.
+    invalid scantext to geocode()   scantext is purely numeric.
+    on_error must be ...            on_error is neither 'croak' nor 'undef'.
 
-#### Pseudocode
+### PSEUDOCODE
 
-```perl
-if self is not a blessed object → delegate to new()->geocode(@args)
-normalise @_ into %params
-validate: on_error is 'croak' or 'undef' (croak if not)
-validate: location is not purely numeric; scantext is not purely numeric
-          (undef instead of croaking when on_error is 'undef')
-if openaddr backend is available:
-    if scantext:
-        try the raw scantext string as a direct location
-        build stopword set from %_COMMON_WORDS + ignore_words param
-        try 3-word windows (triplets) at confidence 0.8
-        try 2-word windows (duplets) at confidence 0.7
-        try the address-pattern regex at confidence 0.7
-        try region-specific address finders (GB / US / CA)
-        mark scantext as a miss; return undef
-    else:
-        try openaddr backend
-        try local backend
-        try __DATA__ alternatives map
-try maxmind backend for location lookups
-croak if no scantext and no location
-```
+    if self is not a blessed object → delegate to new()->geocode(@args)
+    normalise @_ into %params
+    validate: on_error is 'croak' or 'undef' (croak if not)
+    validate: location is not purely numeric; scantext is not purely numeric
+              (undef instead of croaking when on_error is 'undef')
+    if openaddr backend is available:
+        if scantext:
+            try the raw scantext string as a direct location
+            build stopword set from %_COMMON_WORDS + ignore_words param
+            try 3-word windows (triplets) at confidence 0.8
+            try 2-word windows (duplets) at confidence 0.7
+            try the address-pattern regex at confidence 0.7
+            try region-specific address finders (GB / US / CA)
+            mark scantext as a miss; return undef
+        else:
+            try openaddr backend
+            try local backend
+            try __DATA__ alternatives map
+    try maxmind backend for location lookups
+    croak if no scantext and no location
 
-### Provenance
+## provenance
 
-```perl
-my ($dist, $backend, $confidence, $accuracy) = $geocoder->provenance($point);
-```
+    my ($dist, $backend, $confidence, $accuracy) = $geocoder->provenance($point);
 
 or, in scalar context, the same four as a hashref:
 
-```perl
-my $provenance = $geocoder->provenance($point);
-print $provenance->{'backend'};
-```
+    my $provenance = $geocoder->provenance($point);
+    print $provenance->{'backend'};
 
 Where a result came from and how good it is, so that a caller does not have to
 reach for the hash keys itself (section 2.1 of `BI-Phase6-Dependency-Specs.md`):
@@ -344,53 +303,45 @@ something that is not a result.  A key a result does not carry comes back
 `undef` rather than being guessed at, because a plain hash from another
 geocoder has no provenance to report.
 
-### Reverse\_Geocode
+## reverse\_geocode
 
-#### Synopsis
+### SYNOPSIS
 
-```perl
-my $loc = $geo->reverse_geocode(latlng => '51.3341,-1.4159');
-```
+    my $loc = $geo->reverse_geocode(latlng => '51.3341,-1.4159');
 
-#### Description
+### DESCRIPTION
 
 Translates a latitude/longitude pair back to a place name.
 **Partially implemented**: the MaxMind backend does not return meaningful results.
 OpenAddresses is attempted first when available.
 
-#### Api Specification
+### API SPECIFICATION
 
-##### Input
+#### input
 
-```perl
-# Input schema (Params::Validate::Strict) — latlng required
-latlng => { type => 'scalar' }  # "$lat,$long" comma-separated decimal degrees
-# NOTE: separate lat/lon/long keys are NOT supported at the Geo::Coder::Free
-# (facade) level.  When no OpenAddresses backend is configured, passing
-# lat/lon/long instead of latlng will croak "not yet supported".
-# To use separate coordinates call Geo::Coder::Free::Local::reverse_geocode.
-```
+    # Input schema (Params::Validate::Strict) — latlng required
+    latlng => { type => 'scalar' }  # "$lat,$long" comma-separated decimal degrees
+    # NOTE: separate lat/lon/long keys are NOT supported at the Geo::Coder::Free
+    # (facade) level.  When no OpenAddresses backend is configured, passing
+    # lat/lon/long instead of latlng will croak "not yet supported".
+    # To use separate coordinates call Geo::Coder::Free::Local::reverse_geocode.
 
-##### Output
+#### output
 
-```perl
-# Output schema (Return::Set)
-{ type => 'object', isa => 'Geo::Location::Point', optional => 1 }
-```
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Location::Point', optional => 1 }
 
-### Ua
+## ua
 
 Does nothing.  Present for drop-in compatibility with other Geo::Coder::\* modules.
 
-### Run
+## run
 
 Command-line entry point.  Use as:
 
-```
-perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
-```
+    perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
 
-## Getting Started
+# GETTING STARTED
 
 To download, import and set up the local database:
 before running `make`, but after running `perl Makefile.PL`, follow these instructions.
@@ -438,7 +389,7 @@ it actually contains data from all sources above.
 Now you are ready to run `make`.
 See the comment at the start of `createdatabase.PL` for further details.
 
-## More Information
+# MORE INFORMATION
 
 I have written several Perl genealogy programs including
 [gedcom](https://github.com/nigelhorne/gedcom) and
@@ -447,7 +398,7 @@ One of the things these do is check the validity of a family tree, including ver
 Of course places do change names and spelling becomes more consistent over the years, but the vast
 majority remain the same — enough to make computerised verification worthwhile.
 
-## Bugs
+# BUGS
 
 Some lookups fail.  Please file a bug report at
 [https://rt.cpan.org/NoAuth/Bugs.html?Dist=Geo-Coder-Free](https://rt.cpan.org/NoAuth/Bugs.html?Dist=Geo-Coder-Free).
@@ -456,7 +407,7 @@ The MaxMind data contains cities only.
 The OpenAddresses data does not cover the whole globe.
 `London, England` cannot be parsed yet.
 
-## See Also
+# SEE ALSO
 
 - [Configure an Object at Runtime](https://metacpan.org/pod/Object%3A%3AConfigure)
 - [Test Dashboard](https://nigelhorne.github.io/Geo-Coder-Free/coverage/)
@@ -466,63 +417,55 @@ The OpenAddresses data does not cover the whole globe.
 [https://openaddresses.io/](https://openaddresses.io/), [https://www.maxmind.com/](https://www.maxmind.com/),
 [https://www.geonames.org/](https://www.geonames.org/), [https://www.whosonfirst.org/](https://www.whosonfirst.org/).
 
-## Author
+# AUTHOR
 
 Nigel Horne `<njh@nigelhorne.com>`
 
-## Formal Specification
+# FORMAL SPECIFICATION
 
-### New
+## new
 
-```
-GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
-                          openaddr    : OpenAddr_Geocoder | undef;
-                          alternatives: Map[STRING → STRING];
-                          cache       : Cache | undef ⟩⟩
+    GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
+                              openaddr    : OpenAddr_Geocoder | undef;
+                              alternatives: Map[STRING → STRING];
+                              cache       : Cache | undef ⟩⟩
 
-Init : Params → GeoCoderFreeState
-∀ p : Params •
-  let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
-  GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
-```
+    Init : Params → GeoCoderFreeState
+    ∀ p : Params •
+      let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
+      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
 
-### Valid\_Location
+## valid\_location
 
-```
-ValidLocation : Any → BOOLEAN
-∀ x : Any •
-  ValidLocation(x) = (x ≠ ∅ ∧ ¬ ref(x) ∧ x ≠ "" ∧ x ∋ non-digit)
-```
+    ValidLocation : Any → BOOLEAN
+    ∀ x : Any •
+      ValidLocation(x) = (x ≠ ∅ ∧ ¬ ref(x) ∧ x ≠ "" ∧ x ∋ non-digit)
 
-### Geocode
+## geocode
 
-```
-ErrorMode ::= "croak" | "undef"
+    ErrorMode ::= "croak" | "undef"
 
-Geocode : Address × Region? × ErrorMode? → Point?
-∀ addr : Address; r : Region?; e : ErrorMode? •
-  let mode == e ∨ "croak" •
-  let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
-                ∧ (openaddr = undef ⟹ [MaxMind]) •
-  ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
-  ∧ ValidLocation(addr) ⟹
-  result = first { defined } map { b.geocode(addr, r) } backends
-```
+    Geocode : Address × Region? × ErrorMode? → Point?
+    ∀ addr : Address; r : Region?; e : ErrorMode? •
+      let mode == e ∨ "croak" •
+      let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
+                    ∧ (openaddr = undef ⟹ [MaxMind]) •
+      ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
+      ∧ ValidLocation(addr) ⟹
+      result = first { defined } map { b.geocode(addr, r) } backends
 
-### Provenance
+## provenance
 
-```
-Provenance : Point? → (DISTRIBUTION?, BACKEND?, CONFIDENCE?, ACCURACY?)
-∀ p : Point? •
-  Provenance(p) = if p ≠ ∅ ∧ is_a_result(p)
-                  then ⟨⟨ p.geocoder,
-                          strip("Geo::Coder::Free::", p.database),
-                          p.confidence,
-                          p.accuracy ⟩⟩
-                  else ∅ fi
-```
+    Provenance : Point? → (DISTRIBUTION?, BACKEND?, CONFIDENCE?, ACCURACY?)
+    ∀ p : Point? •
+      Provenance(p) = if p ≠ ∅ ∧ is_a_result(p)
+                      then ⟨⟨ p.geocoder,
+                              strip("Geo::Coder::Free::", p.database),
+                              p.confidence,
+                              p.accuracy ⟩⟩
+                      else ∅ fi
 
-## License and Copyright
+# LICENSE AND COPYRIGHT
 
 Copyright 2017-2026 Nigel Horne.  Licensed under GPL2 for personal use.
 

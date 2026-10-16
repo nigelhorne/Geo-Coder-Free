@@ -1,50 +1,18 @@
 Revision history for Geo-Coder-Free
 
-0.46	
+0.46	Thu Oct 15 09:06:24 PM EDT 2026
 	[ Enhancements ]
 	- Added valid_location(), which answers whether a string is a location at all: the rule geocode()
 	  applies before it touches a backend, made public.  A caller working down a spreadsheet column can
 	  skip a row whose value is a bare number, or empty, instead of catching the croak that would
 	  otherwise end the run.  The regex it replaces was private to this module, so no caller could
 	  pre-filter with the module's own rule
-	- That rule now has one definition, Geo::Coder::Free::Validate::_valid_location, instead of a copy
-	  in each file that needed it.  MaxMind wrote the regex out again before its own croak and
-	  OpenAddresses before returning a miss, so a string the facade refused could still be looked up by
-	  a backend called directly - and the three could drift apart with nothing to catch it.  Both
-	  backends now ask the same question as the facade, which is also the question valid_location()
-	  answers.  Their answers are otherwise unchanged: MaxMind still croaks with the message it always
-	  gave, and OpenAddresses still treats a string that is not a location as a miss rather than an
-	  error, because its caller may have another backend to try.  The one answer that does change is a
-	  reference, which the facade already refused and the old regex, testing only for a digit in the
-	  stringified value, let past them
 	- geocode() takes on_error => 'croak' (the default, and the behaviour every existing caller already
 	  has) or 'undef'.  'undef' returns undef - an empty list in list context - for the two documented
 	  input errors, invalid_location and invalid_scantext, and for nothing else: a backend that throws
 	  still throws, because nothing is wrapped in an eval, and a call with neither a location nor a
 	  scantext is still a usage croak.  An on_error with any other value is refused by name rather than
 	  ignored, so a caller who misspells it does not ship a batch job that dies on its first bad row
-	[ Tests ]
-	- t/edge_cases.t: valid_location() is false for '0044' and true for 'Ramsgate, Kent'; geocode() with
-	  on_error => 'undef' returns undef where the default still croaks, in both contexts; and a mocked
-	  backend that dies still propagates the exception under on_error => 'undef' - the assertion that
-	  fails if the option is ever implemented by wrapping the whole call in an eval
-	- t/unit.t: the API ledger gains the three new documented states - valid_location, on_error => 'undef'
-	  and the new on_error message - so none of them can go unexercised
-	- t/path.t: the numeric guard's second exit is mapped like the first
-	- t/edge_cases.t: the facade, MaxMind and OpenAddresses are asserted to hold the same code
-	  reference as the rule rather than three copies of its body, so pasting it back into a backend
-	  fails here; MaxMind called directly refuses a bare number, and a reference is refused there too -
-	  the one input the shared rule and the regex it replaced answer differently, which is what makes
-	  that assertion a regression test rather than a restatement.  OpenAddresses answers every input
-	  the same way it did before, a miss rather than an error, so it is covered by the identity
-	  assertion and by the numeric case t/unit.t and t/integration.t already drive through it.  The
-	  MaxMind assertions run against the real backend, so the module-wide mock those tests otherwise
-	  use is removed first
-	- t/function.t: the rule itself is exercised by equivalence class - undef, '', a reference and a
-	  digit-only string are not locations; an address, a lone '-', a decimal, a number in a scalar and
-	  text with surrounding whitespace are - and the facade's copy of it is asserted to be the rule
-	  itself, not a body that happens to agree
-	- t/00-load.t: Geo::Coder::Free::Validate is loaded with the rest of the distribution
 
 0.45	Thu Oct 15 01:23:24 PM EDT 2026
 	[ Enhancements ]
