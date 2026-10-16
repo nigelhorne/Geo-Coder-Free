@@ -16,7 +16,7 @@ Version 0.46
 
 our $VERSION = '0.46';
 
-use parent -norequire, 'Geo::Coder::Free::Display';
+use parent 'Geo::Coder::Free::Display';
 use JSON::MaybeXS;
 
 sub html {

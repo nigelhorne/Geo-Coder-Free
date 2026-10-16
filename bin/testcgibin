@@ -25,6 +25,13 @@ sub doit
 {
 	my $test = shift or Carp::croak;
 
+	# Tests 3 and 4 simulate a browser in the US, so that the page infers the
+	# country from the client's IP address.  The IP must be one that the page's
+	# CGI::ACL allow-list trusts (see cgi-bin/page.fcgi): any other address gets
+	# a 403 "Access Denied" instead of an answer, and the test would be checking
+	# the block page rather than the geocoder.
+	my $us_ip = '108.44.193.70';
+
 	if($test == 1) {
 		# print "Test 1 - q\n";
 		# system("$^X $Bin/../cgi-bin/page.fcgi page=query q='1600+Pennsylvania+Avenue+NW+Washington+DC+USA'");
@@ -33,11 +40,11 @@ sub doit
 		# print "Test 2 - scantext\n";
 		system("$^X $Bin/../cgi-bin/page.fcgi page=query scantext='Washington+DC+USA'");
 	} elsif($test == 3) {
-		$ENV{'REMOTE_ADDR'} = '207.241.237.233';	# An IP address in the US
+		$ENV{'REMOTE_ADDR'} = $us_ip;	# An IP address in the US, trusted by the page's ACL
 		$ENV{'SERVER_PROTOCOL'} = 'HTTP/1.1';
 		system("$^X $Bin/../cgi-bin/page.fcgi page=query q='NASA+TIROS+RD+GREENBELT+MD+US'");
 	} elsif($test == 4) {
-		$ENV{'REMOTE_ADDR'} = '207.241.237.233';	# An IP address in the US, so no need for country in the address
+		$ENV{'REMOTE_ADDR'} = $us_ip;	# An IP address in the US, so no need for country in the address
 		$ENV{'SERVER_PROTOCOL'} = 'HTTP/1.1';
 		system("$^X $Bin/../cgi-bin/page.fcgi page=query q='NASA+TIROS+RD+GREENBELT+MD'");
 	}

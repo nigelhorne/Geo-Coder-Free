@@ -14,7 +14,7 @@ our $VERSION = '0.46';
 
 # Display the meta-data page - the internal status of the server and VWF system
 
-use parent -norequire, 'Geo::Coder::Free::Display';
+use parent 'Geo::Coder::Free::Display';
 
 sub html
 {

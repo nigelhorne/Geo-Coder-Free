@@ -14,6 +14,6 @@ our $VERSION = '0.46';
 
 # Display the index page
 
-use parent -norequire, 'Geo::Coder::Free::Display';
+use parent 'Geo::Coder::Free::Display';
 
 1;
