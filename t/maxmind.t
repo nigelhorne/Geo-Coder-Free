@@ -6,7 +6,7 @@ use strict;
 use Test::Carp;
 use Test::DescribeMe qw(extended);	# This can use a lot of resources
 use Test::Deep;
-use Test::Most tests => 103;
+use Test::Most;
 use Test::Number::Delta;
 
 use Test::Log::Abstraction;
@@ -242,6 +242,8 @@ MAXMIND: {
 		}
 	}
 }
+
+done_testing();
 
 sub check($$$$) {
 	my ($geo_coder, $location, $lat, $long) = @_;

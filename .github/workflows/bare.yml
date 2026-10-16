@@ -1,0 +1,114 @@
+---
+# Maintained by hand: this is not one of the jobs App::GHGen::PerlCustomizer
+# writes, and it is the only job in this repository whose environment is
+# deliberately missing things.
+#
+# Geo::Coder::Free answers from data that is downloaded, built or optional
+# rather than shipped:
+#
+#   - OpenAddresses, WhosOnFirst, dr5hn and OpenStreetMap data, found through
+#     OPENADDR_HOME, WHOSONFIRST_HOME, DR5HN_HOME and OSM_HOME;
+#   - the MaxMind databases under lib/Geo/Coder/Free/MaxMind/databases, which
+#     createdatabase.PL builds from a GeoLite2 download and which no entry in
+#     the MANIFEST names, so a fresh checkout has none of them;
+#   - Geo::Address::Parser, which Makefile.PL recommends, and Geo::libpostal,
+#     which is no prerequisite at all: both are loaded only if they are found.
+#
+# An author's machine has all of that, so a test that quietly depends on it
+# passes there.  The other jobs here install recommendations, so they have the
+# optional parsers too, and none of them sets a database variable, so what this
+# job adds is that the absence is guaranteed, checked and enforced rather than
+# accidental.
+#
+# It has neither the databases nor the parsers, and because the tests that use a
+# database are the extended ones, it runs them (EXTENDED_TESTING) instead of
+# letting Test::DescribeMe skip them.  A test that quietly depends on either
+# fails here; the ones that know they need a database report which one is
+# missing and skip, and that has to keep happening.
+#
+# t/bare-environment.pl is what checks the environment is what this file says
+# it is, and prove prints the reason each test gave for skipping a database, so
+# the run below is the evidence as well as the gate.
+#
+#   perl t/bare-environment.pl
+#   EXTENDED_TESTING=1 prove -lr t   (with the environment below)
+
+name: No databases, no optional parsers
+
+'on':
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    # A dependency that starts recommending Geo::Address::Parser, or an image
+    # that starts shipping a database, would put back what this job removes;
+    # the first step below is what notices, and a periodic run is when it does.
+    - cron: '17 4 * * 2'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  bare-environment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    name: No databases, no optional parsers, on Perl 5.40
+    env:
+      AUTOMATED_TESTING: 1
+      NO_NETWORK_TESTING: 1
+      NONINTERACTIVE_TESTING: 1
+      # The tests that need a database are the extended ones, and running them
+      # is what this job is for: left to Test::DescribeMe they are skipped
+      # before they can report anything at all.
+      EXTENDED_TESTING: 1
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Perl
+        uses: shogo82148/actions-setup-perl@v1.44.0
+        with:
+          perl-version: '5.40'
+
+      - name: Install the libraries a lot of CPAN modules need
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libdb-dev libperl-dev build-essential \
+            libaio-dev
+
+      - name: Install cpanm and local::lib
+        run: cpanm --notest --local-lib=~/perl5 local::lib
+
+      - name: Install dependencies, without the recommendations
+        run: |
+          eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
+          # --no-recommends is what keeps Geo::Address::Parser out: Makefile.PL
+          # recommends it, and cpanm installs recommendations by default.  The
+          # requirements are installed as usual, including the TEST_REQUIRES
+          # this job runs on (Test::Needs, Test::Without::Module).
+          cpanm --notest --no-recommends --installdeps .
+
+      - name: Check that no database and no optional parser is here
+        run: perl t/bare-environment.pl
+
+      - name: Run the suite with the optional parsers blocked as well as absent
+        run: |
+          eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
+          # The parsers are blocked as well as absent, so that a prerequisite
+          # which pulls one in, or a test that loads one by name, cannot put it
+          # back behind the check above.
+          #
+          # No -v: prove passes on the TAP comments of the files it runs, so the
+          # tests that report a database they are missing say which one in this
+          # log, and -v would set TEST_VERBOSE, under which several of these
+          # tests dump everything they looked at.
+          BLOCKED="-MTest::Without::Module=Geo::Address::Parser,Geo::libpostal"
+          PERL5OPT="$BLOCKED" prove -lr t
