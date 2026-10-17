@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.47
+0.47	Fri Oct 16 09:34:18 PM EDT 2026
 	[ Enhancements ]
 	- Added geocode_many(), the loop a batch caller writes around geocode() 
 	  It takes an arrayref of locations and answers with one entry
