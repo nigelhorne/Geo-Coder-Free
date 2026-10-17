@@ -54,6 +54,7 @@ t/config.t
 t/consumer-contract.t
 t/critic.t
 t/display.t
+t/downloads.t
 t/dr5hn.t
 t/edge_cases.t
 t/eof.t
