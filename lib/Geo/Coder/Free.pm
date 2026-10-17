@@ -147,7 +147,6 @@ Readonly::Scalar my $CONF_REGEX   => 0.7;
 # The keys geocode_many() answers with besides the values themselves.  The map
 # and the counts share one hashref, so a value spelled like one of these would
 # overwrite what the name stands for, and it is refused by name instead
-# (section 2.5 of BI-Phase6-Dependency-Specs.md).
 Readonly::Array my @RESULT_KEYS => qw(lookups resolved unresolved unresolved_values);
 
 # Stopwords excluded from word-window scantext searches.
@@ -404,7 +403,7 @@ C<geocode()> with no arguments - and stays a croak on either setting.
 =head4 provenance
 
 Every result carries C<geocoder>, C<database>, C<confidence> and C<accuracy>
-(section 2.1 of F<BI-Phase6-Dependency-Specs.md>): which distribution produced
+which distribution produced
 it, which backend answered, how good the match was, and how precise the
 coordinate is.  C<provenance()> reads the four back.  C<location> is set by every
 path but the MaxMind cities one, and C<text> only by a scantext lookup; C<lat>,
@@ -466,8 +465,7 @@ sub geocode {
 	# caller changes; 'undef' is for a batch caller working down a dirty column,
 	# which wants the row skipped rather than the whole run killed.  Only the two
 	# input errors below consult it: a backend that throws still throws, because
-	# nothing here is wrapped in an eval (section 2.4 of
-	# BI-Phase6-Dependency-Specs.md).
+	# nothing here is wrapped in an eval
 	my $on_error = $params{'on_error'} // 'croak';
 	Carp::croak(_i18n('invalid_on_error', __PACKAGE__, $on_error))
 		unless $on_error eq 'croak' || $on_error eq 'undef';
@@ -645,8 +643,7 @@ sub geocode {
 The loop a batch caller writes around C<geocode()>, run for it: one lookup per
 B<distinct> value, with the same options and the same results, plus the counts
 that caller would otherwise keep itself - how many values were looked up, how
-many resolved, how many did not, and which ones (section 2.5 of
-F<BI-Phase6-Dependency-Specs.md>).
+many resolved, how many did not, and which ones
 
 The hashref returned holds one entry per distinct value given, keyed by the
 value, plus four keys of its own:
@@ -842,7 +839,7 @@ or, in scalar context, the same four as a hashref:
     print $provenance->{'backend'};
 
 Where a result came from and how good it is, so that a caller does not have to
-reach for the hash keys itself (section 2.1 of F<BI-Phase6-Dependency-Specs.md>):
+reach for the hash keys itself:
 
 =over 4
 

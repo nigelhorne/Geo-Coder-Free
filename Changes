@@ -2,8 +2,8 @@ Revision history for Geo-Coder-Free
 
 0.47
 	[ Enhancements ]
-	- Added geocode_many(), the loop a batch caller writes around geocode() run for it (section 2.5 of
-	  BI-Phase6-Dependency-Specs.md).  It takes an arrayref of locations and answers with one entry
+	- Added geocode_many(), the loop a batch caller writes around geocode() 
+	  It takes an arrayref of locations and answers with one entry
 	  per distinct value - the point it resolved to, or undef - plus lookups (how many values were
 	  looked up), resolved and unresolved (which add up to the number of distinct values) and
 	  unresolved_values (the values that produced nothing, in the order they were first seen, which
@@ -100,6 +100,23 @@ Revision history for Geo-Coder-Free
 	  this distribution ships - the query page's own template is not one of them, query.txt ships empty,
 	  which is why its answer is only in the log - so their output is the page, and it is asserted as
 	  such.  bin/testcgibin gained tests 5 and 6 to drive them
+	- t/bin.t asserts the site's answer to a client it will not serve, and its answer to one it will.
+	  The same query is asked twice, from the same address and with the same everything else, by a
+	  client whose user agent Geo::Coder::Free::Allow blacklists (bin/testcgibin test 7) and by one
+	  whose agent is an ordinary browser's (test 8): the first is answered with a 403 and the
+	  plain-text block page and is not given the position, the second is served the position and gets
+	  no block page.  The refusal is read back out of the access log as well - the row the page
+	  writes for it carries the reason the user-agent blacklist gave ('zgrab is blacklisted'), which
+	  no other layer of the page's access control produces, plus the 403 and the address that was
+	  refused - so what is asserted is that layer refusing the client and not the account being
+	  written by something else in the stack.  The log every run writes is written into the test's
+	  own directory now (LOGDIR, for all the runs rather than only those that read it back) and the
+	  page's temporary directory is the test's too (TMPDIR), so the throttle that counts requests is
+	  this run's rather than one that carries the count over from the last, and no run leaves an
+	  access log or a throttle outside the temporary directory.  The file also points its diagnostics
+	  at STDOUT: Log::WarnDie, which the pages need installed, takes STDERR over, and a test's
+	  diagnostics go there by default, so before this every failure in t/bin.t was reported as a test
+	  name with no detail to say what the page had answered instead
 
 0.46	Thu Oct 15 09:06:24 PM EDT 2026
 	[ Enhancements ]

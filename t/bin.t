@@ -35,6 +35,15 @@ use Test::Needs {
 };
 use Test::Most;
 
+# Diagnostics go to STDERR by default, and Log::WarnDie - which page.fcgi sends
+# its warnings to, and which this file needs installed - takes STDERR over when
+# it is loaded: everything written to it becomes a log message, and a log message
+# with no dispatcher behind it goes nowhere.  So a failing assertion below would
+# be reported as a test name and nothing else, which is no use at all for a
+# failure on a machine the author cannot run.  Point the diagnostics at STDOUT,
+# which is where the TAP they belong with is already going.
+Test::More->builder->failure_output(\*STDOUT);
+
 use DBI;
 use File::Spec;
 use File::Temp qw(tempdir);
@@ -322,8 +331,11 @@ if($ENV{'AUTHOR_TESTING'}) {
 	# Test 7 is the blacklisted client: a 403, the block page, and no answer.
 	script_runs(['bin/testcgibin', 7]);
 	script_stdout_like(qr/^Status: 403 Forbidden$/m, 'blocked: the page answers 403');
+	# The block page spells its own header Content-type, where a rendered page
+	# sends Content-Type: asserting the block page's spelling is what tells the
+	# two answers apart rather than a typo in the pattern.
 	script_stdout_like(qr/^Content-type: text\/plain$/m,
-		'blocked: and sends the plain-text block page, not the site');
+		'blocked: and sends the plain-text block page, not the rendered page');
 	script_stdout_like(qr/^Access Denied$/m, 'blocked: which says the client is denied');
 	script_stdout_unlike(qr/\-76\.84/, 'blocked: the answer is not given away');
 
@@ -333,11 +345,10 @@ if($ENV{'AUTHOR_TESTING'}) {
 	# a different one, so the row below is the user-agent blacklist answering and
 	# not something else in the stack.
 	my $blocked = _logged_row(qr/ is blacklisted/);
-	diag("DEBUG ROW: " . (defined($blocked) ? $blocked : 'undef'));
 	ok(defined($blocked), 'blocked: the denial is recorded in the log with its reason')
 		or diag(_log_tail());
-	like($blocked, qr/"403"/, 'blocked: the record carries the status the client was given')
-		or diag("row: " . (defined($blocked) ? $blocked : 'undef'));
+	like($blocked, qr/,403,/, 'blocked: the record carries the status the client was given')
+		or diag("\n\t" . (defined($blocked) ? $blocked : 'no such row') . "\n");
 	like($blocked, qr/"\Q$us_ip\E"/, 'blocked: and the address that was refused');
 
 	# Test 8 is the same client allowed through: the position it asked for, and no
