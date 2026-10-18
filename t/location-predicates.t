@@ -3,9 +3,8 @@
 # The location-predicate fuzz is what makes "the six ask the rule" a fact rather
 # than an assertion: it drives each sibling's real geocode() with a user agent
 # that dies at the lookup, and compares the verdict with
-# Geo::Coder::Free::Validate::_valid_location().  The scheduled CI job runs it
-# with --check, and what --check does with the exit status is what this test
-# checks:
+# Geo::Coder::Free::Validate::_valid_location().  The scheduled CI job runs it,
+# and what its exit status does is what this test checks:
 #
 #   1. the workspace passes - the six answer what the rule answers on every
 #      curated class and on randomly generated scalars, references and undef;
@@ -14,7 +13,10 @@
 #   3. a sibling that accepts a reference does not fail it.  That disagreement is
 #      a real finding and is reported, but the gate is about the question a
 #      numeric column asks - digits, the empty string, undef - so a reference
-#      verdict cannot turn the job red on its own.
+#      verdict cannot turn the job red on its own;
+#   4. the gate is what a plain run does: a disagreement fails a run with no
+#      flags at all, and only --report (or --no-check) asks for the table while
+#      leaving the exit status at 0.
 #
 # The divergence is planted in a copy of the workspace in a temporary directory,
 # never in the checkouts: the harness works out which workspace it is in from the
@@ -39,9 +41,12 @@ use File::Temp qw(tempdir);
 use FindBin qw($Bin);
 use Test::Most;
 
-# The six that carry a copy of the rule, and the distribution that holds it.
+# The six that ask the rule, and the two distributions that hold it and the
+# facade the harness runs from.  The rule has been a distribution of its own
+# since 0.49, so it is a checkout beside the others, not a file under Free's lib.
 my @DISTS = qw(
 	Geo-Coder-Free
+	Geo-Coder-Free-Validate
 	Geo-Coder-CA
 	Geo-Coder-DataScienceToolkit
 	Geo-Coder-GeoApify
@@ -57,7 +62,7 @@ my $MODULE  = 'lib/Geo/Coder/XYZ.pm';
 # The guard, as each of the six writes it.  The planted source has to contain it
 # exactly once, so a sibling that rewrites its guard fails this test rather than
 # passing it with the patch silently not applied.
-my $GUARD = 'if(!Geo::Coder::Free::Validate::_valid_location($location)) {';
+my $GUARD = 'if(!_could_be_a_location($location)) {';
 
 # Each divergence replaces the guard with a test of its own.  They are the two
 # shapes the six had before they were changed.
@@ -109,7 +114,7 @@ BAIL_OUT("$harness is not in the distribution") unless -f $harness;
 # with a space in it needs no quoting and nothing else is inherited.
 sub run_harness
 {
-	my ($program, $iterations) = @_;
+	my ($program, $iterations, @flags) = @_;
 
 	my $dir = tempdir(CLEANUP => 1);
 	my $echo = File::Spec->catfile($dir, 'stderr.txt');
@@ -120,7 +125,7 @@ sub run_harness
 	open(my $saved, '>&', \*STDERR) or BAIL_OUT("Cannot save stderr: $!");
 	open(STDERR, '>', $echo) or BAIL_OUT("Cannot write $echo: $!");
 
-	my $pid = open(my $fh, '-|', $^X, $program, '--iterations', $iterations, '--check');
+	my $pid = open(my $fh, '-|', $^X, $program, '--iterations', $iterations, @flags);
 	BAIL_OUT("Cannot run $program: $!") unless defined($pid);
 	my $report = do { local $/; <$fh> };
 	close($fh);
@@ -206,7 +211,7 @@ sub build_workspace
 # 1. The workspace passes
 # ---------------------------------------------------------------------------
 
-my ($status, $report, $errors) = run_harness($harness, $ITERATIONS);
+my ($status, $report, $errors) = run_harness($harness, $ITERATIONS, '--check');
 
 is($status, 0, 'the six answer what the rule answers, so the gate passes')
 	or diag($report);
@@ -223,13 +228,16 @@ like($errors, qr/^Ok: /m, 'the run says so on stderr as well, which is what CI k
 {
 	my $dir = tempdir(CLEANUP => 1);
 	my $program = build_workspace($dir, 'digits');
-	my ($patched_status, $patched_report, $patched_errors) = run_harness($program, $ITERATIONS);
+	my ($patched_status, $patched_report, $patched_errors) = run_harness($program, $ITERATIONS, '--check');
 
 	cmp_ok($patched_status, '!=', 0, 'the gate fails when a sibling stops refusing digits');
 	like($patched_report,
 		qr/curated class 'digits only': Geo::Coder::XYZ says ACCEPT, the rule says REJECT/,
 		'and names the sibling, the class and both verdicts');
 	like($patched_report, qr/^- FAIL: /m, 'the report says the gate failed');
+	like($patched_report,
+		qr/^- FAIL: \d+ disagreement\(s\) with Geo::Coder::Free::Validate on a scalar or undef\.$/m,
+		'with the number of them on the same line');
 	unlike($patched_report, qr/^- PASS: /m, 'and does not say it passed');
 	like($patched_errors, qr/^FAIL: /m, 'the failure is on stderr, where the log keeps it');
 	like($patched_errors, qr/Geo::Coder::XYZ says ACCEPT, the rule says REJECT/,
@@ -243,7 +251,7 @@ like($errors, qr/^Ok: /m, 'the run says so on stderr as well, which is what CI k
 {
 	my $dir = tempdir(CLEANUP => 1);
 	my $program = build_workspace($dir, 'reference');
-	my ($patched_status, $patched_report) = run_harness($program, $ITERATIONS);
+	my ($patched_status, $patched_report) = run_harness($program, $ITERATIONS, '--check');
 
 	is($patched_status, 0, 'a reference disagreement alone does not fail the gate');
 	like($patched_report, qr/^- PASS: /m, 'the gate passes');
@@ -254,6 +262,58 @@ like($errors, qr/^Ok: /m, 'the run says so on stderr as well, which is what CI k
 		'and the generated references are reported too');
 	like($patched_report, qr/^- Scalar\/undef disagreements: 0\.$/m,
 		'while the scalars and undef still agree');
+}
+
+# ---------------------------------------------------------------------------
+# 4. The gate is the default.  A run with no flags is the regression check: a
+#    disagreement fails it, and --report is the explicit way to ask for the
+#    table with the exit status left alone.
+# ---------------------------------------------------------------------------
+
+# The real workspace, with nothing asked for: the default gate has to pass on a
+# workspace where the six agree, or it would be a gate nobody could keep green.
+{
+	my ($plain_status, $plain_report, $plain_errors) = run_harness($harness, $ITERATIONS);
+
+	is($plain_status, 0, 'a run with no flags passes where the six agree');
+	like($plain_report, qr/^- PASS: /m, 'and says the six agree');
+	like($plain_report, qr/^- Scalar\/undef disagreements: 0\.$/m,
+		'with no scalar or undef disagreement');
+	like($plain_errors, qr/^Ok: /m, 'and the same on stderr');
+}
+
+{
+	my $dir = tempdir(CLEANUP => 1);
+	my $program = build_workspace($dir, 'digits');
+
+	my ($default_status, $default_report, $default_errors) = run_harness($program, $ITERATIONS);
+
+	cmp_ok($default_status, '!=', 0,
+		'a disagreement fails a run that was not asked to be a gate');
+	like($default_report, qr/^- FAIL: /m, 'the report says it failed');
+	like($default_report,
+		qr/^- FAIL: \d+ disagreement\(s\) with Geo::Coder::Free::Validate on a scalar or undef\.$/m,
+		'with the count and the reason within the rule, not just a bare label');
+	like($default_errors, qr/^FAIL: \d+ disagreement\(s\)/m,
+		'and the log is told, as for an explicit --check');
+
+	my ($report_status, $report_report, $report_errors) = run_harness($program, $ITERATIONS, '--report');
+
+	is($report_status, 0, '--report asks for the table and not the verdict');
+	like($report_report, qr/^- REPORT: /m, 'the report says which of the two it was');
+	like($report_report,
+		qr/^- REPORT: \d+ disagreement\(s\) with Geo::Coder::Free::Validate on a scalar or undef\.$/m,
+		'with the count and the reason on the same line');
+	unlike($report_report, qr/^- FAIL: /m, 'so it does not claim a failure it did not make');
+	like($report_report,
+		qr/curated class 'digits only': Geo::Coder::XYZ says ACCEPT, the rule says REJECT/,
+		'while still naming the sibling, the class and both verdicts');
+	unlike($report_errors, qr/^FAIL: /m, 'and nothing is written as a failure');
+
+	my ($nocheck_status, $nocheck_report) = run_harness($program, $ITERATIONS, '--no-check');
+
+	is($nocheck_status, 0, '--no-check is the same report-only form');
+	like($nocheck_report, qr/^- REPORT: /m, 'and says so the same way');
 }
 
 done_testing();

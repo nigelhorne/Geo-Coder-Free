@@ -15,10 +15,11 @@
 #
 # This test reads the source instead.  It scans every module under lib/, every
 # script under bin/ and every program under cgi-bin/, and fails when the rule's
-# question is spelled out in a file other than its home.  POD, whole-line
+# question is spelled out anywhere in this tree.  There is no home file to allow:
+# the rule is shipped by Geo-Coder-Free-Validate, a distribution of its own that
+# this one depends on, so a spelling here is a copy of it.  POD, whole-line
 # comments and anything after __END__/__DATA__ are masked, so prose that
-# describes the rule - as Validate.pm's own documentation does - is not read as a
-# copy of it.
+# describes the rule is not read as a copy of it.
 #
 # What counts as the rule is listed in @SPELLINGS: a negated digit class
 # (/\D/, /[^0-9]/, /[^\d]/) and an anchored test that a string is digits from end
@@ -42,14 +43,19 @@
 use strict;
 use warnings;
 
+use Cwd ();
 use File::Find qw(find);
 use File::Spec;
 use FindBin qw($Bin);
 use Test::Most;
 
-# The one file that may hold the rule, and the sub in it that has to hold it.
-my $HOME     = 'lib/Geo/Coder/Free/Validate.pm';
-my $HOME_SUB = '_valid_location';
+# The rule is shipped by a distribution of its own now, Geo-Coder-Free-Validate,
+# so this test has no home file to allow: a spelling of the rule anywhere in
+# this tree is a copy.  What it still checks is that the rule is reachable and,
+# when the sibling checkout is here, that it is that checkout's file answering
+# rather than an installed copy that could be older.
+my $RULE_DIST = 'Geo-Coder-Free-Validate';
+my $RULE_SUB  = '_valid_location';
 
 # The spellings of the rule's question that this test counts, as source text.
 # The name and the question are for the failure message: they say what the site
@@ -202,7 +208,6 @@ SOURCE
 
 my %exemption_used;
 my %scanned;
-my $definitions = 0;
 
 foreach my $file(_files()) {
 	$scanned{$file} = 1;
@@ -216,14 +221,6 @@ foreach my $file(_files()) {
 	foreach my $site(@{ _sites(_masked($text)) }) {
 		my $where = "$file:$site->{'line'}";
 		my $in    = length($site->{'sub'}) ? " in sub $site->{'sub'}" : '';
-
-		if($file eq $HOME) {
-			ok($site->{'sub'} eq $HOME_SUB, "$where$in spells the rule, in the sub that owns it")
-				or diag("    $HOME is the rule's home: it holds the rule in $HOME_SUB(), and a"
-					. ' second spelling in another sub there is a second definition.');
-			$definitions++;
-			next;
-		}
 
 		my $exempt = $EXEMPT{$file}{ $site->{'sub'} }{ $site->{'spelling'} };
 
@@ -244,9 +241,28 @@ foreach my $file(_files()) {
 	}
 }
 
-ok($definitions, "$HOME defines the rule")
-	or diag('    It no longer spells the rule in a way this test knows: the rule has moved,'
-		. ' or it has been rewritten.');
+# The rule's distribution
+# ---------------------------------------------------------------------------
+# The rule lives in a sibling checkout in this workspace, and in an installed
+# distribution elsewhere.  Both have to answer; which file did is asserted when
+# the checkout is here, because a stale installed copy would otherwise make a
+# workspace run green while the tree that is being changed is not the one asked.
+
+my $rule_file = File::Spec->catfile($workspace, $RULE_DIST, 'lib', 'Geo', 'Coder', 'Free', 'Validate.pm');
+
+ok(eval { require Geo::Coder::Free::Validate; 1 },
+	"$RULE_DIST is installed and loads")
+	or diag($@);
+
+if(-f $rule_file) {
+	is(Cwd::abs_path($INC{'Geo/Coder/Free/Validate.pm'}), Cwd::abs_path($rule_file),
+		"the rule answering here is the $RULE_DIST checkout's file");
+} else {
+	diag("$RULE_DIST is not beside this distribution: the installed rule is the one checked");
+}
+
+ok(Geo::Coder::Free::Validate->can($RULE_SUB),
+	"$RULE_DIST\::$RULE_SUB is the rule's one spelling");
 
 # The files the scan is supposed to cover
 # ---------------------------------------------------------------------------
@@ -254,7 +270,6 @@ ok($definitions, "$HOME defines the rule")
 # the rule could be copied into are named here as well.
 
 foreach my $file(
-	$HOME,
 	'lib/Geo/Coder/Free.pm',
 	'lib/Geo/Coder/Free/MaxMind.pm',
 	'lib/Geo/Coder/Free/OpenAddresses.pm',

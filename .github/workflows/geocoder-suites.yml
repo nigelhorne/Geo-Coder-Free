@@ -1,0 +1,324 @@
+---
+# The six sibling geocoders' own suites, run against this checkout's rule.
+#
+# Geo::Coder::Free::Validate is the one answer to "could this be a location?",
+# and since 0.46 the six - CA, DataScienceToolkit, GeoApify, List, Postcodes and
+# XYZ - call it when it is installed rather than carry a copy.  Their suites are what says they still
+# behave: a sibling that keeps calling the rule can still have a test that
+# asserts the old answer, and that distribution's own CI would be green because
+# the greenness is a property of its checkout, not of the rule it calls.  So the
+# seven checkouts are assembled here and each sibling's whole suite runs with
+# this checkout's lib/ first on @INC.
+#
+# Three things are run besides the suites:
+#
+#   - t/reference.t, the file installed identically in all six, run once per
+#     sibling with the copies compared first: "installed identically" is a claim
+#     about six files that only a byte comparison can check.
+#   - scripts/location-predicate-fuzz.pl with --check, the runtime half of
+#     t/location-rule.t's source scan, which asks each real geocode() what it
+#     answers on 20,000 values and fails when a scalar or undef disagrees with
+#     the rule.  The report goes to the job summary.
+#   - the same six t/reference.t files with Geo::Coder::Free::Validate hidden,
+#     which must still pass - the rule is a recommendation in each of the six,
+#     not a prerequisite, so without it each must fall back to refusing a
+#     reference and skip the comparisons it cannot make - and the fuzz with the
+#     rule hidden, which must fail.  That is a negative control, not a second
+#     run: the fuzz has no fallback, since its whole question is what the six
+#     answer compared with the rule, and a run that reports agreement with a
+#     rule that is not there is one that cannot catch a sibling returning a
+#     verdict of its own.
+#
+# Devel::Hide does the hiding.  It hides by putting a dying hook in @INC, which
+# a program can get in front of by putting a directory on @INC itself; the fuzz
+# harness does exactly that for the seven checkouts, so for it the rule is also
+# removed from a copy of the workspace, and both are asked for the same answer.
+#
+# The t/online.enabled file each checkout may carry is removed before its suite
+# runs.  It is the marker Makefile.PL writes when the machine running the build
+# has a network, and a checkout that has one then sends its tests to
+# geocode.xyz: a 403 from that endpoint is not a verdict about the rule, and
+# this job is about the rule.  Without the marker those tests skip, as they do
+# on a build machine with no network.
+#
+# The jobs here are about the six, so the suites run without AUTHOR_TESTING:
+# the author tests of each distribution - pod, critic, kwalitee, links - are the
+# business of that distribution's own CI.
+name: Geocoder suites
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    # A sibling released with a suite that asserts its own answer, or with a
+    # dependency that pulls one in, shows up here without anything having been
+    # pushed to this distribution; a weekly run is what notices.
+    - cron: '23 5 * * 3'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  suites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    name: Six suites, the shared reference test and the fuzz, on Perl 5.40
+    env:
+      AUTOMATED_TESTING: 1
+      NO_NETWORK_TESTING: 1
+      NONINTERACTIVE_TESTING: 1
+      # The rule under test is this checkout, not the released copy the siblings
+      # would otherwise resolve Geo::Coder::Free::Validate to.  Hiding still
+      # reaches it: Devel::Hide's hook goes in ahead of PERL5LIB's directories.
+      PERL5LIB: ${{ github.workspace }}/workspace/Geo-Coder-Free/lib
+    steps:
+      - name: Check out this distribution at the commit under test
+        uses: actions/checkout@v7
+        with:
+          path: workspace/Geo-Coder-Free
+
+      - name: Check out Geo-Coder-CA
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-CA
+          path: workspace/Geo-Coder-CA
+          # The default token reads public repositories; set WORKSPACE_TOKEN
+          # only if one of the siblings is private.
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-DataScienceToolkit
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-DataScienceToolkit
+          path: workspace/Geo-Coder-DataScienceToolkit
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-GeoApify
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-GeoApify
+          path: workspace/Geo-Coder-GeoApify
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-List
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-List
+          path: workspace/Geo-Coder-List
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-Postcodes
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-Postcodes
+          path: workspace/Geo-Coder-Postcodes
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-XYZ
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-XYZ
+          path: workspace/Geo-Coder-XYZ
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      # A checkout that silently failed would look like a suite that passed, so
+      # the workspace is checked before anything is installed for it.
+      - name: Check that the workspace is there
+        shell: bash
+        run: |
+          set -eu
+          for dist in Geo-Coder-Free Geo-Coder-CA Geo-Coder-DataScienceToolkit \
+            Geo-Coder-GeoApify Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            if [ ! -d "workspace/$dist/lib" ]; then
+              echo "::error::workspace/$dist was not checked out"
+              exit 1
+            fi
+          done
+          ls -1 workspace
+
+      - name: Setup Perl
+        uses: shogo82148/actions-setup-perl@v1.44.0
+        with:
+          perl-version: '5.40'
+
+      - name: Install what the suites load
+        shell: bash
+        run: |
+          set -eu
+          cpanm --notest --quiet \
+            CHI HTML::Entities HTTP::Request JSON::MaybeXS LWP::UserAgent \
+            LWP::Protocol::https Object::Configure Params::Get \
+            Params::Validate::Strict Readonly URI \
+            Devel::Hide Test::Most Test::DescribeMe Test::Needs Test::NoWarnings
+
+      # Each distribution's own prerequisites, as its own CI installs them.  The
+      # six declare Geo::Coder::Free::Validate, which resolves to the released
+      # Geo-Coder-Free; that install is what satisfies the declaration, while the
+      # runs below load the rule from this checkout, which PERL5LIB puts first.
+      - name: Install each distribution's dependencies
+        shell: bash
+        run: |
+          set -eu
+          for dist in Geo-Coder-CA Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify \
+            Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            echo "::group::dependencies of $dist"
+            ( cd "workspace/$dist" && cpanm --notest --quiet --installdeps . )
+            echo "::endgroup::"
+          done
+
+      - name: Run the six suites
+        shell: bash
+        run: |
+          set -u
+          failed=''
+          for dist in Geo-Coder-CA Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify \
+            Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            echo "::group::$dist"
+            # The marker for the tests that call the live API.  A checkout that
+            # carries one would otherwise be graded on geocode.xyz's answer.
+            rm -f "workspace/$dist/t/online.enabled"
+            if ( cd "workspace/$dist" && prove -lr t ); then
+              echo "$dist passed"
+            else
+              failed="$failed $dist"
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::suite(s) failed:$failed"
+            exit 1
+          fi
+
+      # Everything from here on runs even when a suite above failed: the point of
+      # the four checks is to say which of them broke, and a job that stops at
+      # the first one leaves the rest unrun.
+      - name: Compare the six copies of the shared reference test
+        if: always()
+        shell: bash
+        run: |
+          set -eu
+          first=workspace/Geo-Coder-CA/t/reference.t
+          for dist in Geo-Coder-CA Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify \
+            Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            if ! cmp -s "$first" "workspace/$dist/t/reference.t"; then
+              echo "::error::workspace/$dist/t/reference.t differs from $first, so the six no longer share one test"
+              diff -u "$first" "workspace/$dist/t/reference.t" || true
+              exit 1
+            fi
+          done
+          echo 'The six copies of t/reference.t are byte for byte the same file'
+
+      - name: Run the shared reference test in each sibling
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          failed=''
+          for dist in Geo-Coder-CA Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify \
+            Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            echo "::group::$dist t/reference.t"
+            if ( cd "workspace/$dist" && prove -l t/reference.t ); then
+              echo "$dist reference test passed"
+            else
+              failed="$failed $dist"
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::reference test failed:$failed"
+            exit 1
+          fi
+
+      - name: Run the fuzz against the six
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          status=0
+          # The report is Markdown, so it goes to the job summary as well: the
+          # class or the value a sibling stopped agreeing on is the whole
+          # finding, and it should not have to be read out of a log that has
+          # scrolled away.  The failures themselves go to stderr, which stays in
+          # the log.
+          perl workspace/Geo-Coder-Free/scripts/location-predicate-fuzz.pl \
+            --iterations 20000 --check \
+            > "$RUNNER_TEMP/geocoder-suites-fuzz.md" \
+            2> "$RUNNER_TEMP/geocoder-suites-fuzz.err" || status=$?
+          cat "$RUNNER_TEMP/geocoder-suites-fuzz.md" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/geocoder-suites-fuzz.err" >&2
+          exit "$status"
+
+      # The negative control.  The six declare the rule as a recommendation, so
+      # with it hidden they must still pass: refuse a reference, and skip the
+      # comparisons they cannot make.  A pass with no skip means the test did
+      # not notice the rule was gone.  The fuzz has no fallback, so its answer
+      # is that it must refuse to run.
+      - name: With the rule hidden, the six fall back and the fuzz refuses to run
+        if: always()
+        shell: bash
+        run: |
+          set -u
+          status=0
+
+          for dist in Geo-Coder-CA Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify \
+            Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            out="$RUNNER_TEMP/hidden-$dist.txt"
+            if ! ( cd "workspace/$dist" && \
+              PERL5OPT='-MDevel::Hide=Geo::Coder::Free::Validate' prove -lv t/reference.t ) \
+              > "$out" 2>&1
+            then
+              echo "::error::$dist failed with Geo::Coder::Free::Validate hidden, so it does not fall back without the rule:"
+              cat "$out"
+              status=1
+            elif ! grep -q '# skip Geo::Coder::Free::Validate is not installed' "$out"; then
+              echo "::error::$dist passed with the rule hidden, but did not skip the comparisons it cannot make:"
+              cat "$out"
+              status=1
+            else
+              echo "$dist refuses a reference without the rule, and skips what it cannot compare"
+            fi
+          done
+
+          # The fuzz harness puts the seven checkouts' lib/ on @INC itself, and
+          # an @INC directory outranks the hook hiding installs, so hiding alone
+          # does not reach it.  The same workspace with the rule's file left out
+          # is the same question asked of it: it must refuse to run rather than
+          # report that the six agree with nothing.
+          norule="$RUNNER_TEMP/no-rule"
+          rm -rf "$norule"
+          mkdir -p "$norule/Geo-Coder-Free/lib/Geo/Coder/Free" \
+            "$norule/Geo-Coder-Free/scripts"
+          for dist in Geo-Coder-CA Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify \
+            Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            ln -s "$PWD/workspace/$dist" "$norule/$dist"
+          done
+          cp workspace/Geo-Coder-Free/scripts/location-predicate-fuzz.pl \
+            "$norule/Geo-Coder-Free/scripts/"
+
+          out="$RUNNER_TEMP/hidden-fuzz.txt"
+          if PERL5OPT='-MDevel::Hide=Geo::Coder::Free::Validate' \
+            perl "$norule/Geo-Coder-Free/scripts/location-predicate-fuzz.pl" \
+            --iterations 200 --check > "$out" 2>&1
+          then
+            echo "::error::the fuzz reported agreement with a rule that is not there"
+            status=1
+          elif ! grep -q 'Geo/Coder/Free/Validate.pm in @INC (hidden)' "$out"; then
+            echo "::error::the fuzz failed without the rule, but not because the rule was missing:"
+            cat "$out"
+            status=1
+          else
+            echo 'The fuzz refuses to run without the rule, as it should'
+          fi
+
+          exit "$status"

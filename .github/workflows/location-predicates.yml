@@ -11,9 +11,11 @@
 #
 # It needs all six checkouts beside this distribution - without them the harness
 # exits with a message rather than reporting a skip that looks like agreement -
-# and the layout below is that workspace.  --check is what makes the run a gate:
-# the exit status is non-zero when a sibling's verdict on a scalar or undef
-# differs from the rule's, and the report names the class or the value.
+# and the layout below is that workspace.  What makes the run a gate is the
+# exit status: a sibling's verdict on a scalar or undef that differs from the
+# rule's fails it, and the report names the class or the value.  That is what a
+# plain run does - --check is passed below because it says so at the call site,
+# not because the run needs it.
 #
 # A reference disagreement is reported in the report but does not fail the run.
 # The six were changed so that a reference is refused for being a reference, and

@@ -35,7 +35,6 @@ lib/Geo/Coder/Free/MissCache.pm
 lib/Geo/Coder/Free/OpenAddresses.pm
 lib/Geo/Coder/Free/Provenance.pm
 lib/Geo/Coder/Free/Utils.pm
-lib/Geo/Coder/Free/Validate.pm
 LICENSE
 Makefile.PL
 MANIFEST			This list of files
@@ -69,7 +68,8 @@ t/kwalitee.t
 t/links.t
 t/local.t
 t/locales.t
-scripts/location-predicates.t
+scripts/location-predicate-fuzz.pl
+t/location-predicates.t
 t/location-rule.t
 t/logic-reducer.t
 t/manifest.t

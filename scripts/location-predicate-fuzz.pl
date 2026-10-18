@@ -12,18 +12,26 @@
 # Nothing touches the network.
 #
 # Usage:
-#     perl xt/location-predicate-fuzz.pl [--iterations N] [--seed S] [--check]
+#     perl scripts/location-predicate-fuzz.pl [--iterations N] [--seed S]
+#                                             [--report | --no-check]
 #
 # The output is Markdown: a table of the curated input classes, then the
-# randomised run over scalars, references and undef.  --check turns the exit
-# status into a gate: it fails when a sibling's verdict on a scalar or undef
-# differs from the rule's, which is what the scheduled CI job runs.  That is the
-# runtime half of t/location-rule.t, which reads the same six siblings' source
-# for the rule's spellings; this one asks them.
+# randomised run over scalars, references and undef.  The exit status is the
+# verdict as well as the report: a sibling whose answer on a scalar or undef
+# differs from the rule's fails the run, and the class or the value is named on
+# both streams.  That is the runtime half of t/location-rule.t, which reads the
+# same six siblings' source for the rule's spellings; this one asks them.  A
+# build that runs it gets a regression check without having to remember a flag,
+# and --report is the explicit report-only form for a caller that wants the
+# table and not the verdict (--no-check is the same thing; --check is still
+# accepted, because it is now what a plain run does).  A reference disagreement
+# is reported and does not fail the run, and a verdict the harness cannot read
+# at all does.
 #
-# It needs the six checkouts beside this distribution - the layout the CI job
-# assembles, and the one an author's workspace has - and says so when they are
-# not there rather than reporting a skip that looks like agreement.
+# It needs the six checkouts, and the checkout of the distribution that holds the
+# rule, beside this one - the layout the CI job assembles, and the one an author's
+# workspace has - and says so when they are not there rather than reporting a skip
+# that looks like agreement.
 
 use strict;
 use warnings;
@@ -38,8 +46,12 @@ BEGIN {
 	require Cwd;
 	require File::Spec;
 
+	# The rule is shipped by Geo-Coder-Free-Validate, a distribution of its own, so
+	# it is one of the checkouts this needs: the comparison is against the tree
+	# being changed, not against whichever copy is installed.
 	my @DISTS = qw(
 		Geo-Coder-Free
+		Geo-Coder-Free-Validate
 		Geo-Coder-CA
 		Geo-Coder-DataScienceToolkit
 		Geo-Coder-GeoApify
@@ -579,13 +591,18 @@ sub main
 {
 	my $iterations = 5000;
 	my $seed = 20261017;
-	my $check = 0;
+	# A disagreement is a failure.  The harness is a regression check, and a run
+	# that had to be asked for its verdict is one that can be run without it and
+	# go green with a sibling answering something else; so the gate is what a
+	# plain run does, and --report is how a caller asks for the table alone.
+	my $check = 1;
 
 	GetOptions(
 		'iterations=i' => \$iterations,
 		'seed=i'       => \$seed,
-		'check'        => \$check,
-	) or die "Usage: $0 [--iterations N] [--seed S] [--check]\n";
+		'check!'       => \$check,
+		'report'       => sub { $check = 0 },
+	) or die "Usage: $0 [--iterations N] [--seed S] [--check|--no-check|--report]\n";
 
 	build_predicates();
 	srand($seed);
@@ -596,7 +613,7 @@ sub main
 		print "- `$sibling->{'name'}` - `$sibling->{'file'}`\n";
 	}
 	print "\nThe reference rule is `Geo::Coder::Free::Validate::_valid_location`",
-		" (`Geo-Coder-Free/lib/Geo/Coder/Free/Validate.pm`).\n\n";
+		" (`Geo-Coder-Free-Validate/lib/Geo/Coder/Free/Validate.pm`).\n\n";
 	print "Verdicts: `ACCEPT` means the predicate let the value through to the lookup",
 		" (the stub user agent dies there, so no request is made); `REJECT` means it",
 		" refused the value before that point.  The random seed is $seed.\n\n";
@@ -671,23 +688,32 @@ sub main
 			$record->{'value'}, $key, $record->{'rule'});
 	}
 
-	if($check) {
-		print "\n### Gate\n\n";
-		if(@violations) {
-			print '- FAIL: ', scalar(@violations),
-				" disagreement(s) with Geo::Coder::Free::Validate on a scalar or undef.\n";
-			print "  - $_\n" for @violations;
+	print "\n### Gate\n\n";
+	if(@violations) {
+		my $count = scalar @violations;
+		# The label is built before it is printed: a print() in a comma list puts
+		# everything after it in void context, which is a warning and no output.
+		my $label = $check ? '- FAIL: ' : '- REPORT: ';
+		print $label, $count,
+			" disagreement(s) with Geo::Coder::Free::Validate on a scalar or undef.\n";
+		print "  - $_\n" for @violations;
+
+		if($check) {
 			# The report goes to the job summary; this goes to the log.
-			print STDERR 'FAIL: ', scalar(@violations),
-				" disagreement(s) with Geo::Coder::Free::Validate on a scalar or undef:\n";
+			print STDERR "FAIL: $count disagreement(s) with Geo::Coder::Free::Validate",
+				" on a scalar or undef:\n";
 			print STDERR "  - $_\n" for @violations;
 			return 1;
 		}
 
-		print "- PASS: every sibling answers what the rule answers on every scalar",
-			" and every undef.\n";
-		print STDERR "Ok: every sibling answers what the rule answers on every scalar and every undef.\n";
+		print "  This run asked for a report, so its exit status is 0 and it cannot be\n",
+			"  used as a gate: without --report a disagreement fails the run.\n";
+		return 0;
 	}
+
+	print "- PASS: every sibling answers what the rule answers on every scalar",
+		" and every undef.\n";
+	print STDERR "Ok: every sibling answers what the rule answers on every scalar and every undef.\n";
 
 	return 0;
 }

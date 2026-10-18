@@ -291,6 +291,7 @@ my $build_requires = {
 	'File::Spec' => 0,
 	'autodie' => 0,
 	'Geo::Coder::Abbreviations' => 0.03,
+	'Geo::Coder::Free::Validate' => 0.01,	# the location rule, a distribution of its own since 0.48
 	'Geo::Location::Point' => 0.19,	# 0.19 defines the accuracy vocabulary and derives a level from matched fields
 	'IPC::System::Simple' => 0,
 	'JSON::MaybeXS' => 0,
@@ -393,6 +394,7 @@ WriteMakefile(
 		'DBD::SQLite' => 0,
 		'Encode' => 0,
 		'Geo::Coder::Abbreviations' => 0.03,
+		'Geo::Coder::Free::Validate' => 0.01,	# the location rule, a distribution of its own since 0.48
 		'Geo::Hash' => 0,
 		'Geo::Location::Point' => 0.19,	# 0.19 defines the accuracy vocabulary and derives a level from matched fields
 		'Geo::StreetAddress::US' => 0,

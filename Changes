@@ -1,13 +1,28 @@
 Revision history for Geo-Coder-Free
 
 0.48
+	[ Packaging ]
+	Geo::Coder::Free::Validate has moved to a distribution of its own,
+	Geo-Coder-Free-Validate.  The module name and _valid_location() are unchanged,
+	so no caller changes; what changes is which distribution ships the file.  It
+	moved because the six sibling geocoders needed the predicate and not this
+	distribution: while it lived here, the only way for one of them to name it in
+	its metadata was to require the facade as well, along with its backends, its
+	databases and its cache, so each looked for the module at run time instead of
+	declaring it.  Geo::Coder::Free requires Geo-Coder-Free-Validate 0.01, and the
+	six declare it as a recommendation for runtime in their META - an installer
+	fetches it by default - with a test requirement, because their suites assert
+	its answer.  None of them probes for it when it loads any more: each looks for
+	it when it first needs it, and without it still refuses a reference.
 	[ Tests ]
 	t/location-rule.t now scans the six sibling geocoders - CA, DataScienceToolkit,
 	GeoApify, List, Postcodes and XYZ - with the same spellings it uses on this
 	distribution, and fails if one of them spells the rule out again.  They call
-	Geo::Coder::Free::Validate::_valid_location() now that Geo::Coder::Free is a
-	prerequisite of each, so the scan is a guard against a copy coming back rather
-	than a description of six copies that exist.  A sibling that is not in the
+	Geo::Coder::Free::Validate::_valid_location() when the rule is installed - each
+	declares it as a recommendation in its META rather than as a prerequisite, and
+	looks for it when it first needs it rather than when it loads - so the scan is a
+	guard against a copy coming back rather than a description of six copies that
+	exist.  A sibling that is not in the
 	workspace is reported and skipped, so a standalone install still runs.
 	scripts/location-predicate-fuzz.pl is the runtime half of that scan: it drives each
 	of the six's real geocode() with a user agent that dies at the lookup, so it
@@ -29,6 +44,38 @@ Revision history for Geo-Coder-Free
 	digits no longer refused in one copy, a reference accepted in the other - where
 	the first has to fail and name the sibling, the class and both verdicts, and the
 	second has to pass with the disagreement still reported.
+	The fuzz is a regression check without being asked to be one: a sibling that
+	answers what the rule does not now fails the run, so a caller that forgets a
+	flag cannot get a green run out of a disagreement.  --report (--no-check) is
+	the explicit way to ask for the table with the exit status left at 0, and it
+	labels the finding REPORT rather than FAIL and says in the report that it was
+	asked not to fail; --check is still accepted, and is what the jobs pass to say
+	at the call site which form is meant.  t/location-predicates.t covers the
+	default gate - no flags at all, passing where the six agree and failing with
+	the sibling, the class and both verdicts on a planted divergence - and shows
+	--report and --no-check reporting the same finding with a zero exit.
+	The six suites run as one workspace job now, on every push and pull request and
+	on a weekly schedule: .github/workflows/geocoder-suites.yml checks out the seven
+	checkouts, runs each sibling's whole suite with this distribution's lib/ ahead
+	of the installed rule, runs the shared t/reference.t in each of the six - after
+	comparing the six copies byte for byte, which is the only thing that can show
+	"one file installed identically in all six" is still true - and runs the fuzz
+	with --check.  Each checkout's t/online.enabled is removed before its suite
+	runs: it is the marker Makefile.PL writes for the tests that call geocode.xyz,
+	and a checkout that carries one would have the job graded on that endpoint's
+	answer to a runner.  The job then hides Geo::Coder::Free::Validate with
+	Devel::Hide and asks two different things of the two halves: the six
+	t/reference.t files must still pass, having skipped the comparisons they cannot
+	make - a pass with no skip is a test that did not notice the rule was gone -
+	and the fuzz must fail, because its whole question is what the six answer
+	compared with the rule.  Hiding does not reach the fuzz on its own,
+	because the harness puts the checkouts' lib/ on @INC itself and an @INC
+	directory outranks the hook hiding installs, so the rule's file is left out of
+	a copy of the workspace for that half as well.  MANIFEST was listing
+	scripts/location-predicates.t, which does not exist, in place of the harness
+	scripts/location-predicate-fuzz.pl, and did not name t/location-predicates.t at
+	all; both are in it now, so t/manifest.t no longer reports the two as files the
+	distribution ships but does not list.
 
 	[ Enhancements ]
 	Geo::Coder::Free::Provenance no longer owns the field-to-accuracy rule.  It
