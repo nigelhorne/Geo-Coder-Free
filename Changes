@@ -1,5 +1,76 @@
 Revision history for Geo-Coder-Free
 
+0.48
+	[ Enhancements ]
+	Geo::Coder::Free::Provenance no longer owns the field-to-accuracy rule.  It
+	has moved to Geo::Location::Point::accuracy_for(), beside the vocabulary it
+	returns a level from, so the levels a point accepts and the rules that choose
+	one of them have a single home.  Provenance still re-exports ACCURACY_LEVELS
+	- the same list object, not a copy - so a backend can still name a level
+	without knowing which module defines the vocabulary, but it no longer decides
+	what a level may be
+	_accuracy_for() is gone from Provenance; Local.pm calls the function in
+	Geo::Location::Point, now required at 0.19.  The levels it reports
+	are unchanged, and the rule is tested where it lives now, in
+	Geo-Location-Point's t/attr.t
+	t/accuracy-vocabulary.t still checks that Provenance's list is Point's list
+	and that every level the derivation produces is one the vocabulary publishes;
+	t/consumer-contract.t records accuracy_for() as a class function, not an
+	accessor of a result, so a new documented function of the value object cannot
+	go unclassified.  accuracy-vocabulary.t now reads Geo::Location::Point from
+	the sibling Geo-Location-Point checkout when the workspace has one, as
+	consumer-contract.t already reads its workspace files, rather than whichever
+	copy is installed: the installed 0.18 predates accuracy_for(), so the guard
+	was calling a function that was not there instead of checking the tree this
+	distribution ships against.  Which file was loaded is asserted when the
+	checkout is present, and a distribution installed on its own still runs the
+	file against the Point it has.
+	Missed lookups now have one home, Geo::Coder::Free::MissCache, instead of a
+	package-global hash in OpenAddresses that never expired.  OpenAddresses,
+	Local and MaxMind all record a miss there and all ask it before doing the
+	work, so an address that is not in the data is searched for once per process
+	rather than once per call, and a miss found by one instance is seen by the
+	next.  Entries expire after an hour, are discarded as they are found, and are
+	swept periodically so the cache does not grow without bound; the lifetime is
+	Geo::Coder::Free::MissCache->expires_after()
+	Geo::Coder::Free->clear_miss_cache() empties the cache, or one backend's
+	part of it, for a caller that has rebuilt a database while the process is
+	running.  OpenAddresses keeps a miss per data directory, and MaxMind keeps
+	the region hint in the key, so a miss in one data set or for one region does
+	not hide an answer in another
+	geocode_many()'s lookups now counts the values that made a backend read,
+	not the distinct values it agreed to look up.  Each backend reports its
+	reads through reads(), a cumulative count that a lookup answered without
+	reading - from a result cache, from the shared miss cache or from a
+	hand-curated entry - leaves alone, and geocode_many() takes the count before
+	and after each value.  A value answered from a cache is therefore no longer
+	counted as work the batch did, so a second batch over the same column
+	reports the reads it needed rather than the ones the first one made
+	The page now validates a CSRF token that a client sends, which it
+	documented but did not do: cgi-bin/page.fcgi asks
+	Geo::Coder::Free::Display->csrf_token_valid(), which re-derives the
+	signature with the same secret the token was issued with - the configured
+	one, or the per-process fallback - and compares it in constant time.  A
+	token that does not verify is refused with the block page every other
+	denial gets, and recorded in the vwf log as 'Rejected CSRF token'.  A
+	request that sends no token is served, because forms are rendered by
+	templates this distribution does not ship and could not be told apart from
+	forms written before tokens existed
+	The block page itself is now written in one place, deny(), instead of at
+	each refusal, so the answer and its HEAD handling cannot drift between
+	the layers that refuse
+	geocode_many() answers with a fifth count of its own: reads, one entry per
+	backend the object holds, holding the reads that backend made for the batch
+	and keyed by the short name provenance() reports a result's backend under.
+	lookups counts values and reads counts reads - a value two backends read
+	through is one lookup and a read for each of them - so a caller can now tell
+	which backend did the reading from which value was answered from a cache,
+	which one total could not say.  A backend that read nothing is named at zero
+	rather than left out, so 'this backend did not read' can be told from a
+	backend that was never consulted.  The counters are taken per backend around
+	each value, so the attribution is the same accounting that decided the lookup
+	count rather than a second rule that could disagree with it
+
 0.47	Fri Oct 16 09:34:18 PM EDT 2026
 	[ Enhancements ]
 	- Added geocode_many(), the loop a batch caller writes around geocode() 

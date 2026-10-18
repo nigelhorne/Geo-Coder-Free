@@ -85,6 +85,15 @@ my %EXEMPT = (
 			},
 		},
 	},
+	'lib/Geo/Coder/Free/MissCache.pm' => {
+		'expires_after' => {
+			'^\d+$' => {
+				reason => 'a cache lifetime has to be a whole number of seconds: the'
+					. ' same shape of question about a number, which is not something'
+					. ' that could be a location',
+			},
+		},
+	},
 	'lib/Geo/Coder/Free/Utils.pm' => {
 		'_validate_cache_config' => {
 			'^\d+$' => {

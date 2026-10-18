@@ -31,6 +31,7 @@ lib/Geo/Coder/Free/Display/meta_data.pm
 lib/Geo/Coder/Free/Display/query.pm
 lib/Geo/Coder/Free/Local.pm
 lib/Geo/Coder/Free/MaxMind.pm
+lib/Geo/Coder/Free/MissCache.pm
 lib/Geo/Coder/Free/OpenAddresses.pm
 lib/Geo/Coder/Free/Provenance.pm
 lib/Geo/Coder/Free/Utils.pm
@@ -52,6 +53,7 @@ t/cities.t
 t/comment-spelling.t
 t/config.t
 t/consumer-contract.t
+t/contract-strict.t
 t/critic.t
 t/display.t
 t/downloads.t
@@ -71,6 +73,7 @@ t/location-rule.t
 t/logic-reducer.t
 t/manifest.t
 t/maxmind.t
+t/miss-cache.t
 t/modules-used.t
 t/namespaces.t
 t/no404s.t

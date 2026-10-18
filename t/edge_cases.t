@@ -419,6 +419,10 @@ subtest 'GCF geocode_many() — one lookup per distinct value, and none for garb
 	mock('Geo::Coder::Free::MaxMind', 'geocode', sub {
 		my ($mm, $params) = @_;
 		push @asked, $params->{'location'};
+		# A mock stands in for a backend that reads; geocode_many() counts a
+		# lookup by the reads the backends report, so this mock has to report one
+		# or the two values worth looking up would look like cache hits.
+		$mm->{'reads'}++;
 		return $params->{'location'} =~ /Ramsgate/
 			? Geo::Location::Point->new({ lat => 51.3341, long => -1.4159 })
 			: undef;
@@ -439,7 +443,9 @@ subtest 'GCF geocode_many() — one lookup per distinct value, and none for garb
 	is($batch->{'lookups'},    2, 'and exactly the two worth looking up were counted');
 	is($batch->{'resolved'},   1, 'one distinct value resolved');
 	is($batch->{'unresolved'}, 3, 'the miss and the two refused values did not');
-	is(scalar keys %{$batch},  8, 'four values and the four keys of the answer itself');
+	is($batch->{'reads'}{'MaxMind'}, 2,
+		'the backend that read for them is named, with the reads it made for 401 rows');
+	is(scalar keys %{$batch},  9, 'four values and the five keys of the answer itself');
 
 	_remock_maxmind();
 };
@@ -472,7 +478,7 @@ subtest 'GCF geocode_many() — the dirty column, in the words geocode() uses' =
 	ok(exists($dirty->{''}) && !defined($dirty->{''}),
 		'so is the empty cell: undef and \'\' share one entry');
 	is_deeply([sort keys %{$dirty}],
-		[sort ('', '0044', qw(lookups resolved unresolved unresolved_values))],
+		[sort ('', '0044', qw(lookups reads resolved unresolved unresolved_values))],
 		'and nothing else was invented');
 	is(scalar @{$dirty->{'unresolved_values'}}, 2,
 		'both are listed, which is what the caller records to stop retrying them');
