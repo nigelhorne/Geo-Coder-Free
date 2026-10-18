@@ -26,11 +26,11 @@
 # fails here; the ones that know they need a database report which one is
 # missing and skip, and that has to keep happening.
 #
-# t/bare-environment.pl is what checks the environment is what this file says
+# scripts/bare-environment.pl is what checks the environment is what this file says
 # it is, and prove prints the reason each test gave for skipping a database, so
 # the run below is the evidence as well as the gate.
 #
-#   perl t/bare-environment.pl
+#   perl scripts/bare-environment.pl
 #   EXTENDED_TESTING=1 prove -lr t   (with the environment below)
 
 name: No databases, no optional parsers
@@ -97,7 +97,7 @@ jobs:
           cpanm --notest --no-recommends --installdeps .
 
       - name: Check that no database and no optional parser is here
-        run: perl t/bare-environment.pl
+        run: perl scripts/bare-environment.pl
 
       - name: Run the suite with the optional parsers blocked as well as absent
         run: |

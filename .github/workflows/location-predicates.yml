@@ -1,0 +1,150 @@
+---
+# The runtime half of the location rule, run against the whole workspace.
+#
+# t/location-rule.t reads the six sibling geocoders' source and fails when one of
+# them spells the rule out again, but it cannot see a sibling that has stopped
+# asking the rule while still calling it, or one whose answer diverges on a value
+# the rule is asked about.  scripts/location-predicate-fuzz.pl asks them: it drives
+# each real geocode() with a user agent that dies at the lookup, so it never
+# touches the network, and compares the verdict with
+# Geo::Coder::Free::Validate::_valid_location().
+#
+# It needs all six checkouts beside this distribution - without them the harness
+# exits with a message rather than reporting a skip that looks like agreement -
+# and the layout below is that workspace.  --check is what makes the run a gate:
+# the exit status is non-zero when a sibling's verdict on a scalar or undef
+# differs from the rule's, and the report names the class or the value.
+#
+# A reference disagreement is reported in the report but does not fail the run.
+# The six were changed so that a reference is refused for being a reference, and
+# the gate is deliberately about the question a numeric column asks - a string of
+# digits, the empty string, undef - rather than about the reference classes whose
+# verdict the six get by stringifying.
+#
+# The schedule is what catches drift: a sibling released with its own copy of the
+# rule, or with its predicate moved after some other check, disagrees here while
+# nothing at all has been pushed to this distribution.
+name: Location predicates
+
+on:
+  schedule:
+    # Daily: the drift this looks for is a change in one of the six, not in this
+    # repository, so it can appear on any day this was not pushed to.
+    - cron: '7 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    name: The six siblings against the rule, on Perl 5.40
+    steps:
+      - name: Check out this distribution at the commit under test
+        uses: actions/checkout@v7
+        with:
+          path: workspace/Geo-Coder-Free
+
+      - name: Check out Geo-Coder-CA
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-CA
+          path: workspace/Geo-Coder-CA
+          # The default token reads public repositories; set WORKSPACE_TOKEN
+          # only if one of the siblings is private.
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-DataScienceToolkit
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-DataScienceToolkit
+          path: workspace/Geo-Coder-DataScienceToolkit
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-GeoApify
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-GeoApify
+          path: workspace/Geo-Coder-GeoApify
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-List
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-List
+          path: workspace/Geo-Coder-List
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-Postcodes
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-Postcodes
+          path: workspace/Geo-Coder-Postcodes
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      - name: Check out Geo-Coder-XYZ
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Coder-XYZ
+          path: workspace/Geo-Coder-XYZ
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
+
+      # The harness says which checkout is missing, but only after the job has
+      # spent time on it; this says it first, and a checkout that silently failed
+      # would otherwise look like a fuzz that found nothing.
+      - name: Check that the workspace is there
+        shell: bash
+        run: |
+          set -eu
+          for dist in Geo-Coder-Free Geo-Coder-CA Geo-Coder-DataScienceToolkit \
+            Geo-Coder-GeoApify Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+            if [ ! -d "workspace/$dist/lib" ]; then
+              echo "::error::workspace/$dist was not checked out"
+              exit 1
+            fi
+          done
+          ls -1 workspace
+
+      - name: Setup Perl
+        uses: shogo82148/actions-setup-perl@v1.44.0
+        with:
+          perl-version: '5.40'
+
+      # What the six modules load.  Their own declared prerequisites are not used
+      # here: each of them requires Geo::Coder::Free::Validate, which is this
+      # checkout and not a distribution on CPAN of its own, so --installdeps would
+      # either install the released Geo::Coder::Free or fail to find the module.
+      # Nothing is installed from the six either - the harness puts each
+      # checkout's lib/ on @INC itself.
+      - name: Install what the six load
+        shell: bash
+        run: |
+          set -eu
+          cpanm --notest --quiet \
+            CHI HTML::Entities HTTP::Request JSON::MaybeXS LWP::UserAgent \
+            LWP::Protocol::https Object::Configure Params::Get \
+            Params::Validate::Strict Readonly URI
+
+      - name: Run the fuzz
+        working-directory: workspace/Geo-Coder-Free
+        shell: bash
+        run: |
+          set -u
+          status=0
+          # The report is Markdown, so it goes to the job summary as well: the
+          # class or the value a sibling stopped agreeing on is the whole
+          # finding, and it should not have to be read out of a log that has
+          # scrolled away.  The failures themselves go to stderr, which stays in
+          # the log.
+          perl scripts/location-predicate-fuzz.pl --iterations 20000 --check \
+            > "$RUNNER_TEMP/location-predicates.md" \
+            2> "$RUNNER_TEMP/location-predicates.err" || status=$?
+          cat "$RUNNER_TEMP/location-predicates.md" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/location-predicates.err" >&2
+          exit "$status"

@@ -9,6 +9,26 @@ Revision history for Geo-Coder-Free
 	prerequisite of each, so the scan is a guard against a copy coming back rather
 	than a description of six copies that exist.  A sibling that is not in the
 	workspace is reported and skipped, so a standalone install still runs.
+	scripts/location-predicate-fuzz.pl is the runtime half of that scan: it drives each
+	of the six's real geocode() with a user agent that dies at the lookup, so it
+	never touches the network, and compares the verdict with the rule in
+	Validate.pm.  It now works out which workspace it is in from its own path,
+	rather than having to be run from the directory the checkouts are in, and it has
+	a --check mode for a build: the exit status is non-zero when a sibling's verdict
+	on a scalar or undef differs from the rule's, and the run names the class or the
+	value.  The new scheduled job .github/workflows/location-predicates.yml
+	assembles the seven checkouts, fuzzes 20,000 values with --check and puts the
+	report in the job summary, so a sibling that is released with its own copy of
+	the rule - or that lets a string of digits through again - is caught here while
+	nothing has been pushed to this distribution.  A reference disagreement is
+	reported and does not fail the run: the gate is the question a numeric column
+	asks, and leaving the reference classes out of it means it cannot go red on a
+	verdict the six are meant to get by refusing every reference.  That the exit
+	status does that is checked by t/location-predicates.t, which runs the harness
+	on this workspace and then on a copy of it with one sibling's guard replaced -
+	digits no longer refused in one copy, a reference accepted in the other - where
+	the first has to fail and name the sibling, the class and both verdicts, and the
+	second has to pass with the disagreement still reported.
 
 	[ Enhancements ]
 	Geo::Coder::Free::Provenance no longer owns the field-to-accuracy rule.  It

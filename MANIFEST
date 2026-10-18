@@ -47,7 +47,7 @@ t/30-basics.t
 t/accuracy-vocabulary.t
 t/admin1.t
 t/admin2.t
-t/bare-environment.pl
+scripts/bare-environment.pl
 t/bin.t
 t/cities.t
 t/comment-spelling.t
@@ -69,6 +69,7 @@ t/kwalitee.t
 t/links.t
 t/local.t
 t/locales.t
+scripts/location-predicates.t
 t/location-rule.t
 t/logic-reducer.t
 t/manifest.t
