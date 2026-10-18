@@ -9,7 +9,7 @@ package Geo::Coder::Free::Provenance;
 use strict;
 use warnings;
 
-use Geo::Location::Point ();	# Defines the accuracy vocabulary this module speaks
+use Geo::Location::Point 0.19 ();	# Defines the accuracy vocabulary this module speaks
 use Exporter qw(import);
 our @EXPORT_OK = qw(GEOCODER ACCURACY_LEVELS);
 

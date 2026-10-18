@@ -111,6 +111,9 @@ my $root = do {
 	$1;
 };
 
+# The directory holding the sibling distributions, for the scan below.
+my $workspace = File::Spec->catdir($root, File::Spec->updir());
+
 # The check, on source whose answer is known
 # ---------------------------------------------------------------------------
 # The scan is only worth anything if it can tell the rule from code that merely
@@ -261,6 +264,54 @@ foreach my $file(
 	'cgi-bin/page.fcgi',
 ) {
 	ok($scanned{$file}, "$file is one of the files scanned for the rule");
+}
+
+# The sibling geocoders
+# ---------------------------------------------------------------------------
+# The rule is not only this distribution's.  The six geocoders that take a
+# location from a caller - CA, DataScienceToolkit, GeoApify, List, Postcodes and
+# XYZ - refuse what it refuses by calling it, rather than by writing it out
+# again, and they are scanned here with the same spellings so that a copy cannot
+# come back into one of them unnoticed.  A standalone install of this
+# distribution has no siblings beside it, and the section is skipped there.
+
+foreach my $sibling(qw(
+	Geo-Coder-CA
+	Geo-Coder-DataScienceToolkit
+	Geo-Coder-GeoApify
+	Geo-Coder-List
+	Geo-Coder-Postcodes
+	Geo-Coder-XYZ
+)) {
+	my $lib = File::Spec->catdir($workspace, $sibling, 'lib');
+
+	if(!-d $lib) {
+		diag("$sibling is not in this workspace: its copy of the rule is not checked");
+		next;
+	}
+
+	my @modules;
+	find({
+		no_chdir => 1,
+		wanted   => sub {
+			push @modules, $File::Find::name if(-f $_ && /\.pm\z/);
+		},
+	}, $lib);
+
+	ok(scalar(@modules), "$sibling has modules to scan for the rule");
+
+	my @copies;
+	foreach my $path(sort @modules) {
+		my $text = _slurp($path);
+		next unless defined($text);
+
+		push @copies, map { "$path:$_->{'line'}: $_->{'text'}" } @{ _sites(_masked($text)) };
+	}
+
+	is_deeply(\@copies, [], "$sibling asks the rule rather than spelling it out")
+		or diag("    A geocoder that spells the question out has its own answer, which may"
+			. " disagree with this one.\n"
+			. '    Call Geo::Coder::Free::Validate::_valid_location() instead.');
 }
 
 # An exemption that no longer names a site

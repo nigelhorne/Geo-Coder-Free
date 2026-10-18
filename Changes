@@ -1,6 +1,15 @@
 Revision history for Geo-Coder-Free
 
 0.48
+	[ Tests ]
+	t/location-rule.t now scans the six sibling geocoders - CA, DataScienceToolkit,
+	GeoApify, List, Postcodes and XYZ - with the same spellings it uses on this
+	distribution, and fails if one of them spells the rule out again.  They call
+	Geo::Coder::Free::Validate::_valid_location() now that Geo::Coder::Free is a
+	prerequisite of each, so the scan is a guard against a copy coming back rather
+	than a description of six copies that exist.  A sibling that is not in the
+	workspace is reported and skipped, so a standalone install still runs.
+
 	[ Enhancements ]
 	Geo::Coder::Free::Provenance no longer owns the field-to-accuracy rule.  It
 	has moved to Geo::Location::Point::accuracy_for(), beside the vocabulary it

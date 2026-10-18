@@ -333,9 +333,17 @@ if(my $missing = _checker_missing()) {
 	Test::Consumer::Contract::run_consumer_contract(_declaration());
 
 	# The two readers the scanner used to walk past, proved against the real
-	# files rather than the checker's fixtures: ged2map is found although it has
-	# no extension, and Database::BI's reads are found although they start from
-	# a geocode_many() batch.
+	# files rather than the checker's fixtures: ged2map is a program with no
+	# extension, and Database::BI's reads start from a geocode_many() batch.
+	#
+	# What is asserted is that both read results at all, which is what makes
+	# their registration in _declaration() mean something: a registered consumer
+	# is read whether or not discovery found it, so a registration for a file the
+	# scanner cannot see would check nothing.  Which files the scanner walks is
+	# not asserted here: it is private to the checker (it was not until 0.03, and
+	# calling it from this distribution then only worked under a harness, where
+	# Sub::Private bypasses its own check), and the walk itself is proved by the
+	# checker's t/scanner.t.
 	subtest 'the two readers the scanner used to miss are read' => sub {
 		my $contract = Test::Consumer::Contract->new(_declaration());
 
@@ -344,31 +352,28 @@ if(my $missing = _checker_missing()) {
 		plan skip_all => 'the sibling checkouts are not present'
 			unless $contract->workspace_present();
 
-		my %discovered = map { $_ => 1 } $contract->_workspace_sources();
-		ok($discovered{'HTML-Genealogy-Map/ged2map'},
-			'ged2map, an extensionless program, is discovered') or diag(explain(\%discovered));
+		for my $rel (qw(HTML-Genealogy-Map/ged2map Database-BI/lib/Database/BI/Model/Geocode.pm)) {
+			my $raw = _slurp(_workspace_file($rel));
+			ok(defined($raw), "$rel is readable");
 
-		my $batch_file = 'Database-BI/lib/Database/BI/Model/Geocode.pm';
-		ok($discovered{$batch_file}, 'Database::BI\'s batch consumer is discovered')
-			or diag(explain(\%discovered));
-
-		my $raw = _slurp(_workspace_file($batch_file));
-		ok(defined($raw), "$batch_file is readable");
-
-		my @reads = $contract->reads_of_results($contract->strip($raw // ''));
-		cmp_ok(scalar(@reads), '>', 0, "$batch_file yields reads of results")
-			or diag(explain(\@reads));
+			my @reads = $contract->reads_of_results($contract->strip($raw // ''));
+			cmp_ok(scalar(@reads), '>', 0, "$rel yields reads of results")
+				or diag(explain(\@reads));
+		}
 
 		# The mutation: the checker before 0.02 did not know geocode_many() was
 		# a producing method, so neither the batch nor the results taken out of
 		# it were followed.  With that behaviour back, the file has no reads to
 		# check - which is why its registration is only meaningful now.
+		my $batch_file = 'Database-BI/lib/Database/BI/Model/Geocode.pm';
+		my $raw = _slurp(_workspace_file($batch_file));
 		my $blind = Test::Consumer::Contract->new(_declaration(),
 			methods       => [qw(geocode reverse_geocode)],
 			batch_methods => ['nothing_matches_this'],
 		);
-		is(scalar($blind->reads_of_results($blind->strip($raw // ''))), 0,
-			"$batch_file is invisible without batch support");
+		my @blind = $blind->reads_of_results($blind->strip($raw // ''));
+		is(scalar(@blind), 0, "$batch_file is invisible without batch support")
+			or diag(explain(\@blind));
 	};
 
 	# A consumer that discovery can never see, and why its registration matters:
