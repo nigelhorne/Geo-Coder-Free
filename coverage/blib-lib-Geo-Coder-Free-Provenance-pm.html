@@ -20,7 +20,7 @@ https://pjcj.net
 <h1>File Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free/Provenance.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c0">57.1%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c3">100.0%</td></tr>
 </table>
 <div><br/></div>
 <table>
@@ -31,12 +31,13 @@ https://pjcj.net
 <tr><td class="h">5</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># has no provenance there, so an addition to that file lasts only until the next</td></tr>
 <tr><td class="h">6</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># sync with upstream.&nbsp;&nbsp;Everything in this module is specific to this</td></tr>
 <tr><td class="h">7</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># distribution.</td></tr>
-<tr><td class="h">8</td><td colspan="7"></td></tr><tr><td class="h">9</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L9">17</a></div></td><td></td><td><div>23</div><div>10</div><div>118</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">10</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L10">17</a></div></td><td></td><td><div>17</div><div>12</div><div>266</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">11</td><td colspan="7"></td></tr><tr><td class="h">12</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L12">17</a></div></td><td></td><td><div>16</div><div>16</div><div>316</div></td><td class="s">use Exporter qw(import);</td></tr>
-<tr><td class="h">13</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">our @EXPORT_OK = qw(GEOCODER ACCURACY_LEVELS _accuracy_for);</td></tr>
-<tr><td class="h">14</td><td colspan="7"></td></tr><tr><td class="h">15</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">=encoding utf-8</td></tr>
-<tr><td class="h">16</td><td colspan="7"></td></tr><tr><td class="h">17 - 47</td><td colspan="6"></td><td class="s"><pre>=head1 NAME
+<tr><td class="h">8</td><td colspan="7"></td></tr><tr><td class="h">9</td><td><div class="c3">19</div><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L9">19</a></div></td><td></td><td><div>82630</div><div>14</div><div>237</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">10</td><td><div class="c3">19</div><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L10">19</a></div></td><td></td><td><div>27</div><div>11</div><div>346</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">11</td><td colspan="7"></td></tr><tr><td class="h">12</td><td><div class="c3">19</div><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L12">19</a></div></td><td></td><td><div>27</div><div>150</div><div>169</div></td><td class="s">use Geo::Location::Point 0.19 ();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Defines the accuracy vocabulary this module speaks</td></tr>
+<tr><td class="h">13</td><td><div class="c3">19</div><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L13">19</a></div></td><td></td><td><div>24</div><div>12</div><div>572</div></td><td class="s">use Exporter qw(import);</td></tr>
+<tr><td class="h">14</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">our @EXPORT_OK = qw(GEOCODER ACCURACY_LEVELS);</td></tr>
+<tr><td class="h">15</td><td colspan="7"></td></tr><tr><td class="h">16</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">=encoding utf-8</td></tr>
+<tr><td class="h">17</td><td colspan="7"></td></tr><tr><td class="h">18 - 48</td><td colspan="6"></td><td class="s"><pre>=head1 NAME
 
 Geo::Coder::Free::Provenance - The provenance keys that every Geo::Coder::Free result carries
 
@@ -46,38 +47,44 @@ Which distribution and which backend produced a result, how good the match was
 and how precise the coordinate is: the keys of section 2.1 of
 F&lt;BI-Phase6-Dependency-Specs.md&gt;, and the vocabulary they speak.
 
-&nbsp;&nbsp;&nbsp;&nbsp;use Geo::Coder::Free::Provenance qw(GEOCODER _accuracy_for);
+&nbsp;&nbsp;&nbsp;&nbsp;use Geo::Coder::Free::Provenance qw(GEOCODER);
 
 &nbsp;&nbsp;&nbsp;&nbsp;my $point = Geo::Location::Point-&gt;new({
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;geocoder&nbsp;&nbsp;&nbsp;=&gt; GEOCODER,
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database&nbsp;&nbsp;&nbsp;=&gt; &#39;OpenAddresses&#39;,
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;confidence =&gt; 1.0,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accuracy&nbsp;&nbsp;&nbsp;=&gt; _accuracy_for(qw(house_number road city)),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accuracy&nbsp;&nbsp;&nbsp;=&gt; Geo::Location::Point::accuracy_for(qw(house_number road city)),
 &nbsp;&nbsp;&nbsp;&nbsp;});
 
 C&lt;&lt; Geo::Coder::Free-&gt;provenance($point) &gt;&gt; reads the four keys back, so a
 consumer does not have to know them.
 
-These three live here rather than in L&lt;Geo::Coder::Free::Utils&gt; because Utils is
+These two live here rather than in L&lt;Geo::Coder::Free::Utils&gt; because Utils is
 synced from VWF master, where the provenance of a geocoder result has no
 meaning; an addition there would be lost the next time that sync runs.
 
 =head1 VERSION
 
-Version 0.46
+Version 0.48
 
 =cut</pre></td></tr>
-<tr><td class="h">48</td><td colspan="7"></td></tr><tr><td class="h">49</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.46&#39;;</td></tr>
-<tr><td class="h">50</td><td colspan="7"></td></tr><tr><td class="h">51</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># The distribution that produced a result.&nbsp;&nbsp;Every backend stamps this on the</td></tr>
-<tr><td class="h">52</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># Geo::Location::Point it hands back, so a consumer can tell a result from this</td></tr>
-<tr><td class="h">53</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># distribution from one passed on by a wrapper such as Geo::Coder::List.</td></tr>
-<tr><td class="h">54</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># Section 2.1 of BI-Phase6-Dependency-Specs.md.</td></tr>
-<tr><td class="h">55</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L55">17</a></div></td><td></td><td><div>19</div><div>20</div><div>441</div></td><td class="s">use constant GEOCODER =&gt; &#39;Geo::Coder::Free&#39;;</td></tr>
-<tr><td class="h">56</td><td colspan="7"></td></tr><tr><td class="h">57</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># How precise the coordinates behind a match can claim to be, most precise</td></tr>
-<tr><td class="h">58</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># first.&nbsp;&nbsp;_accuracy_for() returns one of these, and anything that validates an</td></tr>
-<tr><td class="h">59</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># accuracy (section 3.2) validates against this list.</td></tr>
-<tr><td class="h">60</td><td><div class="c3">17</div><div class="c3">17</div><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L60">17</a></div></td><td></td><td><div>32</div><div>9</div><div>1067</div></td><td class="s">use constant ACCURACY_LEVELS =&gt; [qw(address street postcode locality city region country)];</td></tr>
-<tr><td class="h">61</td><td colspan="7"></td></tr><tr><td class="h">62 - 91</td><td colspan="6"></td><td class="s"><pre>=head1 SUBROUTINES/METHODS
+<tr><td class="h">49</td><td colspan="7"></td></tr><tr><td class="h">50</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.48&#39;;</td></tr>
+<tr><td class="h">51</td><td colspan="7"></td></tr><tr><td class="h">52</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># The distribution that produced a result.&nbsp;&nbsp;Every backend stamps this on the</td></tr>
+<tr><td class="h">53</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># Geo::Location::Point it hands back, so a consumer can tell a result from this</td></tr>
+<tr><td class="h">54</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># distribution from one passed on by a wrapper such as Geo::Coder::List.</td></tr>
+<tr><td class="h">55</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># Section 2.1 of BI-Phase6-Dependency-Specs.md.</td></tr>
+<tr><td class="h">56</td><td><div class="c3">19</div><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L56">19</a></div></td><td></td><td><div>30</div><div>12</div><div>523</div></td><td class="s">use constant GEOCODER =&gt; &#39;Geo::Coder::Free&#39;;</td></tr>
+<tr><td class="h">57</td><td colspan="7"></td></tr><tr><td class="h">58</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># How precise the coordinates behind a match can claim to be, most precise</td></tr>
+<tr><td class="h">59</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># first.&nbsp;&nbsp;Geo::Location::Point::accuracy_for() returns one of these, and anything</td></tr>
+<tr><td class="h">60</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># that validates an accuracy (section 3.2) validates against this list.</td></tr>
+<tr><td class="h">61</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">#</td></tr>
+<tr><td class="h">62</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># The vocabulary is not written down here.&nbsp;&nbsp;Geo::Location::Point defines it and</td></tr>
+<tr><td class="h">63</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># refuses an accuracy outside it, so this module reads that one list: the levels</td></tr>
+<tr><td class="h">64</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># a backend reports and the levels a point accepts cannot drift apart, and this</td></tr>
+<tr><td class="h">65</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># constant is the same list object rather than a copy that agrees today.&nbsp;&nbsp;The</td></tr>
+<tr><td class="h">66</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># rule that turns matched fields into a level lives there too, with the list.</td></tr>
+<tr><td class="h">67</td><td><div class="c3">19</div><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L67">19</a></div></td><td></td><td><div>29</div><div>12</div><div>30</div></td><td class="s">use constant ACCURACY_LEVELS =&gt; Geo::Location::Point::ACCURACY_LEVELS();</td></tr>
+<tr><td class="h">68</td><td colspan="7"></td></tr><tr><td class="h">69 - 92</td><td colspan="6"></td><td class="s"><pre>=head1 SUBROUTINES/METHODS
 
 =head2 GEOCODER
 
@@ -90,35 +97,18 @@ came from OpenAddresses, Local or MaxMind.
 A list of the accuracies a result may claim, most precise first: C&lt;address&gt;,
 C&lt;street&gt;, C&lt;postcode&gt;, C&lt;locality&gt;, C&lt;city&gt;, C&lt;region&gt; and C&lt;country&gt;.
 
-=head2 _accuracy_for
+It is C&lt;Geo::Location::Point::ACCURACY_LEVELS()&gt;, the list that module
+validates an accuracy against, re-exported here so that a backend can describe
+the match it made without knowing which module the vocabulary is defined in.
+There is one list behind both names, not a copy of it.
 
-The precision a match can claim, from the fields that made it.&nbsp;&nbsp;The most
-precise field present decides: a house number makes it an C&lt;address&gt;, a road a
-C&lt;street&gt;, a postcode a C&lt;postcode&gt;, a name or a city a C&lt;locality&gt;, a state or
-region a C&lt;region&gt;, and a country a C&lt;country&gt;.&nbsp;&nbsp;So a dataset row carrying only
-a city, state and country is a C&lt;locality&gt;, which is what the geographic centres
-C&lt;Local.pm&gt; derives are.
-
-Always returns one of the C&lt;ACCURACY_LEVELS&gt;: a match on a row with none of the
-fields above is still a named place, so it is reported as a C&lt;locality&gt; rather
-than left unsaid, because every result promises an accuracy.
-
-Exported so that a backend can describe the match it made without repeating the
-vocabulary.
+The rule that turns the fields a match was made on into one of these levels is
+C&lt;Geo::Location::Point::accuracy_for()&gt;, which lives beside the list it returns
+a level from.&nbsp;&nbsp;This module reports the C&lt;accuracy&gt; key; it does not decide what
+the key may hold.
 
 =cut</pre></td></tr>
-<tr><td class="h">92</td><td colspan="7"></td></tr><tr><td class="h">93</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _accuracy_for {</td></tr>
-<tr><td class="h">94</td><td><div class="c3">32</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--subroutine.html#L94">32</a></div></td><td></td><td><div>45</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @fields = @_;</td></tr>
-<tr><td class="h">95</td><td colspan="7"></td></tr><tr><td class="h">96</td><td><div class="c3">32</div><div class="c3">352</div></td><td></td><td></td><td></td><td></td><td><div>27</div><div>231</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my %field = map { lc($_) =&gt; 1 } @fields;</td></tr>
-<tr><td class="h">97</td><td colspan="7"></td></tr><tr><td class="h">98</td><td><div class="c3">32</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--branch.html#L98">100</a></div></td><td><div class="c0"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--condition.html#L98">67</a></div></td><td></td><td></td><td><div>132</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;address&#39;&nbsp;&nbsp;if($field{&#39;house_number&#39;} || $field{&#39;number&#39;});</td></tr>
-<tr><td class="h">99</td><td><div class="c3">10</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--branch.html#L99">100</a></div></td><td><div class="c0"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--condition.html#L99">67</a></div></td><td></td><td></td><td><div>28</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;street&#39;&nbsp;&nbsp;&nbsp;if($field{&#39;road&#39;} || $field{&#39;street&#39;});</td></tr>
-<tr><td class="h">100</td><td><div class="c3">7</div></td><td><div class="c0" title="-/F"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--branch.html#L100">50</a></div></td><td><div class="c0"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--condition.html#L100">25</a></div></td><td></td><td></td><td><div>22</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;postcode&#39; if($field{&#39;postcode&#39;} || $field{&#39;post_code&#39;} || $field{&#39;zip&#39;});</td></tr>
-<tr><td class="h">101</td><td><div class="c3">7</div></td><td><div class="c0" title="-/-"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--branch.html#L101">0</a></div></td><td><div class="c0"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--condition.html#L101">25</a></div></td><td></td><td></td><td><div>18</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;locality&#39; if($field{&#39;city&#39;} || $field{&#39;town&#39;} || $field{&#39;name&#39;});</td></tr>
-<tr><td class="h">102</td><td><div class="c0">0</div></td><td><div class="c0" title="-/-"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--branch.html#L102">0</a></div></td><td><div class="c0"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--condition.html#L102">0</a></div></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;region&#39;&nbsp;&nbsp;&nbsp;if($field{&#39;state&#39;} || $field{&#39;state_district&#39;} || $field{&#39;county&#39;} || $field{&#39;region&#39;});</td></tr>
-<tr><td class="h">103</td><td><div class="c0">0</div></td><td><div class="c0" title="-/-"><a href="blib-lib-Geo-Coder-Free-Provenance-pm--branch.html#L103">0</a></div></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;country&#39;&nbsp;&nbsp;if($field{&#39;country&#39;});</td></tr>
-<tr><td class="h">104</td><td colspan="7"></td></tr><tr><td class="h">105</td><td><div class="c0">0</div></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &#39;locality&#39;;</td></tr>
-<tr><td class="h">106</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">107</td><td colspan="7"></td></tr><tr><td class="h">108</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
-<tr><td class="h">109</td><td colspan="7"></td></tr></table>
+<tr><td class="h">93</td><td colspan="7"></td></tr><tr><td class="h">94</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
+<tr><td class="h">95</td><td colspan="7"></td></tr></table>
 </body>
 </html>

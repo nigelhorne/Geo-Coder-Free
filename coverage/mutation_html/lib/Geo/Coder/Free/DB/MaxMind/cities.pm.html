@@ -351,18 +351,18 @@ Approximate LCSAJ segments: 1<br>
 </span><span class="">   10: 
 </span><span class="">   11: =head1 VERSION
 </span><span class="">   12: 
-</span><span class="">   13: Version 0.46
+</span><span class="">   13: Version 0.48
 </span><span class="">   14: 
 </span><span class="">   15: =cut
 </span><span class="">   16: 
-</span><span class="">   17: our $VERSION = &#39;0.46&#39;;
+</span><span class="">   17: our $VERSION = &#39;0.48&#39;;
 </span><span class="">   18: 
 </span><span class="">   19: use parent &#39;Database::Abstraction&#39;;
 </span><span class="">   20: 
 </span><span class="">   21: sub _open {
 </span><span class="">   22: 	my $self = shift;
 </span><span class="">   23: 
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">   24: 	return $self-&gt;SUPER::_open(sep_char =&gt; &#39;,&#39;);
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">   24: 	return $self-&gt;SUPER::_open(sep_char =&gt; &#39;,&#39;);
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>

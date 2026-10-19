@@ -293,10 +293,10 @@ a.intra-dot:hover { color: #7700bb; }
 <div class="nav"><a href="DB/vwf_log.pm.html">⬅ Previous</a> <a href="../../../../../index.html">Index</a>
  <a href="Utils.pm.html">Next ➡</a></div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
-TER1 (Statement): 88.00%<br>
-TER2 (Branch): 41.67%<br>
+TER1 (Statement): 100.00%<br>
+TER2 (Branch): 0%<br>
 TER3 (LCSAJ): -<br>
-Approximate LCSAJ segments: 13<br>
+Approximate LCSAJ segments: 1<br>
 </div>
 
     <div class="legend">
@@ -350,94 +350,94 @@ Approximate LCSAJ segments: 13<br>
 </span><span class="">    9: use strict;
 </span><span class="">   10: use warnings;
 </span><span class="">   11: 
-</span><span class="">   12: use Exporter qw(import);
-</span><span class="">   13: our @EXPORT_OK = qw(GEOCODER ACCURACY_LEVELS _accuracy_for);
-</span><span class="">   14: 
-</span><span class="">   15: =encoding utf-8
-</span><span class="">   16: 
-</span><span class="">   17: =head1 NAME
-</span><span class="">   18: 
-</span><span class="">   19: Geo::Coder::Free::Provenance - The provenance keys that every Geo::Coder::Free result carries
-</span><span class="">   20: 
-</span><span class="">   21: =head1 DESCRIPTION
-</span><span class="">   22: 
-</span><span class="">   23: Which distribution and which backend produced a result, how good the match was
-</span><span class="">   24: and how precise the coordinate is: the keys of section 2.1 of
-</span><span class="">   25: F&lt;BI-Phase6-Dependency-Specs.md&gt;, and the vocabulary they speak.
-</span><span class="">   26: 
-</span><span class="">   27:     use Geo::Coder::Free::Provenance qw(GEOCODER _accuracy_for);
-</span><span class="">   28: 
-</span><span class="">   29:     my $point = Geo::Location::Point-&gt;new({
-</span><span class="">   30:         geocoder   =&gt; GEOCODER,
-</span><span class="">   31:         database   =&gt; &#39;OpenAddresses&#39;,
-</span><span class="">   32:         confidence =&gt; 1.0,
-</span><span class="">   33:         accuracy   =&gt; _accuracy_for(qw(house_number road city)),
-</span><span class="">   34:     });
-</span><span class="">   35: 
-</span><span class="">   36: C&lt;&lt; Geo::Coder::Free-&gt;provenance($point) &gt;&gt; reads the four keys back, so a
-</span><span class="">   37: consumer does not have to know them.
-</span><span class="">   38: 
-</span><span class="">   39: These three live here rather than in L&lt;Geo::Coder::Free::Utils&gt; because Utils is
-</span><span class="">   40: synced from VWF master, where the provenance of a geocoder result has no
-</span><span class="">   41: meaning; an addition there would be lost the next time that sync runs.
-</span><span class="">   42: 
-</span><span class="">   43: =head1 VERSION
-</span><span class="">   44: 
-</span><span class="">   45: Version 0.46
-</span><span class="">   46: 
-</span><span class="">   47: =cut
-</span><span class="">   48: 
-</span><span class="">   49: our $VERSION = &#39;0.46&#39;;
-</span><span class="">   50: 
-</span><span class="">   51: # The distribution that produced a result.  Every backend stamps this on the
-</span><span class="">   52: # Geo::Location::Point it hands back, so a consumer can tell a result from this
-</span><span class="">   53: # distribution from one passed on by a wrapper such as Geo::Coder::List.
-</span><span class="">   54: # Section 2.1 of BI-Phase6-Dependency-Specs.md.
-</span><span class="">   55: use constant GEOCODER =&gt; &#39;Geo::Coder::Free&#39;;
-</span><span class="">   56: 
-</span><span class="">   57: # How precise the coordinates behind a match can claim to be, most precise
-</span><span class="">   58: # first.  _accuracy_for() returns one of these, and anything that validates an
-</span><span class="">   59: # accuracy (section 3.2) validates against this list.
-</span><span class="">   60: use constant ACCURACY_LEVELS =&gt; [qw(address street postcode locality city region country)];
-</span><span class="">   61: 
-</span><span class="">   62: =head1 SUBROUTINES/METHODS
-</span><span class="">   63: 
-</span><span class="">   64: =head2 GEOCODER
-</span><span class="">   65: 
-</span><span class="">   66: The distribution that produced a result: C&lt;Geo::Coder::Free&gt;.  It is the
-</span><span class="">   67: C&lt;geocoder&gt; key of every result this distribution returns, whether the answer
-</span><span class="">   68: came from OpenAddresses, Local or MaxMind.
-</span><span class="">   69: 
-</span><span class="">   70: =head2 ACCURACY_LEVELS
-</span><span class="">   71: 
-</span><span class="">   72: A list of the accuracies a result may claim, most precise first: C&lt;address&gt;,
-</span><span class="">   73: C&lt;street&gt;, C&lt;postcode&gt;, C&lt;locality&gt;, C&lt;city&gt;, C&lt;region&gt; and C&lt;country&gt;.
-</span><span class="">   74: 
-</span><span class="">   75: =head2 _accuracy_for
+</span><span class="">   12: use Geo::Location::Point 0.19 ();	# Defines the accuracy vocabulary this module speaks
+</span><span class="">   13: use Exporter qw(import);
+</span><span class="">   14: our @EXPORT_OK = qw(GEOCODER ACCURACY_LEVELS);
+</span><span class="">   15: 
+</span><span class="">   16: =encoding utf-8
+</span><span class="">   17: 
+</span><span class="">   18: =head1 NAME
+</span><span class="">   19: 
+</span><span class="">   20: Geo::Coder::Free::Provenance - The provenance keys that every Geo::Coder::Free result carries
+</span><span class="">   21: 
+</span><span class="">   22: =head1 DESCRIPTION
+</span><span class="">   23: 
+</span><span class="">   24: Which distribution and which backend produced a result, how good the match was
+</span><span class="">   25: and how precise the coordinate is: the keys of section 2.1 of
+</span><span class="">   26: F&lt;BI-Phase6-Dependency-Specs.md&gt;, and the vocabulary they speak.
+</span><span class="">   27: 
+</span><span class="">   28:     use Geo::Coder::Free::Provenance qw(GEOCODER);
+</span><span class="">   29: 
+</span><span class="">   30:     my $point = Geo::Location::Point-&gt;new({
+</span><span class="">   31:         geocoder   =&gt; GEOCODER,
+</span><span class="">   32:         database   =&gt; &#39;OpenAddresses&#39;,
+</span><span class="">   33:         confidence =&gt; 1.0,
+</span><span class="">   34:         accuracy   =&gt; Geo::Location::Point::accuracy_for(qw(house_number road city)),
+</span><span class="">   35:     });
+</span><span class="">   36: 
+</span><span class="">   37: C&lt;&lt; Geo::Coder::Free-&gt;provenance($point) &gt;&gt; reads the four keys back, so a
+</span><span class="">   38: consumer does not have to know them.
+</span><span class="">   39: 
+</span><span class="">   40: These two live here rather than in L&lt;Geo::Coder::Free::Utils&gt; because Utils is
+</span><span class="">   41: synced from VWF master, where the provenance of a geocoder result has no
+</span><span class="">   42: meaning; an addition there would be lost the next time that sync runs.
+</span><span class="">   43: 
+</span><span class="">   44: =head1 VERSION
+</span><span class="">   45: 
+</span><span class="">   46: Version 0.48
+</span><span class="">   47: 
+</span><span class="">   48: =cut
+</span><span class="">   49: 
+</span><span class="">   50: our $VERSION = &#39;0.48&#39;;
+</span><span class="">   51: 
+</span><span class="">   52: # The distribution that produced a result.  Every backend stamps this on the
+</span><span class="">   53: # Geo::Location::Point it hands back, so a consumer can tell a result from this
+</span><span class="">   54: # distribution from one passed on by a wrapper such as Geo::Coder::List.
+</span><span class="">   55: # Section 2.1 of BI-Phase6-Dependency-Specs.md.
+</span><span class="">   56: use constant GEOCODER =&gt; &#39;Geo::Coder::Free&#39;;
+</span><span class="">   57: 
+</span><span class="">   58: # How precise the coordinates behind a match can claim to be, most precise
+</span><span class="">   59: # first.  Geo::Location::Point::accuracy_for() returns one of these, and anything
+</span><span class="">   60: # that validates an accuracy (section 3.2) validates against this list.
+</span><span class="">   61: #
+</span><span class="">   62: # The vocabulary is not written down here.  Geo::Location::Point defines it and
+</span><span class="">   63: # refuses an accuracy outside it, so this module reads that one list: the levels
+</span><span class="">   64: # a backend reports and the levels a point accepts cannot drift apart, and this
+</span><span class="">   65: # constant is the same list object rather than a copy that agrees today.  The
+</span><span class="">   66: # rule that turns matched fields into a level lives there too, with the list.
+</span><span class="">   67: use constant ACCURACY_LEVELS =&gt; Geo::Location::Point::ACCURACY_LEVELS();
+</span><span class="">   68: 
+</span><span class="">   69: =head1 SUBROUTINES/METHODS
+</span><span class="">   70: 
+</span><span class="">   71: =head2 GEOCODER
+</span><span class="">   72: 
+</span><span class="">   73: The distribution that produced a result: C&lt;Geo::Coder::Free&gt;.  It is the
+</span><span class="">   74: C&lt;geocoder&gt; key of every result this distribution returns, whether the answer
+</span><span class="">   75: came from OpenAddresses, Local or MaxMind.
 </span><span class="">   76: 
-</span><span class="">   77: The precision a match can claim, from the fields that made it.  The most
-</span><span class="">   78: precise field present decides: a house number makes it an C&lt;address&gt;, a road a
-</span><span class="">   79: C&lt;street&gt;, a postcode a C&lt;postcode&gt;, a name or a city a C&lt;locality&gt;, a state or
-</span><span class="">   80: region a C&lt;region&gt;, and a country a C&lt;country&gt;.  So a dataset row carrying only
-</span><span class="">   81: a city, state and country is a C&lt;locality&gt;, which is what the geographic centres
-</span><span class="">   82: C&lt;Local.pm&gt; derives are.
-</span><span class="">   83: 
-</span><span class="">   84: Always returns one of the C&lt;ACCURACY_LEVELS&gt;: a match on a row with none of the
-</span><span class="">   85: fields above is still a named place, so it is reported as a C&lt;locality&gt; rather
-</span><span class="">   86: than left unsaid, because every result promises an accuracy.
-</span><span class="">   87: 
-</span><span class="">   88: Exported so that a backend can describe the match it made without repeating the
-</span><span class="">   89: vocabulary.
-</span><span class="">   90: 
-</span><span class="">   91: =cut
-</span><span class="">   92: 
-</span><span class="">   93: sub _accuracy_for {
-</span><span class="">   94: 	my @fields = @_;
+</span><span class="">   77: =head2 ACCURACY_LEVELS
+</span><span class="">   78: 
+</span><span class="">   79: A list of the accuracies a result may claim, most precise first: C&lt;address&gt;,
+</span><span class="">   80: C&lt;street&gt;, C&lt;postcode&gt;, C&lt;locality&gt;, C&lt;city&gt;, C&lt;region&gt; and C&lt;country&gt;.
+</span><span class="">   81: 
+</span><span class="">   82: It is C&lt;Geo::Location::Point::ACCURACY_LEVELS()&gt;, the list that module
+</span><span class="">   83: validates an accuracy against, re-exported here so that a backend can describe
+</span><span class="">   84: the match it made without knowing which module the vocabulary is defined in.
+</span><span class="">   85: There is one list behind both names, not a copy of it.
+</span><span class="">   86: 
+</span><span class="">   87: The rule that turns the fields a match was made on into one of these levels is
+</span><span class="">   88: C&lt;Geo::Location::Point::accuracy_for()&gt;, which lives beside the list it returns
+</span><span class="">   89: a level from.  This module reports the C&lt;accuracy&gt; key; it does not decide what
+</span><span class="">   90: the key may hold.
+</span><span class="">   91: 
+</span><span class="">   92: =cut
+</span><span class="">   93: 
+</span><span class="">   94: 1;
 </span><span class="">   95: 
-</span><span class="">   96: 	my %field = map { lc($_) =&gt; 1 } @fields;
+</span><span class="">   96: __END__
 </span><span class="">   97: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">   98: 	return &#39;address&#39;  if($field{&#39;house_number&#39;} || $field{&#39;number&#39;});
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">   99: 	return &#39;street&#39;   if($field{&#39;road&#39;} || $field{&#39;street&#39;});
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">   98: =head1 AUTHOR
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">   99: 
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -459,7 +459,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </pre>
 								</div>
 							</li></ul></details>
-<span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  100: 	return &#39;postcode&#39; if($field{&#39;postcode&#39;} || $field{&#39;post_code&#39;} || $field{&#39;zip&#39;});
+<span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  100: Nigel Horne, C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -481,8 +481,8 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </pre>
 								</div>
 							</li></ul></details>
-<span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  101: 	return &#39;locality&#39; if($field{&#39;city&#39;} || $field{&#39;town&#39;} || $field{&#39;name&#39;});
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  102: 	return &#39;region&#39;   if($field{&#39;state&#39;} || $field{&#39;state_district&#39;} || $field{&#39;county&#39;} || $field{&#39;region&#39;});
+<span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  101: 
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  102: =head1 LICENSE AND COPYRIGHT
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -504,7 +504,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </pre>
 								</div>
 							</li></ul></details>
-<span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  103: 	return &#39;country&#39;  if($field{&#39;country&#39;});
+<span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  103: 
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -526,8 +526,8 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </pre>
 								</div>
 							</li></ul></details>
-<span class="">  104: 
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  105: 	return &#39;locality&#39;;
+<span class="">  104: Copyright 2017-2026 Nigel Horne.
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  105: 
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -549,22 +549,8 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </pre>
 								</div>
 							</li></ul></details>
-<span class="">  106: }
-</span><span class="">  107: 
-</span><span class="">  108: 1;
-</span><span class="">  109: 
-</span><span class="">  110: __END__
-</span><span class="">  111: 
-</span><span class="">  112: =head1 AUTHOR
-</span><span class="">  113: 
-</span><span class="">  114: Nigel Horne, C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;
-</span><span class="">  115: 
-</span><span class="">  116: =head1 LICENSE AND COPYRIGHT
-</span><span class="">  117: 
-</span><span class="">  118: Copyright 2017-2026 Nigel Horne.
-</span><span class="">  119: 
-</span><span class="">  120: This program is free software; you can redistribute it and/or modify it under
-</span><span class="">  121: the terms of the GNU General Public License, version 2.
+<span class="">  106: This program is free software; you can redistribute it and/or modify it under
+</span><span class="">  107: the terms of the GNU General Public License, version 2.
 </span></pre>
 
 <script>
