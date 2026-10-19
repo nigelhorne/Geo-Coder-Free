@@ -189,7 +189,10 @@ subtest 'Local does not search the dataset twice for the same miss' => sub {
 	$Cache->clear();
 
 	my $local = Geo::Coder::Free::Local->new();
-	my $location = 'No Such Road, No Such Town, GB';
+	# Four parts, so the last-resort "road, city, state, country" search is
+	# reached.  With three, only the optional Geo::Address::Parser searches,
+	# and without it (bare.yml) the miss is recorded having read nothing.
+	my $location = 'No Such Road, No Such Town, Kent, GB';
 
 	is($local->geocode(location => $location), undef, 'the address is not in the dataset');
 	my $first = $local->reads();
