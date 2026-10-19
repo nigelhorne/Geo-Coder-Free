@@ -1,1 +1,1 @@
-{"lib/Geo/Coder/Free/Local.pm":[{"match_line":"229","start":"741","end":750,"match_file":"lib/Geo/Coder/Free.pm"}],"lib/Geo/Coder/Free.pm":[{"match_file":"lib/Geo/Coder/Free/Local.pm","end":238,"start":"229","match_line":"741"}]}
+{"lib/Geo/Coder/Free.pm":[{"start":"229","match_file":"lib/Geo/Coder/Free/Local.pm","match_line":"741","end":238}],"lib/Geo/Coder/Free/Local.pm":[{"match_line":"229","end":750,"match_file":"lib/Geo/Coder/Free.pm","start":"741"}]}
