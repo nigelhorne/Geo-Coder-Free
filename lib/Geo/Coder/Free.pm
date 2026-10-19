@@ -11,7 +11,7 @@ use Geo::Coder::Free::MissCache;
 use Geo::Coder::Free::MaxMind;
 use Geo::Coder::Free::OpenAddresses;
 use Geo::Coder::Free::Utils qw(_abbreviate _normalize);
-use Geo::Coder::Free::Validate qw(_valid_location);
+use Geo::Location::Predicate qw(_valid_location);
 use Object::Configure;
 use Params::Get;
 use Readonly;
@@ -287,7 +287,7 @@ It is the public form of the rule C<geocode()> applies before it touches a
 backend, so a caller working down a spreadsheet column can skip a row whose
 value is a bare number - or is empty - instead of catching the croak that
 would otherwise kill the whole run.  That rule is defined once, in
-L<Geo::Coder::Free::Validate>, and the backends apply it too: what
+L<Geo::Location::Predicate>, and the backends apply it too: what
 C<valid_location()> refuses is refused wherever it is looked up.
 
 Only that cheap syntactic test is answered.  A true result means the string is
@@ -483,7 +483,7 @@ sub geocode {
 		unless $on_error eq 'croak' || $on_error eq 'undef';
 
 	# Reject pure-numeric inputs early — they are never valid addresses.
-	# The rule is Geo::Coder::Free::Validate's, the same one the backends
+	# The rule is Geo::Location::Predicate's, the same one the backends
 	# apply, and valid_location() answers it in public, so a caller can
 	# pre-filter with it and never reach this croak at all.
 	if (defined($params{'location'}) && !_valid_location($params{'location'})) {
@@ -1088,7 +1088,7 @@ sub run {
 # -----------------------------------------------------------------------
 
 # The rule geocode() rejects on - whether a string could be a location at all -
-# is defined in Geo::Coder::Free::Validate, and imported above.  It is not
+# is defined in Geo::Location::Predicate, and imported above.  It is not
 # written out here as well: the backends ask the same question of what a caller
 # hands them, so one definition is what keeps valid_location(), the guard that
 # croaks and the backends from disagreeing about it.
@@ -1158,7 +1158,7 @@ sub _resolve_scan_candidates {
 # Purpose:  Slide a window of $n words across $text and return all comma-joined
 #           n-grams, excluding pure-numeric tokens and stopwords.  A token of
 #           digits only is not a word of a place name, which is the question
-#           Geo::Coder::Free::Validate::_valid_location() answers, so it is asked
+#           Geo::Location::Predicate::_valid_location() answers, so it is asked
 #           there rather than spelled out here (t/location-rule.t fails if the
 #           rule is written out again).
 #           Replaces the former _find_word_triplets ($n=3) and

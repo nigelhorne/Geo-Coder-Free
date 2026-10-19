@@ -36,17 +36,21 @@ lib/Geo/Coder/Free/OpenAddresses.pm
 lib/Geo/Coder/Free/Provenance.pm
 lib/Geo/Coder/Free/Utils.pm
 LICENSE
+LOCATION-PREDICATE-FUZZ.md
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 README.md
+scripts/bare-environment.pl
+scripts/location-predicate-fuzz.pl
+scripts/make_db_force
+scripts/make_db_force_debug
 t/00-load.t
 t/10-new.t
 t/30-basics.t
 t/accuracy-vocabulary.t
 t/admin1.t
 t/admin2.t
-scripts/bare-environment.pl
 t/bin.t
 t/cities.t
 t/comment-spelling.t
@@ -68,7 +72,7 @@ t/kwalitee.t
 t/links.t
 t/local.t
 t/locales.t
-scripts/location-predicate-fuzz.pl
+t/location-fuzz-doc.t
 t/location-predicates.t
 t/location-rule.t
 t/logic-reducer.t

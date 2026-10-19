@@ -1,7 +1,7 @@
 #!perl -w
 
 # The location rule - what could be a location at all - is answered in one place:
-# Geo::Coder::Free::Validate::_valid_location(), which says false for undef, the
+# Geo::Location::Predicate::_valid_location(), which says false for undef, the
 # empty string, a reference and a string of digits only, and true for anything
 # else.  Geo::Coder::Free::valid_location() is its public spelling, and the
 # facade and both backends import the sub rather than keeping a copy of it
@@ -9,14 +9,14 @@
 #
 # That they share one sub today is checked elsewhere: t/edge_cases.t and
 # t/function.t compare the reference of each package's _valid_location with the
-# one in Validate.pm.  A copy written out again is a different sub, so those
+# one in Geo::Location::Predicate.  A copy written out again is a different sub, so those
 # comparisons pass over it: a renamed copy, or the guard typed straight into a
 # caller, has its own regex and nothing notices the second answer.
 #
 # This test reads the source instead.  It scans every module under lib/, every
 # script under bin/ and every program under cgi-bin/, and fails when the rule's
 # question is spelled out anywhere in this tree.  There is no home file to allow:
-# the rule is shipped by Geo-Coder-Free-Validate, a distribution of its own that
+# the rule is shipped by Geo-Location-Predicate, a distribution of its own that
 # this one depends on, so a spelling here is a copy of it.  POD, whole-line
 # comments and anything after __END__/__DATA__ are masked, so prose that
 # describes the rule is not read as a copy of it.
@@ -49,12 +49,12 @@ use File::Spec;
 use FindBin qw($Bin);
 use Test::Most;
 
-# The rule is shipped by a distribution of its own now, Geo-Coder-Free-Validate,
+# The rule is shipped by a distribution of its own now, Geo-Location-Predicate,
 # so this test has no home file to allow: a spelling of the rule anywhere in
 # this tree is a copy.  What it still checks is that the rule is reachable and,
 # when the sibling checkout is here, that it is that checkout's file answering
 # rather than an installed copy that could be older.
-my $RULE_DIST = 'Geo-Coder-Free-Validate';
+my $RULE_DIST = 'Geo-Location-Predicate';
 my $RULE_SUB  = '_valid_location';
 
 # The spellings of the rule's question that this test counts, as source text.
@@ -233,8 +233,8 @@ foreach my $file(_files()) {
 		fail("$where$in spells the location rule out again: $site->{'name'}, $site->{'spelling'}");
 		diag("    $site->{'text'}");
 		diag("    The rule asks $site->{'question'}.");
-		diag('    It is answered once, by Geo::Coder::Free::Validate::_valid_location():');
-		diag('        use Geo::Coder::Free::Validate qw(_valid_location);');
+		diag('    It is answered once, by Geo::Location::Predicate::_valid_location():');
+		diag('        use Geo::Location::Predicate qw(_valid_location);');
 		diag('        return unless _valid_location($value);');
 		diag('    A site that asks one of those questions about something that is not a');
 		diag('    location goes in %EXEMPT at the top of this test with its reason.');
@@ -248,20 +248,20 @@ foreach my $file(_files()) {
 # the checkout is here, because a stale installed copy would otherwise make a
 # workspace run green while the tree that is being changed is not the one asked.
 
-my $rule_file = File::Spec->catfile($workspace, $RULE_DIST, 'lib', 'Geo', 'Coder', 'Free', 'Validate.pm');
+my $rule_file = File::Spec->catfile($workspace, $RULE_DIST, 'lib', 'Geo', 'Location', 'Predicate.pm');
 
-ok(eval { require Geo::Coder::Free::Validate; 1 },
+ok(eval { require Geo::Location::Predicate; 1 },
 	"$RULE_DIST is installed and loads")
 	or diag($@);
 
 if(-f $rule_file) {
-	is(Cwd::abs_path($INC{'Geo/Coder/Free/Validate.pm'}), Cwd::abs_path($rule_file),
+	is(Cwd::abs_path($INC{'Geo/Location/Predicate.pm'}), Cwd::abs_path($rule_file),
 		"the rule answering here is the $RULE_DIST checkout's file");
 } else {
 	diag("$RULE_DIST is not beside this distribution: the installed rule is the one checked");
 }
 
-ok(Geo::Coder::Free::Validate->can($RULE_SUB),
+ok(Geo::Location::Predicate->can($RULE_SUB),
 	"$RULE_DIST\::$RULE_SUB is the rule's one spelling");
 
 # The files the scan is supposed to cover
@@ -326,7 +326,7 @@ foreach my $sibling(qw(
 	is_deeply(\@copies, [], "$sibling asks the rule rather than spelling it out")
 		or diag("    A geocoder that spells the question out has its own answer, which may"
 			. " disagree with this one.\n"
-			. '    Call Geo::Coder::Free::Validate::_valid_location() instead.');
+			. '    Call Geo::Location::Predicate::_valid_location() instead.');
 }
 
 # An exemption that no longer names a site

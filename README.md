@@ -152,7 +152,7 @@ It is the public form of the rule `geocode()` applies before it touches a
 backend, so a caller working down a spreadsheet column can skip a row whose
 value is a bare number - or is empty - instead of catching the croak that
 would otherwise kill the whole run.  That rule is defined once, in
-[Geo::Coder::Free::Validate](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AValidate), and the backends apply it too: what
+[Geo::Location::Predicate](https://metacpan.org/pod/Geo%3A%3ALocation%3A%3APredicate), and the backends apply it too: what
 `valid_location()` refuses is refused wherever it is looked up.
 
 Only that cheap syntactic test is answered.  A true result means the string is

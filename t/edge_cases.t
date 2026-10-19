@@ -338,7 +338,7 @@ subtest "GCF geocode() — on_error => 'undef' skips the row" => sub {
 # out a second time in MaxMind.pm (with a croak) and a third in
 # OpenAddresses.pm (with a miss), so a string the facade refused could still be
 # looked up by a backend called directly.  The rule now lives once, in
-# Geo::Coder::Free::Validate, and all three callers hold that one sub.  A second
+# Geo::Location::Predicate, and all three callers hold that one sub.  A second
 # copy of the sub fails the identity assertions below, and a backend that goes
 # back to testing for a digit in the stringified value - the shape of the old
 # guard - fails the reference case; both are the failure mode section 2.4 of
@@ -353,14 +353,14 @@ subtest 'One rule for the facade and both backends' => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	# The rule, and the public predicate that is its public form.
-	ok(!Geo::Coder::Free::Validate::_valid_location('0044'), 'the rule refuses a bare number');
-	ok(Geo::Coder::Free::Validate::_valid_location('Ramsgate, Kent'), 'the rule accepts an address');
+	ok(!Geo::Location::Predicate::_valid_location('0044'), 'the rule refuses a bare number');
+	ok(Geo::Location::Predicate::_valid_location('Ramsgate, Kent'), 'the rule accepts an address');
 	ok(!$geo->valid_location('0044'), 'and the public predicate gives the same answer');
 
 	# One definition, not three: each package's _valid_location is the same code
 	# reference as the others', so a backend that pasted the rule back in as a sub
 	# of its own fails here even though its answers would be identical.
-	my $rule = refaddr(\&Geo::Coder::Free::Validate::_valid_location);
+	my $rule = refaddr(\&Geo::Location::Predicate::_valid_location);
 	is(refaddr(\&Geo::Coder::Free::_valid_location), $rule,
 		'the facade calls the shared rule, not a copy of it');
 	is(refaddr(\&Geo::Coder::Free::MaxMind::_valid_location), $rule,

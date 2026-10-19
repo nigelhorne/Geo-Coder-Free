@@ -7,28 +7,64 @@
 # the rule is asked about.  scripts/location-predicate-fuzz.pl asks them: it drives
 # each real geocode() with a user agent that dies at the lookup, so it never
 # touches the network, and compares the verdict with
-# Geo::Coder::Free::Validate::_valid_location().
+# Geo::Location::Predicate::_valid_location().
 #
-# It needs all six checkouts beside this distribution - without them the harness
-# exits with a message rather than reporting a skip that looks like agreement -
-# and the layout below is that workspace.  What makes the run a gate is the
-# exit status: a sibling's verdict on a scalar or undef that differs from the
-# rule's fails it, and the report names the class or the value.  That is what a
-# plain run does - --check is passed below because it says so at the call site,
-# not because the run needs it.
+# It needs the six checkouts beside this distribution, and the checkout of the
+# distribution that holds the rule (Geo-Location-Predicate, since 0.48) - without
+# them the harness exits with a message rather than reporting a skip that looks
+# like agreement - and the layout below is that workspace.  What makes the run a
+# gate is the exit status: a sibling's verdict on any value - a scalar, a
+# reference or undef - that differs from the rule's fails it, and the report
+# names the class or the value.  That is what a plain run does - --check is
+# passed below because it says so at the call site, not because the run needs it.
 #
-# A reference disagreement is reported in the report but does not fail the run.
-# The six were changed so that a reference is refused for being a reference, and
-# the gate is deliberately about the question a numeric column asks - a string of
-# digits, the empty string, undef - rather than about the reference classes whose
-# verdict the six get by stringifying.
+# Each of the six carries the same job in its own repository, with --sibling
+# naming it: the drift this looks for is in those repositories, and the one that
+# would have to fix it should hear about it without waiting for this run - and
+# without going red for a divergence in a sibling it does not ship.  This job is
+# still the one that grades all six at once, so a shared problem is visible in one
+# place; a sibling's job is a shorter question about its own checkout.
+#
+# The gate covers every value the rule decides on, references included: the six
+# refuse a reference for being a reference, and a sibling that accepts one has
+# left the rule however the value stringifies, so that fails the run too.
 #
 # The schedule is what catches drift: a sibling released with its own copy of the
 # rule, or with its predicate moved after some other check, disagrees here while
 # nothing at all has been pushed to this distribution.
+#
+# The same run is the gate on a change to this distribution - the harness, which
+# checkout the rule comes from, what the run is graded against - so it runs on a
+# push and on a pull request as well.  A change to the rule itself cannot be
+# caught here: it is a pull request to Geo-Location-Predicate, and a workflow
+# runs in the repository its event happened in.  That repository carries the same
+# job for it (.github/workflows/location-predicates.yml), and both runs grade the
+# six against the rule's checkout rather than against an installed copy, which the
+# harness refuses to do silently.
+#
+# geocoder-suites.yml runs the same fuzz on the same events, as one of the four
+# things its longer job does.  This one is that verdict in about a minute - no
+# suites, no dependency installs - so a pull request does not have to wait for the
+# slow job to hear that the six and the rule disagree.
+#
+# The report the job prints is quoted in LOCATION-PREDICATE-FUZZ.md, in this
+# distribution, and the last step here checks that the quote is still the run:
+# t/location-fuzz-doc.t compares the harness's stdout with the sample byte for
+# byte and names the first line that differs.  That file is in the distribution
+# rather than in the workspace, so this job - the one that assembles the eight
+# checkouts - is where it can run at all; this distribution's own CI has no
+# siblings and skips it.
 name: Location predicates
 
 on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
   schedule:
     # Daily: the drift this looks for is a change in one of the six, not in this
     # repository, so it can appear on any day this was not pushed to.
@@ -52,6 +88,16 @@ jobs:
         uses: actions/checkout@v7
         with:
           path: workspace/Geo-Coder-Free
+
+      # The rule is a distribution of its own, so the tree the six are graded
+      # against is this checkout: the harness puts its lib/ on @INC ahead of any
+      # installed release and fails if that is not the copy that answered.
+      - name: Check out Geo-Location-Predicate, which holds the rule
+        uses: actions/checkout@v7
+        with:
+          repository: nigelhorne/Geo-Location-Predicate
+          path: workspace/Geo-Location-Predicate
+          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
 
       - name: Check out Geo-Coder-CA
         uses: actions/checkout@v7
@@ -104,8 +150,9 @@ jobs:
         shell: bash
         run: |
           set -eu
-          for dist in Geo-Coder-Free Geo-Coder-CA Geo-Coder-DataScienceToolkit \
-            Geo-Coder-GeoApify Geo-Coder-List Geo-Coder-Postcodes Geo-Coder-XYZ; do
+          for dist in Geo-Coder-Free Geo-Location-Predicate Geo-Coder-CA \
+            Geo-Coder-DataScienceToolkit Geo-Coder-GeoApify Geo-Coder-List \
+            Geo-Coder-Postcodes Geo-Coder-XYZ; do
             if [ ! -d "workspace/$dist/lib" ]; then
               echo "::error::workspace/$dist was not checked out"
               exit 1
@@ -118,12 +165,13 @@ jobs:
         with:
           perl-version: '5.40'
 
-      # What the six modules load.  Their own declared prerequisites are not used
-      # here: each of them requires Geo::Coder::Free::Validate, which is this
-      # checkout and not a distribution on CPAN of its own, so --installdeps would
-      # either install the released Geo::Coder::Free or fail to find the module.
-      # Nothing is installed from the six either - the harness puts each
-      # checkout's lib/ on @INC itself.
+      # What the six modules load.  Their declared prerequisites are not installed
+      # here: each of them recommends Geo::Location::Predicate, and a release of
+      # it would be the copy the six were graded against rather than the checkout
+      # assembled above - the harness refuses that, but the job should not hand it
+      # one in the first place.  Nothing is installed from the six either: the
+      # harness puts each checkout's lib/ on @INC itself.  Test::Most is what the
+      # document check loads, and none of the six or the harness needs it.
       - name: Install what the six load
         shell: bash
         run: |
@@ -131,7 +179,7 @@ jobs:
           cpanm --notest --quiet \
             CHI HTML::Entities HTTP::Request JSON::MaybeXS LWP::UserAgent \
             LWP::Protocol::https Object::Configure Params::Get \
-            Params::Validate::Strict Readonly URI
+            Params::Validate::Strict Readonly Test::Most URI
 
       - name: Run the fuzz
         working-directory: workspace/Geo-Coder-Free
@@ -150,3 +198,22 @@ jobs:
           cat "$RUNNER_TEMP/location-predicates.md" >> "$GITHUB_STEP_SUMMARY"
           cat "$RUNNER_TEMP/location-predicates.err" >&2
           exit "$status"
+
+      # The document quotes the report that step prints, and this is the check that
+      # it still does: the file runs the harness with the command the document
+      # names, compares stdout with the sample under "## Harness output", and then
+      # checks --update-document on copies of the file.  It skips where the six
+      # checkouts are not beside this distribution - this distribution's own CI,
+      # and an installed copy - which is why the check belongs in this job.  A skip
+      # here would be that bug and not a pass, so it is a failure: the workspace
+      # has just been checked out, and the document is in the checkout.
+      - name: Check that the document quotes the report
+        working-directory: workspace/Geo-Coder-Free
+        shell: bash
+        run: |
+          set -euo pipefail
+          prove -lr t/location-fuzz-doc.t 2>&1 | tee "$RUNNER_TEMP/location-fuzz-doc.txt"
+          if grep -q 'skipped:' "$RUNNER_TEMP/location-fuzz-doc.txt"; then
+            echo "::error::t/location-fuzz-doc.t skipped, so the sample was not checked"
+            exit 1
+          fi
