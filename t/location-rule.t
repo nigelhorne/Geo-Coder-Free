@@ -248,7 +248,13 @@ foreach my $file(_files()) {
 # the checkout is here, because a stale installed copy would otherwise make a
 # workspace run green while the tree that is being changed is not the one asked.
 
-my $rule_file = File::Spec->catfile($workspace, $RULE_DIST, 'lib', 'Geo', 'Location', 'Predicate.pm');
+my $rule_lib  = File::Spec->catdir($workspace, $RULE_DIST, 'lib');
+my $rule_file = File::Spec->catfile($rule_lib, 'Geo', 'Location', 'Predicate.pm');
+
+# Put the checkout ahead of anything installed, as scripts/location-predicate-fuzz.pl
+# does, so it is the checkout that is asked.  Without it only prove -l's lib/ is
+# searched first and the installed release answers.
+unshift @INC, $rule_lib if(-f $rule_file);
 
 ok(eval { require Geo::Location::Predicate; 1 },
 	"$RULE_DIST is installed and loads")
