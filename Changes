@@ -1,212 +1,30 @@
 Revision history for Geo-Coder-Free
 
-0.48
-	[ Packaging ]
-	The location rule has moved to a distribution of its own,
-	Geo-Location-Predicate, where it is Geo::Location::Predicate.  The name is
-	new rather than kept: it says the question the rule asks - could this string
-	be a location? - instead of naming the namespace it was written in, and since
-	nothing was released under the old name there is no caller that needs it to
-	keep working.  _valid_location() and its answers are unchanged; every call
-	site here now says Geo::Location::Predicate::_valid_location().  It
-	moved because the six sibling geocoders needed the predicate and not this
-	distribution: while it lived here, the only way for one of them to name it in
-	its metadata was to require the facade as well, along with its backends, its
-	databases and its cache, so each looked for the module at run time instead of
-	declaring it.  Geo::Coder::Free requires Geo-Location-Predicate 0.01, and the
-	six declare it as a recommendation for runtime in their META - an installer
-	fetches it by default - with a test requirement, because their suites assert
-	its answer.  None of them probes for it when it loads any more: each looks for
-	it when it first needs it, and without it still refuses a reference.
-	[ Tests ]
-	t/location-rule.t now scans the six sibling geocoders - CA, DataScienceToolkit,
-	GeoApify, List, Postcodes and XYZ - with the same spellings it uses on this
-	distribution, and fails if one of them spells the rule out again.  They call
-	Geo::Location::Predicate::_valid_location() when the rule is installed - each
-	declares it as a recommendation in its META rather than as a prerequisite, and
-	looks for it when it first needs it rather than when it loads - so the scan is a
-	guard against a copy coming back rather than a description of six copies that
-	exist.  A sibling that is not in the
-	workspace is reported and skipped, so a standalone install still runs.
-	scripts/location-predicate-fuzz.pl is the runtime half of that scan: it drives each
-	of the six's real geocode() with a user agent that dies at the lookup, so it
-	never touches the network, and compares the verdict with the rule in
-	Predicate.pm.  It now works out which workspace it is in from its own path,
-	rather than having to be run from the directory the checkouts are in, and it has
-	a --check mode for a build: the exit status is non-zero when a sibling's verdict
-	on any value - a scalar, a reference or undef - differs from the rule's, and the
-	run names the class or the value.  The new job .github/workflows/location-predicates.yml assembles the
-	eight checkouts - the six, this distribution, and the distribution that holds
-	the rule - fuzzes 20,000 values with --check and puts the report in the job
-	summary, so a sibling that is released with its own copy of the rule - or that
-	lets a string of digits through again - is caught here while nothing has been
-	pushed to this distribution.  It runs on a push and a pull request as well as
-	on the schedule, and the repository that holds the rule carries the same job for
-	the event that matters to it
-	(Geo-Location-Predicate/.github/workflows/location-predicates.yml): a pull
-	request there is fuzzed against the six before it merges, which the run here
-	cannot cover, because a workflow only runs in the repository its event happened
-	in.  The harness is what makes either run the rule under test rather than an
-	installed release: it puts the checkouts' lib/ ahead of everything on @INC and
-	refuses to run when the file that loaded is not the rule's checkout.
-	A reference disagreement fails the run as well: the gate is every value the rule
-	decides on, and a sibling that accepts a reference the rule refuses has left the
-	rule whatever the value would stringify to.  That the exit status does that is
-	checked by t/location-predicates.t, which runs the harness on this workspace and
-	then on a copy of it with one sibling's guard replaced - digits no longer refused
-	in one copy, a reference accepted in the other - and both copies have to fail and
-	name the sibling, the class and both verdicts.  The cases share one copy of the
-	workspace there: each differs from the others by a single file, so that file is
-	rewritten and the run repeated rather than an eight-checkout copy built per
-	case.  What was being copied was two gigabytes of databases under this
-	distribution's lib/, which nothing the harness loads reads; five copies of it
-	were most of the time that test took and every byte of the scratch it left in
-	/tmp.  t/location-fuzz-doc.t runs the
-	harness with the command LOCATION-PREDICATE-FUZZ.md names and compares its output
-	with the sample report the document prints, so a heading, a count or a verdict
-	that changes without the sample being updated fails the suite instead of leaving
-	the file describing a run that no longer happens.  The document is this
-	distribution's own now: it was at the workspace root, where a checkout of this
-	distribution does not have it, so the check skipped everywhere except an
-	author's workspace.  It ships in the tarball (MANIFEST), the harness's
-	--update-document default is the copy in the distribution, and
-	.github/workflows/location-predicates.yml - the job that assembles the eight
-	checkouts - runs t/location-fuzz-doc.t after the fuzz, so the sample is checked
-	in CI rather than skipped.
-	scripts/location-predicate-fuzz.pl has --update-document for the other half of
-	that: it writes the report into LOCATION-PREDICATE-FUZZ.md itself, replacing the
-	sample from the '## Harness output' heading to the end of the file - or to the
-	next '## ' section - and leaving the prose before it alone, so updating the
-	sample after a wording change is one command rather than a transcription.  It
-	takes a file name (--update-document=PATH) to write a copy, writes through a
-	second file so a failure part-way cannot leave a half-written document, and
-	writes nothing when the run fails the gate, since the sample quotes a run that
-	passes; it says on stderr whether it rewrote anything or found it already right,
-	and stdout is still the report.  t/location-fuzz-doc.t runs it on a copy of the
-	document with a table cell changed by hand and requires the copy back byte for
-	byte, and again on a copy with a section appended after the sample and requires
-	that section left in place, so the command that maintains the sample is checked
-	rather than assumed.
-	The fuzz is a regression check without being asked to be one: a sibling that
-	answers what the rule does not now fails the run, so a caller that forgets a
-	flag cannot get a green run out of a disagreement.  --report (--no-check) is
-	the explicit way to ask for the table with the exit status left at 0, and it
-	labels the finding REPORT rather than FAIL and says in the report that it was
-	asked not to fail; --check is still accepted, and is what the jobs pass to say
-	at the call site which form is meant.  t/location-predicates.t covers the
-	default gate - no flags at all, passing where the six agree and failing with
-	the sibling, the class and both verdicts on a planted divergence - and shows
-	--report and --no-check reporting the same finding with a zero exit.
-	--summary=FILE writes the same run as JSON: the seed, the iteration count, the
-	rule that answered and the file it was loaded from, the siblings graded and the
-	ones --sibling left out, the verdict on every curated class for every sibling,
-	the counts of the randomised run, and the gate's verdict with every disagreement
-	as a record naming the class or the value, the sibling and both verdicts.  It is
-	a file rather than a stream because stdout is the report: JSON appended to
-	Markdown is neither readable nor parseable.  The report and the exit status are
-	unchanged, and a run that fails
-	the gate writes the summary too, since those are the counts worth reading.
-	t/location-predicates.t asserts on that summary rather than on the report's
-	prose, so a reworded report no longer fails a test that is about the rule, and
-	the counts and verdicts it does assert are the run's own.  It is written with
-	JSON::PP, which is core: this harness runs in eight repositories' jobs, several
-	of which install their own list of modules by hand.
-
-	The six suites run on every push and pull request and on a weekly schedule, as
-	six parallel jobs in .github/workflows/geocoder-suites.yml, one per sibling:
-	each leg checks out this distribution, the rule and that sibling, and runs its
-	whole suite with the rule's lib/ and this distribution's lib/ ahead of the
-	installed rule, so a sibling that fails no longer holds up the five behind it
-	in a loop.  Each checkout's t/online.enabled is removed before its suite runs:
-	it is the marker Makefile.PL writes for the tests that call geocode.xyz, and a
-	checkout that carries one would have its leg graded on that endpoint's answer
-	to a runner.  A second job runs once the six have reported, even when some of
-	them failed, with all eight checkouts: it compares the six copies of the shared
-	t/reference.t byte for byte - the only thing that can show "one file installed
-	identically in all six" is still true - runs that test in each of the six, and
-	runs the fuzz with --check.  It then hides Geo::Location::Predicate with
-	Devel::Hide and asks two different things of the two halves: the six
-	t/reference.t files must still pass, having skipped the comparisons they cannot
-	make - a pass with no skip is a test that did not notice the rule was gone -
-	and the fuzz must fail, because its whole question is what the six answer
-	compared with the rule.  Hiding does not reach the fuzz on its own,
-	because the harness puts the checkouts' lib/ on @INC itself and an @INC
-	directory outranks the hook hiding installs, so the rule's file is left out of
-	a copy of the workspace for that half as well.  MANIFEST was listing
-	scripts/location-predicates.t, which does not exist, in place of the harness
-	scripts/location-predicate-fuzz.pl, and did not name t/location-predicates.t at
-	all; both are in it now, so t/manifest.t no longer reports the two as files the
-	distribution ships but does not list.
-
+0.48	Mon Oct 19 07:35:53 PM EDT 2026
 	[ Enhancements ]
-	Geo::Coder::Free::Provenance no longer owns the field-to-accuracy rule.  It
-	has moved to Geo::Location::Point::accuracy_for(), beside the vocabulary it
-	returns a level from, so the levels a point accepts and the rules that choose
-	one of them have a single home.  Provenance still re-exports ACCURACY_LEVELS
-	- the same list object, not a copy - so a backend can still name a level
-	without knowing which module defines the vocabulary, but it no longer decides
-	what a level may be
-	_accuracy_for() is gone from Provenance; Local.pm calls the function in
-	Geo::Location::Point, now required at 0.19.  The levels it reports
-	are unchanged, and the rule is tested where it lives now, in
-	Geo-Location-Point's t/attr.t
-	t/accuracy-vocabulary.t still checks that Provenance's list is Point's list
-	and that every level the derivation produces is one the vocabulary publishes;
-	t/consumer-contract.t records accuracy_for() as a class function, not an
-	accessor of a result, so a new documented function of the value object cannot
-	go unclassified.  accuracy-vocabulary.t now reads Geo::Location::Point from
-	the sibling Geo-Location-Point checkout when the workspace has one, as
-	consumer-contract.t already reads its workspace files, rather than whichever
-	copy is installed: the installed 0.18 predates accuracy_for(), so the guard
-	was calling a function that was not there instead of checking the tree this
-	distribution ships against.  Which file was loaded is asserted when the
-	checkout is present, and a distribution installed on its own still runs the
-	file against the Point it has.
-	Missed lookups now have one home, Geo::Coder::Free::MissCache, instead of a
-	package-global hash in OpenAddresses that never expired.  OpenAddresses,
-	Local and MaxMind all record a miss there and all ask it before doing the
-	work, so an address that is not in the data is searched for once per process
-	rather than once per call, and a miss found by one instance is seen by the
-	next.  Entries expire after an hour, are discarded as they are found, and are
-	swept periodically so the cache does not grow without bound; the lifetime is
-	Geo::Coder::Free::MissCache->expires_after()
-	Geo::Coder::Free->clear_miss_cache() empties the cache, or one backend's
-	part of it, for a caller that has rebuilt a database while the process is
-	running.  OpenAddresses keeps a miss per data directory, and MaxMind keeps
-	the region hint in the key, so a miss in one data set or for one region does
-	not hide an answer in another
-	geocode_many()'s lookups now counts the values that made a backend read,
-	not the distinct values it agreed to look up.  Each backend reports its
-	reads through reads(), a cumulative count that a lookup answered without
-	reading - from a result cache, from the shared miss cache or from a
-	hand-curated entry - leaves alone, and geocode_many() takes the count before
-	and after each value.  A value answered from a cache is therefore no longer
-	counted as work the batch did, so a second batch over the same column
-	reports the reads it needed rather than the ones the first one made
-	The page now validates a CSRF token that a client sends, which it
-	documented but did not do: cgi-bin/page.fcgi asks
-	Geo::Coder::Free::Display->csrf_token_valid(), which re-derives the
-	signature with the same secret the token was issued with - the configured
-	one, or the per-process fallback - and compares it in constant time.  A
-	token that does not verify is refused with the block page every other
-	denial gets, and recorded in the vwf log as 'Rejected CSRF token'.  A
-	request that sends no token is served, because forms are rendered by
-	templates this distribution does not ship and could not be told apart from
-	forms written before tokens existed
-	The block page itself is now written in one place, deny(), instead of at
-	each refusal, so the answer and its HEAD handling cannot drift between
-	the layers that refuse
-	geocode_many() answers with a fifth count of its own: reads, one entry per
-	backend the object holds, holding the reads that backend made for the batch
-	and keyed by the short name provenance() reports a result's backend under.
-	lookups counts values and reads counts reads - a value two backends read
-	through is one lookup and a read for each of them - so a caller can now tell
-	which backend did the reading from which value was answered from a cache,
-	which one total could not say.  A backend that read nothing is named at zero
-	rather than left out, so 'this backend did not read' can be told from a
-	backend that was never consulted.  The counters are taken per backend around
-	each value, so the attribution is the same accounting that decided the lookup
-	count rather than a second rule that could disagree with it
+	- The location rule has moved to a distribution of its own, Geo-Location-Predicate
+	  (Geo::Location::Predicate::_valid_location()), so the sibling geocoders can use it
+	  without depending on Geo-Coder-Free.  Its answers are unchanged
+	- Requires Geo-Location-Predicate 0.01 and Geo::Location::Point 0.19
+	- Makefile.PL installs a missing configure-time prerequisite correctly on Windows
+	- Added Geo::Coder::Free::MissCache, replacing the never-expiring miss hash in
+	  OpenAddresses.  OpenAddresses, Local and MaxMind all use it, so an address that is
+	  not in the data is searched for once per process rather than once per call.
+	  Entries expire after an hour (expires_after()), and
+	  Geo::Coder::Free->clear_miss_cache() empties the cache or one backend's part of it
+	- Each backend has reads(), the number of reads it has made.  geocode_many()'s
+	  lookups now counts only values that caused a read, and a new reads key gives the
+	  reads made by each backend
+	- The field-to-accuracy rule has moved from Geo::Coder::Free::Provenance to
+	  Geo::Location::Point::accuracy_for().  Provenance still exports ACCURACY_LEVELS
+	- cgi-bin/page.fcgi now validates a CSRF token when a client sends one, as documented
+	[ Tests ]
+	- t/location-rule.t also scans the six sibling geocoders for copies of the location rule
+	- Added scripts/location-predicate-fuzz.pl, which compares the sibling geocoders'
+	  verdicts with the rule, and t/location-predicates.t and t/location-fuzz-doc.t,
+	  which test it and LOCATION-PREDICATE-FUZZ.md
+	- Added .github/workflows/location-predicates.yml and geocoder-suites.yml, which run
+	  the fuzz and the sibling geocoders' test suites against this distribution
 
 0.47	Fri Oct 16 09:34:18 PM EDT 2026
 	[ Enhancements ]
