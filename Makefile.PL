@@ -40,7 +40,17 @@ BEGIN {
 		}
 		print "Installing $list\n";
 		# system("cpan -i $list");
-		system('perl -MCPAN -e \'CPAN::Shell->install("' . join('", "', @needfull) . '")\'');
+		# The list form and $^X keep the shell out of it: cmd.exe does not
+		# treat single quotes as quotes, so a one-string command that used
+		# them silently installed nothing on Windows
+		if($ENV{'PERL5_CPANM_IS_RUNNING'}) {
+			# Running under cpanm, which is on the PATH, so use it rather
+			# than CPAN.pm, which may stop to ask for its configuration
+			system($^X, '-S', 'cpanm', '--notest', @needfull);
+		} else {
+			local $ENV{'PERL_MM_USE_DEFAULT'} = 1;
+			system($^X, '-MCPAN', '-e', "CPAN::Shell->install(qw($list))");
+		}
 	}
 }
 
@@ -379,6 +389,7 @@ WriteMakefile(
 	BUILD_REQUIRES => $build_requires,
 	CONFIGURE_REQUIRES => {
 		'ExtUtils::MakeMaker' => 6.64,	# Minimum version for TEST_REQUIRES
+		'LWP::Protocol::https' => 0,	# Loaded by the BEGIN block above
 	}, TEST_REQUIRES => $test_requires,
 	PREREQ_PM => {
 		'Carp' => 0,
