@@ -357,11 +357,11 @@ Approximate LCSAJ segments: 113<br>
 </span><span class="">   16: 
 </span><span class="">   17: =head1 VERSION
 </span><span class="">   18: 
-</span><span class="">   19: Version 0.48
+</span><span class="">   19: Version 0.49
 </span><span class="">   20: 
 </span><span class="">   21: =cut
 </span><span class="">   22: 
-</span><span class="">   23: our $VERSION = &#39;0.48&#39;;
+</span><span class="">   23: our $VERSION = &#39;0.49&#39;;
 </span><span class="">   24: 
 </span><span class="">   25: use v5.20;
 </span><span class="">   26: use strict;
@@ -648,7 +648,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 							</li></ul></details>
 <span class="">  222: 
 </span><span class="">  223: 	# Production defaults
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  224: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;BerkeleyDB&#39; : &#39;Memory&#39;;
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  224: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;BerkeleyDB&#39; : &#39;Memory&#39;;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -673,7 +673,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 <span class="">  225: }
 </span><span class="">  226: 
 </span><span class="">  227: sub _get_fallback_driver($cache_type) {
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  228: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;File&#39; : &#39;Memory&#39;;
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  228: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;File&#39; : &#39;Memory&#39;;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -730,7 +730,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </span><span class="">  240: 		&#39;Redis&#39; =&gt; &#39;CHI::Driver::Redis&#39;
 </span><span class="">  241: 	);
 </span><span class="">  242: 
-</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  243: 	return 1 unless exists $driver_modules{$driver};
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  243: 	return 1 unless exists $driver_modules{$driver};
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -796,7 +796,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 					<ul>
 				<li><b>COND_INV_254_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
 </li></ul></details>
-<span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  255: 		return 0;
+<span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  255: 		return 0;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -1152,7 +1152,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </span><span class="">  456: Normalise a street name to its abbreviated canonical form.  Uppercases the
 </span><span class="">  457: input, then abbreviates the second-to-last or last word (whichever is a
 </span><span class="">  458: recognised street type) using C&lt;Geo::Coder::Abbreviations&gt;.  Leading zeros
-</span><span class="">  459: are also stripped (C&lt;&quot;04th St&quot;&gt; &acirc;&#134;&#146; C&lt;&quot;4th St&quot;&gt;).
+</span><span class="">  459: are also stripped (C&lt;&quot;04th St&quot;&gt; -&gt; C&lt;&quot;4th St&quot;&gt;).
 </span><span class="">  460: 
 </span><span class="">  461: Exported so that C&lt;Local.pm&gt; and C&lt;OpenAddresses.pm&gt; can call it without
 </span><span class="">  462: importing C&lt;Geo::Coder::Free&gt;.
@@ -1183,7 +1183,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </span><span class="">  487: 
 </span><span class="">  488: =head2 _abbreviate
 </span><span class="">  489: 
-</span><span class="">  490: Abbreviate a single street-type word (e.g. C&lt;&quot;Street&quot;&gt; &acirc;&#134;&#146; C&lt;&quot;ST&quot;&gt;).  Returns
+</span><span class="">  490: Abbreviate a single street-type word (e.g. C&lt;&quot;Street&quot;&gt; -&gt; C&lt;&quot;ST&quot;&gt;).  Returns
 </span><span class="">  491: the original word uppercased if no abbreviation is found.
 </span><span class="">  492: 
 </span><span class="">  493: Exported so that C&lt;Local.pm&gt; and C&lt;OpenAddresses.pm&gt; can call it without

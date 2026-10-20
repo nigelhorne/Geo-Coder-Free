@@ -25,112 +25,112 @@ https://pjcj.net
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L128">128</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (not defined $class) { }</td></tr>
+<tr><td class="h"><a id="L132">132</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (not defined $class) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif (&amp;Scalar::Util::blessed($class)) { }</td></tr>
-<tr><td class="h"><a id="L143">143</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (-d $directory)</td></tr>
-<tr><td class="h"><a id="L222">222</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
+<tr><td class="h"><a id="L147">147</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (-d $directory)</td></tr>
+<tr><td class="h"><a id="L226">226</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif (ref $self eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (ref $_[0] eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif (ref $_[0]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (scalar @_ and scalar(@_) % 2 == 0) { }</td></tr>
-<tr><td class="h"><a id="L223">223</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @_) { }</td></tr>
+<tr><td class="h"><a id="L227">227</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @_) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($self eq __PACKAGE__) { }</td></tr>
-<tr><td class="h"><a id="L246">246</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless my $location = $params{&quot;location&quot;}</td></tr>
-<tr><td class="h"><a id="L251">251</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (_valid_location($location))</td></tr>
-<tr><td class="h"><a id="L255">255</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+),\s*Washington\s*DC,(.+)$/)</td></tr>
-<tr><td class="h"><a id="L259">259</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $known_locations{$location})</td></tr>
-<tr><td class="h"><a id="L276">276</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $location =~ /,/ or $params{&quot;region&quot;}</td></tr>
-<tr><td class="h"><a id="L280">280</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $cached_result</td></tr>
-<tr><td class="h"><a id="L288">288</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if &quot;Geo::Coder::Free::MissCache&quot;-&gt;missed($miss_scope, $miss_key)</td></tr>
-<tr><td class="h"><a id="L297">297</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($location =~ /^([\w\s\-]+),([\w\s]+),([\w\s]+)?$/) { }</td></tr>
+<tr><td class="h"><a id="L250">250</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless my $location = $params{&quot;location&quot;}</td></tr>
+<tr><td class="h"><a id="L255">255</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (_valid_location($location))</td></tr>
+<tr><td class="h"><a id="L259">259</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+),\s*Washington\s*DC,(.+)$/)</td></tr>
+<tr><td class="h"><a id="L263">263</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $known_locations{$location})</td></tr>
+<tr><td class="h"><a id="L280">280</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $location =~ /,/ or $params{&quot;region&quot;}</td></tr>
+<tr><td class="h"><a id="L284">284</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $cached_result</td></tr>
+<tr><td class="h"><a id="L292">292</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if &quot;Geo::Coder::Free::MissCache&quot;-&gt;missed($miss_scope, $miss_key)</td></tr>
+<tr><td class="h"><a id="L301">301</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($location =~ /^([\w\s\-]+),([\w\s]+),([\w\s]+)?$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($location =~ /^([\w\s\-]+),([\w\s]+),([\w\s]+),\s*(Canada|United States|USA|US)?$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($location =~ /^[\w\s-],[\w\s-]/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($location =~ /^[\w\s-]+$/ and my $region = $params{&#39;region&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($location =~ /^([\w\s-]+),\s*(\w+)$/) { }</td></tr>
-<tr><td class="h"><a id="L307">307</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^St\.? (.+)/)</td></tr>
-<tr><td class="h"><a id="L310">310</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($country =~ /^(Canada|United States|USA|US)$/)</td></tr>
-<tr><td class="h"><a id="L348">348</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($country)</td></tr>
-<tr><td class="h"><a id="L349">349</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (defined $country and $country eq &#39;UK&#39; || $country eq &#39;United Kingdom&#39; || $country eq &#39;England&#39;)</td></tr>
-<tr><td class="h"><a id="L357">357</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($state and $admin1cache{$state}) { }</td></tr>
+<tr><td class="h"><a id="L311">311</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^St\.? (.+)/)</td></tr>
+<tr><td class="h"><a id="L314">314</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($country =~ /^(Canada|United States|USA|US)$/)</td></tr>
+<tr><td class="h"><a id="L352">352</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($country)</td></tr>
+<tr><td class="h"><a id="L353">353</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (defined $country and $country eq &#39;UK&#39; || $country eq &#39;United Kingdom&#39; || $country eq &#39;England&#39;)</td></tr>
+<tr><td class="h"><a id="L361">361</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($state and $admin1cache{$state}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($admin1cache{$country} and not defined $state) { }</td></tr>
-<tr><td class="h"><a id="L362">362</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $$self{&quot;admin1&quot;} //= &quot;Geo::Coder::Free::DB::MaxMind::admin1&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
-<tr><td class="h"><a id="L365">365</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $admin1 = $$self{&#39;admin1&#39;}-&gt;fetchrow_hashref(&#39;asciiname&#39;, $country)) { }</td></tr>
+<tr><td class="h"><a id="L366">366</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $$self{&quot;admin1&quot;} //= &quot;Geo::Coder::Free::DB::MaxMind::admin1&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
+<tr><td class="h"><a id="L369">369</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $admin1 = $$self{&#39;admin1&#39;}-&gt;fetchrow_hashref(&#39;asciiname&#39;, $country)) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($state) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif ($countrycode) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (Locale::Country::code2country($country)) { }</td></tr>
-<tr><td class="h"><a id="L370">370</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /^[A-Z]{2}$/) { }</td></tr>
-<tr><td class="h"><a id="L377">377</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin1{&quot;concatenated_codes&quot;} =~ /^\Q$concatenated_codes\E\./i)</td></tr>
-<tr><td class="h"><a id="L393">393</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $concatenated_codes)</td></tr>
-<tr><td class="h"><a id="L401">401</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($country =~ /^(United States|USA|US)$/) { }</td></tr>
+<tr><td class="h"><a id="L374">374</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /^[A-Z]{2}$/) { }</td></tr>
+<tr><td class="h"><a id="L381">381</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin1{&quot;concatenated_codes&quot;} =~ /^\Q$concatenated_codes\E\./i)</td></tr>
+<tr><td class="h"><a id="L397">397</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $concatenated_codes)</td></tr>
+<tr><td class="h"><a id="L405">405</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($country =~ /^(United States|USA|US)$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($country eq &#39;Canada&#39; and $state and length $state &gt; 2) { }</td></tr>
-<tr><td class="h"><a id="L402">402</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county and length $county &gt; 2)</td></tr>
-<tr><td class="h"><a id="L403">403</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $county})</td></tr>
-<tr><td class="h"><a id="L407">407</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state and length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L408">408</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L413">413</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L415">415</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $location)</td></tr>
-<tr><td class="h"><a id="L422">422</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $$self{&quot;admin2&quot;} //= &quot;Geo::Coder::Free::DB::MaxMind::admin2&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
-<tr><td class="h"><a id="L424">424</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (defined $county and $county =~ /^[A-Z]{2}$/ and $country =~ /^(United States|USA|US)$/) { }</td></tr>
+<tr><td class="h"><a id="L406">406</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county and length $county &gt; 2)</td></tr>
+<tr><td class="h"><a id="L407">407</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $county})</td></tr>
+<tr><td class="h"><a id="L411">411</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state and length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L412">412</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L417">417</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L419">419</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $location)</td></tr>
+<tr><td class="h"><a id="L426">426</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $$self{&quot;admin2&quot;} //= &quot;Geo::Coder::Free::DB::MaxMind::admin2&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
+<tr><td class="h"><a id="L428">428</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (defined $county and $county =~ /^[A-Z]{2}$/ and $country =~ /^(United States|USA|US)$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($county and $admin1cache{$county}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($county and $admin2cache{$county}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif (defined $state and $admin2cache{$state} and not defined $county) { }</td></tr>
-<tr><td class="h"><a id="L434">434</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (defined $county and $county eq &#39;London&#39;) { }</td></tr>
+<tr><td class="h"><a id="L438">438</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (defined $county and $county eq &#39;London&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (defined $county) { }</td></tr>
-<tr><td class="h"><a id="L442">442</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin2{&quot;concatenated_codes&quot;} =~ /$concatenated_codes/)</td></tr>
-<tr><td class="h"><a id="L444">444</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) { }</td></tr>
-<tr><td class="h"><a id="L446">446</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state and $state =~ /^[A-Z]{2}$/) { }</td></tr>
-<tr><td class="h"><a id="L447">447</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq $rc)</td></tr>
-<tr><td class="h"><a id="L461">461</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($state and not defined $region)</td></tr>
-<tr><td class="h"><a id="L462">462</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /^[A-Z]{2}$/) { }</td></tr>
-<tr><td class="h"><a id="L469">469</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin2{&quot;concatenated_codes&quot;} =~ /$concatenated_codes/)</td></tr>
-<tr><td class="h"><a id="L478">478</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (scalar @regions == 0 and not defined $region)</td></tr>
-<tr><td class="h"><a id="L483">483</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (scalar @admin2s == 0 and $country =~ /^(Canada|United States|USA|US)$/ and not $location =~ /\sCounty/i)</td></tr>
-<tr><td class="h"><a id="L488">488</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (scalar @admin2s and defined $admin2s[0]{&#39;concatenated_codes&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L446">446</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin2{&quot;concatenated_codes&quot;} =~ /$concatenated_codes/)</td></tr>
+<tr><td class="h"><a id="L448">448</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region =~ /^[A-Z]{2}\.([A-Z]{2})\./) { }</td></tr>
+<tr><td class="h"><a id="L450">450</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (defined $state and $state =~ /^[A-Z]{2}$/) { }</td></tr>
+<tr><td class="h"><a id="L451">451</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state eq $rc)</td></tr>
+<tr><td class="h"><a id="L465">465</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($state and not defined $region)</td></tr>
+<tr><td class="h"><a id="L466">466</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state =~ /^[A-Z]{2}$/) { }</td></tr>
+<tr><td class="h"><a id="L473">473</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin2{&quot;concatenated_codes&quot;} =~ /$concatenated_codes/)</td></tr>
+<tr><td class="h"><a id="L482">482</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (scalar @regions == 0 and not defined $region)</td></tr>
+<tr><td class="h"><a id="L487">487</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (scalar @admin2s == 0 and $country =~ /^(Canada|United States|USA|US)$/ and not $location =~ /\sCounty/i)</td></tr>
+<tr><td class="h"><a id="L492">492</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (scalar @admin2s and defined $admin2s[0]{&#39;concatenated_codes&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (defined $county) { }</td></tr>
-<tr><td class="h"><a id="L491">491</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($concat =~ /^CA\.(\d\d)\./) { }</td></tr>
+<tr><td class="h"><a id="L495">495</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($concat =~ /^CA\.(\d\d)\./) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($concat =~ /$concatenated_codes/) { }</td></tr>
-<tr><td class="h"><a id="L502">502</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $$self{&quot;admin1&quot;})</td></tr>
-<tr><td class="h"><a id="L503">503</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $$self{&quot;admin1&quot;} = &quot;Geo::Coder::Free::DB::MaxMind::admin1&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
-<tr><td class="h"><a id="L508">508</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin1{&quot;concatenated_codes&quot;} =~ /^\Q$concatenated_codes\E\./i)</td></tr>
-<tr><td class="h"><a id="L510">510</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @admin1s == 1)</td></tr>
-<tr><td class="h"><a id="L519">519</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $$self{&quot;cities&quot;})</td></tr>
-<tr><td class="h"><a id="L527">527</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (defined $county and $county =~ /^[A-Z]{2}$/ and $country =~ /^(United States|USA|US)$/) { }</td></tr>
-<tr><td class="h"><a id="L530">530</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($region_only) { }</td></tr>
-<tr><td class="h"><a id="L537">537</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($region)</td></tr>
-<tr><td class="h"><a id="L540">540</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country_code)</td></tr>
-<tr><td class="h"><a id="L545">545</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @admin2s == 1)</td></tr>
-<tr><td class="h"><a id="L546">546</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state) { }</td></tr>
+<tr><td class="h"><a id="L506">506</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $$self{&quot;admin1&quot;})</td></tr>
+<tr><td class="h"><a id="L507">507</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $$self{&quot;admin1&quot;} = &quot;Geo::Coder::Free::DB::MaxMind::admin1&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
+<tr><td class="h"><a id="L512">512</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$admin1{&quot;concatenated_codes&quot;} =~ /^\Q$concatenated_codes\E\./i)</td></tr>
+<tr><td class="h"><a id="L514">514</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @admin1s == 1)</td></tr>
+<tr><td class="h"><a id="L523">523</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $$self{&quot;cities&quot;})</td></tr>
+<tr><td class="h"><a id="L531">531</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (defined $county and $county =~ /^[A-Z]{2}$/ and $country =~ /^(United States|USA|US)$/) { }</td></tr>
+<tr><td class="h"><a id="L534">534</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($region_only) { }</td></tr>
+<tr><td class="h"><a id="L541">541</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($region)</td></tr>
+<tr><td class="h"><a id="L544">544</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country_code)</td></tr>
+<tr><td class="h"><a id="L549">549</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @admin2s == 1)</td></tr>
+<tr><td class="h"><a id="L550">550</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($county) { }</td></tr>
-<tr><td class="h"><a id="L557">557</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $c = $params{&#39;region&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L561">561</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $c = $params{&#39;region&#39;}) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif ($countrycode) { }</td></tr>
-<tr><td class="h"><a id="L638">638</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $city)</td></tr>
-<tr><td class="h"><a id="L641">641</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country =~ /^(United States|USA|US)$/)</td></tr>
-<tr><td class="h"><a id="L642">642</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $region =~ /^[A-Z]{2}$/</td></tr>
-<tr><td class="h"><a id="L647">647</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $city</td></tr>
-<tr><td class="h"><a id="L651">651</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (defined $city and defined $$city{&quot;Latitude&quot;})</td></tr>
-<tr><td class="h"><a id="L653">653</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if defined $$city{&quot;Region&quot;} and $$city{&quot;Region&quot;} =~ /^[A-Z]\d$/</td></tr>
-<tr><td class="h"><a id="L654">654</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if defined $$city{&quot;Population&quot;} and length $$city{&quot;Population&quot;} == 0</td></tr>
-<tr><td class="h"><a id="L662">662</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">$$options{&#39;City&#39;} ? :</td></tr>
-<tr><td class="h"><a id="L686">686</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not ref $self) { }</td></tr>
+<tr><td class="h"><a id="L642">642</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $city)</td></tr>
+<tr><td class="h"><a id="L645">645</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country =~ /^(United States|USA|US)$/)</td></tr>
+<tr><td class="h"><a id="L646">646</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $region =~ /^[A-Z]{2}$/</td></tr>
+<tr><td class="h"><a id="L651">651</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $city</td></tr>
+<tr><td class="h"><a id="L655">655</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (defined $city and defined $$city{&quot;Latitude&quot;})</td></tr>
+<tr><td class="h"><a id="L657">657</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if defined $$city{&quot;Region&quot;} and $$city{&quot;Region&quot;} =~ /^[A-Z]\d$/</td></tr>
+<tr><td class="h"><a id="L658">658</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if defined $$city{&quot;Population&quot;} and length $$city{&quot;Population&quot;} == 0</td></tr>
+<tr><td class="h"><a id="L666">666</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">$$options{&#39;City&#39;} ? :</td></tr>
+<tr><td class="h"><a id="L690">690</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not ref $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (ref $self eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (ref $_[0] eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (ref $_[0]) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (scalar @_ and scalar(@_) % 2 == 0) { }</td></tr>
-<tr><td class="h"><a id="L687">687</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @_) { }</td></tr>
+<tr><td class="h"><a id="L691">691</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @_) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not defined $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($self eq __PACKAGE__) { }</td></tr>
-<tr><td class="h"><a id="L714">714</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($latlng) { }</td></tr>
-<tr><td class="h"><a id="L722">722</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $latitude and defined $longitude)</td></tr>
-<tr><td class="h"><a id="L726">726</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $$self{&quot;cities&quot;})</td></tr>
-<tr><td class="h"><a id="L736">736</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $c and $c =~ /^-?\d+\.?\d*$/</td></tr>
-<tr><td class="h"><a id="L740">740</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (wantarray)</td></tr>
-<tr><td class="h"><a id="L760">760</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc)</td></tr>
-<tr><td class="h"><a id="L771">771</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $region = $$loc{&quot;Region&quot;})</td></tr>
-<tr><td class="h"><a id="L776">776</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county) { }</td></tr>
-<tr><td class="h"><a id="L779">779</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $$self{&quot;admin2&quot;} //= &quot;Geo::Coder::Free::DB::MaxMind::admin2&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
-<tr><td class="h"><a id="L788">788</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($_country =~ /^[A-Z]{2}$/ and $_reg =~ /^[A-Z0-9]{1,10}$/)</td></tr>
-<tr><td class="h"><a id="L792">792</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (ref $row and $$row{&quot;name&quot;})</td></tr>
+<tr><td class="h"><a id="L718">718</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($latlng) { }</td></tr>
+<tr><td class="h"><a id="L726">726</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $latitude and defined $longitude)</td></tr>
+<tr><td class="h"><a id="L730">730</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless (defined $$self{&quot;cities&quot;})</td></tr>
+<tr><td class="h"><a id="L740">740</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $c and $c =~ /^-?\d+\.?\d*$/</td></tr>
+<tr><td class="h"><a id="L744">744</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (wantarray)</td></tr>
+<tr><td class="h"><a id="L764">764</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc)</td></tr>
+<tr><td class="h"><a id="L775">775</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $region = $$loc{&quot;Region&quot;})</td></tr>
+<tr><td class="h"><a id="L780">780</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county) { }</td></tr>
+<tr><td class="h"><a id="L783">783</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $$self{&quot;admin2&quot;} //= &quot;Geo::Coder::Free::DB::MaxMind::admin2&quot;-&gt;new(&quot;no_entry&quot;, 1)</td></tr>
+<tr><td class="h"><a id="L792">792</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($_country =~ /^[A-Z]{2}$/ and $_reg =~ /^[A-Z0-9]{1,10}$/)</td></tr>
+<tr><td class="h"><a id="L796">796</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (ref $row and $$row{&quot;name&quot;})</td></tr>
 </table>
 </body>
 </html>
