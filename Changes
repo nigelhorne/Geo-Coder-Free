@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.50
+0.50	Wed Oct 21 11:01:07 AM EDT 2026
 	[ Enhancements ]
 	- Geo::Coder::Free->new() and Geo::Coder::Free::OpenAddresses->new() take
 	  libpostal => 0, which keeps Geo::libpostal from being loaded or used even
