@@ -120,6 +120,23 @@ Here's the method to find the location of Sittingbourne, Kent, England:
 
 The admin2.db is far from comprehensive, see Makefile.PL for some entries that are added manually.
 
+Called on an object, it returns a shallow copy with the arguments merged in.
+It croaks if the directory doesn't exist.  Other arguments are passed to
+L<Database::Abstraction>.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    directory => { type => 'string', optional => 1 }                           # holds databases/; defaults to beside this module
+    cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible; defaults to a global memory cache
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Coder::Free::MaxMind' }
+
 =cut
 
 sub new
@@ -175,6 +192,18 @@ C<%known_locations> entry - does not increase it.  C<geocode_many()> takes the
 count before and after a value to tell a lookup that cost a read from one that
 was answered from a cache.
 
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # none
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'integer', min => 0 }   # 0 for a new object
+
 =cut
 
 sub reads {
@@ -215,6 +244,24 @@ city name, C<region> when the lookup named only a region or a country - the row
 is then the first match in that region, not a city the caller asked for - and
 C<locality> for a hand-curated C<%known_locations> entry, whose coordinate is a
 town's.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict) - also accepts a hashref or a bare location string
+    location => { type => 'string' }                 # must contain a comma unless region is given
+    region   => { type => 'string', optional => 1 }  # ISO 3166-1 alpha-2 country code hint
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'object', isa => 'Geo::Location::Point', optional => 1 }   # at most one, in any context
+
+Returns nothing when the location has no comma and no region is given, when it
+is not found, or when it was already remembered as a miss.  It croaks on a
+missing location, on a reference other than a hashref, and on a location that
+fails L<Geo::Location::Predicate>'s rule, such as one made only of digits.
 
 =cut
 
@@ -678,6 +725,26 @@ sub geocode {
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
 
 Returns a string, or undef if it can't be found.
+The nearest place within 0.01 degrees is chosen; in list context every place
+within that distance is returned.  Separate C<lat> and C<lon> (or C<long>) are
+accepted instead of C<latlng>.  It croaks if a coordinate is missing or is not
+a decimal number.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict) - also accepts a hashref or a bare "lat,long" string
+    latlng => { type => 'string', optional => 1 }   # "lat,long"
+    lat    => { type => 'number', optional => 1 }   # with lon or long, when latlng isn't given
+    lon    => { type => 'number', optional => 1 }
+    long   => { type => 'number', optional => 1 }
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # scalar context: { type => 'string', optional => 1 }
+    # list context:   { type => 'arrayref', of => 'string' }
 
 =cut
 
@@ -806,6 +873,18 @@ sub _prepare {
 =head2	ua
 
 Does nothing, here for compatibility with other geocoders
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # any arguments are accepted and ignored
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # nothing: an empty list, or undef in scalar context
 
 =cut
 

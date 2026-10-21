@@ -176,6 +176,18 @@ A lookup answered from the result cache or from the shared miss cache does not
 increase it, so C<geocode_many()> can take the count before and after a value to
 tell a lookup that cost a read from one that was answered from a cache.
 
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # none
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'integer', min => 0 }   # 0 for a new object
+
 =cut
 
 sub reads {
@@ -1114,7 +1126,21 @@ sub _get {
 
     $location = $geocoder->reverse_geocode(latlng => '37.778907,-122.39732');
 
-To be done.
+To be done.  The database holds a hash of each address rather than the address
+itself, so a coordinate cannot be turned back into one.  It always croaks
+C<Reverse lookup is not yet supported>, whatever it is given.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # any arguments are accepted and ignored
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # none: always croaks
 
 =cut
 
@@ -1126,6 +1152,18 @@ sub reverse_geocode {
 =head2	ua
 
 Does nothing, here for compatibility with other geocoders
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # any arguments are accepted and ignored
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # nothing: an empty list, or undef in scalar context
 
 =cut
 

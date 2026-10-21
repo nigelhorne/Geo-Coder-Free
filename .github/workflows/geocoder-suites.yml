@@ -158,7 +158,7 @@ jobs:
           cpanm --notest --quiet \
             CHI HTML::Entities HTTP::Request JSON::MaybeXS LWP::UserAgent \
             LWP::Protocol::https Object::Configure Params::Get \
-            Params::Validate::Strict Readonly URI \
+            Geo::Location::Point Params::Validate::Strict Readonly URI \
             Test::Most Test::DescribeMe Test::Needs Test::NoWarnings
 
       # The sibling's own prerequisites, as its own CI installs them.  The six

@@ -12,6 +12,15 @@ Revision history for Geo-Coder-Free
 	[ Documentation ]
 	- Geo::Coder::Free::OpenAddresses documents the optional modules it uses, and
 	  that libpostal's first call loads a model of several gigabytes
+	- LIMITATIONS now says that, without OpenAddresses data, a two-part
+	  "City, Country" location is often answered with the wrong place, flagged
+	  accuracy 'region', and that accented names must be spelled as in the data
+	  and passed as character strings
+	- Fixed the geocode_many() example, which printed the array reference
+	  instead of the unresolved values
+	- API specifications for every public method of Geo::Coder::Free::MaxMind,
+	  and for the rest of OpenAddresses, Local and Geo::Coder::Free (reads,
+	  reverse_geocode, ua, run); the formal specification covers libpostal
 	[ Tests ]
 	- The OpenAddresses ReDoS test in t/edge_cases.t no longer times out when
 	  Geo::libpostal is installed.  Loading libpostal's model on its first call

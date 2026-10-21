@@ -21,6 +21,59 @@ use Scalar::Util;
 # Geo::Coder::Free::<name> by t/function.t, t/path.t and t/edge_cases.t.
 use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 
+# TODO: from the 0.50 gap analysis
+#
+# Errors and housekeeping:
+# TODO: OpenAddresses.pm croaks with the raw address as its whole message
+#	(Carp::croak($city), "TODO: do something here"), and croaks when
+#	Geo::StreetAddress::US finds no state.  Neither is documented or goes
+#	through a message table; return undef instead, or document them
+# TODO: MaxMind->new() croaks ": directory ... doesn't exist" with no package
+#	name, because ref($class) is '' when called on the class
+# TODO: xt/mutant_*.t stubs are committed by CI with 117 TODOs, against
+#	their own "DO NOT COMMIT" header; complete them or stop committing them
+#
+# Coverage and testing:
+# TODO: ship a small fixture openaddresses.sql and cities.sql so t/openaddr.t
+#	and t/maxmind.t run in CI.  CI branch coverage is 10.6% for
+#	OpenAddresses.pm and 26.9% for MaxMind.pm because neither database is there
+# TODO: accuracy tests - a table of well-known cities checked to within a
+#	tolerance with Utils::distance(), which would have caught the
+#	"City, Country" bug below
+# TODO: make sure .github/workflows/bare.yml (optional modules hidden) runs on
+#	every push; it is the only job that catches optional-module crashes such
+#	as 0.49's Geo::Address::Parser one
+#
+# Accuracy:
+# TODO: two-part "City, Country" in MaxMind.pm answers with the first row in a
+#	region ("Berlin, Germany" and "Munich, Germany" both give 52.08,7.38;
+#	"Toronto, Canada" lands in British Columbia; "Paris, France" is not
+#	found).  Choose the most populous matching city in the country - cities.sql
+#	has Population - which also covers the TODO about returning the central
+#	location in MaxMind.pm's geocode POD
+# TODO: fold accents (e.g. Text::Unidecode) as well as matching exactly, so
+#	"Zurich" finds the accented spelling in the data
+#
+# Features:
+# TODO: return ranked candidates with confidence in list context, rather than
+#	one point (the "Portlands" TODO in OpenAddresses.pm's geocode POD)
+# TODO: move %known_locations (MaxMind.pm, OpenAddresses.pm) and Local.pm's
+#	%alternatives into data files, and add the "dbname" parameter to
+#	OpenAddresses->new() that its BUGS section asks for
+# TODO: Canadian and Australian address parsing (Local.pm), and non-US parsing
+#	in OpenAddresses.pm, for users without Geo::libpostal
+# TODO: JSON/XML output from the website (Display/query.pm)
+#
+# Technical debt:
+# TODO: break OpenAddresses::geocode() (about 900 lines, US parsing nested
+#	eight deep) into per-country handlers that can be tested on their own
+# TODO: Free.pm, Local.pm and MaxMind.pm new() "only work with no arguments"
+#	when called as a function (FIXME in each)
+# TODO: fix the VWF-owned Allow.pm, Display.pm, Utils.pm and Config.pm in
+#	../vwf and sync: the Allow.pm warn and space-indented block, trailing space
+#	at Display.pm:476, unused Data::Dumper in Utils.pm and Config.pm, and their
+#	TODO/FIXME markers
+
 =head1 NAME
 
 Geo::Coder::Free - Geocoding using free, locally-hosted databases
@@ -114,6 +167,22 @@ the next C<geocode()> call on the same input starts iterating from the key
 B<after> the matched one, potentially missing the match entirely until C<each>
 wraps around.  Workaround: call C<keys %{$alt}> once to reset the iterator
 before iterating.
+
+=item * Without OpenAddresses data, a two-part C<"City, Country"> location is
+often answered wrongly.  The MaxMind backend reads the first part as a region
+when it can, and answers with the first row it finds in that region, not with
+the city: C<"Berlin, Germany"> and C<"Munich, Germany"> both come back at
+52.08, 7.38, and C<"Toronto, Canada"> comes back in British Columbia.  Some
+others, such as C<"Paris, France">, are not found at all.  These results carry
+C<< accuracy => 'region' >> and C<< confidence => 0.1 >>, so a caller that needs
+a city should check L</provenance> and reject them.  Naming the region as well,
+as in C<"Munich, Bavaria, Germany">, gives the right answer.
+
+=item * Place names are matched as they are spelled in the data, with no
+folding of accents: C<"ZE<uuml>rich, Switzerland"> is found and C<"Zurich, Switzerland">
+is not.  Pass locations as Perl character strings (decoded, for example by
+C<use utf8> or an C<:encoding(UTF-8)> layer), not as undecoded UTF-8 bytes,
+since a byte string does not match the name in the data.
 
 =back
 
@@ -781,7 +850,7 @@ the same handful of places thousands of times costs the handful of lookups.
         print "$backend read $reads times\n";
     }
 
-    for my $place ($batch->{'unresolved_values'}) {
+    for my $place (@{$batch->{'unresolved_values'}}) {
         warn "no coordinates for '" . (defined($place) ? $place : '') . "'\n";
     }
 
@@ -1094,6 +1163,18 @@ sub reverse_geocode {
 
 Does nothing.  Present for drop-in compatibility with other Geo::Coder::* modules.
 
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # any arguments are accepted and ignored
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # nothing: an empty list, or undef in scalar context
+
 =cut
 
 sub ua { }
@@ -1103,6 +1184,24 @@ sub ua { }
 Command-line entry point.  Use as:
 
     perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
+
+The arguments are joined with spaces into one location, which is geocoded with
+OpenAddresses as well when C<OPENADDR_HOME> is set.  The results are printed to
+standard output with L<Data::Dumper>.  It croaks C<geocoding failed> if nothing
+is found.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    class    => { type => 'string' }                    # Geo::Coder::Free
+    location => { type => 'arrayref', of => 'string' }  # the words of the location, joined with spaces
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'boolean' }   # the return value of print; croaks if nothing was found
 
 =cut
 
@@ -1402,10 +1501,21 @@ Nigel Horne C<< <njh@nigelhorne.com> >>
                               alternatives: Map[STRING → STRING];
                               cache       : Cache | undef ⟩⟩
 
+    OpenAddrState ::= ⟨⟨ openaddr  : PATH;
+                          cache     : Cache | undef;
+                          libpostal : BOOLEAN ⟩⟩
+
     Init : Params → GeoCoderFreeState
     ∀ p : Params •
       let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
-      GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
+      GeoCoderFreeState.openaddr = if oa_path ≠ ∅
+                                   then OpenAddresses(oa_path, p.cache, p.libpostal)
+                                   else undef fi
+      ∧ (oa_path ≠ ∅ ⟹ GeoCoderFreeState.openaddr.libpostal =
+                          if p.libpostal = undef then true else p.libpostal fi)
+
+    -- libpostal = false: Geo::libpostal is never loaded or called
+    ∀ s : OpenAddrState • ¬ s.libpostal ⟹ Geo::libpostal ∉ loaded_by(s.geocode)
 
 =head2 valid_location
 

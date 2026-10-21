@@ -75,6 +75,20 @@ the next `geocode()` call on the same input starts iterating from the key
 **after** the matched one, potentially missing the match entirely until `each`
 wraps around.  Workaround: call `keys %{$alt}` once to reset the iterator
 before iterating.
+- Without OpenAddresses data, a two-part `"City, Country"` location is
+often answered wrongly.  The MaxMind backend reads the first part as a region
+when it can, and answers with the first row it finds in that region, not with
+the city: `"Berlin, Germany"` and `"Munich, Germany"` both come back at
+52.08, 7.38, and `"Toronto, Canada"` comes back in British Columbia.  Some
+others, such as `"Paris, France"`, are not found at all.  These results carry
+`accuracy => 'region'` and `confidence => 0.1`, so a caller that needs
+a city should check ["provenance"](#provenance) and reject them.  Naming the region as well,
+as in `"Munich, Bavaria, Germany"`, gives the right answer.
+- Place names are matched as they are spelled in the data, with no
+folding of accents: `"Zürich, Switzerland"` is found and `"Zurich, Switzerland"`
+is not.  Pass locations as Perl character strings (decoded, for example by
+`use utf8` or an `:encoding(UTF-8)` layer), not as undecoded UTF-8 bytes,
+since a byte string does not match the name in the data.
 
 ## Methods
 
@@ -455,7 +469,7 @@ while (my ($backend, $reads) = each %{$batch->{'reads'}}) {
     print "$backend read $reads times\n";
 }
 
-for my $place ($batch->{'unresolved_values'}) {
+for my $place (@{$batch->{'unresolved_values'}}) {
     warn "no coordinates for '" . (defined($place) ? $place : '') . "'\n";
 }
 ```
@@ -593,12 +607,50 @@ latlng => { type => 'scalar' }  # "$lat,$long" comma-separated decimal degrees
 
 Does nothing.  Present for drop-in compatibility with other Geo::Coder::\* modules.
 
+#### Api Specification
+
+##### Input
+
+```
+# Input schema (Params::Validate::Strict)
+# any arguments are accepted and ignored
+```
+
+##### Output
+
+```
+# Output schema (Return::Set)
+# nothing: an empty list, or undef in scalar context
+```
+
 ### Run
 
 Command-line entry point.  Use as:
 
 ```
 perl lib/Geo/Coder/Free.pm 1600 Pennsylvania Avenue NW, Washington DC
+```
+
+The arguments are joined with spaces into one location, which is geocoded with
+OpenAddresses as well when `OPENADDR_HOME` is set.  The results are printed to
+standard output with [Data::Dumper](https://metacpan.org/pod/Data%3A%3ADumper).  It croaks `geocoding failed` if nothing
+is found.
+
+#### Api Specification
+
+##### Input
+
+```perl
+# Input schema (Params::Validate::Strict)
+class    => { type => 'string' }                    # Geo::Coder::Free
+location => { type => 'arrayref', of => 'string' }  # the words of the location, joined with spaces
+```
+
+##### Output
+
+```perl
+# Output schema (Return::Set)
+{ type => 'boolean' }   # the return value of print; croaks if nothing was found
 ```
 
 ## Getting Started
@@ -691,10 +743,21 @@ GeoCoderFreeState ::= ⟨⟨ maxmind     : MaxMind_Geocoder;
                           alternatives: Map[STRING → STRING];
                           cache       : Cache | undef ⟩⟩
 
+OpenAddrState ::= ⟨⟨ openaddr  : PATH;
+                      cache     : Cache | undef;
+                      libpostal : BOOLEAN ⟩⟩
+
 Init : Params → GeoCoderFreeState
 ∀ p : Params •
   let oa_path == p.openaddr ∨ env.OPENADDR_HOME •
-  GeoCoderFreeState.openaddr = if oa_path ≠ ∅ then OpenAddresses(oa_path) else undef fi
+  GeoCoderFreeState.openaddr = if oa_path ≠ ∅
+                               then OpenAddresses(oa_path, p.cache, p.libpostal)
+                               else undef fi
+  ∧ (oa_path ≠ ∅ ⟹ GeoCoderFreeState.openaddr.libpostal =
+                      if p.libpostal = undef then true else p.libpostal fi)
+
+-- libpostal = false: Geo::libpostal is never loaded or called
+∀ s : OpenAddrState • ¬ s.libpostal ⟹ Geo::libpostal ∉ loaded_by(s.geocode)
 ```
 
 ### Valid\_Location

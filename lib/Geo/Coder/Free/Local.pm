@@ -243,6 +243,18 @@ shared miss cache does not increase it, so C<geocode_many()> can take the count
 before and after a value to tell a lookup that cost a search from one that was
 answered from a cache.
 
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # none
+
+=head4 output
+
+    # Output schema (Return::Set)
+    { type => 'integer', min => 0 }   # 0 for a new object
+
 =cut
 
 sub reads {
@@ -738,6 +750,18 @@ sub reverse_geocode {
 =head2 ua
 
 Does nothing - present for drop-in compatibility with other Geo::Coder::* modules.
+
+=head3 API SPECIFICATION
+
+=head4 input
+
+    # Input schema (Params::Validate::Strict)
+    # any arguments are accepted and ignored
+
+=head4 output
+
+    # Output schema (Return::Set)
+    # nothing: an empty list, or undef in scalar context
 
 =cut
 
