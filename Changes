@@ -1,5 +1,24 @@
 Revision history for Geo-Coder-Free
 
+0.50
+	[ Enhancements ]
+	- Geo::Coder::Free->new() and Geo::Coder::Free::OpenAddresses->new() take
+	  libpostal => 0, which keeps Geo::libpostal from being loaded or used even
+	  when it is installed
+	[ Bug Fixes ]
+	- Geo::Coder::Free::OpenAddresses no longer dies with "Can't locate
+	  Geo/Address/Parser.pm" on a US address when the optional
+	  Geo::Address::Parser isn't installed; it skips that step instead
+	[ Documentation ]
+	- Geo::Coder::Free::OpenAddresses documents the optional modules it uses, and
+	  that libpostal's first call loads a model of several gigabytes
+	[ Tests ]
+	- The OpenAddresses ReDoS test in t/edge_cases.t no longer times out when
+	  Geo::libpostal is installed.  Loading libpostal's model on its first call
+	  could take longer than the 5 second limit, which failed the 0.49 install
+	- The ReDoS tests in t/edge_cases.t fail on any error, not only a timeout
+	- New t/optional-modules.t runs OpenAddresses without Geo::Address::Parser
+
 0.49	Tue Oct 20 08:03:03 PM EDT 2026
 	[ Enhancements ]
 	- Requires Perl 5.20, which Geo::Coder::Free::Utils has always needed

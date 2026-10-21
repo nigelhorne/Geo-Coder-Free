@@ -27,11 +27,11 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
-Version 0.49
+Version 0.50
 
 =cut
 
-our $VERSION = '0.49';
+our $VERSION = '0.50';
 
 =encoding utf-8
 
@@ -200,6 +200,10 @@ to those shared references are immediately visible in both objects.
     openaddr  => { type => 'scalar', optional => 1 }                          # path to OpenAddresses/WOF data dir
     directory => { type => 'scalar', optional => 1 }                          # path to MaxMind/GeoNames files
     cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible cache object
+    libpostal => { type => 'boolean', optional => 1, default => 1 }           # false: OpenAddresses never uses Geo::libpostal
+
+C<libpostal> is passed to L<Geo::Coder::Free::OpenAddresses>; see its
+"Optional modules" section for why you might turn it off.
 
 =head4 output
 

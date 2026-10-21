@@ -85,6 +85,7 @@ t/no404s.t
 t/noopentickets.t
 t/noplan.t
 t/openaddr.t
+t/optional-modules.t
 t/osm.t
 t/path.t
 t/pod-cm.t
