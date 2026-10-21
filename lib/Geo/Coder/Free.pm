@@ -161,13 +161,6 @@ a preceding capital-letter word directly before the city.
 =item * C<reverse_geocode> is only partially implemented; the MaxMind path does
 not return meaningful results.
 
-=item * The C<alternatives> map loop uses C<each %{$alt}>, which retains its
-iterator position across calls.  After a successful match and early C<return>,
-the next C<geocode()> call on the same input starts iterating from the key
-B<after> the matched one, potentially missing the match entirely until C<each>
-wraps around.  Workaround: call C<keys %{$alt}> once to reset the iterator
-before iterating.
-
 =item * Without OpenAddresses data, a two-part C<"City, Country"> location is
 often answered wrongly.  The MaxMind backend reads the first part as a region
 when it can, and answers with the first row it finds in that region, not with
@@ -673,7 +666,11 @@ sub geocode {
 		# former `if (!$params{'scantext'})` guard was a tautology — removed.
 		if (my $alt = $self->{'alternatives'}) {
 			my $location = $params{'location'};
-			while (my ($key, $value) = each %{$alt}) {
+			# Not each(): the recursive geocode() calls below walk the same
+			# hash, sharing and resetting its iterator, so an each() loop here
+			# would start again from the top and retry the same key forever.
+			foreach my $key (sort keys %{$alt}) {
+				my $value = $alt->{$key};
 				next unless $location =~ $key;
 				(my $new_loc = $location) =~ s/$key/$value/;
 				$params{'location'} = $new_loc;
