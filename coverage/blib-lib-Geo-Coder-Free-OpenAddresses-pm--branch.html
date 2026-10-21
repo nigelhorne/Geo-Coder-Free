@@ -28,214 +28,214 @@ https://pjcj.net
 <tr><td class="h"><a id="L156">156</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $class</td></tr>
 <tr><td class="h"><a id="L158">158</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $openaddr = $param{&quot;openaddr&quot;})</td></tr>
 <tr><td class="h"><a id="L159">159</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless -d $openaddr and -r $openaddr</td></tr>
-<tr><td class="h"><a id="L241">241</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@_ == 1 &amp;&amp; !ref($_[0]) ? :</td></tr>
-<tr><td class="h"><a id="L246">246</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($$param{&quot;ignore_words&quot;})</td></tr>
-<tr><td class="h"><a id="L250">250</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $scantext = $$param{&quot;scantext&quot;})</td></tr>
-<tr><td class="h"><a id="L251">251</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if length $scantext &lt; 6</td></tr>
-<tr><td class="h"><a id="L259">259</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region)</td></tr>
-<tr><td class="h"><a id="L263">263</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $words[$offset] &lt; 2)</td></tr>
-<tr><td class="h"><a id="L267">267</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (exists $ignore_words{lc $words[$offset]})</td></tr>
-<tr><td class="h"><a id="L272">272</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, $words[$offset]) and ref $l)</td></tr>
-<tr><td class="h"><a id="L275">275</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($offset &lt; $count - 1)</td></tr>
-<tr><td class="h"><a id="L277">277</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $addr == 0)</td></tr>
-<tr><td class="h"><a id="L282">282</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr =~ /\s+(?:\d{2,5}\s+)(?![ap]m\b)(?:(?:[a-zA-Z\s]{1,5}){1,2})?(?:[\s,.]+)?(?:(?:[a-zA-Z\s]{1,30}){1,4})(?:court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)(?:[\s,.;]+)?(?:(?:[a-zA-Z\s]{1,30}){1,2})(?:[\s,.]+)?\b(?:AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)(?:[\s,.]+)?(?:\s+\d{5})?(?:[\s,.]+)/i) { }</td></tr>
+<tr><td class="h"><a id="L253">253</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@_ == 1 &amp;&amp; !ref($_[0]) ? :</td></tr>
+<tr><td class="h"><a id="L258">258</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($$param{&quot;ignore_words&quot;})</td></tr>
+<tr><td class="h"><a id="L262">262</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $scantext = $$param{&quot;scantext&quot;})</td></tr>
+<tr><td class="h"><a id="L263">263</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if length $scantext &lt; 6</td></tr>
+<tr><td class="h"><a id="L271">271</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region)</td></tr>
+<tr><td class="h"><a id="L275">275</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $words[$offset] &lt; 2)</td></tr>
+<tr><td class="h"><a id="L279">279</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (exists $ignore_words{lc $words[$offset]})</td></tr>
+<tr><td class="h"><a id="L284">284</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, $words[$offset]) and ref $l)</td></tr>
+<tr><td class="h"><a id="L287">287</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($offset &lt; $count - 1)</td></tr>
+<tr><td class="h"><a id="L289">289</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $addr == 0)</td></tr>
+<tr><td class="h"><a id="L294">294</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr =~ /\s+(?:\d{2,5}\s+)(?![ap]m\b)(?:(?:[a-zA-Z\s]{1,5}){1,2})?(?:[\s,.]+)?(?:(?:[a-zA-Z\s]{1,30}){1,4})(?:court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)(?:[\s,.;]+)?(?:(?:[a-zA-Z\s]{1,30}){1,2})(?:[\s,.]+)?\b(?:AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)(?:[\s,.]+)?(?:\s+\d{5})?(?:[\s,.]+)/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($addr =~ /\s+(?:\d{2,5}\s+)(?![ap]m\b)(?:(?:[a-zA-Z\s]{1,5}){1,2})?(?:[\s,.]+)?(?:(?:[a-zA-Z\s]{1,30}){1,4})(?:court|ct|street|st|drive|dr|lane|ln|road|rd|blvd)(?:[\s,.;]+)?(?:(?:[a-zA-Z\s]{1,30}){1,2})(?:[\s,.]+)?\b(?:AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)(?:[\s,.]+)?(?:\s+\d{5})?(?:[\s,.]+)/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($addr =~ /([A-Za-z]+(?:\s+[A-Za-z]+)*)([\s,.]+)?\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|GU|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VI|VT|WA|WI|WV|WY)/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($addr =~ /([A-Za-z]+(?:\s+[A-Za-z]+)*)([\s,.]+)?\b(AB|BC|MB|NB|NL|NT|NS|ON|PE|QC|SK|YT)/i) { }</td></tr>
-<tr><td class="h"><a id="L283">283</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L284">284</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, US&quot;) and ref $l)</td></tr>
-<tr><td class="h"><a id="L292">292</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;CA&quot;)</td></tr>
-<tr><td class="h"><a id="L293">293</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, Canada&quot;) and ref $l)</td></tr>
-<tr><td class="h"><a id="L301">301</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;US&quot;)</td></tr>
-<tr><td class="h"><a id="L302">302</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, US&quot;) and ref $l)</td></tr>
-<tr><td class="h"><a id="L312">312</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;CA&quot;)</td></tr>
-<tr><td class="h"><a id="L313">313</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, Canada&quot;) and ref $l)</td></tr>
-<tr><td class="h"><a id="L323">323</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region and ($l = $self-&gt;geocode(&#39;location&#39;, &quot;$addr, $region&quot;) and ref $l)) { }</td></tr>
+<tr><td class="h"><a id="L295">295</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L296">296</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, US&quot;) and ref $l)</td></tr>
+<tr><td class="h"><a id="L304">304</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;CA&quot;)</td></tr>
+<tr><td class="h"><a id="L305">305</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, Canada&quot;) and ref $l)</td></tr>
+<tr><td class="h"><a id="L313">313</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;US&quot;)</td></tr>
+<tr><td class="h"><a id="L314">314</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, US&quot;) and ref $l)</td></tr>
+<tr><td class="h"><a id="L324">324</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($region and $region ne &quot;CA&quot;)</td></tr>
+<tr><td class="h"><a id="L325">325</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, &quot;$addr, Canada&quot;) and ref $l)</td></tr>
+<tr><td class="h"><a id="L335">335</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region and ($l = $self-&gt;geocode(&#39;location&#39;, &quot;$addr, $region&quot;) and ref $l)) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (not $region and ($l = $self-&gt;geocode(&#39;location&#39;, $addr) and ref $l)) { }</td></tr>
-<tr><td class="h"><a id="L332">332</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($offset &lt; $count - 2)</td></tr>
-<tr><td class="h"><a id="L334">334</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, $addr) and ref $l)</td></tr>
-<tr><td class="h"><a id="L354">354</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $location = $$param{&quot;location&quot;}</td></tr>
-<tr><td class="h"><a id="L359">359</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^,\s*(.+)/)</td></tr>
-<tr><td class="h"><a id="L368">368</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless _valid_location($location)</td></tr>
-<tr><td class="h"><a id="L369">369</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if length $location &lt;= 1</td></tr>
-<tr><td class="h"><a id="L371">371</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+),?\s*Washington\s*DC$/i) { }</td></tr>
+<tr><td class="h"><a id="L344">344</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($offset &lt; $count - 2)</td></tr>
+<tr><td class="h"><a id="L346">346</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l = $self-&gt;geocode(&quot;location&quot;, $addr) and ref $l)</td></tr>
+<tr><td class="h"><a id="L366">366</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $location = $$param{&quot;location&quot;}</td></tr>
+<tr><td class="h"><a id="L371">371</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^,\s*(.+)/)</td></tr>
+<tr><td class="h"><a id="L380">380</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless _valid_location($location)</td></tr>
+<tr><td class="h"><a id="L381">381</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if length $location &lt;= 1</td></tr>
+<tr><td class="h"><a id="L383">383</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+),?\s*Washington\s*DC$/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /^(.*),?\s*Saint Louis, (Missouri|MO)(.*)$/) { }</td></tr>
-<tr><td class="h"><a id="L378">378</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $known_locations{$location})</td></tr>
-<tr><td class="h"><a id="L403">403</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($location =~ /,/)</td></tr>
-<tr><td class="h"><a id="L404">404</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+?)\s+(United States|USA|US)$/i) { }</td></tr>
+<tr><td class="h"><a id="L390">390</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $known_locations{$location})</td></tr>
+<tr><td class="h"><a id="L415">415</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($location =~ /,/)</td></tr>
+<tr><td class="h"><a id="L416">416</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+?)\s+(United States|USA|US)$/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /^(.+?)\s+(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /^(.+?)\s+Canada$/i) { }</td></tr>
-<tr><td class="h"><a id="L406">406</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L411">411</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L418">418</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;GB&quot;))</td></tr>
-<tr><td class="h"><a id="L425">425</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L432">432</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /USA$/ or $location =~ /United States$/) { }</td></tr>
+<tr><td class="h"><a id="L418">418</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L423">423</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L430">430</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;GB&quot;))</td></tr>
+<tr><td class="h"><a id="L437">437</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($l, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L444">444</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /USA$/ or $location =~ /United States$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /(England|Scotland|Wales|Northern Ireland|UK|GB)$/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /Canada$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /Australia$/) { }</td></tr>
-<tr><td class="h"><a id="L445">445</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($ap)</td></tr>
-<tr><td class="h"><a id="L447">447</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l =~ /(.+), (England|UK)$/i)</td></tr>
-<tr><td class="h"><a id="L450">450</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ap-&gt;parse($l)) { }</td></tr>
-<tr><td class="h"><a id="L456">456</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = $c{&quot;street_type&quot;})</td></tr>
-<tr><td class="h"><a id="L457">457</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $a = _abbreviate($type)) { }</td></tr>
-<tr><td class="h"><a id="L462">462</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $suffix = $c{&quot;street_direction_suffix&quot;})</td></tr>
-<tr><td class="h"><a id="L468">468</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $c{&#39;subcountry&#39;} == 2) { }</td></tr>
-<tr><td class="h"><a id="L471">471</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c{&#39;country&#39;} =~ /Canada/i) { }</td></tr>
+<tr><td class="h"><a id="L457">457</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($ap)</td></tr>
+<tr><td class="h"><a id="L459">459</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($l =~ /(.+), (England|UK)$/i)</td></tr>
+<tr><td class="h"><a id="L462">462</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($ap-&gt;parse($l)) { }</td></tr>
+<tr><td class="h"><a id="L468">468</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = $c{&quot;street_type&quot;})</td></tr>
+<tr><td class="h"><a id="L469">469</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $a = _abbreviate($type)) { }</td></tr>
+<tr><td class="h"><a id="L474">474</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $suffix = $c{&quot;street_direction_suffix&quot;})</td></tr>
+<tr><td class="h"><a id="L480">480</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $c{&#39;subcountry&#39;} == 2) { }</td></tr>
+<tr><td class="h"><a id="L483">483</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c{&#39;country&#39;} =~ /Canada/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($c{&#39;country&#39;} =~ /^(United States|USA|US)$/i) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($c{&#39;country&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L473">473</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $c{&quot;subcountry&quot;}})</td></tr>
-<tr><td class="h"><a id="L478">478</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $c{&quot;subcountry&quot;}})</td></tr>
-<tr><td class="h"><a id="L483">483</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c{&quot;subcountry&quot;})</td></tr>
-<tr><td class="h"><a id="L490">490</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;house_number&quot;})</td></tr>
-<tr><td class="h"><a id="L491">491</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;house_number&quot;, &quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
-<tr><td class="h"><a id="L495">495</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($addr{&quot;house_number&quot;} and $$param{&quot;exact&quot;})</td></tr>
-<tr><td class="h"><a id="L496">496</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
-<tr><td class="h"><a id="L503">503</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i)</td></tr>
-<tr><td class="h"><a id="L511">511</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $location =~ /\sCounty,/i and my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_location($l) || &#39;Geo::StreetAddress::US&#39;-&gt;parse_address($l))</td></tr>
-<tr><td class="h"><a id="L512">512</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = $$href{&quot;state&quot;})</td></tr>
-<tr><td class="h"><a id="L513">513</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L514">514</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L519">519</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
-<tr><td class="h"><a id="L522">522</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $$href{&quot;street&quot;})</td></tr>
-<tr><td class="h"><a id="L523">523</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;type&quot;} and my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
-<tr><td class="h"><a id="L526">526</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
-<tr><td class="h"><a id="L529">529</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
-<tr><td class="h"><a id="L532">532</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
-<tr><td class="h"><a id="L533">533</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L538">538</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L548">548</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @addr == 5)</td></tr>
-<tr><td class="h"><a id="L550">550</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L551">551</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L555">555</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state == 2)</td></tr>
-<tr><td class="h"><a id="L557">557</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($addr[0], $addr[1], $addr[2], $state, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L563">563</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state == 2)</td></tr>
-<tr><td class="h"><a id="L566">566</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($addr[0], $addr[1], $addr[2], $state, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L570">570</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($addr[0], $addr[1], $state, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L578">578</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) { }</td></tr>
+<tr><td class="h"><a id="L485">485</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $c{&quot;subcountry&quot;}})</td></tr>
+<tr><td class="h"><a id="L490">490</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $c{&quot;subcountry&quot;}})</td></tr>
+<tr><td class="h"><a id="L495">495</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c{&quot;subcountry&quot;})</td></tr>
+<tr><td class="h"><a id="L502">502</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;house_number&quot;})</td></tr>
+<tr><td class="h"><a id="L503">503</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;house_number&quot;, &quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
+<tr><td class="h"><a id="L507">507</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($addr{&quot;house_number&quot;} and $$param{&quot;exact&quot;})</td></tr>
+<tr><td class="h"><a id="L508">508</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
+<tr><td class="h"><a id="L515">515</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i)</td></tr>
+<tr><td class="h"><a id="L523">523</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $location =~ /\sCounty,/i and my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_location($l) || &#39;Geo::StreetAddress::US&#39;-&gt;parse_address($l))</td></tr>
+<tr><td class="h"><a id="L524">524</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($state = $$href{&quot;state&quot;})</td></tr>
+<tr><td class="h"><a id="L525">525</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L526">526</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L531">531</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
+<tr><td class="h"><a id="L534">534</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $$href{&quot;street&quot;})</td></tr>
+<tr><td class="h"><a id="L535">535</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;type&quot;} and my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
+<tr><td class="h"><a id="L538">538</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
+<tr><td class="h"><a id="L541">541</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
+<tr><td class="h"><a id="L544">544</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
+<tr><td class="h"><a id="L545">545</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L550">550</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L560">560</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (scalar @addr == 5)</td></tr>
+<tr><td class="h"><a id="L562">562</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L563">563</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L567">567</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state == 2)</td></tr>
+<tr><td class="h"><a id="L569">569</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($addr[0], $addr[1], $addr[2], $state, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L575">575</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state == 2)</td></tr>
+<tr><td class="h"><a id="L578">578</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($addr[0], $addr[1], $addr[2], $state, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L582">582</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get($addr[0], $addr[1], $state, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L590">590</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif ($location =~ /([a-z\s]+),?\s*(United States|USA|US|Canada)$/i) { }</td></tr>
-<tr><td class="h"><a id="L587">587</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (uc $country eq &#39;ENGLAND&#39; or uc $country eq &#39;SCOTLAND&#39; or uc $country eq &#39;WALES&#39;) { }</td></tr>
-<tr><td class="h"><a id="L595">595</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($c)</td></tr>
-<tr><td class="h"><a id="L596">596</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c eq &#39;us&#39;) { }</td></tr>
+<tr><td class="h"><a id="L599">599</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (uc $country eq &#39;ENGLAND&#39; or uc $country eq &#39;SCOTLAND&#39; or uc $country eq &#39;WALES&#39;) { }</td></tr>
+<tr><td class="h"><a id="L607">607</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($c)</td></tr>
+<tr><td class="h"><a id="L608">608</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c eq &#39;us&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($c eq &#39;ca&#39;) { }</td></tr>
-<tr><td class="h"><a id="L597">597</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L598">598</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L604">604</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $city =~ /,/) { }</td></tr>
+<tr><td class="h"><a id="L609">609</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L610">610</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L616">616</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $city =~ /,/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_address(&quot;$city, $state&quot;)) { }</td></tr>
-<tr><td class="h"><a id="L606">606</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(.+)\sCOUNTY$/) { }</td></tr>
-<tr><td class="h"><a id="L608">608</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$1$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L614">614</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L623">623</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L624">624</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L628">628</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
-<tr><td class="h"><a id="L634">634</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $fullstreet)</td></tr>
-<tr><td class="h"><a id="L637">637</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
-<tr><td class="h"><a id="L640">640</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
-<tr><td class="h"><a id="L645">645</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
-<tr><td class="h"><a id="L647">647</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
-<tr><td class="h"><a id="L651">651</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
-<tr><td class="h"><a id="L652">652</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L656">656</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$fullstreet$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L662">662</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L667">667</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L672">672</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$fullstreet$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L680">680</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) { }</td></tr>
+<tr><td class="h"><a id="L618">618</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(.+)\sCOUNTY$/) { }</td></tr>
+<tr><td class="h"><a id="L620">620</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$1$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L626">626</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L635">635</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L636">636</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L640">640</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
+<tr><td class="h"><a id="L646">646</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $fullstreet)</td></tr>
+<tr><td class="h"><a id="L649">649</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
+<tr><td class="h"><a id="L652">652</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
+<tr><td class="h"><a id="L657">657</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
+<tr><td class="h"><a id="L659">659</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
+<tr><td class="h"><a id="L663">663</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
+<tr><td class="h"><a id="L664">664</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L668">668</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$fullstreet$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L674">674</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L679">679</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L684">684</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$fullstreet$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L692">692</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(\d.+),\s*([\w\s]+),\s*([\w\s]+)/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/) { }</td></tr>
-<tr><td class="h"><a id="L682">682</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_address($lookup) || &#39;Geo::StreetAddress::US&#39;-&gt;parse_location($lookup))</td></tr>
-<tr><td class="h"><a id="L687">687</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&#39;state&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L692">692</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L693">693</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L698">698</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
-<tr><td class="h"><a id="L701">701</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
-<tr><td class="h"><a id="L704">704</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $$href{&quot;street&quot;})</td></tr>
-<tr><td class="h"><a id="L705">705</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
-<tr><td class="h"><a id="L708">708</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
-<tr><td class="h"><a id="L711">711</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
-<tr><td class="h"><a id="L715">715</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
-<tr><td class="h"><a id="L716">716</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
-<tr><td class="h"><a id="L717">717</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$county$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L722">722</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L726">726</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
-<tr><td class="h"><a id="L727">727</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$county$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L732">732</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L746">746</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($second =~ /(\d+)\s+(.+)/)</td></tr>
-<tr><td class="h"><a id="L749">749</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L756">756</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L761">761</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$state&quot;, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L769">769</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L773">773</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($copy =~ s/(\d+)\s+/$1/)</td></tr>
-<tr><td class="h"><a id="L774">774</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;US&quot;))</td></tr>
-<tr><td class="h"><a id="L783">783</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L784">784</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L789">789</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $city =~ /,/) { }</td></tr>
+<tr><td class="h"><a id="L694">694</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $href = &#39;Geo::StreetAddress::US&#39;-&gt;parse_address($lookup) || &#39;Geo::StreetAddress::US&#39;-&gt;parse_location($lookup))</td></tr>
+<tr><td class="h"><a id="L699">699</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&#39;state&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L704">704</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L705">705</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L710">710</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
+<tr><td class="h"><a id="L713">713</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
+<tr><td class="h"><a id="L716">716</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $$href{&quot;street&quot;})</td></tr>
+<tr><td class="h"><a id="L717">717</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
+<tr><td class="h"><a id="L720">720</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
+<tr><td class="h"><a id="L723">723</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
+<tr><td class="h"><a id="L727">727</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
+<tr><td class="h"><a id="L728">728</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
+<tr><td class="h"><a id="L729">729</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$county$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L734">734</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($$href{&quot;number&quot;}, &quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L738">738</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($county)</td></tr>
+<tr><td class="h"><a id="L739">739</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$county$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L744">744</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$street$city$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L758">758</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($second =~ /(\d+)\s+(.+)/)</td></tr>
+<tr><td class="h"><a id="L761">761</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L768">768</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L773">773</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$state&quot;, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L781">781</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L785">785</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($copy =~ s/(\d+)\s+/$1/)</td></tr>
+<tr><td class="h"><a id="L786">786</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;US&quot;))</td></tr>
+<tr><td class="h"><a id="L795">795</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L796">796</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L801">801</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (not $city =~ /,/) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif (my $href = 0) { }</td></tr>
-<tr><td class="h"><a id="L792">792</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$city$state&quot;, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L800">800</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L801">801</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L806">806</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
-<tr><td class="h"><a id="L809">809</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
-<tr><td class="h"><a id="L812">812</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $$href{&quot;street&quot;})</td></tr>
-<tr><td class="h"><a id="L813">813</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
-<tr><td class="h"><a id="L816">816</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
-<tr><td class="h"><a id="L820">820</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
-<tr><td class="h"><a id="L821">821</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
-<tr><td class="h"><a id="L828">828</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/)</td></tr>
-<tr><td class="h"><a id="L833">833</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L840">840</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L845">845</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$state&quot;, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L853">853</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L857">857</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($copy =~ s/(\d+)\s+/$1/)</td></tr>
-<tr><td class="h"><a id="L858">858</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;CA&quot;))</td></tr>
-<tr><td class="h"><a id="L869">869</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c eq &quot;au&quot; and length $state &gt; 3)</td></tr>
-<tr><td class="h"><a id="L870">870</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $abbrev = &quot;Locale::SubCountry&quot;-&gt;new(&quot;AU&quot;)-&gt;code(ucfirst lc $state))</td></tr>
-<tr><td class="h"><a id="L871">871</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($abbrev ne &quot;unknown&quot;)</td></tr>
-<tr><td class="h"><a id="L876">876</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(\w[\w\s]+),\s*([,\w\s]+)/)</td></tr>
-<tr><td class="h"><a id="L881">881</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street =~ /^(\d+)\s+(.+)/)</td></tr>
-<tr><td class="h"><a id="L887">887</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq &quot;MINSTER, THANET&quot;)</td></tr>
-<tr><td class="h"><a id="L891">891</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($number)</td></tr>
-<tr><td class="h"><a id="L892">892</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$number$street$city$state$c&quot;))</td></tr>
-<tr><td class="h"><a id="L897">897</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$street$city$state$c&quot;))</td></tr>
-<tr><td class="h"><a id="L901">901</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($street and $$param{&quot;exact&quot;})</td></tr>
-<tr><td class="h"><a id="L902">902</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$city$state$c&quot;))</td></tr>
-<tr><td class="h"><a id="L920">920</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country =~ /Canada/i) { }</td></tr>
-<tr><td class="h"><a id="L922">922</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L923">923</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L929">929</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
-<tr><td class="h"><a id="L930">930</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
-<tr><td class="h"><a id="L935">935</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$state$country&quot;))</td></tr>
-<tr><td class="h"><a id="L941">941</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($country)</td></tr>
-<tr><td class="h"><a id="L943">943</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless (&quot;Geo::Address::Parser&quot;-&gt;can(&quot;parse&quot;))</td></tr>
-<tr><td class="h"><a id="L947">947</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($country eq &quot;US&quot; and &quot;Geo::Address::Parser&quot;-&gt;can(&quot;parse&quot;))</td></tr>
-<tr><td class="h"><a id="L949">949</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $fields = $addr_parser-&gt;parse($location))</td></tr>
-<tr><td class="h"><a id="L951">951</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $$fields{$key}</td></tr>
-<tr><td class="h"><a id="L953">953</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search($fields, keys %{$fields;}))</td></tr>
-<tr><td class="h"><a id="L963">963</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($use_libpostal and $libpostal_is_installed == 0)</td></tr>
-<tr><td class="h"><a id="L964">964</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (eval {
+<tr><td class="h"><a id="L804">804</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$city$state&quot;, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L812">812</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L813">813</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L818">818</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;city&quot;})</td></tr>
+<tr><td class="h"><a id="L821">821</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;number&quot;})</td></tr>
+<tr><td class="h"><a id="L824">824</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $$href{&quot;street&quot;})</td></tr>
+<tr><td class="h"><a id="L825">825</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $type = _abbreviate($$href{&quot;type&quot;}))</td></tr>
+<tr><td class="h"><a id="L828">828</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$href{&quot;suffix&quot;})</td></tr>
+<tr><td class="h"><a id="L832">832</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street)</td></tr>
+<tr><td class="h"><a id="L833">833</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $prefix = $$href{&quot;prefix&quot;})</td></tr>
+<tr><td class="h"><a id="L840">840</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(\w[\w\s]+),\s*([\w\s]+)/)</td></tr>
+<tr><td class="h"><a id="L845">845</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L852">852</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$second$state&quot;, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L857">857</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get(&quot;$first$state&quot;, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L865">865</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L869">869</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($copy =~ s/(\d+)\s+/$1/)</td></tr>
+<tr><td class="h"><a id="L870">870</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($rc = $self-&gt;_get($copy, &quot;CA&quot;))</td></tr>
+<tr><td class="h"><a id="L881">881</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($c eq &quot;au&quot; and length $state &gt; 3)</td></tr>
+<tr><td class="h"><a id="L882">882</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $abbrev = &quot;Locale::SubCountry&quot;-&gt;new(&quot;AU&quot;)-&gt;code(ucfirst lc $state))</td></tr>
+<tr><td class="h"><a id="L883">883</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($abbrev ne &quot;unknown&quot;)</td></tr>
+<tr><td class="h"><a id="L888">888</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city =~ /^(\w[\w\s]+),\s*([,\w\s]+)/)</td></tr>
+<tr><td class="h"><a id="L893">893</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street =~ /^(\d+)\s+(.+)/)</td></tr>
+<tr><td class="h"><a id="L899">899</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($city eq &quot;MINSTER, THANET&quot;)</td></tr>
+<tr><td class="h"><a id="L903">903</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($number)</td></tr>
+<tr><td class="h"><a id="L904">904</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$number$street$city$state$c&quot;))</td></tr>
+<tr><td class="h"><a id="L909">909</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$street$city$state$c&quot;))</td></tr>
+<tr><td class="h"><a id="L913">913</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($street and $$param{&quot;exact&quot;})</td></tr>
+<tr><td class="h"><a id="L914">914</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$city$state$c&quot;))</td></tr>
+<tr><td class="h"><a id="L932">932</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($country =~ /Canada/i) { }</td></tr>
+<tr><td class="h"><a id="L934">934</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L935">935</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L941">941</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $state &gt; 2)</td></tr>
+<tr><td class="h"><a id="L942">942</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $state})</td></tr>
+<tr><td class="h"><a id="L947">947</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_get(&quot;$state$country&quot;))</td></tr>
+<tr><td class="h"><a id="L953">953</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($country)</td></tr>
+<tr><td class="h"><a id="L955">955</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless (&quot;Geo::Address::Parser&quot;-&gt;can(&quot;parse&quot;))</td></tr>
+<tr><td class="h"><a id="L959">959</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($country eq &quot;US&quot; and &quot;Geo::Address::Parser&quot;-&gt;can(&quot;parse&quot;))</td></tr>
+<tr><td class="h"><a id="L961">961</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $fields = $addr_parser-&gt;parse($location))</td></tr>
+<tr><td class="h"><a id="L963">963</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless defined $$fields{$key}</td></tr>
+<tr><td class="h"><a id="L965">965</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search($fields, keys %{$fields;}))</td></tr>
+<tr><td class="h"><a id="L975">975</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($use_libpostal and $libpostal_is_installed == 0)</td></tr>
+<tr><td class="h"><a id="L976">976</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (eval {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;do {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;require Geo::libpostal
 }
 }) { }</td></tr>
-<tr><td class="h"><a id="L974">974</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($use_libpostal and $libpostal_is_installed == 1 and my(%addr) = Geo::libpostal::parse_address($location))</td></tr>
-<tr><td class="h"><a id="L975">975</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;country&quot;} and $addr{&quot;state&quot;} and $addr{&quot;country&quot;} =~ /^(Canada|United States|USA|US)$/i)</td></tr>
-<tr><td class="h"><a id="L976">976</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $addr{&quot;road&quot;})</td></tr>
-<tr><td class="h"><a id="L980">980</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&#39;country&#39;} =~ /Canada/i) { }</td></tr>
-<tr><td class="h"><a id="L982">982</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $addr{&quot;state&quot;} &gt; 2)</td></tr>
-<tr><td class="h"><a id="L983">983</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $addr{&quot;state&quot;}})</td></tr>
-<tr><td class="h"><a id="L989">989</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $addr{&quot;state&quot;} &gt; 2)</td></tr>
-<tr><td class="h"><a id="L990">990</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $addr{&quot;state&quot;}})</td></tr>
-<tr><td class="h"><a id="L995">995</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;state_district&quot;})</td></tr>
-<tr><td class="h"><a id="L997">997</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;house_number&quot;, &quot;road&quot;, &quot;city&quot;, &quot;state_district&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
-<tr><td class="h"><a id="L1001">1001</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;house_number&quot;, &quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
-<tr><td class="h"><a id="L1004">1004</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;house_number&quot;})</td></tr>
-<tr><td class="h"><a id="L1005">1005</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
-<tr><td class="h"><a id="L1011">1011</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($location =~ s/,//g)</td></tr>
-<tr><td class="h"><a id="L1024">1024</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$data{$column})</td></tr>
-<tr><td class="h"><a id="L1028">1028</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($location)</td></tr>
-<tr><td class="h"><a id="L1052">1052</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (length $location &lt;= 16) { }</td></tr>
-<tr><td class="h"><a id="L1067">1067</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $cache = $$self{&quot;cache&quot;})</td></tr>
-<tr><td class="h"><a id="L1068">1068</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $cache-&gt;get_object($digest))</td></tr>
-<tr><td class="h"><a id="L1076">1076</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if &quot;Geo::Coder::Free::MissCache&quot;-&gt;missed($miss_scope, $digest)</td></tr>
-<tr><td class="h"><a id="L1086">1086</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $geohash = $openaddr_db-&gt;geohash(&quot;md5&quot;, $digest))</td></tr>
-<tr><td class="h"><a id="L1103">1103</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $cache = $$self{&quot;cache&quot;})</td></tr>
+<tr><td class="h"><a id="L986">986</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($use_libpostal and $libpostal_is_installed == 1 and my(%addr) = Geo::libpostal::parse_address($location))</td></tr>
+<tr><td class="h"><a id="L987">987</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;country&quot;} and $addr{&quot;state&quot;} and $addr{&quot;country&quot;} =~ /^(Canada|United States|USA|US)$/i)</td></tr>
+<tr><td class="h"><a id="L988">988</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($street = $addr{&quot;road&quot;})</td></tr>
+<tr><td class="h"><a id="L992">992</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&#39;country&#39;} =~ /Canada/i) { }</td></tr>
+<tr><td class="h"><a id="L994">994</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $addr{&quot;state&quot;} &gt; 2)</td></tr>
+<tr><td class="h"><a id="L995">995</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_ca //= &quot;Locale::CA&quot;-&gt;new)-&gt;{&quot;province2code&quot;}{uc $addr{&quot;state&quot;}})</td></tr>
+<tr><td class="h"><a id="L1001">1001</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (length $addr{&quot;state&quot;} &gt; 2)</td></tr>
+<tr><td class="h"><a id="L1002">1002</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $twoletterstate = ($_locale_us //= &quot;Locale::US&quot;-&gt;new)-&gt;{&quot;state2code&quot;}{uc $addr{&quot;state&quot;}})</td></tr>
+<tr><td class="h"><a id="L1007">1007</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;state_district&quot;})</td></tr>
+<tr><td class="h"><a id="L1009">1009</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;house_number&quot;, &quot;road&quot;, &quot;city&quot;, &quot;state_district&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
+<tr><td class="h"><a id="L1013">1013</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;house_number&quot;, &quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
+<tr><td class="h"><a id="L1016">1016</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($addr{&quot;house_number&quot;})</td></tr>
+<tr><td class="h"><a id="L1017">1017</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (my $rc = $self-&gt;_search(\%addr, (&quot;road&quot;, &quot;city&quot;, &quot;state&quot;, &quot;country&quot;)))</td></tr>
+<tr><td class="h"><a id="L1023">1023</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($location =~ s/,//g)</td></tr>
+<tr><td class="h"><a id="L1036">1036</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($$data{$column})</td></tr>
+<tr><td class="h"><a id="L1040">1040</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($location)</td></tr>
+<tr><td class="h"><a id="L1064">1064</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (length $location &lt;= 16) { }</td></tr>
+<tr><td class="h"><a id="L1079">1079</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $cache = $$self{&quot;cache&quot;})</td></tr>
+<tr><td class="h"><a id="L1080">1080</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $cache-&gt;get_object($digest))</td></tr>
+<tr><td class="h"><a id="L1088">1088</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if &quot;Geo::Coder::Free::MissCache&quot;-&gt;missed($miss_scope, $digest)</td></tr>
+<tr><td class="h"><a id="L1098">1098</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $geohash = $openaddr_db-&gt;geohash(&quot;md5&quot;, $digest))</td></tr>
+<tr><td class="h"><a id="L1115">1115</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $cache = $$self{&quot;cache&quot;})</td></tr>
 </table>
 </body>
 </html>
