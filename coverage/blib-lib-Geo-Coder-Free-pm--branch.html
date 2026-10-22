@@ -20,105 +20,109 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">77.1%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">77.0%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L297">297</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $class) { }</td></tr>
+<tr><td class="h"><a id="L299">299</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $class) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (&amp;Scalar::Util::blessed($class)) { }</td></tr>
-<tr><td class="h"><a id="L298">298</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (keys %{$params;})</td></tr>
-<tr><td class="h"><a id="L309">309</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($alternatives)</td></tr>
-<tr><td class="h"><a id="L323">323</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $$params{&quot;openaddr&quot;} and $ENV{&quot;OPENADDR_HOME&quot;})</td></tr>
-<tr><td class="h"><a id="L335">335</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$params{&quot;openaddr&quot;})</td></tr>
-<tr><td class="h"><a id="L338">338</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $cache = $$params{&quot;cache&quot;})</td></tr>
-<tr><td class="h"><a id="L405">405</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $self) { }</td></tr>
+<tr><td class="h"><a id="L300">300</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (keys %{$params;})</td></tr>
+<tr><td class="h"><a id="L313">313</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ($alternatives)</td></tr>
+<tr><td class="h"><a id="L316">316</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $line =~ /^\s*(#|$)/</td></tr>
+<tr><td class="h"><a id="L318">318</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless defined $to</td></tr>
+<tr><td class="h"><a id="L320">320</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if length $from and length $to</td></tr>
+<tr><td class="h"><a id="L325">325</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not defined $$params{&quot;openaddr&quot;} and $ENV{&quot;OPENADDR_HOME&quot;})</td></tr>
+<tr><td class="h"><a id="L337">337</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$params{&quot;openaddr&quot;})</td></tr>
+<tr><td class="h"><a id="L340">340</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $cache = $$params{&quot;cache&quot;})</td></tr>
+<tr><td class="h"><a id="L407">407</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $self) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (@_) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">elsif (defined $self and $self ne __PACKAGE__) { }</td></tr>
-<tr><td class="h"><a id="L413">413</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">_valid_location($location) ? :</td></tr>
-<tr><td class="h"><a id="L530">530</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
+<tr><td class="h"><a id="L415">415</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">_valid_location($location) ? :</td></tr>
+<tr><td class="h"><a id="L532">532</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (ref $self eq &#39;HASH&#39;) { }</td></tr>
-<tr><td class="h"><a id="L531">531</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (scalar @_) { }</td></tr>
+<tr><td class="h"><a id="L533">533</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (scalar @_) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (not defined $self) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif ($self eq __PACKAGE__) { }</td></tr>
-<tr><td class="h"><a id="L552">552</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $on_error eq &quot;croak&quot; or $on_error eq &quot;undef&quot;</td></tr>
-<tr><td class="h"><a id="L559">559</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $params{&quot;location&quot;} and not _valid_location($params{&quot;location&quot;}))</td></tr>
-<tr><td class="h"><a id="L560">560</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not length $params{&quot;location&quot;} or $on_error eq &quot;undef&quot;</td></tr>
-<tr><td class="h"><a id="L563">563</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $params{&quot;scantext&quot;} and not _valid_location($params{&quot;scantext&quot;}))</td></tr>
-<tr><td class="h"><a id="L564">564</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not length $params{&quot;scantext&quot;} or $on_error eq &quot;undef&quot;</td></tr>
-<tr><td class="h"><a id="L568">568</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$self{&quot;openaddr&quot;})</td></tr>
-<tr><td class="h"><a id="L569">569</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $scantext = $params{&quot;scantext&quot;})</td></tr>
-<tr><td class="h"><a id="L570">570</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $$self{&quot;scantext_misses&quot;}{$scantext}</td></tr>
-<tr><td class="h"><a id="L579">579</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if @direct</td></tr>
-<tr><td class="h"><a id="L588">588</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $iw = $params{&#39;ignore_words&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L599">599</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@{$res;})</td></tr>
-<tr><td class="h"><a id="L600">600</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">wantarray ? :</td></tr>
-<tr><td class="h"><a id="L606">606</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@{$res;})</td></tr>
-<tr><td class="h"><a id="L607">607</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">wantarray ? :</td></tr>
-<tr><td class="h"><a id="L616">616</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $_</td></tr>
-<tr><td class="h"><a id="L618">618</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@{$res;})</td></tr>
-<tr><td class="h"><a id="L619">619</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">wantarray ? :</td></tr>
-<tr><td class="h"><a id="L623">623</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($region)</td></tr>
-<tr><td class="h"><a id="L625">625</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region eq &#39;GB&#39;) { }</td></tr>
+<tr><td class="h"><a id="L554">554</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $on_error eq &quot;croak&quot; or $on_error eq &quot;undef&quot;</td></tr>
+<tr><td class="h"><a id="L561">561</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $params{&quot;location&quot;} and not _valid_location($params{&quot;location&quot;}))</td></tr>
+<tr><td class="h"><a id="L562">562</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not length $params{&quot;location&quot;} or $on_error eq &quot;undef&quot;</td></tr>
+<tr><td class="h"><a id="L565">565</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $params{&quot;scantext&quot;} and not _valid_location($params{&quot;scantext&quot;}))</td></tr>
+<tr><td class="h"><a id="L566">566</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not length $params{&quot;scantext&quot;} or $on_error eq &quot;undef&quot;</td></tr>
+<tr><td class="h"><a id="L570">570</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($$self{&quot;openaddr&quot;})</td></tr>
+<tr><td class="h"><a id="L571">571</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $scantext = $params{&quot;scantext&quot;})</td></tr>
+<tr><td class="h"><a id="L572">572</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $$self{&quot;scantext_misses&quot;}{$scantext}</td></tr>
+<tr><td class="h"><a id="L581">581</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if @direct</td></tr>
+<tr><td class="h"><a id="L590">590</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $iw = $params{&#39;ignore_words&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L601">601</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@{$res;})</td></tr>
+<tr><td class="h"><a id="L602">602</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">wantarray ? :</td></tr>
+<tr><td class="h"><a id="L608">608</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@{$res;})</td></tr>
+<tr><td class="h"><a id="L609">609</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">wantarray ? :</td></tr>
+<tr><td class="h"><a id="L618">618</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if defined $_</td></tr>
+<tr><td class="h"><a id="L620">620</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@{$res;})</td></tr>
+<tr><td class="h"><a id="L621">621</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">wantarray ? :</td></tr>
+<tr><td class="h"><a id="L625">625</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($region)</td></tr>
+<tr><td class="h"><a id="L627">627</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($region eq &#39;GB&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($region eq &#39;US&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">elsif ($region eq &#39;Canada&#39;) { }</td></tr>
-<tr><td class="h"><a id="L629">629</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@candidates)</td></tr>
-<tr><td class="h"><a id="L632">632</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $$ignore_words{lc $candidate}</td></tr>
-<tr><td class="h"><a id="L635">635</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if @hits</td></tr>
-<tr><td class="h"><a id="L637">637</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if @regional</td></tr>
-<tr><td class="h"><a id="L646">646</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (wantarray) { }</td></tr>
-<tr><td class="h"><a id="L648">648</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if @rc and $rc[0]</td></tr>
-<tr><td class="h"><a id="L651">651</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if @rc and $rc[0]</td></tr>
-<tr><td class="h"><a id="L653">653</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $$self{&quot;openaddr&quot;}-&gt;geocode(\%params))</td></tr>
-<tr><td class="h"><a id="L657">657</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $$self{&quot;local&quot;}-&gt;geocode(\%params))</td></tr>
-<tr><td class="h"><a id="L667">667</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (my $alt = $$self{&quot;alternatives&quot;})</td></tr>
-<tr><td class="h"><a id="L674">674</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $location =~ /$key/</td></tr>
-<tr><td class="h"><a id="L677">677</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $self-&gt;geocode(\%params))</td></tr>
-<tr><td class="h"><a id="L681">681</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($value =~ /, /)</td></tr>
-<tr><td class="h"><a id="L685">685</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $rc = $self-&gt;geocode(\%params))</td></tr>
-<tr><td class="h"><a id="L700">700</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params{&quot;location&quot;})</td></tr>
-<tr><td class="h"><a id="L704">704</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $params{&quot;scantext&quot;}</td></tr>
-<tr><td class="h"><a id="L862">862</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (&amp;Scalar::Util::blessed($self))</td></tr>
-<tr><td class="h"><a id="L863">863</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ref $self eq &quot;ARRAY&quot;</td></tr>
-<tr><td class="h"><a id="L865">865</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless @_</td></tr>
-<tr><td class="h"><a id="L870">870</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ref $values eq &quot;ARRAY&quot;</td></tr>
-<tr><td class="h"><a id="L875">875</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@_ == 1 and ref $_[0] eq &#39;HASH&#39;) { }</td></tr>
+<tr><td class="h"><a id="L631">631</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@candidates)</td></tr>
+<tr><td class="h"><a id="L634">634</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $$ignore_words{lc $candidate}</td></tr>
+<tr><td class="h"><a id="L637">637</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if @hits</td></tr>
+<tr><td class="h"><a id="L639">639</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if @regional</td></tr>
+<tr><td class="h"><a id="L648">648</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (wantarray) { }</td></tr>
+<tr><td class="h"><a id="L650">650</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if @rc and $rc[0]</td></tr>
+<tr><td class="h"><a id="L653">653</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if @rc and $rc[0]</td></tr>
+<tr><td class="h"><a id="L655">655</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $$self{&quot;openaddr&quot;}-&gt;geocode(\%params))</td></tr>
+<tr><td class="h"><a id="L659">659</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $$self{&quot;local&quot;}-&gt;geocode(\%params))</td></tr>
+<tr><td class="h"><a id="L669">669</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (my $alt = $$self{&quot;alternatives&quot;})</td></tr>
+<tr><td class="h"><a id="L675">675</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $_alternatives_active{$key}</td></tr>
+<tr><td class="h"><a id="L677">677</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $location =~ /$key/</td></tr>
+<tr><td class="h"><a id="L681">681</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $rc = $self-&gt;geocode(\%params))</td></tr>
+<tr><td class="h"><a id="L685">685</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($value =~ /, /)</td></tr>
+<tr><td class="h"><a id="L689">689</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (my $rc = $self-&gt;geocode(\%params))</td></tr>
+<tr><td class="h"><a id="L704">704</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params{&quot;location&quot;})</td></tr>
+<tr><td class="h"><a id="L708">708</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $params{&quot;scantext&quot;}</td></tr>
+<tr><td class="h"><a id="L866">866</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (&amp;Scalar::Util::blessed($self))</td></tr>
+<tr><td class="h"><a id="L867">867</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ref $self eq &quot;ARRAY&quot;</td></tr>
+<tr><td class="h"><a id="L869">869</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless @_</td></tr>
+<tr><td class="h"><a id="L874">874</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless ref $values eq &quot;ARRAY&quot;</td></tr>
+<tr><td class="h"><a id="L879">879</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (@_ == 1 and ref $_[0] eq &#39;HASH&#39;) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (scalar(@_) % 2 == 0 and not grep({ref $_;} @_)) { }</td></tr>
-<tr><td class="h"><a id="L884">884</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $on_error eq &quot;croak&quot; or $on_error eq &quot;undef&quot;</td></tr>
-<tr><td class="h"><a id="L894">894</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $value ? :</td></tr>
-<tr><td class="h"><a id="L895">895</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $reserved{$key}</td></tr>
-<tr><td class="h"><a id="L908">908</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $value ? :</td></tr>
-<tr><td class="h"><a id="L909">909</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $seen{$key}++</td></tr>
-<tr><td class="h"><a id="L921">921</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $region ? :</td></tr>
-<tr><td class="h"><a id="L931">931</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $reads &gt; 0</td></tr>
-<tr><td class="h"><a id="L938">938</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if _valid_location($key) and $read</td></tr>
-<tr><td class="h"><a id="L941">941</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $point) { }</td></tr>
-<tr><td class="h"><a id="L972">972</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $backend = $$self{$slot}</td></tr>
-<tr><td class="h"><a id="L973">973</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless &amp;Scalar::Util::blessed($backend) and $backend-&gt;can(&quot;reads&quot;)</td></tr>
-<tr><td class="h"><a id="L1013">1013</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@_ &gt; 1 ? :</td></tr>
-<tr><td class="h"><a id="L1082">1082</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">wantarray ? :</td></tr>
+<tr><td class="h"><a id="L888">888</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $on_error eq &quot;croak&quot; or $on_error eq &quot;undef&quot;</td></tr>
+<tr><td class="h"><a id="L898">898</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $value ? :</td></tr>
+<tr><td class="h"><a id="L899">899</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $reserved{$key}</td></tr>
+<tr><td class="h"><a id="L912">912</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $value ? :</td></tr>
+<tr><td class="h"><a id="L913">913</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $seen{$key}++</td></tr>
+<tr><td class="h"><a id="L925">925</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $region ? :</td></tr>
+<tr><td class="h"><a id="L935">935</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $reads &gt; 0</td></tr>
+<tr><td class="h"><a id="L942">942</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if _valid_location($key) and $read</td></tr>
+<tr><td class="h"><a id="L945">945</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $point) { }</td></tr>
+<tr><td class="h"><a id="L976">976</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $backend = $$self{$slot}</td></tr>
+<tr><td class="h"><a id="L977">977</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless &amp;Scalar::Util::blessed($backend) and $backend-&gt;can(&quot;reads&quot;)</td></tr>
+<tr><td class="h"><a id="L1017">1017</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@_ &gt; 1 ? :</td></tr>
+<tr><td class="h"><a id="L1086">1086</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">wantarray ? :</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless defined $point and ref $point and (&amp;Scalar::Util::reftype($point) || &#39;&#39;) eq &quot;HASH&quot;</td></tr>
-<tr><td class="h"><a id="L1087">1087</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $backend</td></tr>
-<tr><td class="h"><a id="L1096">1096</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">wantarray ? :</td></tr>
-<tr><td class="h"><a id="L1132">1132</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
+<tr><td class="h"><a id="L1091">1091</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $backend</td></tr>
+<tr><td class="h"><a id="L1100">1100</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">wantarray ? :</td></tr>
+<tr><td class="h"><a id="L1136">1136</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (not ref $self) { }</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">elsif (ref $self eq &#39;HASH&#39;) { }</td></tr>
-<tr><td class="h"><a id="L1133">1133</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (scalar @_) { }</td></tr>
+<tr><td class="h"><a id="L1137">1137</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (scalar @_) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (not defined $self) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif ($self eq __PACKAGE__) { }</td></tr>
-<tr><td class="h"><a id="L1149">1149</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($$self{&quot;openaddr&quot;})</td></tr>
-<tr><td class="h"><a id="L1152">1152</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params{&quot;latlng&quot;})</td></tr>
-<tr><td class="h"><a id="L1214">1214</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">$ENV{&#39;OPENADDR_HOME&#39;} ? :</td></tr>
-<tr><td class="h"><a id="L1217">1217</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless @rc</td></tr>
-<tr><td class="h"><a id="L1239">1239</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@args ? :</td></tr>
-<tr><td class="h"><a id="L1252">1252</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ref $args[0] eq &quot;HASH&quot;</td></tr>
-<tr><td class="h"><a id="L1253">1253</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ref $args[0]</td></tr>
-<tr><td class="h"><a id="L1254">1254</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @args and @args % 2 == 0</td></tr>
-<tr><td class="h"><a id="L1255">1255</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @args == 1</td></tr>
-<tr><td class="h"><a id="L1259">1259</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @args</td></tr>
-<tr><td class="h"><a id="L1277">1277</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$region ? :</td></tr>
-<tr><td class="h"><a id="L1278">1278</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $$self{&quot;scantext_misses&quot;}{$location}</td></tr>
-<tr><td class="h"><a id="L1280">1280</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@res) { }</td></tr>
-<tr><td class="h"><a id="L1310">1310</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not $$stop{lc $_}</td></tr>
+<tr><td class="h"><a id="L1153">1153</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if ($$self{&quot;openaddr&quot;})</td></tr>
+<tr><td class="h"><a id="L1156">1156</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($params{&quot;latlng&quot;})</td></tr>
+<tr><td class="h"><a id="L1218">1218</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">$ENV{&#39;OPENADDR_HOME&#39;} ? :</td></tr>
+<tr><td class="h"><a id="L1221">1221</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless @rc</td></tr>
+<tr><td class="h"><a id="L1243">1243</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@args ? :</td></tr>
+<tr><td class="h"><a id="L1256">1256</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ref $args[0] eq &quot;HASH&quot;</td></tr>
+<tr><td class="h"><a id="L1257">1257</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ref $args[0]</td></tr>
+<tr><td class="h"><a id="L1258">1258</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @args and @args % 2 == 0</td></tr>
+<tr><td class="h"><a id="L1259">1259</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @args == 1</td></tr>
+<tr><td class="h"><a id="L1263">1263</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if @args</td></tr>
+<tr><td class="h"><a id="L1281">1281</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$region ? :</td></tr>
+<tr><td class="h"><a id="L1282">1282</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $$self{&quot;scantext_misses&quot;}{$location}</td></tr>
+<tr><td class="h"><a id="L1284">1284</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@res) { }</td></tr>
+<tr><td class="h"><a id="L1314">1314</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not $$stop{lc $_}</td></tr>
 </table>
 </body>
 </html>
