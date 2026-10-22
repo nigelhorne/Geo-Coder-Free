@@ -36,10 +36,10 @@ use Scalar::Util;
 use namespace::clean -except => [qw(_valid_location)];
 
 our %admin1cache;
-our %admin2cache;     # name → region code (e.g. 'Kent' → 'P5')
-our %admin2cache_rev; # region code → name (inverse; avoids O(N) scan in _prepare)
+our %admin2cache;     # name -> region code (e.g. 'Kent' -> 'P5')
+our %admin2cache_rev; # region code -> name (inverse; avoids O(N) scan in _prepare)
 
-# Lazily-initialised Locale singletons — constructing Locale::US / Locale::CA
+# Lazily-initialised Locale singletons - constructing Locale::US / Locale::CA
 # on every geocode call for US/Canadian addresses was the top object-churn
 # hotspot.  These are module-level my-variables (not exported) so they survive
 # across object instances and avoid the construction cost after the first call.
@@ -63,11 +63,11 @@ Geo::Coder::Free::MaxMind - Provides a geocoding functionality using the MaxMind
 
 =head1 VERSION
 
-Version 0.50
+Version 0.51
 
 =cut
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 =head1 SYNOPSIS
 
@@ -801,7 +801,7 @@ sub reverse_geocode
 		);
 	}
 
-	# Validate coordinates before interpolating into SQL — prevents injection
+	# Validate coordinates before interpolating into SQL - prevents injection
 	# if a caller passes a non-numeric latlng string.
 	for my $c ($latitude, $longitude) {
 		Carp::croak('Invalid coordinate value for reverse_geocode')
@@ -818,8 +818,8 @@ sub reverse_geocode
 	}
 
 	# Performance: the former code issued 5 sequential SQL queries with ever-
-	# widening radii (0.000001 → 0.01).  Replace with a single query that
-	# orders by Manhattan distance and caps at the maximum radius (0.01°).
+	# widening radii (0.000001 -> 0.01).  Replace with a single query that
+	# orders by Manhattan distance and caps at the maximum radius (0.01 degrees).
 	# This eliminates 4 round-trips to SQLite on the common miss-until-last case.
 	$self->_read();
 	my $rc = $self->{'cities'}->execute(
@@ -840,9 +840,9 @@ sub _prepare {
 	my ($self, $loc) = @_;
 
 	if(my $region = $loc->{'Region'}) {
-		# O(1) reverse lookup — the former O(N) `while each %admin2cache` scan
+		# O(1) reverse lookup - the former O(N) `while each %admin2cache` scan
 		# walked the entire cache comparing values.  %admin2cache_rev is kept in
-		# sync at every write site, giving a constant-time code→name translation.
+		# sync at every write site, giving a constant-time code->name translation.
 		my $county = $admin2cache_rev{$region};
 		if($county) {
 			$loc->{'Region'} = $county;

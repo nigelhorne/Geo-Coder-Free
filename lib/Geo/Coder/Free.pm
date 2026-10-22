@@ -5,7 +5,6 @@ use warnings;
 use autodie qw(:all);
 
 use Carp;
-use Config::Auto;
 use Geo::Coder::Free::Local;
 use Geo::Coder::Free::MissCache;
 use Geo::Coder::Free::MaxMind;
@@ -69,10 +68,8 @@ use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 #	eight deep) into per-country handlers that can be tested on their own
 # TODO: Free.pm, Local.pm and MaxMind.pm new() "only work with no arguments"
 #	when called as a function (FIXME in each)
-# TODO: fix the VWF-owned Allow.pm, Display.pm, Utils.pm and Config.pm in
-#	../vwf and sync: the Allow.pm warn and space-indented block, trailing space
-#	at Display.pm:476, unused Data::Dumper in Utils.pm and Config.pm, and their
-#	TODO/FIXME markers
+# TODO: resolve the TODO/FIXME markers in the VWF-owned Allow.pm, Display.pm,
+#	Utils.pm and Config.pm, in ../vwf, and sync
 
 =head1 NAME
 
@@ -80,11 +77,11 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
-Version 0.50
+Version 0.51
 
 =cut
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 =encoding utf-8
 
@@ -182,10 +179,15 @@ since a byte string does not match the name in the data.
 =cut
 
 # -----------------------------------------------------------------------
-# Module-level singletons — initialised once, shared across all instances.
+# Module-level singletons - initialised once, shared across all instances.
 # Using 'our' so that test code can reset them between test runs if needed.
 # -----------------------------------------------------------------------
 our $alternatives;
+
+# The alternatives being tried by geocode() calls further up the stack.  A key
+# is skipped while it is in here, so an entry whose replacement still matches
+# it (or two entries that rewrite into each other) cannot recurse forever.
+my %_alternatives_active;
 
 # -----------------------------------------------------------------------
 # Error-message table.  All user-facing strings live here so that a future
@@ -305,17 +307,17 @@ sub new {
 	}
 
 	# Populate the alternatives map once from __DATA__ and cache it
-	# across all instances.  Config::Auto parses the INI-like DATA block.
+	# across all instances.  Each line is "from = to"; the text either side
+	# is kept as written (Config::Auto, used before, split a value into words,
+	# so "Borough of North Tyneside" became "Borough, of, North, Tyneside").
 	if (!$alternatives) {
-		my $keep = $/;
-		local $/ = undef;
-		my $data = <DATA>;
-		$/ = $keep;
-
-		$alternatives = Config::Auto->new(source => $data)->parse();
-		# Config::Auto turns multi-value keys into arrayrefs; flatten them.
-		while (my ($key, $value) = each %{$alternatives}) {
-			$alternatives->{$key} = join(', ', @{$value});
+		$alternatives = {};
+		while (my $line = <DATA>) {
+			next if $line =~ /^\s*(#|$)/;
+			my ($from, $to) = split /\s*=\s*/, $line, 2;
+			next unless defined($to);
+			s/^\s+|\s+$//g for $from, $to;
+			$alternatives->{$from} = $to if length($from) && length($to);
 		}
 	}
 
@@ -552,7 +554,7 @@ sub geocode {
 	Carp::croak(_i18n('invalid_on_error', __PACKAGE__, $on_error))
 		unless $on_error eq 'croak' || $on_error eq 'undef';
 
-	# Reject pure-numeric inputs early — they are never valid addresses.
+	# Reject pure-numeric inputs early - they are never valid addresses.
 	# The rule is Geo::Location::Predicate's, the same one the backends
 	# apply, and valid_location() answers it in public, so a caller can
 	# pre-filter with it and never reach this croak at all.
@@ -569,7 +571,7 @@ sub geocode {
 		if (my $scantext = $params{'scantext'}) {
 			return if $self->{'scantext_misses'}{$scantext};
 
-			# First try the whole scantext as a direct location lookup —
+			# First try the whole scantext as a direct location lookup -
 			# saves work when the text happens to be a valid address string.
 			$self->{'local'} ||= Geo::Coder::Free::Local->new();
 			my @direct = grep { defined }
@@ -607,7 +609,7 @@ sub geocode {
 				return wantarray ? @{$res} : $res->[0];
 			}
 
-			# Regex-based address pattern — catches "City, ST"-style fragments.
+			# Regex-based address pattern - catches "City, ST"-style fragments.
 			# Note: misses sentences like "born May 21, 1937 in Noblesville, IN"
 			# because the pattern requires a capitalised word before the city.
 			my @regex_matches = $scantext =~
@@ -659,19 +661,21 @@ sub geocode {
 			}
 		}
 
-		# Try the alternatives table — hand-curated mappings for locations that
+		# Try the alternatives table - hand-curated mappings for locations that
 		# the databases have under slightly different names.
 		# M3 (transitive reduction): every scantext path inside this block returned
 		# early above; at this point $params{'scantext'} is provably falsy, so the
-		# former `if (!$params{'scantext'})` guard was a tautology — removed.
+		# former `if (!$params{'scantext'})` guard was a tautology - removed.
 		if (my $alt = $self->{'alternatives'}) {
 			my $location = $params{'location'};
 			# Not each(): the recursive geocode() calls below walk the same
 			# hash, sharing and resetting its iterator, so an each() loop here
 			# would start again from the top and retry the same key forever.
 			foreach my $key (sort keys %{$alt}) {
+				next if $_alternatives_active{$key};
 				my $value = $alt->{$key};
 				next unless $location =~ $key;
+				local $_alternatives_active{$key} = 1;
 				(my $new_loc = $location) =~ s/$key/$value/;
 				$params{'location'} = $new_loc;
 				if (my $rc = $self->geocode(\%params)) {
@@ -696,7 +700,7 @@ sub geocode {
 	# Scantext without OPENADDR_HOME will silently reach here and return undef;
 	# a proper fix would warn here (see LIMITATIONS).
 	# M8 (tautology elimination): both arms of the former wantarray ternary were
-	# identical — collapsed to a single call; context propagates implicitly.
+	# identical - collapsed to a single call; context propagates implicitly.
 	if ($params{'location'}) {
 		return $self->{'maxmind'}->geocode(\%params);
 	}
@@ -1144,7 +1148,7 @@ sub reverse_geocode {
 
 	my %params = _normalize_args(_i18n('usage_reverse', __PACKAGE__), 'latlng', @_);
 
-	# M8 (tautology — same pattern fixed in geocode): both arms are identical;
+	# M8 (tautology - same pattern fixed in geocode): both arms are identical;
 	# context propagates implicitly through return.
 	if ($self->{'openaddr'}) {
 		return $self->{'openaddr'}->reverse_geocode(\%params);
@@ -1231,7 +1235,7 @@ sub run {
 
 # Purpose:  Return a formatted message string from the message table.
 #           Falls back to the raw key so call sites never die on a missing key.
-# Entry:    $key — message key; @args — sprintf format arguments.
+# Entry:    $key - message key; @args - sprintf format arguments.
 # Exit:     Formatted string.
 sub _i18n {
 	my ($key, @args) = @_;
@@ -1241,10 +1245,10 @@ sub _i18n {
 
 # Purpose:  Normalise the four calling conventions accepted by geocode/reverse_geocode:
 #             hashref, even-length key-val list, odd-length list, single bare string.
-# Entry:    $error_msg — message to croak if a non-hash reference is passed.
-#           $bare_key  — hash key to assign to a single bare string argument
+# Entry:    $error_msg - message to croak if a non-hash reference is passed.
+#           $bare_key  - hash key to assign to a single bare string argument
 #                        ('location' for geocode, 'latlng' for reverse_geocode).
-#           @args — raw @_ after $self has been shifted.
+#           @args - raw @_ after $self has been shifted.
 # Exit:     Flat key-value %params hash.
 # Side Effects: None; croaks on unsupported reference argument.
 sub _normalize_args {
@@ -1263,11 +1267,11 @@ sub _normalize_args {
 # Purpose:  Try to geocode each candidate place string via the openaddr backend,
 #           annotating every hit with location/text/confidence metadata and
 #           memoising misses to avoid re-querying the same failing string.
-# Entry:    $self       — geocoder instance with {openaddr} and {scantext_misses}.
-#           $candidates — arrayref of place-name strings to probe.
-#           $region     — optional ISO country code appended to each candidate.
-#           $confidence — numeric confidence score assigned to all hits.
-#           $scantext   — original free text (stored inside each result object).
+# Entry:    $self       - geocoder instance with {openaddr} and {scantext_misses}.
+#           $candidates - arrayref of place-name strings to probe.
+#           $region     - optional ISO country code appended to each candidate.
+#           $confidence - numeric confidence score assigned to all hits.
+#           $scantext   - original free text (stored inside each result object).
 # Exit:     Arrayref of Geo::Location::Point objects; empty arrayref on no hits.
 # Side Effects: Populates $self->{scantext_misses} for every non-matching place.
 sub _resolve_scan_candidates {
@@ -1300,7 +1304,7 @@ sub _resolve_scan_candidates {
 #           Replaces the former _find_word_triplets ($n=3) and
 #           _find_word_duplets ($n=2) which were identical except for window size
 #           and the duplets version was missing the lc() normalisation on stopwords.
-# Entry:    $text — raw string; $n — window size; $stop — stopword hashref.
+# Entry:    $text - raw string; $n - window size; $stop - stopword hashref.
 # Exit:     Flat list of n-gram strings.
 sub _find_word_ngrams {
 	my ($text, $n, $stop) = @_;
@@ -1316,17 +1320,17 @@ sub _find_word_ngrams {
 }
 
 # Purpose:  Extract structured US street addresses from free text.
-# Entry:    $text — arbitrary string.
+# Entry:    $text - arbitrary string.
 # Exit:     List of full address strings matching the US pattern.
 sub _find_us_addresses {
 	my $text = shift;
 	my @addresses;
 	my $re = qr/
 		\b \d{1,5} \s+                                      # house number
-		(?:[A-Za-z0-9]+(?:\s+[A-Za-z0-9]+){0,6}) \s+       # street name: 1–7 words (bounded)
+		(?:[A-Za-z0-9]+(?:\s+[A-Za-z0-9]+){0,6}) \s+       # street name: 1-7 words (bounded)
 		(?:Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?)
 		(?:\s+[A-Za-z]{2})? ,\s*
-		(?:[A-Za-z]+(?:\s+[A-Za-z]+){0,3}) ,\s*            # city: 1–4 words
+		(?:[A-Za-z]+(?:\s+[A-Za-z]+){0,3}) ,\s*            # city: 1-4 words
 		[A-Z]{2} \s* (?:\d{5}(?:-\d{4})?)? \b              # state + optional zip
 	/x;
 	while ($text =~ /$re/g) {
@@ -1336,13 +1340,13 @@ sub _find_us_addresses {
 }
 
 # Purpose:  Extract British-style addresses from free text.
-# Entry:    $text — arbitrary string.
+# Entry:    $text - arbitrary string.
 # Exit:     List of trimmed address strings.
 sub _find_gb_addresses {
 	my $text = shift;
 	my @addresses;
 	# ReDoS fix: the former pattern used \s*,?\s* between all parts and
-	# [A-Za-z\s'-]+ groups — with commas optional, the engine must try all
+	# [A-Za-z\s'-]+ groups - with commas optional, the engine must try all
 	# possible splits of a long string among 5 overlapping space-containing
 	# groups, causing exponential backtracking.  Making commas mandatory
 	# eliminates the ambiguity entirely: UK postal addresses always have commas.
@@ -1352,7 +1356,7 @@ sub _find_gb_addresses {
 		(?:\d{1,5} | [\w'-]+)                   # house number or single-word name
 		\s+
 		(?:[\w'-]+(?:\s+[\w'-]+){0,5})           # street name (up to 6 words)
-		\s*,\s*                                   # COMMA REQUIRED — kills the ambiguity
+		\s*,\s*                                   # COMMA REQUIRED - kills the ambiguity
 		(?:[\w'-]+(?:\s+[\w'-]+){0,3})           # town (up to 4 words)
 		\s*,\s*                                   # COMMA REQUIRED
 		(?:[\w'-]+(?:\s+[\w'-]+){0,3})           # county (up to 4 words)
@@ -1368,17 +1372,17 @@ sub _find_gb_addresses {
 }
 
 # Purpose:  Extract Canadian street addresses from free text.
-# Entry:    $text — arbitrary string.
+# Entry:    $text - arbitrary string.
 # Exit:     List of full address strings matching the Canadian pattern.
 sub _find_ca_addresses {
 	my $text = shift;
 	my @addresses;
 	my $re = qr/
 		\b \d{1,5} \s+                                         # house number
-		(?:[A-Za-z0-9]+(?:\s+[A-Za-z0-9]+){0,6}) \s+          # street name: 1–7 words (bounded)
+		(?:[A-Za-z0-9]+(?:\s+[A-Za-z0-9]+){0,6}) \s+          # street name: 1-7 words (bounded)
 		(?:Avenue|Ave\.?|Boulevard|Blvd\.?|Road|Rd\.?|Lane|Ln\.?|Drive|Dr\.?|Street|St\.?|Circle|Crescent|Cres\.?)
 		\s*,\s*
-		(?:[A-Za-z]+(?:\s+[A-Za-z]+){0,3}) \s*,\s*            # city: 1–4 words
+		(?:[A-Za-z]+(?:\s+[A-Za-z]+){0,3}) \s*,\s*            # city: 1-4 words
 		[A-Z]{2} \s*,?\s*
 		(?:[A-Z]\d[A-Z]\s?\d[A-Z]\d)? \b                      # optional postal code
 	/x;
@@ -1555,8 +1559,12 @@ available from L<https://www.maxmind.com/>.
 
 1;
 
-# Common mappings for looser lookups.  A future version should load these from
-# an external, user-editable config file.  See also Local.pm's %alternatives.
+# Common mappings for looser lookups, one "from = to" per line; lines starting
+# with # are ignored.  They are tried only after every backend has missed, so
+# "Tyne and Wear" is a last try under the county GeoNames uses, not a claim
+# that all of Tyne and Wear is in North Tyneside.  A future version should load
+# these from an external, user-editable config file.  See also Local.pm's
+# %alternatives.
 __DATA__
 St Lawrence, Thanet, Kent = Ramsgate, Kent
 St Peters, Thanet, Kent = Broadstairs, Kent

@@ -1,8 +1,26 @@
 Revision history for Geo-Coder-Free
 
 0.51
-	[ Bug fixes ]
-	- Fix potential infinite loop
+	[ Bug Fixes ]
+	- geocode() no longer hangs when OpenAddresses is configured and a location
+	  that matches the built-in alternatives table isn't found, such as
+	  "Chirton, Tyne and Wear, England".  The hang came in with 0.50
+	- An alternative is not tried again while it is already being tried, so an
+	  entry whose replacement still matches it cannot recurse forever
+	- The alternatives table is read as written: "Borough of North Tyneside" is
+	  no longer looked up as "Borough, of, North, Tyneside" first
+	- Error is now a runtime prerequisite; Geo::Coder::Free::Utils, which every
+	  user loads, has always needed it
+	[ Enhancements ]
+	- Config::Auto is no longer needed
+	- The US states and counties lists that createdatabase.PL imports are now
+	  in the distribution; before, a build from CPAN silently skipped them
+	[ Documentation ]
+	- LIMITATIONS no longer describes the alternatives loop missing a match on
+	  a repeated call; it walks a sorted list of keys and always finds it
+	[ Tests ]
+	- t/transaction.t checks that an alternative which finds nothing returns,
+	  and that the same input finds the same alternative every time
 
 0.50	Wed Oct 21 11:01:07 AM EDT 2026
 	[ Enhancements ]

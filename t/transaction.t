@@ -369,6 +369,38 @@ subtest 'TX8a: alternatives miss — an alternative that finds nothing does not 
 	ok(!defined($r) || ref($r) eq 'Geo::Location::Point', 'result is undef or a GLP');
 	cmp_ok($oa_calls, '<', 20, "OA consulted a bounded number of times ($oa_calls)");
 
+	# The table is read as written, not split into words.
+	is($geo->{'alternatives'}{'Tyne and Wear'}, 'Borough of North Tyneside',
+		'__DATA__ value kept as one string');
+
+	restore_all();
+	_remock_maxmind();
+};
+
+subtest 'TX8b: alternatives guard — a replacement that still matches its key is tried once' => sub {
+	# 'Kent' => 'Kent, England' matches its own output, so without the guard
+	# each retry would match again and recurse until Perl ran out of stack.
+	my @seen;
+	my $geo = _setup_geo_with_oa(sub {
+		my (undef, $params) = @_;
+		push @seen, ref($params) eq 'HASH' ? ($params->{'location'} // '?') : ($params // '?');
+		return undef;
+	});
+	local $geo->{'alternatives'} = { 'Kent' => 'Kent, England' };
+
+	my $r;
+	eval {
+		local $SIG{ALRM} = sub { die "TIMEOUT\n" };
+		alarm(10);
+		$r = $geo->geocode(location => 'Ramsgate, Kent');
+		alarm(0);
+	};
+	alarm(0);
+	is($@, q{}, 'geocode returns rather than recursing');
+	is($r, undef, 'nothing found');
+	ok((grep { $_ eq 'Ramsgate, Kent, England' } @seen), 'the alternative was tried');
+	ok(!(grep { /England, England/ } @seen), 'it was not applied to its own output');
+
 	restore_all();
 	_remock_maxmind();
 };

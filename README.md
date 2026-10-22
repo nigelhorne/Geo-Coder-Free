@@ -4,7 +4,7 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 ## Version
 
-Version 0.50
+Version 0.51
 
 ## Synopsis
 
@@ -69,12 +69,6 @@ user-editable config file.
 a preceding capital-letter word directly before the city.
 - `reverse_geocode` is only partially implemented; the MaxMind path does
 not return meaningful results.
-- The `alternatives` map loop uses `each %{$alt}`, which retains its
-iterator position across calls.  After a successful match and early `return`,
-the next `geocode()` call on the same input starts iterating from the key
-**after** the matched one, potentially missing the match entirely until `each`
-wraps around.  Workaround: call `keys %{$alt}` once to reset the iterator
-before iterating.
 - Without OpenAddresses data, a two-part `"City, Country"` location is
 often answered wrongly.  The MaxMind backend reads the first part as a region
 when it can, and answers with the first row it finds in that region, not with
