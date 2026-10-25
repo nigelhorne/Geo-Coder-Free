@@ -96,11 +96,11 @@ jobs:
 
       - name: Set snapshot variables
         run: |
-          echo "SNAPSHOT_TIMESTAMP=$(date -u +%Y-%m-%dT%H%M%SZ)" >> $GITHUB_ENV
-          echo "SNAPSHOT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "SNAPSHOT_TIMESTAMP=$(date -u +%Y-%m-%dT%H%M%SZ)" >> "$GITHUB_ENV"
+          echo "SNAPSHOT_SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
       - name: Add local bin to PATH
-        run: echo "$(pwd)/local/bin" >> $GITHUB_PATH
+        run: echo "$(pwd)/local/bin" >> "$GITHUB_PATH"
 
       - name: Install App::Test::Generator
         run: |
@@ -179,7 +179,7 @@ jobs:
           # --generate_test=mutant and --generate_fuzz.
           git add xt/mutant_*.t xt/conf/mutant_*.yml 2>/dev/null || true
           # Force add any untracked files matching the pattern
-          find xt -name 'mutant_*.t' -o -name 'mutant_*.yml' | xargs git add 2>/dev/null || true
+          find xt \( -name 'mutant_*.t' -o -name 'mutant_*.yml' \) -print0 | xargs -0 git add 2>/dev/null || true
           git diff --cached --stat
           git config user.name "GitHub Actions"
           git config user.email "github-actions@github.com"

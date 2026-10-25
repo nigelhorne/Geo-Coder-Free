@@ -1,17 +1,21 @@
 ---
-# The reader/producer contract, run against the whole workspace.
+# The reader/producer contract: the trigger, and the shared body it runs.
 #
-# t/consumer-contract.t declares what a Geo::Coder::Free result promises and
-# which files may read it.  Parts 2 and 3 need the sibling checkouts (the value
-# object, and every distribution whose code reads a result): without them they
-# skip, and a build that skips them cannot tell a producer that stopped setting
-# a promise, or a consumer nobody registered, from a job where nothing was
-# checked at all.  So the checkouts are put there deliberately, in the layout
-# the test expects, and CONTRACT_STRICT turns a missing one into a failure.
+# The job itself used to be copied into each of the four distributions that run
+# it - this one, Database-BI, Geo-Location-Point and HTML-Genealogy-Map - and
+# the copies drifted apart: one lost the producer's checkout and stopped at
+# "workspace/Geo-Coder-Free was not checked out" before the contract ran, while
+# every test in Geo-Coder-Free still passed; another pinned the Perl setup to a
+# different commit.  The body is now the one file
+# .github/workflows/contract-body.yml and this is only what differs between the
+# four: the schedule, and the name of the distribution to check out at this
+# commit.
 #
-# This file is the same job in each distribution that shares the contract,
-# apart from which checkout is this distribution at the commit under test.
-# Keep them in step, or move the body to a reusable workflow.
+# This repository calls the body by local path, so the pull request that changes
+# the body runs the body it changes.  The other three call it at @master and pick
+# a change up once it is merged here, so a body change should land in this
+# distribution first.  t/contract-workflows.t fails if any of the four goes back
+# to carrying a copy of the body.
 name: Reader/producer contract
 
 on:
@@ -38,121 +42,11 @@ permissions:
 
 jobs:
   contract:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      AUTOMATED_TESTING: 1
-      NO_NETWORK_TESTING: 1
-      NONINTERACTIVE_TESTING: 1
-      # The workspace below is assembled on purpose, so a checkout that is not
-      # there is a broken job rather than an installation without a workspace.
-      CONTRACT_STRICT: 1
-    steps:
-      - name: Check out this distribution at the commit under test
-        uses: actions/checkout@v7
-        with:
-          path: workspace/Geo-Coder-Free
-
-      - name: Check out Test-Consumer-Contract
-        uses: actions/checkout@v7
-        with:
-          repository: nigelhorne/Test-Consumer-Contract
-          path: workspace/Test-Consumer-Contract
-          # The default token reads public repositories; set WORKSPACE_TOKEN
-          # only if one of the siblings is private.
-          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
-
-      - name: Check out Geo-Location-Point
-        uses: actions/checkout@v7
-        with:
-          repository: nigelhorne/Geo-Location-Point
-          path: workspace/Geo-Location-Point
-          # The default token reads public repositories; set WORKSPACE_TOKEN
-          # only if one of the siblings is private.
-          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
-
-      - name: Check out Database-BI
-        uses: actions/checkout@v7
-        with:
-          repository: nigelhorne/Database-BI
-          path: workspace/Database-BI
-          # The default token reads public repositories; set WORKSPACE_TOKEN
-          # only if one of the siblings is private.
-          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
-
-      - name: Check out HTML-Genealogy-Map
-        uses: actions/checkout@v7
-        with:
-          repository: nigelhorne/HTML-Genealogy-Map
-          path: workspace/HTML-Genealogy-Map
-          # The default token reads public repositories; set WORKSPACE_TOKEN
-          # only if one of the siblings is private.
-          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
-
-      # Registered by hand in the declaration: it takes a geocoder object and
-      # never names Geo::Coder::Free, so discovery cannot find it, but its reads
-      # are checked all the same.
-      - name: Check out HTML-OSM
-        uses: actions/checkout@v7
-        with:
-          repository: nigelhorne/HTML-OSM
-          path: workspace/HTML-OSM
-          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
-
-      # Recorded as ignored with a reason, but only the checkout makes that
-      # reason run: without it a consumer added here is not seen at all.
-      - name: Check out Geo-Coder-List
-        uses: actions/checkout@v7
-        with:
-          repository: nigelhorne/Geo-Coder-List
-          path: workspace/Geo-Coder-List
-          token: ${{ secrets.WORKSPACE_TOKEN || github.token }}
-
-      # A checkout that silently failed would otherwise show up as a skip.
-      - name: Check that the workspace is there
-        shell: bash
-        run: |
-          set -eu
-          for dist in Geo-Coder-Free Test-Consumer-Contract Geo-Location-Point Database-BI HTML-Genealogy-Map HTML-OSM Geo-Coder-List; do
-            if [ ! -d "workspace/$dist" ]; then
-              echo "::error::workspace/$dist was not checked out"
-              exit 1
-            fi
-          done
-          ls -1 workspace
-
-      - name: Setup Perl
-        uses: shogo82148/actions-setup-perl@v1.44.0
-        with:
-          perl-version: '5.40'
-
-      - name: Install dependencies
-        shell: bash
-        run: |
-          set -eu
-          cpanm --notest --quiet Test::Most
-          # The accessor check loads the value object, so its own dependencies
-          # are needed; the rest of the contract only reads source.
-          cpanm --notest --quiet --installdeps ./workspace/Geo-Location-Point
-
-      - name: Run the contract
-        working-directory: workspace/Geo-Coder-Free
-        shell: bash
-        run: |
-          set -eu
-          # The guard reads every copy of this job in the workspace and fails if
-          # one checks out less than its own workspace loop requires, so the
-          # checkout steps above cannot drift from the names the loop insists on.
-          # Without it a copy can lose a checkout and still be green in every
-          # other distribution.
-          prove -l -v t/consumer-contract.t t/contract-strict.t t/contract-workflows.t
-
-      - name: Show the diagnostic on failure
-        if: failure()
-        shell: bash
-        run: |
-          for log in ~/.cpanm/work/*/build.log; do
-            [ -f "$log" ] || continue
-            echo "== $log"
-            tail -100 "$log"
-          done
+    uses: ./.github/workflows/contract-body.yml
+    with:
+      distribution: Geo-Coder-Free
+      # Passed through so the body checks out this commit rather than the
+      # default branch of whichever repository the called workflow resolves to.
+      repository: ${{ github.repository }}
+      ref: ${{ github.ref }}
+    secrets: inherit

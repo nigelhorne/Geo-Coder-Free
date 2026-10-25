@@ -33,7 +33,7 @@ jobs:
       - run: cpanm --verbose --skip-satisfied --installdeps .
       - run: prove -l t/
 
-      - run: echo "$(pwd)/local/bin" >> $GITHUB_PATH
+      - run: echo "$(pwd)/local/bin" >> "$GITHUB_PATH"
 
       - run: perl Makefile.PL && make
 
@@ -43,7 +43,7 @@ jobs:
           if [ -z "$BASE" ]; then
             echo "::warning::Could not determine a base commit from git log; test-generator-mutate will fall back to HEAD~1"
           fi
-          echo "MUTATION_BASE_SHA=$BASE" >> $GITHUB_ENV
+          echo "MUTATION_BASE_SHA=$BASE" >> "$GITHUB_ENV"
           echo "Base commit for mutation diff: $BASE"
           if [ -z "$BASE" ]; then
             echo "No code commit found outside bot-generated commits; skipping diff"
@@ -67,46 +67,49 @@ jobs:
           NONINTERACTIVE_TESTING: 1
           INPUTS_FULL: ${{ inputs.full }}
         run: |
+          # Arrays rather than strings: a command kept in a string has to be
+          # split by the shell, which is what shellcheck's SC2086 is about, and
+          # a path with a space in it would break.  An empty array expands to
+          # nothing here, which is what the empty string was for.
           if [ -n "$MUTATION_BASE_SHA" ]; then
-            BASE_SHA_FLAG="--base_sha $MUTATION_BASE_SHA"
+            BASE_SHA_FLAG=(--base_sha "$MUTATION_BASE_SHA")
           else
-            BASE_SHA_FLAG=""
+            BASE_SHA_FLAG=()
           fi
           if [ "${{ github.repository }}" = "nigelhorne/App-Test-Generator" ]; then
-            MUTATE_CMD="perl -Ilib -Iblib/lib bin/test-generator-mutate"
-            $MUTATE_CMD \
+            MUTATE=(perl -Ilib -Iblib/lib bin/test-generator-mutate)
+            "${MUTATE[@]}" \
               --lib lib \
               --tests t \
               --json mutation.json \
               --changed_only \
-              $BASE_SHA_FLAG \
+              "${BASE_SHA_FLAG[@]}" \
               --mutation_level fast \
               --exclude lib/Devel \
               --exclude lib/App/Test/Generator/Sample
           else
-            ATG_CMD=$(which test-generator-mutate) || { echo "test-generator-mutate not found — did App::Test::Generator install correctly?"; exit 1; }
-            MUTATE_CMD="perl -Ilib -Iblib/lib $ATG_CMD"
+            ATG_CMD=$(command -v test-generator-mutate) || { echo "test-generator-mutate not found — did App::Test::Generator install correctly?"; exit 1; }
+            MUTATE=(perl -Ilib -Iblib/lib "$ATG_CMD")
             if [ -n "$MUTATION_BASE_SHA" ]; then
-              BASE_SHA_FLAG="--base_sha $MUTATION_BASE_SHA"
+              BASE_SHA_FLAG=(--base_sha "$MUTATION_BASE_SHA")
             else
-              BASE_SHA_FLAG=""
+              BASE_SHA_FLAG=()
             fi
             # The monthly run, and a run requested with "full", mutate
             # everything: --changed_only on a commit that did not touch
             # lib/ generates no mutants and reports a vacuous 100%.
             if [ "${{ github.event_name }}" = "schedule" ] || [ "$INPUTS_FULL" = "true" ]; then
-              CHANGED_FLAG=""
-              BASE_SHA_FLAG=""
+              CHANGED_FLAG=()
+              BASE_SHA_FLAG=()
             else
-              CHANGED_FLAG="--changed_only"
+              CHANGED_FLAG=(--changed_only)
             fi
-            # shellcheck disable=SC2086
-            $MUTATE_CMD \
+            "${MUTATE[@]}" \
               --lib lib \
               --tests t \
               --json mutation.json \
-              $CHANGED_FLAG \
-              $BASE_SHA_FLAG \
+              "${CHANGED_FLAG[@]}" \
+              "${BASE_SHA_FLAG[@]}" \
               --mutation_level fast
           fi
 

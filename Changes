@@ -2,22 +2,41 @@ Revision history for Geo-Coder-Free
 
 0.52
 	[ Tests ]
-	- t/contract-workflows.t reads every copy of .github/workflows/contract.yml
-	  in the workspace and fails if one checks out fewer distributions than its
-	  own `for dist in ...` loop requires.  The job is copied into four
-	  distributions and kept in step by hand; a copy that had lost the
-	  producer's checkout stopped CI at the workspace check - "workspace/Geo-
-	  Coder-Free was not checked out" - before the contract ran, and every test
-	  in this distribution still passed.  This distribution's own copy is
-	  always read; the sibling copies only when the parent directory is the
-	  assembled workspace (Test-Consumer-Contract and Geo-Location-Point beside
-	  it), so an unpacked tarball in a build directory does not fail an install
-	  over an unrelated release.  The parser is run over workflow files the
-	  test writes first (a list continued across lines, a commented-out
-	  checkout, a working-directory) so a pattern that stopped matching fails
-	  rather than finding nothing, a failing test names the copy to fix, and
-	  the file skips where no checkout is readable.  The job now runs it
-	  alongside the contract in all four copies.
+	- The reader/producer contract job is now one reusable workflow, and
+	  t/contract-workflows.t guards it.  The job used to be a whole workflow
+	  copied into each of the four distributions that run it - this one,
+	  Database-BI, Geo-Location-Point and HTML-Genealogy-Map - and kept in step
+	  by hand, and the copies drifted: one lost the producer's checkout and
+	  stopped CI at the workspace check - "workspace/Geo-Coder-Free was not
+	  checked out" - before the contract ran, while every test in this
+	  distribution still passed; another pinned the Perl setup to a different
+	  commit.  The body is .github/workflows/contract-body.yml here, and each
+	  distribution keeps only a caller passing the three things that differ
+	  between them: its name, and the repository and ref it is running at.
+	- t/contract-workflows.t fails if a caller stops being a caller - not
+	  naming the body, not naming itself, not handing over the repository and
+	  ref, not passing the workspace secret through, or carrying any of the
+	  job's own work - and if the body lists a distribution in DISTRIBUTIONS
+	  that it does not check out, or checks the workspace in by a different
+	  list than it checks it out.  It reads this distribution's body always and
+	  the callers of the workspace when the parent directory is the assembled
+	  workspace (Test-Consumer-Contract and Geo-Location-Point beside it), so an
+	  unpacked tarball in a build directory does not fail an install over an
+	  unrelated release.  The parsers are run over files the test writes first,
+	  so a pattern that stopped matching fails instead of finding nothing; a
+	  failing test names the distribution to fix, and the file skips where no
+	  checkout is readable.  This distribution calls the body by local path, so
+	  a change to it is tested by the pull request that makes it; the other
+	  three call it at @master and pick it up once it is merged here.
+	- The job installs the checker's own dependencies.  t/consumer-contract.t
+	  loads Test::Consumer::Contract from the sibling checkout, whose lib/ is on
+	  @INC but whose cpanfile nothing was installing, so its first require
+	  stopped at Params::Validate::Strict and CONTRACT_STRICT turned that into a
+	  bailout instead of a skip: the job had never passed - 26 runs, none green,
+	  and not one of them reached a test - which is why no test could see it.
+	  t/contract-workflows.t now asserts the body installs the dependencies of
+	  both checkouts it loads from the workspace, so the step cannot be dropped
+	  again and leave the job bailing before its first assertion.
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]
 	- geocode() no longer hangs when OpenAddresses is configured and a location
