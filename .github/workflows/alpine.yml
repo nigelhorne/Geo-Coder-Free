@@ -36,9 +36,9 @@ jobs:
           # cpanm -iqn ExtUtils::MakeMaker File::Spec Test::Most
           # cpanm -iqn Sub::Identify Log::Any
           # cpanm -iqn Sub::Private LWP::UserAgent Test::CleanNamespaces
-          cd $RUNNER_WORKSPACE
-          git clone --recurse-submodules $GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git
-          cd $GITHUB_WORKSPACE
+          cd "$RUNNER_WORKSPACE"
+          git clone --recurse-submodules "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git"
+          cd "$GITHUB_WORKSPACE"
           cpanm -iqn File::Spec ExtUtils::MakeMaker IO::AIO Locale::AU Locale::US Database::Abstraction
           cpanm -iqn File::Open::NoCache::ReadOnly Gzip::Faster Geo::Coder::Abbreviations
           cpanm -iqn Geo::StreetAddress::US Lingua::EN::AddressParse Config::Auto
@@ -59,7 +59,7 @@ jobs:
         run: |
           # find ~ -name config.log | xargs cat
           # find ~ -name build.log | xargs cat
-          cd $GITHUB_WORKSPACE
+          cd "$GITHUB_WORKSPACE"
           perl Makefile.PL
           make
         env:
@@ -67,7 +67,7 @@ jobs:
           NO_NETWORK_TESTING: 1
       - name: Run Tests
         run: |
-          cd $GITHUB_WORKSPACE
+          cd "$GITHUB_WORKSPACE"
           make test AUTOMATED_TESTING=1
         env:
           AUTOMATED_TESTING: 1

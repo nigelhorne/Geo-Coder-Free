@@ -37,6 +37,34 @@ Revision history for Geo-Coder-Free
 	  t/contract-workflows.t now asserts the body installs the dependencies of
 	  both checkouts it loads from the workspace, so the step cannot be dropped
 	  again and leave the job bailing before its first assertion.
+	- t/contract-workflows.t also checks that the body is in the repository,
+	  not only in the working tree.  A reusable workflow is fetched from the
+	  repository at the ref its caller names, so contract-body.yml existing
+	  only in a checkout is one no caller can run: Database-BI's contract job
+	  answered "failed to fetch workflow: workflow was not found" for as long
+	  as the file was untracked here, and this whole suite passed through it,
+	  because every check read the body from disk - the one place it was.  The
+	  check asks the git index (git ls-files), so a body that is merely staged
+	  already passes: the state it catches is the file nobody has added; and it
+	  skips where there is no checkout to ask, since an unpacked tarball has no
+	  index and no callers either.
+	- .github/workflows/actionlint.yml lints every workflow on push and pull
+	  request: actionlint reads each expression with the contexts available where
+	  it stands, which is how Database-BI's browser.yml was refused whole -
+	  "Unrecognized named-value: 'runner'" for ${{ runner.temp }} in a job-level
+	  env, with none of its four jobs run - and shellcheck, when it is on PATH,
+	  checks the shell inside every run: block.  Both are downloaded from a
+	  pinned release with a verified checksum, and the workflows are found rather
+	  than listed, so one added later is covered without being added here as
+	  well.  This is where the body the others call lives and it carries the same
+	  file as they do, so all thirteen copies are held to the same rules.
+	- The findings it reported in the workflows here are fixed rather than
+	  silenced: the documented `eval "$(perl -Mlocal::lib)"` idiom is quoted in
+	  bare.yml and perl-ci.yml and `find lib -name '*.pm' | xargs` is -print0 and
+	  -0 there (SC2046, SC2038), and alpine.yml quotes the $RUNNER_WORKSPACE and
+	  $GITHUB_WORKSPACE directories it changes into and the $GITHUB_SERVER_URL
+	  and $GITHUB_REPOSITORY it clones (SC2086).
+
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]
 	- geocode() no longer hangs when OpenAddresses is configured and a location

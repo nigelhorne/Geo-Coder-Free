@@ -20,7 +20,12 @@
 #     disagree;
 #   * each caller names the body, names itself in `distribution`, hands over the
 #     repository and ref to check out, passes the workspace secret through, and
-#     carries none of the body's work.
+#     carries none of the body's work;
+#   * the body is in the repository, not only in this working tree: a caller
+#     fetches it by repository and ref, so a file that was never added is one
+#     GitHub answers "failed to fetch workflow: workflow was not found" for,
+#     at the call site, while every test here still reads it from disk and
+#     passes.
 #
 # The files are read as text rather than as YAML: the distribution declares no
 # YAML dependency, and the few lines this needs are the one-line forms the files
@@ -327,6 +332,32 @@ subtest 'the body' => sub {
 
 	like $text, qr{working-directory: workspace/Geo-Coder-Free},
 		'it runs the contract from the producer checkout';
+};
+
+# A reusable workflow is fetched from the repository at the ref a caller names,
+# so a copy that exists only in a working tree is one no caller can run.  That
+# is how Database-BI's contract job failed with "failed to fetch workflow:
+# workflow was not found" while this file passed: it read the body from disk,
+# which for a few hours was the only place the body was.  The check is in the
+# suite rather than in a reviewer's head because the state is invisible - a
+# body that is merely staged is already tracked, and a body that is not even
+# staged looks like any other file in the editor.
+subtest 'the body is in the repository, not only on disk' => sub {
+	my $root = abs_path(catdir($Bin, updir()));
+
+	my $inside = qx{git -C "$root" rev-parse --is-inside-work-tree 2>/dev/null};
+	plan skip_all => 'not a git checkout, so there is no index to ask'
+		unless defined $inside && $inside =~ /\Atrue/;
+
+	my @listed = qx{git -C "$root" ls-files .github/workflows/contract-body.yml 2>/dev/null};
+	chomp @listed;
+	my @tracked = grep { m{\Q.github/workflows/contract-body.yml\E\z} } @listed;
+
+	ok scalar(@tracked),
+		'contract-body.yml is tracked, so the callers in the other distributions can fetch it'
+		or diag('a caller names it as <repository>/.github/workflows/contract-body.yml@<ref>;'
+			. ' a copy that has never been added to the repository is not there to fetch,'
+			. ' whatever this working tree contains');
 };
 
 # The checkouts under the workspace: the four distributions that run the job,

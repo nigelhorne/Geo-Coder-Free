@@ -89,7 +89,7 @@ jobs:
 
       - name: Install dependencies, without the recommendations
         run: |
-          eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
+          eval "$(perl -I ~/perl5/lib/perl5 -Mlocal::lib)"
           # --no-recommends is what keeps Geo::Address::Parser out: Makefile.PL
           # recommends it, and cpanm installs recommendations by default.  The
           # requirements are installed as usual, including the TEST_REQUIRES
@@ -101,7 +101,7 @@ jobs:
 
       - name: Run the suite with the optional parsers blocked as well as absent
         run: |
-          eval $(perl -I ~/perl5/lib/perl5 -Mlocal::lib)
+          eval "$(perl -I ~/perl5/lib/perl5 -Mlocal::lib)"
           # The parsers are blocked as well as absent, so that a prerequisite
           # which pulls one in, or a test that loads one by name, cannot put it
           # back behind the check above.
