@@ -224,8 +224,13 @@ jobs:
           # t/contract-workflows.t guards this job rather than the module: it
           # fails if a caller goes back to carrying a copy of the body, or if
           # this body lists a distribution it does not check out, so the four
-          # cannot drift apart again unnoticed.
-          prove -l -v t/consumer-contract.t t/contract-strict.t t/contract-workflows.t
+          # cannot drift apart again unnoticed.  t/actionlint-drift.t is here for
+          # the other file every one of them carries: the lint job is one copy in
+          # thirteen distributions, and this workspace holds seven of them, so the
+          # copies that are not beside Geo-Coder-Free are named and skipped while
+          # the ones that are get compared.
+          prove -l -v t/consumer-contract.t t/contract-strict.t t/contract-workflows.t \
+            t/actionlint-drift.t
 
       - name: Show the diagnostic on failure
         if: failure()

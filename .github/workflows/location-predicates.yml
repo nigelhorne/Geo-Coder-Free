@@ -217,3 +217,23 @@ jobs:
             echo "::error::t/location-fuzz-doc.t skipped, so the sample was not checked"
             exit 1
           fi
+
+      # The lint job is one file in thirteen distributions, and this workspace
+      # holds eight of them: this job is the only place the six geocoders' copies
+      # can be compared with the one the contract's distributions carry, so a fix
+      # applied to one copy and not the others fails here rather than in the
+      # repository nobody would think to push to.  The five distributions that
+      # are not assembled here are named in the report and not failed - the
+      # contract job compares those - while a copy that is here and differs is
+      # the finding.  A skip would mean the workspace was not read at all, so it
+      # is made a failure for the same reason as the document check above.
+      - name: Check that the lint job is the same copy everywhere
+        working-directory: workspace/Geo-Coder-Free
+        shell: bash
+        run: |
+          set -euo pipefail
+          prove -lr t/actionlint-drift.t 2>&1 | tee "$RUNNER_TEMP/actionlint-drift.txt"
+          if grep -q 'skipped:' "$RUNNER_TEMP/actionlint-drift.txt"; then
+            echo "::error::t/actionlint-drift.t skipped, so the copies were not compared"
+            exit 1
+          fi

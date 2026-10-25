@@ -64,6 +64,23 @@ Revision history for Geo-Coder-Free
 	  -0 there (SC2046, SC2038), and alpine.yml quotes the $RUNNER_WORKSPACE and
 	  $GITHUB_WORKSPACE directories it changes into and the $GITHUB_SERVER_URL
 	  and $GITHUB_REPOSITORY it clones (SC2086).
+	- t/actionlint-drift.t fails when the copies of .github/workflows/actionlint.yml
+	  in the thirteen distributions that carry it stop being the same file.  The
+	  job only guards the repository it runs in, so a fix applied here and not in
+	  the other twelve leaves them unguarded, silently; the copies are compared
+	  byte for byte because the pinned version and the checksum are part of the
+	  rule the job applies.  No job assembles all thirteen - the contract body has
+	  seven checkouts and the location-predicate fuzz eight, Geo-Coder-List in
+	  both - so a sibling that is not beside this distribution is named and
+	  skipped, and a sibling that is checked out without the file fails.  A
+	  directory carrying the file without being listed fails too, so a fourteenth
+	  copy cannot be the one nobody compares.  The contract body runs it beside
+	  t/contract-workflows.t, where neither skip can hold because it has both the
+	  file and six siblings, and the fuzz job runs it after the document check
+	  and makes a skip a failure - a run that compared nothing looks exactly like
+	  a run that found nothing.  Landing a change to the file is
+	  therefore a change to all thirteen: the guard is red while they are out of
+	  step, and it names each copy that still has to be made the same.
 
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]
