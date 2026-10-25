@@ -1,5 +1,23 @@
 Revision history for Geo-Coder-Free
 
+0.52
+	[ Tests ]
+	- t/contract-workflows.t reads every copy of .github/workflows/contract.yml
+	  in the workspace and fails if one checks out fewer distributions than its
+	  own `for dist in ...` loop requires.  The job is copied into four
+	  distributions and kept in step by hand; a copy that had lost the
+	  producer's checkout stopped CI at the workspace check - "workspace/Geo-
+	  Coder-Free was not checked out" - before the contract ran, and every test
+	  in this distribution still passed.  This distribution's own copy is
+	  always read; the sibling copies only when the parent directory is the
+	  assembled workspace (Test-Consumer-Contract and Geo-Location-Point beside
+	  it), so an unpacked tarball in a build directory does not fail an install
+	  over an unrelated release.  The parser is run over workflow files the
+	  test writes first (a list continued across lines, a commented-out
+	  checkout, a working-directory) so a pattern that stopped matching fails
+	  rather than finding nothing, a failing test names the copy to fix, and
+	  the file skips where no checkout is readable.  The job now runs it
+	  alongside the contract in all four copies.
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]
 	- geocode() no longer hangs when OpenAddresses is configured and a location

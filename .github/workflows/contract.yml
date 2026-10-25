@@ -140,7 +140,12 @@ jobs:
         shell: bash
         run: |
           set -eu
-          prove -l -v t/consumer-contract.t t/contract-strict.t
+          # The guard reads every copy of this job in the workspace and fails if
+          # one checks out less than its own workspace loop requires, so the
+          # checkout steps above cannot drift from the names the loop insists on.
+          # Without it a copy can lose a checkout and still be green in every
+          # other distribution.
+          prove -l -v t/consumer-contract.t t/contract-strict.t t/contract-workflows.t
 
       - name: Show the diagnostic on failure
         if: failure()
