@@ -78,9 +78,16 @@ Revision history for Geo-Coder-Free
 	  t/contract-workflows.t, where neither skip can hold because it has both the
 	  file and six siblings, and the fuzz job runs it after the document check
 	  and makes a skip a failure - a run that compared nothing looks exactly like
-	  a run that found nothing.  Landing a change to the file is
-	  therefore a change to all thirteen: the guard is red while they are out of
-	  step, and it names each copy that still has to be made the same.
+	  a run that found nothing.  Landing a change to the file is therefore a
+	  change to all thirteen: the guard is red while they are out of step, and it
+	  names each copy that still has to be made the same.  It also writes the
+	  state of that rollout to the job summary as a table - every distribution and
+	  what its copy is: the same, differing at a named line, missing, or not
+	  checked out in this job - so the remaining work reads in one place instead
+	  of being reassembled from the failures of thirteen runs.  The table is
+	  appended rather than written, so a finding the step above it put in the
+	  summary survives, and it is skipped when GITHUB_STEP_SUMMARY is unset, which
+	  is what a local run looks like.
 
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]
