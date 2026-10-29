@@ -229,6 +229,16 @@ Readonly::Hash my %_BACKEND_NAMES => (
 	openaddr => 'OpenAddresses',
 );
 
+# The scantext region hint is an ISO 3166-1 alpha-2 code, but it is appended to
+# each candidate as the country, and the OpenAddresses parser reads a trailing
+# "CA" as California, not Canada.  These regions are appended by name instead;
+# a region not listed here (GB, US) is a code the parser already understands.
+Readonly::Hash my %_REGION_COUNTRY => (
+	AU => 'Australia',
+	CA => 'Canada',
+	IE => 'Ireland',
+);
+
 # Stopwords excluded from word-window scantext searches.
 my %_COMMON_WORDS = map { $_ => 1 } qw(
 	a age an and at be by cross for how i in is more of on or over pm
@@ -514,7 +524,7 @@ C<long> and C<lng> come from the value object itself.
             try 3-word windows (triplets) at confidence 0.8
             try 2-word windows (duplets) at confidence 0.7
             try the address-pattern regex at confidence 0.7
-            try region-specific address finders (GB / US / CA)
+            try region-specific address finders (GB / US / CA / IE)
             mark scantext as a miss; return undef
         else:
             try openaddr backend
@@ -581,6 +591,7 @@ sub geocode {
 			return @direct if @direct;
 
 			my $region = $params{'region'};
+			my $country = defined($region) ? ($_REGION_COUNTRY{uc $region} // $region) : undef;
 
 			# Build the effective stopword set.  When the caller supplies no
 			# ignore_words we avoid copying %_COMMON_WORDS (which is immutable
@@ -597,14 +608,14 @@ sub geocode {
 
 			# 3-word window search
 			my @triplets = _find_word_ngrams($scantext, 3, $ignore_words);
-			my $res = $self->_resolve_scan_candidates(\@triplets, $region, $CONF_TRIPLET, $scantext);
+			my $res = $self->_resolve_scan_candidates(\@triplets, $country, $CONF_TRIPLET, $scantext);
 			if (@{$res}) {
 				return wantarray ? @{$res} : $res->[0];
 			}
 
 			# 2-word window search
 			my @duplets = _find_word_ngrams($scantext, 2, $ignore_words);
-			$res = $self->_resolve_scan_candidates(\@duplets, $region, $CONF_DUPLET, $scantext);
+			$res = $self->_resolve_scan_candidates(\@duplets, $country, $CONF_DUPLET, $scantext);
 			if (@{$res}) {
 				return wantarray ? @{$res} : $res->[0];
 			}
@@ -616,7 +627,7 @@ sub geocode {
 				/\b(?:\d+\s+)?(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\.?),\s*
 				 (?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*(?:,\s*[A-Z]{2,})*)\b/gx;
 			my @places = grep { defined && $_ ne '' } @regex_matches;
-			$res = $self->_resolve_scan_candidates(\@places, $region, $CONF_REGEX, $scantext);
+			$res = $self->_resolve_scan_candidates(\@places, $country, $CONF_REGEX, $scantext);
 			if (@{$res}) {
 				return wantarray ? @{$res} : $res->[0];
 			}
@@ -624,16 +635,20 @@ sub geocode {
 			# Region-specific structured address patterns
 			if ($region) {
 				my @candidates;
-				if    ($region eq 'GB') { @candidates = _find_gb_addresses($scantext) }
-				elsif ($region eq 'US') { @candidates = _find_us_addresses($scantext) }
-				elsif ($region eq 'Canada') { @candidates = _find_ca_addresses($scantext) }
+				my $code = uc $region;
+				if    ($code eq 'GB') { @candidates = _find_gb_addresses($scantext) }
+				elsif ($code eq 'US') { @candidates = _find_us_addresses($scantext) }
+				elsif ($code eq 'CA') { @candidates = _find_ca_addresses($scantext) }
+				# Irish addresses are written in the same comma-separated
+				# "street, town, county, country" form as British ones
+				elsif ($code eq 'IE') { @candidates = _find_gb_addresses($scantext) }
 
 				if (@candidates) {
 					my @regional;
 					for my $candidate (@candidates) {
 						next if $ignore_words->{lc $candidate};
 						my @hits = grep { defined }
-							$self->{'openaddr'}->geocode("$candidate, $region");
+							$self->{'openaddr'}->geocode("$candidate, $country");
 						push @regional, @hits if @hits;
 					}
 					return @regional if @regional;
@@ -1269,7 +1284,8 @@ sub _normalize_args {
 #           memoising misses to avoid re-querying the same failing string.
 # Entry:    $self       - geocoder instance with {openaddr} and {scantext_misses}.
 #           $candidates - arrayref of place-name strings to probe.
-#           $region     - optional ISO country code appended to each candidate.
+#           $region     - optional country appended to each candidate: an ISO
+#                         code, or the name from %_REGION_COUNTRY.
 #           $confidence - numeric confidence score assigned to all hits.
 #           $scantext   - original free text (stored inside each result object).
 # Exit:     Arrayref of Geo::Location::Point objects; empty arrayref on no hits.

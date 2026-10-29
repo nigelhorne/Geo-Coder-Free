@@ -1,93 +1,18 @@
 Revision history for Geo-Coder-Free
 
 0.52
-	[ Tests ]
-	- The reader/producer contract job is now one reusable workflow, and
-	  t/contract-workflows.t guards it.  The job used to be a whole workflow
-	  copied into each of the four distributions that run it - this one,
-	  Database-BI, Geo-Location-Point and HTML-Genealogy-Map - and kept in step
-	  by hand, and the copies drifted: one lost the producer's checkout and
-	  stopped CI at the workspace check - "workspace/Geo-Coder-Free was not
-	  checked out" - before the contract ran, while every test in this
-	  distribution still passed; another pinned the Perl setup to a different
-	  commit.  The body is .github/workflows/contract-body.yml here, and each
-	  distribution keeps only a caller passing the three things that differ
-	  between them: its name, and the repository and ref it is running at.
-	- t/contract-workflows.t fails if a caller stops being a caller - not
-	  naming the body, not naming itself, not handing over the repository and
-	  ref, not passing the workspace secret through, or carrying any of the
-	  job's own work - and if the body lists a distribution in DISTRIBUTIONS
-	  that it does not check out, or checks the workspace in by a different
-	  list than it checks it out.  It reads this distribution's body always and
-	  the callers of the workspace when the parent directory is the assembled
-	  workspace (Test-Consumer-Contract and Geo-Location-Point beside it), so an
-	  unpacked tarball in a build directory does not fail an install over an
-	  unrelated release.  The parsers are run over files the test writes first,
-	  so a pattern that stopped matching fails instead of finding nothing; a
-	  failing test names the distribution to fix, and the file skips where no
-	  checkout is readable.  This distribution calls the body by local path, so
-	  a change to it is tested by the pull request that makes it; the other
-	  three call it at @master and pick it up once it is merged here.
-	- The job installs the checker's own dependencies.  t/consumer-contract.t
-	  loads Test::Consumer::Contract from the sibling checkout, whose lib/ is on
-	  @INC but whose cpanfile nothing was installing, so its first require
-	  stopped at Params::Validate::Strict and CONTRACT_STRICT turned that into a
-	  bailout instead of a skip: the job had never passed - 26 runs, none green,
-	  and not one of them reached a test - which is why no test could see it.
-	  t/contract-workflows.t now asserts the body installs the dependencies of
-	  both checkouts it loads from the workspace, so the step cannot be dropped
-	  again and leave the job bailing before its first assertion.
-	- t/contract-workflows.t also checks that the body is in the repository,
-	  not only in the working tree.  A reusable workflow is fetched from the
-	  repository at the ref its caller names, so contract-body.yml existing
-	  only in a checkout is one no caller can run: Database-BI's contract job
-	  answered "failed to fetch workflow: workflow was not found" for as long
-	  as the file was untracked here, and this whole suite passed through it,
-	  because every check read the body from disk - the one place it was.  The
-	  check asks the git index (git ls-files), so a body that is merely staged
-	  already passes: the state it catches is the file nobody has added; and it
-	  skips where there is no checkout to ask, since an unpacked tarball has no
-	  index and no callers either.
-	- .github/workflows/actionlint.yml lints every workflow on push and pull
-	  request: actionlint reads each expression with the contexts available where
-	  it stands, which is how Database-BI's browser.yml was refused whole -
-	  "Unrecognized named-value: 'runner'" for ${{ runner.temp }} in a job-level
-	  env, with none of its four jobs run - and shellcheck, when it is on PATH,
-	  checks the shell inside every run: block.  Both are downloaded from a
-	  pinned release with a verified checksum, and the workflows are found rather
-	  than listed, so one added later is covered without being added here as
-	  well.  This is where the body the others call lives and it carries the same
-	  file as they do, so all thirteen copies are held to the same rules.
-	- The findings it reported in the workflows here are fixed rather than
-	  silenced: the documented `eval "$(perl -Mlocal::lib)"` idiom is quoted in
-	  bare.yml and perl-ci.yml and `find lib -name '*.pm' | xargs` is -print0 and
-	  -0 there (SC2046, SC2038), and alpine.yml quotes the $RUNNER_WORKSPACE and
-	  $GITHUB_WORKSPACE directories it changes into and the $GITHUB_SERVER_URL
-	  and $GITHUB_REPOSITORY it clones (SC2086).
-	- t/actionlint-drift.t fails when the copies of .github/workflows/actionlint.yml
-	  in the thirteen distributions that carry it stop being the same file.  The
-	  job only guards the repository it runs in, so a fix applied here and not in
-	  the other twelve leaves them unguarded, silently; the copies are compared
-	  byte for byte because the pinned version and the checksum are part of the
-	  rule the job applies.  No job assembles all thirteen - the contract body has
-	  seven checkouts and the location-predicate fuzz eight, Geo-Coder-List in
-	  both - so a sibling that is not beside this distribution is named and
-	  skipped, and a sibling that is checked out without the file fails.  A
-	  directory carrying the file without being listed fails too, so a fourteenth
-	  copy cannot be the one nobody compares.  The contract body runs it beside
-	  t/contract-workflows.t, where neither skip can hold because it has both the
-	  file and six siblings, and the fuzz job runs it after the document check
-	  and makes a skip a failure - a run that compared nothing looks exactly like
-	  a run that found nothing.  Landing a change to the file is therefore a
-	  change to all thirteen: the guard is red while they are out of step, and it
-	  names each copy that still has to be made the same.  It also writes the
-	  state of that rollout to the job summary as a table - every distribution and
-	  what its copy is: the same, differing at a named line, missing, or not
-	  checked out in this job - so the remaining work reads in one place instead
-	  of being reassembled from the failures of thirteen runs.  The table is
-	  appended rather than written, so a finding the step above it put in the
-	  summary survives, and it is skipped when GITHUB_STEP_SUMMARY is unset, which
-	  is what a local run looks like.
+	[ Bug Fixes ]
+	- geocode(scantext => ..., region => 'CA') looked places up as "Place, CA",
+	  which the OpenAddresses parser reads as California, not Canada.  The
+	  region is an ISO code, but it is appended to each candidate as the
+	  country, so CA, AU and IE are now appended by name ("Canada", "Australia",
+	  "Ireland"); GB and US are codes the parser already understands
+	- The Canadian address finder never ran: it was only tried when the region
+	  was 'Canada', and the region is an ISO code, so 'CA' never matched
+	- The region is accepted in any case: 'ca' is treated as 'CA'
+	[ Enhancements ]
+	- region => 'IE' looks for addresses in the scantext, using the same
+	  comma-separated "street, town, county, country" form as GB
 
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]

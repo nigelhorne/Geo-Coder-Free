@@ -311,7 +311,7 @@ if openaddr backend is available:
         try 3-word windows (triplets) at confidence 0.8
         try 2-word windows (duplets) at confidence 0.7
         try the address-pattern regex at confidence 0.7
-        try region-specific address finders (GB / US / CA)
+        try region-specific address finders (GB / US / CA / IE)
         mark scantext as a miss; return undef
     else:
         try openaddr backend
