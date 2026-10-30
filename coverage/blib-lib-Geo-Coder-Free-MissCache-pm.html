@@ -20,15 +20,15 @@ https://pjcj.net
 <h1>File Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free/MissCache.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c2">96.8%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c2">97.9%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>stmt</th><th>bran</th><th>cond</th><th>sub</th><th>pod</th><th>time</th><th>code</th></tr>
 <tr><td class="h">1</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">package Geo::Coder::Free::MissCache;</td></tr>
-<tr><td class="h">2</td><td colspan="7"></td></tr><tr><td class="h">3</td><td><div class="c3">21</div><div class="c3">21</div><div class="c3">21</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L3">21</a></div></td><td></td><td><div>136</div><div>13</div><div>168</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">4</td><td><div class="c3">21</div><div class="c3">21</div><div class="c3">21</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L4">21</a></div></td><td></td><td><div>29</div><div>10</div><div>273</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">5</td><td colspan="7"></td></tr><tr><td class="h">6</td><td><div class="c3">21</div><div class="c3">21</div><div class="c3">21</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L6">21</a></div></td><td></td><td><div>20</div><div>12</div><div>366</div></td><td class="s">use Carp ();</td></tr>
+<tr><td class="h">2</td><td colspan="7"></td></tr><tr><td class="h">3</td><td><div class="c3">25</div><div class="c3">25</div><div class="c3">25</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L3">25</a></div></td><td></td><td><div>202</div><div>15</div><div>310</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">4</td><td><div class="c3">25</div><div class="c3">25</div><div class="c3">25</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L4">25</a></div></td><td></td><td><div>84</div><div>14</div><div>403</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">5</td><td colspan="7"></td></tr><tr><td class="h">6</td><td><div class="c3">25</div><div class="c3">25</div><div class="c3">25</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L6">25</a></div></td><td></td><td><div>34</div><div>18</div><div>537</div></td><td class="s">use Carp ();</td></tr>
 <tr><td class="h">7</td><td colspan="7"></td></tr><tr><td class="h">8 - 16</td><td colspan="6"></td><td class="s"><pre>=head1 NAME
 
 Geo::Coder::Free::MissCache - process-level memory of lookups that found nothing
@@ -49,9 +49,14 @@ Version 0.52
 <tr><td class="h">28</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">my %misses;</td></tr>
 <tr><td class="h">29</td><td colspan="7"></td></tr><tr><td class="h">30</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># An expiry sweep costs a walk of the cache, so it runs at most this often as</td></tr>
 <tr><td class="h">31</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># misses are added; missed() and size() discard what they look at regardless.</td></tr>
-<tr><td class="h">32</td><td><div class="c3">21</div><div class="c3">21</div><div class="c3">21</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L32">21</a></div></td><td></td><td><div>28</div><div>13</div><div>5590</div></td><td class="s">use constant SWEEP_INTERVAL =&gt; 60;</td></tr>
+<tr><td class="h">32</td><td><div class="c3">25</div><div class="c3">25</div><div class="c3">25</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L32">25</a></div></td><td></td><td><div>36</div><div>17</div><div>667</div></td><td class="s">use constant SWEEP_INTERVAL =&gt; 60;</td></tr>
 <tr><td class="h">33</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">my $next_sweep = 0;</td></tr>
-<tr><td class="h">34</td><td colspan="7"></td></tr><tr><td class="h">35 - 102</td><td colspan="6"></td><td class="s"><pre>=head1 SYNOPSIS
+<tr><td class="h">34</td><td colspan="7"></td></tr><tr><td class="h">35</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># The most misses a scope holds.&nbsp;&nbsp;A sweep only removes what has expired, so</td></tr>
+<tr><td class="h">36</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># without this an hour of distinct misses - from a website, say - all stay in</td></tr>
+<tr><td class="h">37</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># memory.&nbsp;&nbsp;Past it the scope starts again, as the scantext misses do: forgetting</td></tr>
+<tr><td class="h">38</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s"># a miss costs one repeated search.</td></tr>
+<tr><td class="h">39</td><td><div class="c3">25</div><div class="c3">25</div><div class="c3">25</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L39">25</a></div></td><td></td><td><div>39</div><div>41</div><div>8827</div></td><td class="s">use constant MAX_SCOPE_ENTRIES =&gt; 100_000;</td></tr>
+<tr><td class="h">40</td><td colspan="7"></td></tr><tr><td class="h">41 - 109</td><td colspan="6"></td><td class="s"><pre>=head1 SYNOPSIS
 
 &nbsp;&nbsp;&nbsp;&nbsp;use Geo::Coder::Free::MissCache;
 
@@ -86,7 +91,8 @@ that a process which stays up after its data is rebuilt does not keep
 answering from a stale memory forever; C&lt;Geo::Coder::Free-&gt;clear_miss_cache()&gt;
 empties the cache at once for that case.&nbsp;&nbsp;Expired entries are discarded when
 they are next asked about, and a sweep runs at most once a minute as new
-misses are recorded, so the cache does not grow without bound.
+misses are recorded.&nbsp;&nbsp;A scope that reaches 100,000 live misses forgets them and
+starts again, so the cache does not grow without bound.
 
 A miss is only ever remembered, never inferred: nothing here decides that an
 answer will be missing, it only stores that a backend has already found that
@@ -119,11 +125,11 @@ is still a part, so C&lt;scope_for(&#39;a&#39;, &#39;&#39;)&gt; is not C&lt;scop
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;string&#39; }
 
 =cut</pre></td></tr>
-<tr><td class="h">103</td><td colspan="7"></td></tr><tr><td class="h">104</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub scope_for {</td></tr>
-<tr><td class="h">105</td><td><div class="c3">266</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L105">266</a></div></td><td><div class="c3">1</div></td><td><div>2383</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, @parts) = @_;</td></tr>
-<tr><td class="h">106</td><td colspan="7"></td></tr><tr><td class="h">107</td><td><div class="c3">266</div></td><td></td><td></td><td></td><td></td><td><div>388</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return join(&quot;\0&quot;, @parts);</td></tr>
-<tr><td class="h">108</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">109</td><td colspan="7"></td></tr><tr><td class="h">110 - 135</td><td colspan="6"></td><td class="s"><pre>=head2 missed
+<tr><td class="h">110</td><td colspan="7"></td></tr><tr><td class="h">111</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub scope_for {</td></tr>
+<tr><td class="h">112</td><td><div class="c3">552</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L112">552</a></div></td><td><div class="c3">1</div></td><td><div>3705</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, @parts) = @_;</td></tr>
+<tr><td class="h">113</td><td colspan="7"></td></tr><tr><td class="h">114</td><td><div class="c3">552</div></td><td></td><td></td><td></td><td></td><td><div>918</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return join(&quot;\0&quot;, @parts);</td></tr>
+<tr><td class="h">115</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">116</td><td colspan="7"></td></tr><tr><td class="h">117 - 142</td><td colspan="6"></td><td class="s"><pre>=head2 missed
 
 &nbsp;&nbsp;&nbsp;&nbsp;my $seen = Geo::Coder::Free::MissCache-&gt;missed($scope, $key);
 
@@ -149,24 +155,25 @@ L&lt;/forget&gt; as well.
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;boolean&#39; }
 
 =cut</pre></td></tr>
-<tr><td class="h">136</td><td colspan="7"></td></tr><tr><td class="h">137</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub missed {</td></tr>
-<tr><td class="h">138</td><td><div class="c3">207</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L138">207</a></div></td><td><div class="c3">1</div></td><td><div>221</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope, $key) = @_;</td></tr>
-<tr><td class="h">139</td><td colspan="7"></td></tr><tr><td class="h">140</td><td><div class="c3">207</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L140">100</a></div></td><td></td><td></td><td></td><td><div>287</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope} or return 0;</td></tr>
-<tr><td class="h">141</td><td><div class="c3">127</div></td><td></td><td></td><td></td><td></td><td><div>116</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $expires_at = $entries-&gt;{$key};</td></tr>
-<tr><td class="h">142</td><td><div class="c3">127</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L142">100</a></div></td><td></td><td></td><td></td><td><div>162</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0 if !defined($expires_at);</td></tr>
-<tr><td class="h">143</td><td colspan="7"></td></tr><tr><td class="h">144</td><td><div class="c3">71</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L144">100</a></div></td><td></td><td></td><td></td><td><div>77</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($expires_at &lt;= time()) {</td></tr>
-<tr><td class="h">145</td><td><div class="c3">2</div></td><td></td><td></td><td></td><td></td><td><div>2</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $entries-&gt;{$key};</td></tr>
-<tr><td class="h">146</td><td><div class="c3">2</div><div class="c3">2</div></td><td><div class="c0" title="T/-"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L146">50</a></div></td><td></td><td></td><td></td><td><div>2</div><div>4</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$scope} if !keys %{$entries};</td></tr>
-<tr><td class="h">147</td><td><div class="c3">2</div></td><td></td><td></td><td></td><td></td><td><div>4</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0;</td></tr>
-<tr><td class="h">148</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">149</td><td colspan="7"></td></tr><tr><td class="h">150</td><td><div class="c3">69</div></td><td></td><td></td><td></td><td></td><td><div>137</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
-<tr><td class="h">151</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">152</td><td colspan="7"></td></tr><tr><td class="h">153 - 172</td><td colspan="6"></td><td class="s"><pre>=head2 remember
+<tr><td class="h">143</td><td colspan="7"></td></tr><tr><td class="h">144</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub missed {</td></tr>
+<tr><td class="h">145</td><td><div class="c3">452</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L145">452</a></div></td><td><div class="c3">1</div></td><td><div>3647</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope, $key) = @_;</td></tr>
+<tr><td class="h">146</td><td colspan="7"></td></tr><tr><td class="h">147</td><td><div class="c3">452</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L147">100</a></div></td><td></td><td></td><td></td><td><div>813</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope} or return 0;</td></tr>
+<tr><td class="h">148</td><td><div class="c3">258</div></td><td></td><td></td><td></td><td></td><td><div>1106</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $expires_at = $entries-&gt;{$key};</td></tr>
+<tr><td class="h">149</td><td><div class="c3">258</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L149">100</a></div></td><td></td><td></td><td></td><td><div>409</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0 if !defined($expires_at);</td></tr>
+<tr><td class="h">150</td><td colspan="7"></td></tr><tr><td class="h">151</td><td><div class="c3">131</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L151">100</a></div></td><td></td><td></td><td></td><td><div>165</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($expires_at &lt;= time()) {</td></tr>
+<tr><td class="h">152</td><td><div class="c3">3</div></td><td></td><td></td><td></td><td></td><td><div>3</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $entries-&gt;{$key};</td></tr>
+<tr><td class="h">153</td><td><div class="c3">3</div><div class="c3">3</div></td><td><div class="c0" title="T/-"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L153">50</a></div></td><td></td><td></td><td></td><td><div>5</div><div>7</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$scope} if !keys %{$entries};</td></tr>
+<tr><td class="h">154</td><td><div class="c3">3</div></td><td></td><td></td><td></td><td></td><td><div>8</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0;</td></tr>
+<tr><td class="h">155</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">156</td><td colspan="7"></td></tr><tr><td class="h">157</td><td><div class="c3">128</div></td><td></td><td></td><td></td><td></td><td><div>285</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
+<tr><td class="h">158</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">159</td><td colspan="7"></td></tr><tr><td class="h">160 - 180</td><td colspan="6"></td><td class="s"><pre>=head2 remember
 
 &nbsp;&nbsp;&nbsp;&nbsp;Geo::Coder::Free::MissCache-&gt;remember($scope, $key);
 
 Records that C&lt;$key&gt; found nothing in C&lt;$scope&gt;, for as long as
-L&lt;/expires_after&gt; says.&nbsp;&nbsp;Recording the same miss again refreshes it.
+L&lt;/expires_after&gt; says.&nbsp;&nbsp;Recording the same miss again refreshes it.&nbsp;&nbsp;A new
+miss in a scope that already holds 100,000 forgets those first.
 Returns true.
 
 =head3 API SPECIFICATION
@@ -181,13 +188,15 @@ Returns true.
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;boolean&#39;, value =&gt; 1 }
 
 =cut</pre></td></tr>
-<tr><td class="h">173</td><td colspan="7"></td></tr><tr><td class="h">174</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub remember {</td></tr>
-<tr><td class="h">175</td><td><div class="c3">179</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L175">179</a></div></td><td><div class="c3">1</div></td><td><div>414</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope, $key) = @_;</td></tr>
-<tr><td class="h">176</td><td colspan="7"></td></tr><tr><td class="h">177</td><td><div class="c3">179</div></td><td></td><td></td><td></td><td></td><td><div>202</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sweep();</td></tr>
-<tr><td class="h">178</td><td><div class="c3">179</div></td><td></td><td></td><td></td><td></td><td><div>252</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$misses{$scope}{$key} = time() + $EXPIRES_AFTER;</td></tr>
-<tr><td class="h">179</td><td colspan="7"></td></tr><tr><td class="h">180</td><td><div class="c3">179</div></td><td></td><td></td><td></td><td></td><td><div>118</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
-<tr><td class="h">181</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">182</td><td colspan="7"></td></tr><tr><td class="h">183 - 204</td><td colspan="6"></td><td class="s"><pre>=head2 forget
+<tr><td class="h">181</td><td colspan="7"></td></tr><tr><td class="h">182</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub remember {</td></tr>
+<tr><td class="h">183</td><td><div class="c3">300341</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L183">300341</a></div></td><td><div class="c3">1</div></td><td><div>257847</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope, $key) = @_;</td></tr>
+<tr><td class="h">184</td><td colspan="7"></td></tr><tr><td class="h">185</td><td><div class="c3">300341</div></td><td></td><td></td><td></td><td></td><td><div>219822</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sweep();</td></tr>
+<tr><td class="h">186</td><td><div class="c3">300341</div></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--condition.html#L186">100</a></div></td><td></td><td></td><td><div>201052</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope} //= {};</td></tr>
+<tr><td class="h">187</td><td><div class="c3">300341</div><div class="c3">2</div><div class="c3">300333</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L187">100</a></div></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--condition.html#L187">100</a></div></td><td></td><td></td><td><div>223163</div><div>26024</div><div>248560</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%{$entries} = () if !exists($entries-&gt;{$key}) &amp;&amp; (keys(%{$entries}) &gt;= MAX_SCOPE_ENTRIES);</td></tr>
+<tr><td class="h">188</td><td><div class="c3">300341</div></td><td></td><td></td><td></td><td></td><td><div>236213</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$entries-&gt;{$key} = time() + $EXPIRES_AFTER;</td></tr>
+<tr><td class="h">189</td><td colspan="7"></td></tr><tr><td class="h">190</td><td><div class="c3">300341</div></td><td></td><td></td><td></td><td></td><td><div>182361</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
+<tr><td class="h">191</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">192</td><td colspan="7"></td></tr><tr><td class="h">193 - 214</td><td colspan="6"></td><td class="s"><pre>=head2 forget
 
 &nbsp;&nbsp;&nbsp;&nbsp;Geo::Coder::Free::MissCache-&gt;forget($scope, $key);
 
@@ -209,15 +218,15 @@ never skipped on the strength of an older miss.
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;boolean&#39; }
 
 =cut</pre></td></tr>
-<tr><td class="h">205</td><td colspan="7"></td></tr><tr><td class="h">206</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub forget {</td></tr>
-<tr><td class="h">207</td><td><div class="c3">18</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L207">18</a></div></td><td><div class="c3">1</div></td><td><div>15</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope, $key) = @_;</td></tr>
-<tr><td class="h">208</td><td colspan="7"></td></tr><tr><td class="h">209</td><td><div class="c3">18</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L209">100</a></div></td><td></td><td></td><td></td><td><div>23</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope} or return 0;</td></tr>
-<tr><td class="h">210</td><td><div class="c3">9</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L210">100</a></div></td><td></td><td></td><td></td><td><div>27</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0 if !exists($entries-&gt;{$key});</td></tr>
-<tr><td class="h">211</td><td colspan="7"></td></tr><tr><td class="h">212</td><td><div class="c3">8</div></td><td></td><td></td><td></td><td></td><td><div>18</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $entries-&gt;{$key};</td></tr>
-<tr><td class="h">213</td><td><div class="c3">8</div><div class="c3">8</div></td><td><div class="c0" title="T/-"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L213">50</a></div></td><td></td><td></td><td></td><td><div>7</div><div>10</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$scope} if !keys %{$entries};</td></tr>
-<tr><td class="h">214</td><td colspan="7"></td></tr><tr><td class="h">215</td><td><div class="c3">8</div></td><td></td><td></td><td></td><td></td><td><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
-<tr><td class="h">216</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">217</td><td colspan="7"></td></tr><tr><td class="h">218 - 242</td><td colspan="6"></td><td class="s"><pre>=head2 clear
+<tr><td class="h">215</td><td colspan="7"></td></tr><tr><td class="h">216</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub forget {</td></tr>
+<tr><td class="h">217</td><td><div class="c3">20</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L217">20</a></div></td><td><div class="c3">1</div></td><td><div>31</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope, $key) = @_;</td></tr>
+<tr><td class="h">218</td><td colspan="7"></td></tr><tr><td class="h">219</td><td><div class="c3">20</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L219">100</a></div></td><td></td><td></td><td></td><td><div>46</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope} or return 0;</td></tr>
+<tr><td class="h">220</td><td><div class="c3">11</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L220">100</a></div></td><td></td><td></td><td></td><td><div>66</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 0 if !exists($entries-&gt;{$key});</td></tr>
+<tr><td class="h">221</td><td colspan="7"></td></tr><tr><td class="h">222</td><td><div class="c3">9</div></td><td></td><td></td><td></td><td></td><td><div>31</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $entries-&gt;{$key};</td></tr>
+<tr><td class="h">223</td><td><div class="c3">9</div><div class="c3">9</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L223">100</a></div></td><td></td><td></td><td></td><td><div>13</div><div>18</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$scope} if !keys %{$entries};</td></tr>
+<tr><td class="h">224</td><td colspan="7"></td></tr><tr><td class="h">225</td><td><div class="c3">9</div></td><td></td><td></td><td></td><td></td><td><div>25</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
+<tr><td class="h">226</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">227</td><td colspan="7"></td></tr><tr><td class="h">228 - 252</td><td colspan="6"></td><td class="s"><pre>=head2 clear
 
 &nbsp;&nbsp;&nbsp;&nbsp;Geo::Coder::Free::MissCache-&gt;clear();
 &nbsp;&nbsp;&nbsp;&nbsp;Geo::Coder::Free::MissCache-&gt;clear(&#39;OpenAddresses&#39;);
@@ -242,19 +251,19 @@ nothing.&nbsp;&nbsp;C&lt;&#39;&#39;&gt; is a scope like any other.&nbsp;&nbsp;Th
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;boolean&#39;, value =&gt; 1 }
 
 =cut</pre></td></tr>
-<tr><td class="h">243</td><td colspan="7"></td></tr><tr><td class="h">244</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub clear {</td></tr>
-<tr><td class="h">245</td><td><div class="c3">226</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L245">226</a></div></td><td><div class="c3">1</div></td><td><div>125447</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope) = @_;</td></tr>
-<tr><td class="h">246</td><td colspan="7"></td></tr><tr><td class="h">247</td><td><div class="c3">226</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L247">100</a></div></td><td></td><td></td><td></td><td><div>236</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!defined($scope)) {</td></tr>
-<tr><td class="h">248</td><td><div class="c3">207</div></td><td></td><td></td><td></td><td></td><td><div>159</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%misses = ();</td></tr>
-<tr><td class="h">249</td><td><div class="c3">207</div></td><td></td><td></td><td></td><td></td><td><div>180</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
-<tr><td class="h">250</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">251</td><td colspan="7"></td></tr><tr><td class="h">252</td><td><div class="c3">19</div></td><td></td><td></td><td></td><td></td><td><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $prefix = &quot;$scope\0&quot;;</td></tr>
-<tr><td class="h">253</td><td><div class="c3">19</div></td><td></td><td></td><td></td><td></td><td><div>25</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $name(keys %misses) {</td></tr>
-<tr><td class="h">254</td><td><div class="c3">44</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L254">100</a></div></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--condition.html#L254">100</a></div></td><td></td><td></td><td><div>61</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$name} if($name eq $scope) || (index($name, $prefix) == 0);</td></tr>
-<tr><td class="h">255</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">256</td><td colspan="7"></td></tr><tr><td class="h">257</td><td><div class="c3">19</div></td><td></td><td></td><td></td><td></td><td><div>22</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
-<tr><td class="h">258</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">259</td><td colspan="7"></td></tr><tr><td class="h">260 - 278</td><td colspan="6"></td><td class="s"><pre>=head2 size
+<tr><td class="h">253</td><td colspan="7"></td></tr><tr><td class="h">254</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub clear {</td></tr>
+<tr><td class="h">255</td><td><div class="c3">353</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L255">353</a></div></td><td><div class="c3">1</div></td><td><div>5820790</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope) = @_;</td></tr>
+<tr><td class="h">256</td><td colspan="7"></td></tr><tr><td class="h">257</td><td><div class="c3">353</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L257">100</a></div></td><td></td><td></td><td></td><td><div>448</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!defined($scope)) {</td></tr>
+<tr><td class="h">258</td><td><div class="c3">333</div></td><td></td><td></td><td></td><td></td><td><div>11358</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%misses = ();</td></tr>
+<tr><td class="h">259</td><td><div class="c3">333</div></td><td></td><td></td><td></td><td></td><td><div>321</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
+<tr><td class="h">260</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">261</td><td colspan="7"></td></tr><tr><td class="h">262</td><td><div class="c3">20</div></td><td></td><td></td><td></td><td></td><td><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $prefix = &quot;$scope\0&quot;;</td></tr>
+<tr><td class="h">263</td><td><div class="c3">20</div></td><td></td><td></td><td></td><td></td><td><div>24</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $name(keys %misses) {</td></tr>
+<tr><td class="h">264</td><td><div class="c3">48</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L264">100</a></div></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--condition.html#L264">100</a></div></td><td></td><td></td><td><div>85</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$name} if($name eq $scope) || (index($name, $prefix) == 0);</td></tr>
+<tr><td class="h">265</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">266</td><td colspan="7"></td></tr><tr><td class="h">267</td><td><div class="c3">20</div></td><td></td><td></td><td></td><td></td><td><div>21</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;</td></tr>
+<tr><td class="h">268</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">269</td><td colspan="7"></td></tr><tr><td class="h">270 - 288</td><td colspan="6"></td><td class="s"><pre>=head2 size
 
 &nbsp;&nbsp;&nbsp;&nbsp;my $count = Geo::Coder::Free::MissCache-&gt;size();
 &nbsp;&nbsp;&nbsp;&nbsp;my $count = Geo::Coder::Free::MissCache-&gt;size(&#39;Local&#39;);
@@ -273,17 +282,17 @@ Expired entries are discarded first, so this is the number of live entries.
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;integer&#39;, min =&gt; 0 }
 
 =cut</pre></td></tr>
-<tr><td class="h">279</td><td colspan="7"></td></tr><tr><td class="h">280</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub size {</td></tr>
-<tr><td class="h">281</td><td><div class="c3">72</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L281">72</a></div></td><td><div class="c3">1</div></td><td><div>5794</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope) = @_;</td></tr>
-<tr><td class="h">282</td><td colspan="7"></td></tr><tr><td class="h">283</td><td><div class="c3">72</div></td><td></td><td></td><td></td><td></td><td><div>69</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sweep(1);</td></tr>
-<tr><td class="h">284</td><td colspan="7"></td></tr><tr><td class="h">285</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @names = defined($scope)</td></tr>
-<tr><td class="h">286</td><td><div class="c3">72</div><div class="c3">56</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L286">100</a></div><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L286">100</a></div></td><td></td><td></td><td></td><td><div>80</div><div>67</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;? grep { ($_ eq $scope) || (index($_, &quot;$scope\0&quot;) == 0) } keys %misses</td></tr>
-<tr><td class="h">287</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: keys %misses;</td></tr>
-<tr><td class="h">288</td><td colspan="7"></td></tr><tr><td class="h">289</td><td><div class="c3">72</div></td><td></td><td></td><td></td><td></td><td><div>41</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $total = 0;</td></tr>
-<tr><td class="h">290</td><td><div class="c3">72</div><div class="c3">78</div></td><td></td><td></td><td></td><td></td><td><div>52</div><div>45</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$total += scalar(keys %{$misses{$_}}) foreach @names;</td></tr>
-<tr><td class="h">291</td><td colspan="7"></td></tr><tr><td class="h">292</td><td><div class="c3">72</div></td><td></td><td></td><td></td><td></td><td><div>104</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $total;</td></tr>
-<tr><td class="h">293</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">294</td><td colspan="7"></td></tr><tr><td class="h">295 - 325</td><td colspan="6"></td><td class="s"><pre>=head2 expires_after
+<tr><td class="h">289</td><td colspan="7"></td></tr><tr><td class="h">290</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub size {</td></tr>
+<tr><td class="h">291</td><td><div class="c3">100</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L291">100</a></div></td><td><div class="c3">1</div></td><td><div>78634</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $scope) = @_;</td></tr>
+<tr><td class="h">292</td><td colspan="7"></td></tr><tr><td class="h">293</td><td><div class="c3">100</div></td><td></td><td></td><td></td><td></td><td><div>137</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_sweep(1);</td></tr>
+<tr><td class="h">294</td><td colspan="7"></td></tr><tr><td class="h">295</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @names = defined($scope)</td></tr>
+<tr><td class="h">296</td><td><div class="c3">100</div><div class="c3">65</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L296">100</a></div><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L296">100</a></div></td><td></td><td></td><td></td><td><div>164</div><div>145</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;? grep { ($_ eq $scope) || (index($_, &quot;$scope\0&quot;) == 0) } keys %misses</td></tr>
+<tr><td class="h">297</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: keys %misses;</td></tr>
+<tr><td class="h">298</td><td colspan="7"></td></tr><tr><td class="h">299</td><td><div class="c3">100</div></td><td></td><td></td><td></td><td></td><td><div>75</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $total = 0;</td></tr>
+<tr><td class="h">300</td><td><div class="c3">100</div><div class="c3">86</div></td><td></td><td></td><td></td><td></td><td><div>138</div><div>80</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$total += scalar(keys %{$misses{$_}}) foreach @names;</td></tr>
+<tr><td class="h">301</td><td colspan="7"></td></tr><tr><td class="h">302</td><td><div class="c3">100</div></td><td></td><td></td><td></td><td></td><td><div>210</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $total;</td></tr>
+<tr><td class="h">303</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">304</td><td colspan="7"></td></tr><tr><td class="h">305 - 335</td><td colspan="6"></td><td class="s"><pre>=head2 expires_after
 
 &nbsp;&nbsp;&nbsp;&nbsp;my $seconds = Geo::Coder::Free::MissCache-&gt;expires_after();
 &nbsp;&nbsp;&nbsp;&nbsp;Geo::Coder::Free::MissCache-&gt;expires_after(600);
@@ -314,30 +323,30 @@ reference all croak.
 &nbsp;&nbsp;&nbsp;&nbsp;{ type =&gt; &#39;integer&#39;, min =&gt; 0 }
 
 =cut</pre></td></tr>
-<tr><td class="h">326</td><td colspan="7"></td></tr><tr><td class="h">327</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub expires_after {</td></tr>
-<tr><td class="h">328</td><td><div class="c3">288</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L328">288</a></div></td><td><div class="c3">1</div></td><td><div>6324</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $seconds) = @_;</td></tr>
-<tr><td class="h">329</td><td colspan="7"></td></tr><tr><td class="h">330</td><td><div class="c3">288</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L330">100</a></div></td><td></td><td></td><td></td><td><div>185</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(defined($seconds)) {</td></tr>
-<tr><td class="h">331</td><td><div class="c3">33</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L331">100</a></div></td><td></td><td></td><td></td><td><div>87</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Carp::croak(&#39;expires_after() expects a non-negative whole number of seconds&#39;)</td></tr>
-<tr><td class="h">332</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unless $seconds =~ /\A[0-9]+\z/;</td></tr>
-<tr><td class="h">333</td><td><div class="c3">17</div></td><td></td><td></td><td></td><td></td><td><div>13</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$EXPIRES_AFTER = $seconds;</td></tr>
-<tr><td class="h">334</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">335</td><td colspan="7"></td></tr><tr><td class="h">336</td><td><div class="c3">272</div></td><td></td><td></td><td></td><td></td><td><div>237</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $EXPIRES_AFTER;</td></tr>
-<tr><td class="h">337</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">338</td><td colspan="7"></td></tr><tr><td class="h">339</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _sweep {</td></tr>
-<tr><td class="h">340</td><td><div class="c3">251</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L340">251</a></div></td><td></td><td><div>143</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($force) = @_;</td></tr>
-<tr><td class="h">341</td><td colspan="7"></td></tr><tr><td class="h">342</td><td><div class="c3">251</div></td><td></td><td></td><td></td><td></td><td><div>169</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $now = time();</td></tr>
-<tr><td class="h">343</td><td><div class="c3">251</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L343">100</a></div></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--condition.html#L343">100</a></div></td><td></td><td></td><td><div>383</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return if !$force &amp;&amp; ($now &lt; $next_sweep);</td></tr>
-<tr><td class="h">344</td><td><div class="c3">80</div></td><td></td><td></td><td></td><td></td><td><div>52</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$next_sweep = $now + SWEEP_INTERVAL;</td></tr>
-<tr><td class="h">345</td><td colspan="7"></td></tr><tr><td class="h">346</td><td><div class="c3">80</div></td><td></td><td></td><td></td><td></td><td><div>67</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $scope(keys %misses) {</td></tr>
-<tr><td class="h">347</td><td><div class="c3">98</div></td><td></td><td></td><td></td><td></td><td><div>48</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope};</td></tr>
-<tr><td class="h">348</td><td><div class="c3">98</div><div class="c3">98</div></td><td></td><td></td><td></td><td></td><td><div>45</div><div>57</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $key(keys %{$entries}) {</td></tr>
-<tr><td class="h">349</td><td><div class="c3">98</div></td><td><div class="c0" title="-/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L349">50</a></div></td><td></td><td></td><td></td><td><div>72</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $entries-&gt;{$key} if $entries-&gt;{$key} &lt;= $now;</td></tr>
-<tr><td class="h">350</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">351</td><td><div class="c3">98</div><div class="c3">98</div></td><td><div class="c0" title="-/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L351">50</a></div></td><td></td><td></td><td></td><td><div>43</div><div>76</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$scope} if !keys %{$entries};</td></tr>
-<tr><td class="h">352</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">353</td><td colspan="7"></td></tr><tr><td class="h">354</td><td><div class="c3">80</div></td><td></td><td></td><td></td><td></td><td><div>75</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;</td></tr>
-<tr><td class="h">355</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">356</td><td colspan="7"></td></tr><tr><td class="h">357</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
-<tr><td class="h">358</td><td colspan="7"></td></tr></table>
+<tr><td class="h">336</td><td colspan="7"></td></tr><tr><td class="h">337</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub expires_after {</td></tr>
+<tr><td class="h">338</td><td><div class="c3">413</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L338">413</a></div></td><td><div class="c3">1</div></td><td><div>18218</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $seconds) = @_;</td></tr>
+<tr><td class="h">339</td><td colspan="7"></td></tr><tr><td class="h">340</td><td><div class="c3">413</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L340">100</a></div></td><td></td><td></td><td></td><td><div>333</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(defined($seconds)) {</td></tr>
+<tr><td class="h">341</td><td><div class="c3">48</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L341">100</a></div></td><td></td><td></td><td></td><td><div>318</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Carp::croak(&#39;expires_after() expects a non-negative whole number of seconds&#39;)</td></tr>
+<tr><td class="h">342</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unless $seconds =~ /\A[0-9]+\z/;</td></tr>
+<tr><td class="h">343</td><td><div class="c3">20</div></td><td></td><td></td><td></td><td></td><td><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$EXPIRES_AFTER = $seconds;</td></tr>
+<tr><td class="h">344</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">345</td><td colspan="7"></td></tr><tr><td class="h">346</td><td><div class="c3">385</div></td><td></td><td></td><td></td><td></td><td><div>1710</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $EXPIRES_AFTER;</td></tr>
+<tr><td class="h">347</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">348</td><td colspan="7"></td></tr><tr><td class="h">349</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _sweep {</td></tr>
+<tr><td class="h">350</td><td><div class="c3">300441</div></td><td></td><td></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--subroutine.html#L350">300441</a></div></td><td></td><td><div>158620</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($force) = @_;</td></tr>
+<tr><td class="h">351</td><td colspan="7"></td></tr><tr><td class="h">352</td><td><div class="c3">300441</div></td><td></td><td></td><td></td><td></td><td><div>156193</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $now = time();</td></tr>
+<tr><td class="h">353</td><td><div class="c3">300441</div></td><td><div class="c3" title="T/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L353">100</a></div></td><td><div class="c3"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--condition.html#L353">100</a></div></td><td></td><td></td><td><div>293337</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return if !$force &amp;&amp; ($now &lt; $next_sweep);</td></tr>
+<tr><td class="h">354</td><td><div class="c3">108</div></td><td></td><td></td><td></td><td></td><td><div>98</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$next_sweep = $now + SWEEP_INTERVAL;</td></tr>
+<tr><td class="h">355</td><td colspan="7"></td></tr><tr><td class="h">356</td><td><div class="c3">108</div></td><td></td><td></td><td></td><td></td><td><div>170</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $scope(keys %misses) {</td></tr>
+<tr><td class="h">357</td><td><div class="c3">110</div></td><td></td><td></td><td></td><td></td><td><div>69</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $entries = $misses{$scope};</td></tr>
+<tr><td class="h">358</td><td><div class="c3">110</div><div class="c3">110</div></td><td></td><td></td><td></td><td></td><td><div>64</div><div>6923</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foreach my $key(keys %{$entries}) {</td></tr>
+<tr><td class="h">359</td><td><div class="c3">100141</div></td><td><div class="c0" title="-/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L359">50</a></div></td><td></td><td></td><td></td><td><div>73737</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $entries-&gt;{$key} if $entries-&gt;{$key} &lt;= $now;</td></tr>
+<tr><td class="h">360</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">361</td><td><div class="c3">110</div><div class="c3">110</div></td><td><div class="c0" title="-/F"><a href="blib-lib-Geo-Coder-Free-MissCache-pm--branch.html#L361">50</a></div></td><td></td><td></td><td></td><td><div>2189</div><div>118</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete $misses{$scope} if !keys %{$entries};</td></tr>
+<tr><td class="h">362</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">363</td><td colspan="7"></td></tr><tr><td class="h">364</td><td><div class="c3">108</div></td><td></td><td></td><td></td><td></td><td><div>92</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;</td></tr>
+<tr><td class="h">365</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">366</td><td colspan="7"></td></tr><tr><td class="h">367</td><td></td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
+<tr><td class="h">368</td><td colspan="7"></td></tr></table>
 </body>
 </html>

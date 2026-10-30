@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>File: lib/Geo/Coder/Free/MissCache.pm</title>
+<style>
+
+/* --------------------------------------------------
+   CSS Variables (Light Mode Default)
+-------------------------------------------------- */
+
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --table-header: #333;
+    --table-header-text: #ffffff;
+
+    --survived-1: #f8d7da;
+    --survived-2: #f5b7b1;
+    --survived-3: #ec7063;
+
+    --killed: #d4edda;
+    --border: #cccccc;
+}
+
+/* --------------------------------------------------
+   Dark Mode Overrides
+-------------------------------------------------- */
+
+html[data-theme='dark'] {
+    --bg: #1e1e1e;
+    --text: #dddddd;
+    --table-header: #222;
+    --table-header-text: #ffffff;
+
+    --survived-1: #5c2b2e;
+    --survived-2: #7b2c2f;
+    --survived-3: #a93226;
+
+    --killed: #1e4620;
+    --border: #555;
+}
+
+/* --------------------------------------------------
+   Global Styles
+-------------------------------------------------- */
+
+body {
+	font-family: sans-serif;
+	background: var(--bg);
+	color: var(--text);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    background: var(--table-header);
+    color: var(--table-header-text);
+}
+
+.survived-1 { background-color: var(--survived-1); }
+.survived-2 { background-color: var(--survived-2); }
+.survived-3 { background-color: var(--survived-3); }
+
+.killed { background-color: var(--killed); }
+
+.legend {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+}
+
+.legend pre {
+    background: #f4f4f4;
+    padding: 5px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0 6px 0 20px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+}
+
+/* White box for non-mutated lines */
+.legend-box.none {
+	background-color: var(--bg);
+}
+
+/* --------------------------------------------------
+   Suggested Test Box Styling
+   Theme-aware and readable in light & dark modes
+-------------------------------------------------- */
+
+.suggested-test {
+    margin-top: 6px;
+    margin-bottom: 12px;
+
+    /* Use theme variables instead of hardcoded colors */
+    background: var(--bg);
+    color: var(--text);
+
+    padding: 8px;
+    border-radius: 4px;
+
+    /* Subtle border for visual separation */
+    border: 1px solid var(--border);
+}
+
+/* Label styling */
+.suggest-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* Ensure the test code block inherits readable colors */
+.suggested-test pre {
+    background: transparent;   /* Prevent nested dark blocks */
+    color: inherit;            /* Match theme text color */
+    margin: 0;
+    font-family: monospace;
+}
+
+pre { line-height: 1.4; }
+
+pre > details {
+    margin: 0.2em 0;
+}
+
+pre > details:first-child {
+    margin-top: 0;
+}
+
+pre > details:last-child {
+    margin-bottom: 0;
+}
+
+pre details,
+pre summary,
+pre ul,
+pre li {
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.nav { margin-bottom: 1em; }
+
+.toggle {
+    float: right;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	cursor: help;
+}
+
+/* Tooltip bubble */
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: var(--table-header);
+    color: var(--table-header-text);
+    padding: 6px 10px;
+    white-space: normal;
+    max-width: 300px;
+    min-width: 30ch;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    margin-left: 10ch;   /* move tooltip ~10 characters to the right */
+}
+
+.mutant-details {
+	margin-left: 2em;
+	font-size: 0.9em;
+}
+
+/* Indent the list of mutations that displays when expanding by 8 characters */
+pre details.mutant-details ul {
+	padding-left: 8ch;
+	margin: 0.2em 0;
+}
+
+.mutant-details summary {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.lcsaj-dot {
+    color: #5555ff;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-dot-uncovered {
+    color: #cc4444;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-tip {
+	position: relative;
+	display: inline-block;
+}
+
+.lcsaj-tip .lcsaj-tip-text {
+	visibility: hidden;
+	background-color: #333;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	white-space: nowrap;
+	position: fixed;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.lcsaj-tip:hover .lcsaj-tip-text {
+	visibility: visible;
+}
+
+.cpd-dot {
+    color: #cc8800;
+    font-size: 10px;
+    margin-right: 3px;
+    cursor: help;
+    text-decoration: none;
+}
+a.cpd-dot { cursor: pointer; }
+a.cpd-dot:hover { color: #ff8800; }
+
+.cpd-tip {
+    position: relative;
+    display: inline-block;
+}
+
+.cpd-tip .cpd-tip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cpd-tip:hover .cpd-tip-text {
+    visibility: visible;
+}
+
+/* CPD drill-down page styles */
+.dup-line { background-color: #fff3cd; display: block; }
+.dup-line:hover { background-color: #ffe082; }
+.intra-dot { color: #9944cc; margin-right: 4px; cursor: help; text-decoration: none; }
+a.intra-dot { cursor: pointer; }
+a.intra-dot:hover { color: #7700bb; }
+.cpd-legend {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    font-size: 0.9em;
+}
+
+</style>
+</head>
+<body>
+<button class="toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+<h1>lib/Geo/Coder/Free/MissCache.pm</h1>
+<div class="nav"><a href="Config.pm.html">⬅ Previous</a> <a href="../../../../../index.html">Index</a>
+</div><div class='summary'>
+<strong>Structural Coverage (Approximate)</strong><p>
+TER1 (Statement): 100.00%<br>
+TER2 (Branch): 91.18%<br>
+TER3 (LCSAJ): 100.0% (5/5)<br>
+Approximate LCSAJ segments: 35<br>
+</div>
+
+    <div class="legend">
+        <h3>LCSAJ Legend</h3>
+
+        <p>
+        <span class="lcsaj-dot">●</span>
+        <b>Covered</b> — this LCSAJ path was executed during testing.
+        </p>
+
+        <p>
+        <span class="lcsaj-dot-uncovered">●</span>
+        <b>Not covered</b> — this LCSAJ path was never executed. These are the paths to focus on.
+        </p>
+
+        <p>
+        Multiple dots on a line indicate that multiple control-flow paths begin at that line.
+        Hovering over any dot shows:
+        </p>
+
+        <pre>
+        start → end → jump
+        </pre>
+
+        <ul>
+        <li><b>start</b> – first line of the linear sequence</li>
+        <li><b>end</b> – last line before control flow changes</li>
+        <li><b>jump</b> – line execution jumps to next</li>
+        </ul>
+
+        <p>
+        Uncovered paths show <b>[NOT COVERED]</b> in the tooltip.
+	</p>
+    </div>
+
+		<div class="legend">
+			<h3>Mutant Testing Legend</h3>
+			<span class="legend-box survived-1"></span> Survived (tests missed this)
+			<span class="legend-box killed"></span> Killed (tests detected this)
+			<span class="legend-box none"></span> No mutation
+		</div>
+	<pre>
+<span class="">    1: package Geo::Coder::Free::MissCache;
+</span><span class="">    2: 
+</span><span class="">    3: use strict;
+</span><span class="">    4: use warnings;
+</span><span class="">    5: 
+</span><span class="">    6: use Carp ();
+</span><span class="">    7: 
+</span><span class="">    8: =head1 NAME
+</span><span class="">    9: 
+</span><span class="">   10: Geo::Coder::Free::MissCache - process-level memory of lookups that found nothing
+</span><span class="">   11: 
+</span><span class="">   12: =head1 VERSION
+</span><span class="">   13: 
+</span><span class="">   14: Version 0.52
+</span><span class="">   15: 
+</span><span class="">   16: =cut
+</span><span class="">   17: 
+</span><span class="">   18: our $VERSION = &#39;0.52&#39;;
+</span><span class="">   19: 
+</span><span class="">   20: # How long a remembered miss lasts.  A miss is a statement about data on disk,
+</span><span class="">   21: # which does not change while a batch or a request runs; the lifetime only has
+</span><span class="">   22: # to be long enough to save the repeated search, and short enough that a
+</span><span class="">   23: # rebuilt data set is noticed without a restart.
+</span><span class="">   24: our $EXPIRES_AFTER = 60 * 60;
+</span><span class="">   25: 
+</span><span class="">   26: # scope =&gt; { key =&gt; expiry time }.  Scopes are scope_for() strings; the zero
+</span><span class="">   27: # byte in them keeps a backend name from matching a data set of the same name.
+</span><span class="">   28: my %misses;
+</span><span class="">   29: 
+</span><span class="">   30: # An expiry sweep costs a walk of the cache, so it runs at most this often as
+</span><span class="">   31: # misses are added; missed() and size() discard what they look at regardless.
+</span><span class="">   32: use constant SWEEP_INTERVAL =&gt; 60;
+</span><span class="">   33: my $next_sweep = 0;
+</span><span class="">   34: 
+</span><span class="">   35: # The most misses a scope holds.  A sweep only removes what has expired, so
+</span><span class="">   36: # without this an hour of distinct misses - from a website, say - all stay in
+</span><span class="">   37: # memory.  Past it the scope starts again, as the scantext misses do: forgetting
+</span><span class="">   38: # a miss costs one repeated search.
+</span><span class="">   39: use constant MAX_SCOPE_ENTRIES =&gt; 100_000;
+</span><span class="">   40: 
+</span><span class="">   41: =head1 SYNOPSIS
+</span><span class="">   42: 
+</span><span class="">   43:     use Geo::Coder::Free::MissCache;
+</span><span class="">   44: 
+</span><span class="">   45:     my $scope  = Geo::Coder::Free::MissCache-&gt;scope_for(&#39;OpenAddresses&#39;, &#39;/data/openaddresses&#39;);
+</span><span class="">   46:     my $digest = &#39;AB12CD34&#39;;
+</span><span class="">   47: 
+</span><span class="">   48:     # A lookup found nothing: remember that, so the next caller does not
+</span><span class="">   49:     # have to read the same database to learn it again.
+</span><span class="">   50:     Geo::Coder::Free::MissCache-&gt;remember($scope, $digest);
+</span><span class="">   51: 
+</span><span class="">   52:     # A caller about to do the work asks first.
+</span><span class="">   53:     if(Geo::Coder::Free::MissCache-&gt;missed($scope, $digest)) {
+</span><span class="">   54:         print &quot;already looked for $digest\n&quot;;
+</span><span class="">   55:     }
+</span><span class="">   56: 
+</span><span class="">   57:     # The data behind the cache was rebuilt, so forget everything.
+</span><span class="">   58:     Geo::Coder::Free-&gt;clear_miss_cache();
+</span><span class="">   59: 
+</span><span class="">   60: =head1 DESCRIPTION
+</span><span class="">   61: 
+</span><span class="">   62: Every backend in C&lt;Geo::Coder::Free&gt; has the same problem: an address that is
+</span><span class="">   63: not in its data is not found on every call, and each call pays for the whole
+</span><span class="">   64: search again.  C&lt;Geo::Coder::Free::MissCache&gt; is the one place where the
+</span><span class="">   65: backends record those misses, so the process remembers the absence once and
+</span><span class="">   66: every later call - through any instance of any backend - answers without
+</span><span class="">   67: touching a database.
+</span><span class="">   68: 
+</span><span class="">   69: Entries are held in memory, in the process, and are not shared between
+</span><span class="">   70: processes.  They expire after an hour by default.  That is long enough to
+</span><span class="">   71: spare a batch, a web request or a test run the repeated work, and short enough
+</span><span class="">   72: that a process which stays up after its data is rebuilt does not keep
+</span><span class="">   73: answering from a stale memory forever; C&lt;Geo::Coder::Free-&gt;clear_miss_cache()&gt;
+</span><span class="">   74: empties the cache at once for that case.  Expired entries are discarded when
+</span><span class="">   75: they are next asked about, and a sweep runs at most once a minute as new
+</span><span class="">   76: misses are recorded.  A scope that reaches 100,000 live misses forgets them and
+</span><span class="">   77: starts again, so the cache does not grow without bound.
+</span><span class="">   78: 
+</span><span class="">   79: A miss is only ever remembered, never inferred: nothing here decides that an
+</span><span class="">   80: answer will be missing, it only stores that a backend has already found that
+</span><span class="">   81: it is.
+</span><span class="">   82: 
+</span><span class="">   83: =head1 METHODS
+</span><span class="">   84: 
+</span><span class="">   85: =head2 scope_for
+</span><span class="">   86: 
+</span><span class="">   87:     my $scope = Geo::Coder::Free::MissCache-&gt;scope_for(&#39;OpenAddresses&#39;, $dir);
+</span><span class="">   88: 
+</span><span class="">   89: Builds the name a backend stores its misses under.  The parts are joined with
+</span><span class="">   90: a zero byte, so the first part names the backend and the rest say which data
+</span><span class="">   91: set is being read - two OpenAddresses directories hold different data, and a miss in
+</span><span class="">   92: one says nothing about the other.  C&lt;clear()&gt; uses the same convention: giving
+</span><span class="">   93: it a backend name clears every data set that backend opened.
+</span><span class="">   94: 
+</span><span class="">   95: =head3 API SPECIFICATION
+</span><span class="">   96: 
+</span><span class="">   97: =head4 input
+</span><span class="">   98: 
+</span><span class="">   99:     backend =&gt; { type =&gt; &#39;string&#39; }            # Local, MaxMind or OpenAddresses
+</span><span class="">  100:     dataset =&gt; { type =&gt; &#39;string&#39;, optional =&gt; 1 }  # zero or more, which data set
+</span><span class="">  101: 
+</span><span class="">  102: Any number of parts, in any characters; no parts gives C&lt;&#39;&#39;&gt;.  An empty data set
+</span><span class="">  103: is still a part, so C&lt;scope_for(&#39;a&#39;, &#39;&#39;)&gt; is not C&lt;scope_for(&#39;a&#39;)&gt;.
+</span><span class="">  104: 
+</span><span class="">  105: =head4 output
+</span><span class="">  106: 
+</span><span class="">  107:     { type =&gt; &#39;string&#39; }
+</span><span class="">  108: 
+</span><span class="">  109: =cut
+</span><span class="">  110: 
+</span><span class="">  111: sub scope_for {
+</span><span class="">  112: 	my ($class, @parts) = @_;
+</span><span class="">  113: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  114: 	return join(&quot;\0&quot;, @parts);
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  115: }
+</span><span class="">  116: 
+</span><span class="">  117: =head2 missed
+</span><span class="">  118: 
+</span><span class="">  119:     my $seen = Geo::Coder::Free::MissCache-&gt;missed($scope, $key);
+</span><span class="">  120: 
+</span><span class="">  121: True if C&lt;$key&gt; was remembered as a miss in C&lt;$scope&gt; and has not expired.
+</span><span class="">  122: An expired entry is deleted as it is found.  A missing entry is false and is
+</span><span class="">  123: not an error.
+</span><span class="">  124: 
+</span><span class="">  125: =head3 API SPECIFICATION
+</span><span class="">  126: 
+</span><span class="">  127: =head4 input
+</span><span class="">  128: 
+</span><span class="">  129:     scope =&gt; { type =&gt; &#39;string&#39; }   # from scope_for()
+</span><span class="">  130:     key   =&gt; { type =&gt; &#39;string&#39; }
+</span><span class="">  131: 
+</span><span class="">  132: A key can be any string: C&lt;&#39;&#39;&gt;, C&lt;&#39;0&#39;&gt;, a zero byte, non-ASCII characters and a
+</span><span class="">  133: very long string are all kept apart.  Characters and the UTF-8 bytes that encode
+</span><span class="">  134: them are different keys; how perl stores a string makes no difference.  An unknown
+</span><span class="">  135: scope or key is false, and not an error.  This applies to L&lt;/remember&gt; and
+</span><span class="">  136: L&lt;/forget&gt; as well.
+</span><span class="">  137: 
+</span><span class="">  138: =head4 output
+</span><span class="">  139: 
+</span><span class="">  140:     { type =&gt; &#39;boolean&#39; }
+</span><span class="">  141: 
+</span><span class="">  142: =cut
+</span><span class="">  143: 
+</span><span class="">  144: sub missed {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">145 → 151 → 157</span></span>  145: 	my ($class, $scope, $key) = @_;
+</span><span class="">  146: 
+</span><span class="">  147: 	my $entries = $misses{$scope} or return 0;
+</span><span class="">  148: 	my $expires_at = $entries-&gt;{$key};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  149: 	return 0 if !defined($expires_at);
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  150: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  151: 	if($expires_at &lt;= time()) {
+</span><p> <b> Mutants (Total: 4, Killed: 4, Survived: 0)</b><p><span class="">  152: 		delete $entries-&gt;{$key};
+</span><span class="">  153: 		delete $misses{$scope} if !keys %{$entries};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  154: 		return 0;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  155: 	}
+</span><span class="">  156: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  157: 	return 1;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  158: }
+</span><span class="">  159: 
+</span><span class="">  160: =head2 remember
+</span><span class="">  161: 
+</span><span class="">  162:     Geo::Coder::Free::MissCache-&gt;remember($scope, $key);
+</span><span class="">  163: 
+</span><span class="">  164: Records that C&lt;$key&gt; found nothing in C&lt;$scope&gt;, for as long as
+</span><span class="">  165: L&lt;/expires_after&gt; says.  Recording the same miss again refreshes it.  A new
+</span><span class="">  166: miss in a scope that already holds 100,000 forgets those first.
+</span><span class="">  167: Returns true.
+</span><span class="">  168: 
+</span><span class="">  169: =head3 API SPECIFICATION
+</span><span class="">  170: 
+</span><span class="">  171: =head4 input
+</span><span class="">  172: 
+</span><span class="">  173:     scope =&gt; { type =&gt; &#39;string&#39; }   # from scope_for()
+</span><span class="">  174:     key   =&gt; { type =&gt; &#39;string&#39; }
+</span><span class="">  175: 
+</span><span class="">  176: =head4 output
+</span><span class="">  177: 
+</span><span class="">  178:     { type =&gt; &#39;boolean&#39;, value =&gt; 1 }
+</span><span class="">  179: 
+</span><span class="">  180: =cut
+</span><span class="">  181: 
+</span><span class="">  182: sub remember {
+</span><span class="">  183: 	my ($class, $scope, $key) = @_;
+</span><span class="">  184: 
+</span><span class="">  185: 	_sweep();
+</span><span class="">  186: 	my $entries = $misses{$scope} //= {};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  187: 	%{$entries} = () if !exists($entries-&gt;{$key}) &amp;&amp; (keys(%{$entries}) &gt;= MAX_SCOPE_ENTRIES);
+</span><p> <b> Mutants (Total: 3, Killed: 3, Survived: 0)</b><p><span class="">  188: 	$entries-&gt;{$key} = time() + $EXPIRES_AFTER;
+</span><span class="">  189: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  190: 	return 1;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  191: }
+</span><span class="">  192: 
+</span><span class="">  193: =head2 forget
+</span><span class="">  194: 
+</span><span class="">  195:     Geo::Coder::Free::MissCache-&gt;forget($scope, $key);
+</span><span class="">  196: 
+</span><span class="">  197: Forgets one miss, leaving the rest of C&lt;$scope&gt; alone.  Returns true if there
+</span><span class="">  198: was an entry to forget, and false if C&lt;$scope&gt; or C&lt;$key&gt; held none, so
+</span><span class="">  199: forgetting the same miss twice returns false the second time.  A backend calls
+</span><span class="">  200: this when a lookup that had been remembered as a miss now succeeds, so a hit is
+</span><span class="">  201: never skipped on the strength of an older miss.
+</span><span class="">  202: 
+</span><span class="">  203: =head3 API SPECIFICATION
+</span><span class="">  204: 
+</span><span class="">  205: =head4 input
+</span><span class="">  206: 
+</span><span class="">  207:     scope =&gt; { type =&gt; &#39;string&#39; }   # from scope_for()
+</span><span class="">  208:     key   =&gt; { type =&gt; &#39;string&#39; }
+</span><span class="">  209: 
+</span><span class="">  210: =head4 output
+</span><span class="">  211: 
+</span><span class="">  212:     { type =&gt; &#39;boolean&#39; }
+</span><span class="">  213: 
+</span><span class="">  214: =cut
+</span><span class="">  215: 
+</span><span class="">  216: sub forget {
+</span><span class="">  217: 	my ($class, $scope, $key) = @_;
+</span><span class="">  218: 
+</span><span class="">  219: 	my $entries = $misses{$scope} or return 0;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  220: 	return 0 if !exists($entries-&gt;{$key});
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  221: 
+</span><span class="">  222: 	delete $entries-&gt;{$key};
+</span><span class="">  223: 	delete $misses{$scope} if !keys %{$entries};
+</span><span class="">  224: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  225: 	return 1;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  226: }
+</span><span class="">  227: 
+</span><span class="">  228: =head2 clear
+</span><span class="">  229: 
+</span><span class="">  230:     Geo::Coder::Free::MissCache-&gt;clear();
+</span><span class="">  231:     Geo::Coder::Free::MissCache-&gt;clear(&#39;OpenAddresses&#39;);
+</span><span class="">  232: 
+</span><span class="">  233: With no argument, forgets every miss in every scope.  With a scope, forgets
+</span><span class="">  234: the misses in that scope and in every scope below it: C&lt;clear(&#39;OpenAddresses&#39;)&gt;
+</span><span class="">  235: empties every OpenAddresses data set this process has opened.  A scope that
+</span><span class="">  236: holds nothing, or names no backend, forgets nothing.  Returns true.
+</span><span class="">  237: 
+</span><span class="">  238: =head3 API SPECIFICATION
+</span><span class="">  239: 
+</span><span class="">  240: =head4 input
+</span><span class="">  241: 
+</span><span class="">  242:     scope =&gt; { type =&gt; &#39;string&#39;, optional =&gt; 1 }   # a backend name or a scope_for() string
+</span><span class="">  243: 
+</span><span class="">  244: C&lt;undef&gt; is the same as absent.  A scope matches whole parts only:
+</span><span class="">  245: C&lt;OpenAddresses&gt; doesn&#39;t cover C&lt;OpenAddressesX&gt;, and C&lt;OpenAddresse&gt; matches
+</span><span class="">  246: nothing.  C&lt;&#39;&#39;&gt; is a scope like any other.  This applies to L&lt;/size&gt; as well.
+</span><span class="">  247: 
+</span><span class="">  248: =head4 output
+</span><span class="">  249: 
+</span><span class="">  250:     { type =&gt; &#39;boolean&#39;, value =&gt; 1 }
+</span><span class="">  251: 
+</span><span class="">  252: =cut
+</span><span class="">  253: 
+</span><span class="">  254: sub clear {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">255 → 257 → 262</span></span>  255: 	my ($class, $scope) = @_;
+</span><span class="">  256: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  257: 	if(!defined($scope)) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  258: 		%misses = ();
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  259: 		return 1;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  260: 	}
+</span><span class="">  261: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">262 → 263 → 267</span></span>  262: 	my $prefix = &quot;$scope\0&quot;;
+</span><span class="">  263: 	foreach my $name(keys %misses) {
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  264: 		delete $misses{$name} if($name eq $scope) || (index($name, $prefix) == 0);
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  265: 	}
+</span><span class="">  266: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  267: 	return 1;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  268: }
+</span><span class="">  269: 
+</span><span class="">  270: =head2 size
+</span><span class="">  271: 
+</span><span class="">  272:     my $count = Geo::Coder::Free::MissCache-&gt;size();
+</span><span class="">  273:     my $count = Geo::Coder::Free::MissCache-&gt;size(&#39;Local&#39;);
+</span><span class="">  274: 
+</span><span class="">  275: How many misses are currently remembered, in all scopes or in one scope.
+</span><span class="">  276: Expired entries are discarded first, so this is the number of live entries.
+</span><span class="">  277: 
+</span><span class="">  278: =head3 API SPECIFICATION
+</span><span class="">  279: 
+</span><span class="">  280: =head4 input
+</span><span class="">  281: 
+</span><span class="">  282:     scope =&gt; { type =&gt; &#39;string&#39;, optional =&gt; 1 }   # a backend name or a scope_for() string
+</span><span class="">  283: 
+</span><span class="">  284: =head4 output
+</span><span class="">  285: 
+</span><span class="">  286:     { type =&gt; &#39;integer&#39;, min =&gt; 0 }
+</span><span class="">  287: 
+</span><span class="">  288: =cut
+</span><span class="">  289: 
+</span><span class="">  290: sub size {
+</span><span class="">  291: 	my ($class, $scope) = @_;
+</span><span class="">  292: 
+</span><span class="">  293: 	_sweep(1);
+</span><span class="">  294: 
+</span><span class="">  295: 	my @names = defined($scope)
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  296: 		? grep { ($_ eq $scope) || (index($_, &quot;$scope\0&quot;) == 0) } keys %misses
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  297: 		: keys %misses;
+</span><span class="">  298: 
+</span><span class="">  299: 	my $total = 0;
+</span><span class="">  300: 	$total += scalar(keys %{$misses{$_}}) foreach @names;
+</span><span class="">  301: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  302: 	return $total;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  303: }
+</span><span class="">  304: 
+</span><span class="">  305: =head2 expires_after
+</span><span class="">  306: 
+</span><span class="">  307:     my $seconds = Geo::Coder::Free::MissCache-&gt;expires_after();
+</span><span class="">  308:     Geo::Coder::Free::MissCache-&gt;expires_after(600);
+</span><span class="">  309: 
+</span><span class="">  310: How long a remembered miss lasts, in seconds.  Without an argument it answers
+</span><span class="">  311: with the current setting, which is one hour.  Setting it to 0 makes every miss
+</span><span class="">  312: expire as soon as it is recorded, which turns the cache off.  It is a setting
+</span><span class="">  313: of the process, not of an object, like the cache itself.
+</span><span class="">  314: 
+</span><span class="">  315: The lifetime is a whole number of seconds.  A negative number, a fraction or
+</span><span class="">  316: anything that is not a number croaks
+</span><span class="">  317: C&lt;expires_after() expects a non-negative whole number of seconds&gt;, and the
+</span><span class="">  318: setting is left as it was.  Returns the setting in force after the call.
+</span><span class="">  319: 
+</span><span class="">  320: =head3 API SPECIFICATION
+</span><span class="">  321: 
+</span><span class="">  322: =head4 input
+</span><span class="">  323: 
+</span><span class="">  324:     seconds =&gt; { type =&gt; &#39;integer&#39;, min =&gt; 0, optional =&gt; 1 }
+</span><span class="">  325: 
+</span><span class="">  326: The lowest value is C&lt;0&gt;; no maximum applies.  Leading zeros are accepted.  C&lt;undef&gt;
+</span><span class="">  327: only asks for the setting.  C&lt;-1&gt;, C&lt;1.5&gt;, C&lt;1.0&gt;, C&lt;1e3&gt;, C&lt;&#39;&#39;&gt;, a space on either
+</span><span class="">  328: side, a trailing newline, a digit of another script such as C&lt;&quot;\x{661}&quot;&gt;, and a
+</span><span class="">  329: reference all croak.
+</span><span class="">  330: 
+</span><span class="">  331: =head4 output
+</span><span class="">  332: 
+</span><span class="">  333:     { type =&gt; &#39;integer&#39;, min =&gt; 0 }
+</span><span class="">  334: 
+</span><span class="">  335: =cut
+</span><span class="">  336: 
+</span><span class="">  337: sub expires_after {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">338 → 340 → 346</span></span>  338: 	my ($class, $seconds) = @_;
+</span><span class="">  339: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  340: 	if(defined($seconds)) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  341: 		Carp::croak(&#39;expires_after() expects a non-negative whole number of seconds&#39;)
+</span><span class="">  342: 			unless $seconds =~ /\A[0-9]+\z/;
+</span><span class="">  343: 		$EXPIRES_AFTER = $seconds;
+</span><span class="">  344: 	}
+</span><span class="">  345: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  346: 	return $EXPIRES_AFTER;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  347: }
+</span><span class="">  348: 
+</span><span class="">  349: sub _sweep {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">350 → 356 → 364</span></span>  350: 	my ($force) = @_;
+</span><span class="">  351: 
+</span><span class="">  352: 	my $now = time();
+</span><span class="survived-3 tooltip" data-tooltip="Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one).">  353: 	return if !$force &amp;&amp; ($now &lt; $next_sweep);
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 3, Killed: 0, Survived: 3)</summary>
+					<ul>
+				<li><b>NUM_BOUNDARY_353_29_&gt;: Numeric boundary flip &lt; to &gt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_353_29_&lt;=: Numeric boundary flip &lt; to &lt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_353_29_&gt;=: Numeric boundary flip &lt; to &gt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  354: 	$next_sweep = $now + SWEEP_INTERVAL;
+</span><span class="">  355: 
+</span><span class="">  356: 	foreach my $scope(keys %misses) {
+</span><span class="">  357: 		my $entries = $misses{$scope};
+</span><span class="">  358: 		foreach my $key(keys %{$entries}) {
+</span><span class="survived-3 tooltip" data-tooltip="Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one).">  359: 			delete $entries-&gt;{$key} if $entries-&gt;{$key} &lt;= $now;
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 3, Killed: 0, Survived: 3)</summary>
+					<ul>
+				<li><b>NUM_BOUNDARY_359_48_&lt;: Numeric boundary flip &lt;= to &lt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_359_48_&gt;: Numeric boundary flip &lt;= to &gt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_359_48_&gt;=: Numeric boundary flip &lt;= to &gt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  360: 		}
+</span><span class="">  361: 		delete $misses{$scope} if !keys %{$entries};
+</span><span class="">  362: 	}
+</span><span class="">  363: 
+</span><span class="">  364: 	return;
+</span><span class="">  365: }
+</span><span class="">  366: 
+</span><span class="">  367: 1;
+</span><span class="">  368: 
+</span><span class="">  369: __END__
+</span><span class="">  370: 
+</span><span class="">  371: =head1 AUTHOR
+</span><span class="">  372: 
+</span><span class="">  373: Nigel Horne C&lt;&lt; &lt;njh@nigelhorne.com&gt; &gt;&gt;
+</span><span class="">  374: 
+</span><span class="">  375: =head1 SEE ALSO
+</span><span class="">  376: 
+</span><span class="">  377: L&lt;Geo::Coder::Free&gt;
+</span><span class="">  378: 
+</span><span class="">  379: =head1 LICENSE AND COPYRIGHT
+</span><span class="">  380: 
+</span><span class="">  381: Copyright 2026 Nigel Horne.
+</span><span class="">  382: 
+</span><span class="">  383: The program code is released under the following licence: GPL2 for personal use on a single computer.
+</span><span class="">  384: All other users (including Commercial, Charity, Educational, and Government)
+</span><span class="">  385: must apply in writing for a licence for use from Nigel Horne at C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;.
+</span><span class="">  386: 
+</span><span class="">  387: =cut
+</span></pre>
+
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+}
+
+(function() {
+    const saved = localStorage.getItem('theme');
+    if(saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+    }
+})();
+
+document.addEventListener("mousemove", function(e) {
+	document.querySelectorAll(".lcsaj-tip-text, .cpd-tip-text").forEach(function(tip) {
+		tip.style.left = (e.clientX + 12) + "px";
+		tip.style.top  = (e.clientY + 12) + "px";
+	});
+});
+</script>
+</body>
+</html>
+	

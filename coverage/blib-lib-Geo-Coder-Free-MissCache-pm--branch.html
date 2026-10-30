@@ -20,27 +20,28 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">blib/lib/Geo/Coder/Free/MissCache.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c1">87.5%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c2">91.2%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L140">140</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $entries = $misses{$scope}</td></tr>
-<tr><td class="h"><a id="L142">142</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $expires_at</td></tr>
-<tr><td class="h"><a id="L144">144</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($expires_at &lt;= time)</td></tr>
-<tr><td class="h"><a id="L146">146</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless keys %{$entries;}</td></tr>
-<tr><td class="h"><a id="L209">209</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $entries = $misses{$scope}</td></tr>
-<tr><td class="h"><a id="L210">210</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $entries-&gt;{$key}</td></tr>
-<tr><td class="h"><a id="L213">213</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless keys %{$entries;}</td></tr>
-<tr><td class="h"><a id="L247">247</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (defined $scope)</td></tr>
-<tr><td class="h"><a id="L254">254</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $name eq $scope or index($name, $prefix) == 0</td></tr>
-<tr><td class="h"><a id="L286">286</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $_ eq $scope</td></tr>
+<tr><td class="h"><a id="L147">147</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $entries = $misses{$scope}</td></tr>
+<tr><td class="h"><a id="L149">149</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $expires_at</td></tr>
+<tr><td class="h"><a id="L151">151</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($expires_at &lt;= time)</td></tr>
+<tr><td class="h"><a id="L153">153</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">unless keys %{$entries;}</td></tr>
+<tr><td class="h"><a id="L187">187</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not exists $entries-&gt;{$key} and keys %{$entries;} &gt;= 100000</td></tr>
+<tr><td class="h"><a id="L219">219</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless my $entries = $misses{$scope}</td></tr>
+<tr><td class="h"><a id="L220">220</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless exists $entries-&gt;{$key}</td></tr>
+<tr><td class="h"><a id="L223">223</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless keys %{$entries;}</td></tr>
+<tr><td class="h"><a id="L257">257</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (defined $scope)</td></tr>
+<tr><td class="h"><a id="L264">264</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $name eq $scope or index($name, $prefix) == 0</td></tr>
+<tr><td class="h"><a id="L296">296</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $_ eq $scope</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $scope ? :</td></tr>
-<tr><td class="h"><a id="L330">330</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $seconds)</td></tr>
-<tr><td class="h"><a id="L331">331</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $seconds =~ /\A[0-9]+\z/</td></tr>
-<tr><td class="h"><a id="L343">343</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not $force and $now &lt; $next_sweep</td></tr>
-<tr><td class="h"><a id="L349">349</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $entries-&gt;{$key} &lt;= $now</td></tr>
-<tr><td class="h"><a id="L351">351</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless keys %{$entries;}</td></tr>
+<tr><td class="h"><a id="L340">340</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $seconds)</td></tr>
+<tr><td class="h"><a id="L341">341</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $seconds =~ /\A[0-9]+\z/</td></tr>
+<tr><td class="h"><a id="L353">353</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not $force and $now &lt; $next_sweep</td></tr>
+<tr><td class="h"><a id="L359">359</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $entries-&gt;{$key} &lt;= $now</td></tr>
+<tr><td class="h"><a id="L361">361</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless keys %{$entries;}</td></tr>
 </table>
 </body>
 </html>
