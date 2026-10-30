@@ -357,11 +357,11 @@ Approximate LCSAJ segments: 113<br>
 </span><span class="">   16: 
 </span><span class="">   17: =head1 VERSION
 </span><span class="">   18: 
-</span><span class="">   19: Version 0.51
+</span><span class="">   19: Version 0.52
 </span><span class="">   20: 
 </span><span class="">   21: =cut
 </span><span class="">   22: 
-</span><span class="">   23: our $VERSION = &#39;0.51&#39;;
+</span><span class="">   23: our $VERSION = &#39;0.52&#39;;
 </span><span class="">   24: 
 </span><span class="">   25: use v5.20;
 </span><span class="">   26: use strict;
@@ -624,7 +624,7 @@ is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
 </span><span class="">  218: 	# Allow override for testing
 </span><span class="">  219: 	my $env_var = &#39;TEST_&#39; . uc($cache_type) . &#39;_DRIVER&#39;;
 </span><span class="">  220: 	return $ENV{$env_var} if $ENV{$env_var};
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  221: 
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  221: 
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -673,7 +673,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 <span class="">  225: 
 </span><span class="">  226: sub _get_fallback_driver($cache_type) {
 </span><span class="">  227: 	return $cache_type eq &#39;disc_cache&#39; ? &#39;File&#39; : &#39;Memory&#39;;
-</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  228: }
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  228: }
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -698,7 +698,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 <span class="">  229: 
 </span><span class="">  230: sub _is_driver_available($driver) {
 </span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">231 → 244 → 252</span></span>  231: 	return 1 if $driver =~ /^(Memory|Null)$/;
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  232: 
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  232: 
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -796,7 +796,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 					<ul>
 				<li><b>COND_INV_254_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
 </li></ul></details>
-<span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  255: 	}
+<span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  255: 	}
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -820,7 +820,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 							</li></ul></details>
 <span class="">  256: 	$driver_modules{$driver}-&gt;import();
 </span><span class="">  257: 	return 1;
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  258: }
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  258: }
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>

@@ -36,11 +36,11 @@ https://pjcj.net
 <tr><td class="h"><a id="L254">254</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $name eq $scope or index($name, $prefix) == 0</td></tr>
 <tr><td class="h"><a id="L286">286</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $_ eq $scope</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $scope ? :</td></tr>
-<tr><td class="h"><a id="L332">332</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $seconds)</td></tr>
-<tr><td class="h"><a id="L333">333</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $seconds =~ /^\d+$/</td></tr>
-<tr><td class="h"><a id="L345">345</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not $force and $now &lt; $next_sweep</td></tr>
-<tr><td class="h"><a id="L351">351</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $entries-&gt;{$key} &lt;= $now</td></tr>
-<tr><td class="h"><a id="L353">353</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless keys %{$entries;}</td></tr>
+<tr><td class="h"><a id="L330">330</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $seconds)</td></tr>
+<tr><td class="h"><a id="L331">331</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $seconds =~ /\A[0-9]+\z/</td></tr>
+<tr><td class="h"><a id="L343">343</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if not $force and $now &lt; $next_sweep</td></tr>
+<tr><td class="h"><a id="L349">349</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if $entries-&gt;{$key} &lt;= $now</td></tr>
+<tr><td class="h"><a id="L351">351</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless keys %{$entries;}</td></tr>
 </table>
 </body>
 </html>
