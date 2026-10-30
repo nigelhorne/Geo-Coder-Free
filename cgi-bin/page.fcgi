@@ -272,8 +272,11 @@ exit(0);
 # Create and send response to the client for each request
 sub doit
 {
+	# Record the wall-clock start time so we can report request duration later.
 	my $request_start = Time::HiRes::time();
 
+	# CGI::Info caches state between calls; reset it so this request gets a
+	# fresh view of the environment rather than stale values from the last one.
 	CGI::Info->reset();
 
 	# Call domain_name in a class context to ensure it's reread now that FCGI has started up
@@ -281,11 +284,11 @@ sub doit
 
 	my %params = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
-	# Don't pass $info in since it was created before the connection, so it doesn't know the domain name
-	#	config file to read
+	# $config is built once per process and reused.  We cannot build it before
+	# the first Accept() because the domain name is not known until then.
+	# So don't pass $info in since it was created before the connection
 	$config ||= Geo::Coder::Free::Config->new({
 		logger => $logger,
-		info => $info,
 		debug => $params{'debug'},
 		lingua => CGI::Lingua->new({ supported => [ 'en-gb' ], info => $info, logger => $logger })	# Use a temporary CGI::Lingua
 	});
