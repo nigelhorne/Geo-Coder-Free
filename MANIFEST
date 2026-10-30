@@ -57,9 +57,6 @@ t/bin.t
 t/cities.t
 t/comment-spelling.t
 t/config.t
-t/consumer-contract.t
-t/contract-strict.t
-t/contract-workflows.t
 t/critic.t
 t/display.t
 t/domain.t
