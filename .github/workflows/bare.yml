@@ -97,7 +97,9 @@ jobs:
           cpanm --notest --no-recommends --installdeps .
 
       - name: Check that no database and no optional parser is here
-        run: perl scripts/bare-environment.pl
+        run: |
+          eval "$(perl -I ~/perl5/lib/perl5 -Mlocal::lib)"
+          perl scripts/bare-environment.pl
 
       - name: Run the suite with the optional parsers blocked as well as absent
         run: |

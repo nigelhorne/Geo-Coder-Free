@@ -63,11 +63,11 @@ Geo::Coder::Free::MaxMind - Provides a geocoding functionality using the MaxMind
 
 =head1 VERSION
 
-Version 0.51
+Version 0.52
 
 =cut
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 
 =head1 SYNOPSIS
 
@@ -165,7 +165,7 @@ sub new
 	$directory =~ s/\.pm$//;
 
 	if(!-d $directory) {
-		Carp::croak(ref($class), ": directory $directory doesn't exist");
+		Carp::croak(__PACKAGE__, ": directory $directory doesn't exist");
 	}
 
 	Database::Abstraction::init({
@@ -764,10 +764,10 @@ The domain of a coordinate:
 
 =over 4
 
-=item * An optional minus, one or more digits, then an optional point and more
+=item * An optional minus, one or more ASCII digits, then an optional point and more
 digits: C<0>, C<-76.5>, C<1.> are valid.  C<+1>, C<.5>, C<1e2>, a space on either
-side, C<''> or anything else croaks C<Invalid coordinate value for reverse_geocode>
-before anything is read.
+side, a trailing newline, a digit of another script, C<''> or anything else croaks
+C<Invalid coordinate value for reverse_geocode> before anything is read.
 
 =item * No range check applies: C<90,180> and C<-90,-180> are valid, and so are
 C<90.000001,0> and C<91,181>, which simply find nothing.
@@ -776,9 +776,6 @@ C<90.000001,0> and C<91,181>, which simply find nothing.
 comma croaks C<Usage:>, as do no arguments, only one of C<lat> and C<lon>, or a
 reference other than a hashref.  C<latlng> gives way to C<lat> and C<lon> when it is
 C<''> or C<'0'>.
-
-=item * Known bug: a digit of another script, and a newline at the end of a
-coordinate, pass the check and reach the SQL.  F<t/domain.t> has a TODO for it.
 
 =back
 
@@ -847,7 +844,7 @@ sub reverse_geocode
 	# if a caller passes a non-numeric latlng string.
 	for my $c ($latitude, $longitude) {
 		Carp::croak('Invalid coordinate value for reverse_geocode')
-			unless defined($c) && $c =~ /^-?\d+\.?\d*$/;
+			unless defined($c) && $c =~ /\A-?[0-9]+\.?[0-9]*\z/;
 	}
 
 	if(wantarray) {
@@ -970,7 +967,7 @@ VWF, MaxMind and geonames.
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2017-2025 Nigel Horne.
+Copyright 2017-2026 Nigel Horne.
 
 The program code is released under the following licence: GPL for personal use on a single computer.
 All other users (including Commercial, Charity, Educational, Government)

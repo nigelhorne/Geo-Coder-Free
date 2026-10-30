@@ -17,10 +17,12 @@
 use strict;
 use warnings;
 
+use Encode ();
 use File::Spec;
 use File::Temp qw(tempdir);
 use Readonly;
 use Scalar::Util qw(blessed);
+use Storable ();
 use Test::Most;
 use Test::Mockingbird qw(mock restore_all);
 
@@ -104,8 +106,8 @@ sub execute {
 package Domain::Cache;
 
 sub new { return bless {}, shift }
-sub get { return }
-sub set { return }
+sub get { return $_[0]->{ $_[1] } }
+sub set { $_[0]->{ $_[1] } = $_[2]; return }
 
 package main;
 
@@ -144,6 +146,7 @@ Readonly::Hash my %config => (
 	scantext_shortest => 6,				# OpenAddresses ignores a scantext below this
 	big_batch         => 1_000,
 	an_hour           => 3_600,
+	scantext_misses   => 10_000,		# how many misses an object keeps
 );
 
 # The messages the POD documents, as far as they are this distribution's own
@@ -509,8 +512,14 @@ subtest 'geocode(scantext): the partitions of the value' => sub {
 	}
 
 	my $maxmind = Domain::Backend->new(answer => _point());
-	is(scalar(_facade(maxmind => $maxmind)->geocode(scantext => 'Ramsgate')), undef, 'without OpenAddresses a scantext finds nothing');
+	my $no_openaddr = _facade(maxmind => $maxmind);
+	my @warnings = _warnings_from(sub {
+		is(scalar($no_openaddr->geocode(scantext => 'Ramsgate')), undef, 'without OpenAddresses a scantext finds nothing');
+		is(scalar($no_openaddr->geocode(scantext => 'Margate')), undef, 'nor does another');
+	});
 	is(scalar(@{$maxmind->{'seen'}}), 0, 'and no backend was touched');
+	is(scalar(@warnings), 1, 'it says so once per object');
+	like($warnings[0], qr/\Qscantext only searches OpenAddresses data\E/, 'and says what is missing');
 
 	# With OpenAddresses, the whole string is tried first
 	my $openaddr = Domain::Backend->new();
@@ -547,7 +556,9 @@ subtest 'geocode(region): any string, appended to each scantext candidate' => su
 		[ '0', $triplet, 'false: no country' ],
 		[ 'GB', "$triplet, GB", 'a code the parser understands' ],
 		[ 'US', "$triplet, US", 'another' ],
-		[ 'gb', "$triplet, gb", 'kept in the case it was given' ],
+		[ 'gb', "$triplet, GB", 'two letters are upper-cased, as the parsers expect' ],
+		[ 'zz', "$triplet, ZZ", 'known or not' ],
+		[ 'Kent', "$triplet, Kent", 'anything else is appended as written' ],
 		[ 'CA', "$triplet, Canada", 'CA is appended by name: alone it reads as California' ],
 		[ 'ca', "$triplet, Canada", 'in any case' ],
 		[ 'AU', "$triplet, Australia", 'AU is appended by name' ],
@@ -595,7 +606,9 @@ subtest 'geocode(ignore_words): an arrayref of words' => sub {
 	}
 	foreach my $bad('Margate', {}) {
 		throws_ok { $words_tried->(ignore_words => $bad) } qr/\bARRAY\b/, 'invalid: ' . _show($bad) . ' with OpenAddresses configured';
-		lives_ok { _facade()->geocode(scantext => $text, ignore_words => $bad) } 'without OpenAddresses it is not looked at';
+		_warnings_from(sub {
+			lives_ok { _facade()->geocode(scantext => $text, ignore_words => $bad) } 'without OpenAddresses it is not looked at';
+		});
 	}
 };
 
@@ -608,10 +621,56 @@ subtest 'geocode(): region and ignore_words at their edges together' => sub {
 	my $text = 'Ramsgate Margate';
 	is(scalar($geo->geocode(scantext => $text, region => 'ZZ', ignore_words => [ qw(Ramsgate Margate) ])), undef, 'finds nothing');
 	is_deeply($openaddr->{'seen'}, [ $text ], 'only the whole string was tried');
-	ok($geo->{'scantext_misses'}{$text}, 'the miss is remembered');
+	$geo->geocode(scantext => $text, region => 'zz', ignore_words => [ qw(margate RAMSGATE) ]);
+	is(scalar(@{$openaddr->{'seen'}}), 1, 'the miss is remembered, whatever the case or the order of the options');
+};
 
-	$geo->geocode(scantext => $text, region => 'GB');
-	is(scalar(@{$openaddr->{'seen'}}), 1, 'and answers the same text under any region or ignore_words, without a lookup');
+subtest 'geocode(scantext): a miss holds for that search, and for a while' => sub {
+	my $text = 'Ramsgate Margate';
+
+	# How many lookups the same text costs, given the options of each call
+	my $lookups = sub {
+		my ($geo, $openaddr, @options) = @_;
+
+		my $before = scalar(@{$openaddr->{'seen'}});
+		$geo->geocode(scantext => $text, @options);
+
+		return scalar(@{$openaddr->{'seen'}}) - $before;
+	};
+	my $fresh = sub {
+		my $openaddr = Domain::Backend->new();
+		return (_facade(openaddr => $openaddr, local => Domain::Backend->new()), $openaddr);
+	};
+
+	my ($geo, $openaddr) = $fresh->();
+	cmp_ok($lookups->($geo, $openaddr), '>', 0, 'the first search looks');
+	is($lookups->($geo, $openaddr), 0, 'the same search does not');
+	cmp_ok($lookups->($geo, $openaddr, region => 'CA'), '>', 0, 'another region is another search: this text may be in Canada');
+	is($lookups->($geo, $openaddr, region => 'ca'), 0, 'and is remembered in its turn, in either case');
+	cmp_ok($lookups->($geo, $openaddr, ignore_words => [ 'Margate' ]), '>', 0, 'other ignore_words are another search');
+
+	$geo->clear_miss_cache('Local');
+	is($lookups->($geo, $openaddr), 0, 'clearing another backend leaves it remembered');
+	$geo->clear_miss_cache('OpenAddresses');
+	cmp_ok($lookups->($geo, $openaddr), '>', 0, 'clearing OpenAddresses forgets it');
+	$GCF->clear_miss_cache();
+	cmp_ok($lookups->($geo, $openaddr), '>', 0, 'and so does clearing everything');
+
+	($geo, $openaddr) = $fresh->();
+	$CACHE->expires_after(0);
+	$lookups->($geo, $openaddr);
+	$CACHE->expires_after($config{'an_hour'});
+	cmp_ok($lookups->($geo, $openaddr), '>', 0, 'expires_after(0) turns this memory off as well');
+
+	($geo, $openaddr) = $fresh->();
+	$lookups->($geo, $openaddr);
+	$geo->{'scantext_misses'}{$text} = time() - 1;
+	cmp_ok($lookups->($geo, $openaddr), '>', 0, 'an expired miss is looked for again');
+
+	($geo, $openaddr) = $fresh->();
+	$geo->{'scantext_misses'}{$_} = time() + $config{'an_hour'} foreach 1 .. $config{'scantext_misses'};
+	$lookups->($geo, $openaddr);
+	cmp_ok(scalar(keys %{$geo->{'scantext_misses'}}), '<', $config{'scantext_misses'}, 'and the memory has a limit');
 };
 
 # ---------------------------------------------------------------------------
@@ -682,9 +741,9 @@ subtest 'non-ASCII text through OpenAddresses: the digest does not corrupt it' =
 
 	# Short enough to be stored as written: the characters are all there
 	my $backend = _openaddr();
-	my $cjk = "\x{4e2d}" x ($config{'digest_verbatim'} - 2);
+	my $cjk = "\x{4e2d}" x 4;
 	$backend->geocode(location => "$cjk US");
-	is($backend->{'openaddr_db'}{'digests'}[0], "${cjk}US", 'a short non-ASCII address is looked up as it was written');
+	is($backend->{'openaddr_db'}{'digests'}[0], Encode::encode_utf8("${cjk}US"), 'a short non-ASCII address is looked up as its UTF-8');
 };
 
 subtest 'non-ASCII text through MaxMind: real data' => sub {
@@ -907,18 +966,15 @@ subtest 'MaxMind->reverse_geocode(latlng): the format of a coordinate' => sub {
 		is(scalar(@{$cities->{'sql'}}), 0, 'and the table is not read');
 	}
 
-	TODO: {
-		local $TODO = 'the coordinate check uses \d and $, which pass these through to the SQL';
-
-		my @bugs = (
-			[ "\x{661},\x{662}", 'digits of another script' ],
-			[ "1\n,2\n", 'a trailing newline' ],
-		);
-		foreach my $case(@bugs) {
-			my ($latlng, $name) = @{$case};
-			$backend->{'cities'} = Domain::CitiesTable->new();
-			throws_ok { $backend->reverse_geocode(latlng => $latlng) } $ERR_MM_COORD, "invalid: $name";
-		}
+	my @more = (
+		[ "\x{661},\x{662}", 'digits of another script' ],
+		[ "1\n,2\n", 'a trailing newline' ],
+	);
+	foreach my $case(@more) {
+		my ($latlng, $name) = @{$case};
+		my $cities = $backend->{'cities'} = Domain::CitiesTable->new();
+		throws_ok { $backend->reverse_geocode(latlng => $latlng) } $ERR_MM_COORD, "invalid: $name";
+		is(scalar(@{$cities->{'sql'}}), 0, 'and the table is not read');
 	}
 };
 
@@ -965,12 +1021,11 @@ subtest 'Local->reverse_geocode(latlng): four significant figures' => sub {
 		ok(!$LOCAL_OBJ->reverse_geocode($elsewhere), 'nothing there, not an error: ' . _show($elsewhere));
 	}
 
-	# Not numbers: read as zero, so found nowhere, with a warning for each row
-	foreach my $junk('abc,def', '51.5,', ',1', "\x{1F600},\x{1F600}") {
-		my @warnings = _warnings_from(sub {
-			lives_ok { ok(!$LOCAL_OBJ->reverse_geocode($junk), 'nothing found: ' . _show($junk)) } 'and does not die';
-		});
+	# The same test as MaxMind applies
+	foreach my $junk('abc,def', '51.5,', ',1', "\x{1F600},\x{1F600}", "\x{661},\x{662}", "1\n,2\n", '1e2,3') {
+		throws_ok { $LOCAL_OBJ->reverse_geocode($junk) } $ERR_MM_COORD, 'invalid: ' . _show($junk);
 	}
+	throws_ok { $LOCAL_OBJ->reverse_geocode(lat => 'abc', lon => 1) } $ERR_MM_COORD, 'invalid: as lat and lon as well';
 
 	foreach my $args([], [ latlng => '' ], [ latlng => '0' ], [ 'abc' ], [ lat => 1 ], [ lon => 1 ], [ long => 1 ], [ [] ], [ qw(a b c) ]) {
 		throws_ok { $LOCAL_OBJ->reverse_geocode(@{$args}) } $ERR_LOCAL_REVERSE, 'invalid: ' . (join(',', map { _show($_) } @{$args}) || 'nothing');
@@ -980,6 +1035,13 @@ subtest 'Local->reverse_geocode(latlng): four significant figures' => sub {
 # ---------------------------------------------------------------------------
 # The backends' geocode
 # ---------------------------------------------------------------------------
+
+subtest 'Local->geocode(location): a country it cannot search on is a miss' => sub {
+	my $address = '12 Rue Lepic, Paris, Paris, Elbonia';
+	my $found;
+	lives_ok { $found = $LOCAL_OBJ->geocode(location => $address) } 'does not die';
+	is($found, undef, 'and finds nothing');
+};
 
 subtest 'Local->geocode(location): a whole row or at least two commas' => sub {
 	my $hit = $LOCAL_OBJ->geocode(location => $LOCAL_ROW);
@@ -1067,28 +1129,48 @@ subtest 'OpenAddresses->geocode(location): the digest boundary' => sub {
 	is(length($digest), $verbatim, 'one more: a digest of the same length');
 	isnt($digest, "$past_limit$suffix", 'which is not the address');
 
-	my $wide_at_limit = "\x{4e2d}" x ($verbatim - length($suffix));
-	is($digest_of->("$wide_at_limit $suffix"), "$wide_at_limit$suffix", "$verbatim non-ASCII characters: looked up as written");
+	# The limit is in bytes of UTF-8: the key has to be the one createdatabase.PL made
+	my $two_bytes = (($verbatim - length($suffix)) / 2);
+	is($digest_of->(("\x{fc}" x $two_bytes) . " $suffix"), Encode::encode_utf8(("\x{dc}" x $two_bytes) . $suffix), "$verbatim bytes in Latin-1: looked up as its UTF-8, in upper case");
+	my $digest_too = $digest_of->(("\x{fc}" x ($two_bytes + 1)) . " $suffix");
+	is(length($digest_too), $verbatim, 'one more character: a digest');
+	isnt($digest_too, Encode::encode_utf8(("\x{dc}" x ($two_bytes + 1)) . $suffix), 'which is not the address');
 
-	my $latin_past_limit = "\x{fc}" x ($verbatim - length($suffix) + 1);
-	is(length($digest_of->("$latin_past_limit $suffix")), $verbatim, 'one more, all in Latin-1: a digest');
+	my $three_bytes = "\x{4e2d}" x int(($verbatim - length($suffix)) / 3);
+	is($digest_of->("$three_bytes $suffix"), Encode::encode_utf8("$three_bytes$suffix"), 'within the limit, beyond Latin-1: looked up as its UTF-8');
+	is(length($digest_of->("$three_bytes\x{4e2d} $suffix")), $verbatim, 'over it: a digest');
 
-	TODO: {
-		local $TODO = 'OpenAddresses::_get digests characters, not bytes: "Wide character in subroutine entry"';
+	lives_ok { $digest_of->(("\x{4e2d}" x $verbatim) . " $suffix") } 'a long address beyond Latin-1 does not die';
+	lives_ok { $digest_of->("12 \x{4e2d}\x{6587} St, Springfield, IL, USA") } 'nor does a whole address with a non-Latin-1 word';
 
-		my $wide_past_limit = "\x{4e2d}" x ($verbatim - length($suffix) + 1);
-		lives_ok { $digest_of->("$wide_past_limit $suffix") } 'one more, beyond Latin-1: does not die';
-		lives_ok { $digest_of->("12 \x{4e2d}\x{6587} St, Springfield, IL, USA") } 'nor does a whole address with a non-Latin-1 word';
-	}
+	my $bytes = "M\x{fc}nchen";
+	my $chars = $bytes;
+	utf8::upgrade($chars);
+	is($digest_of->("$chars $suffix"), $digest_of->("$bytes $suffix"), 'one string has one digest, however it is stored');
+	isnt($digest_of->("$bytes $suffix"), 'M' . "\x{fc}" . "NCHEN$suffix", 'and the upper case is by character');
 
-	TODO: {
-		local $TODO = 'uc() in OpenAddresses::_get depends on how perl happens to store the string';
+	# Values the builder wrote to the shipped database: see create_md5() in createdatabase.PL
+	my $backend = _openaddr();
+	$backend->_get("L\x{e9}vis, QC, CA");
+	is($backend->{'openaddr_db'}{'digests'}[0], "L\xc3\x89VISQCCA", 'an accented address gets the key it was stored under');
+	$backend = _openaddr();
+	$backend->_get('Washington, DC, US');
+	is($backend->{'openaddr_db'}{'digests'}[0], 'WASHINGTONDCUS', 'as does a plain one');
+	$backend = _openaddr();
+	$backend->_get("\x{17e}a, US");
+	is($backend->{'openaddr_db'}{'digests'}[0], "z\xbdAUS", 'and a z with caron goes through the same translation');
+};
 
-		my $bytes = "M\x{fc}nchen";
-		my $chars = $bytes;
-		utf8::upgrade($chars);
-		is($digest_of->("$chars $suffix"), $digest_of->("$bytes $suffix"), 'one string has one digest, however it is stored');
-	}
+subtest 'OpenAddresses->new(cache): only get() and set() are asked of it' => sub {
+	my $backend = _openaddr();
+	my $cache = $backend->{'cache'} = Domain::Cache->new();
+	my $row = { latitude => 51.5, longitude => -1.5 };
+
+	$cache->set('LONDONGB', Storable::freeze($row));
+	is_deeply($backend->_get('London, GB'), $row, 'a cached row is answered through get(), and thawed');
+	is(scalar(@{$backend->{'openaddr_db'}{'digests'}}), 0, 'without reading the table');
+	is($backend->_get('Nowhere, GB'), undef, 'nothing cached: nothing found');
+	is_deeply($backend->{'openaddr_db'}{'digests'}, [ 'NOWHEREGB' ], 'after reading the table');
 };
 
 subtest 'OpenAddresses->geocode(scantext): shorter than six characters is ignored' => sub {
@@ -1117,13 +1199,9 @@ subtest 'OpenAddresses->geocode(scantext): shorter than six characters is ignore
 		cmp_ok($backend->reads(), ($has_words ? '>' : '=='), 0, $has_words ? 'and reads the table' : 'and has no word to look up');
 	}
 
-	TODO: {
-		local $TODO = 'the \w in OpenAddresses::geocode depends on how perl happens to store the string, so a Latin-1 word is cut in two';
-
-		my $backend = _openaddr();
-		$backend->geocode(scantext => "M\x{fc}nchen UK");
-		ok(!scalar(grep { $_ eq 'NCHENGB' } @{$backend->{'openaddr_db'}{'digests'}}), 'an umlaut does not end a word');
-	}
+	my $backend = _openaddr();
+	$backend->geocode(scantext => "M\x{fc}nchen UK");
+	ok(!scalar(grep { $_ eq 'NCHENGB' } @{$backend->{'openaddr_db'}{'digests'}}), 'an umlaut does not end a word');
 };
 
 # ---------------------------------------------------------------------------
@@ -1343,12 +1421,9 @@ subtest 'MissCache->expires_after(seconds): a whole number of seconds' => sub {
 		is($CACHE->expires_after(), $original, 'and the setting is left as it was');
 	}
 
-	TODO: {
-		local $TODO = 'the check uses \d and $, so these are accepted as the setting';
-		foreach my $bad("5\n", "\x{661}") {
-			throws_ok { $CACHE->expires_after($bad) } $ERR_EXPIRES, 'invalid: ' . _show($bad);
-			$CACHE->expires_after($original);
-		}
+	foreach my $bad("5\n", "\x{661}") {
+		throws_ok { $CACHE->expires_after($bad) } $ERR_EXPIRES, 'invalid: ' . _show($bad);
+		is($CACHE->expires_after(), $original, 'and the setting is left as it was');
 	}
 
 	# The lower boundary, combined with what it does to an entry

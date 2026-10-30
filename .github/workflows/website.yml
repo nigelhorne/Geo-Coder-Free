@@ -52,7 +52,7 @@ jobs:
           cpanm --skip-satisfied -iqn Template::Filters Template::Plugin::EnvHash
           cpanm --skip-satisfied -vn Log::WarnDie IPC::System::Simple Array::Iterator
           cpanm --skip-satisfied -iqn Log::Dispatch::File YAML::XS Mo Class::Simple Parallel::ForkManager
-          cpanm -ivn --installdeps .
+          cpanm -ivn --with-feature=website --installdeps .
       - name: Install files
         run: mkdir -p /var/www/geocode.nigelhorne.com && cp -r templates /var/www/geocode.nigelhorne.com
       - name: Run Tests

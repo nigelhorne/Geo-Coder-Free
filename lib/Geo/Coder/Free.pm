@@ -23,27 +23,10 @@ use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 # TODO: from the 0.50 gap analysis
 #
 # Errors and housekeeping:
-# TODO: OpenAddresses.pm croaks with the raw address as its whole message
-#	(Carp::croak($city), "TODO: do something here"), and croaks when
-#	Geo::StreetAddress::US finds no state.  Neither is documented or goes
-#	through a message table; return undef instead, or document them
-# TODO: MaxMind->new() croaks ": directory ... doesn't exist" with no package
-#	name, because ref($class) is '' when called on the class
 # TODO: xt/mutant_*.t stubs are committed by CI with 117 TODOs, against
 #	their own "DO NOT COMMIT" header; complete them or stop committing them
 #
-# Domain bugs (each has a TODO block in t/domain.t):
-# TODO: OpenAddresses::_get dies with "Wide character in subroutine entry" on a
-#	normalised address of over 16 characters with a character beyond Latin-1.
-#	Encode to UTF-8 before the digest, and check that createdatabase.PL
-#	digests the same bytes, or the lookup will never match
-# TODO: OpenAddresses::_get's uc() and geocode()'s \w depend on how perl stores
-#	a Latin-1 string: it gets another digest, and in a scantext an accented
-#	letter ends the word.  use feature 'unicode_strings' would fix both, and
-#	has the same createdatabase.PL question
-# TODO: \d and $ let a digit of another script and a trailing newline through
-#	in MaxMind::reverse_geocode (into the SQL) and MissCache::expires_after.
-#	Use \A[0-9]+\z, and update the t/location-rule.t %EXEMPT entry
+# Waiting on VWF master (each has a TODO block in t/domain.t):
 # TODO: in VWF master, for Utils::distance: NaN gets past the range check and
 #	dies in Math::Complex, and a unit of "K\n" or "N\n" gets past the unit
 #	check and answers in miles
@@ -55,9 +38,6 @@ use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 # TODO: accuracy tests - a table of well-known cities checked to within a
 #	tolerance with Utils::distance(), which would have caught the
 #	"City, Country" bug below
-# TODO: make sure .github/workflows/bare.yml (optional modules hidden) runs on
-#	every push; it is the only job that catches optional-module crashes such
-#	as 0.49's Geo::Address::Parser one
 #
 # Accuracy:
 # TODO: two-part "City, Country" in MaxMind.pm answers with the first row in a
@@ -86,6 +66,51 @@ use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 #	when called as a function (FIXME in each)
 # TODO: resolve the TODO/FIXME markers in the VWF-owned Allow.pm, Display.pm,
 #	Utils.pm and Config.pm, in ../vwf, and sync
+# TODO: createdatabase.PL (4,900 lines) is untested and has to agree with the
+#	reader by hand.  Split it, and move the normalisation and digest that it
+#	and OpenAddresses::_get both do into a shared module with a contract test;
+#	0.52's non-ASCII lookup bug was those two disagreeing
+# TODO: one argument parser and one message table across the backends: only
+#	Free.pm has _i18n(), and _normalize_args is in both Free.pm and Local.pm
+# TODO: Local.pm's result cache has no size limit, and its cache parameter is
+#	used as a hash rather than through get() and set() as in OpenAddresses
+# TODO: stop downloading from Makefile.PL, and fetch over HTTPS with checksums;
+#	the GeoNames URLs are plain HTTP
+# TODO: replace cgi-bin/page.fcgi with a Mojolicious or PSGI application, with
+#	async and rate limiting
+#
+# From the 0.52 gap analysis:
+#
+# Features:
+# TODO: reverse geocoding in OpenAddresses through a geohash index; at present
+#	OpenAddresses::reverse_geocode always croaks
+# TODO: structured input: geocode(street => ..., city => ..., state => ...,
+#	country => ...), so a caller needn't have the parsers guess
+# TODO: data_version() and a check for stale data, so a caller can tell what a
+#	result was built from
+# TODO: prebuilt data or a container image: building the database is the biggest
+#	barrier to using OpenAddresses
+# TODO: a batch CSV command built on geocode_many()
+# TODO: a PostgreSQL/PostGIS backend
+#
+# Coverage:
+# TODO: OpenAddresses.pm is at 29% statement and 13.5% branch coverage, and
+#	MaxMind.pm at 45% and 27%, because they need real data.  The fixture
+#	database above is what would raise them
+# TODO: API specifications for the public subs in Utils.pm, in ../vwf and sync
+# TODO: in ../vwf, document Utils::distance: coordinates are defined and numeric
+#	(croaking "<name> must be defined" or "<name> must be numeric"), latitude
+#	within -90..90 and longitude -180..180 inclusive, exponents accepted; unit
+#	K, N or M in either case, with undef, '' or '0' meaning miles and anything
+#	else "Unknown unit"; identical points return 0 before any of that is checked
+#
+# CI:
+# TODO: the Geocoder suites fail in the sibling distributions: Geo-Coder-List
+#	lacks Geo::Coder::Abbreviations, and Geo-Coder-GeoApify lacks t/reference.t
+# TODO: t/actionlint-drift.t needs actionlint.yml in the sibling checkouts
+# TODO: the BSD jobs fail at ssh (exit 3), which is the infrastructure and not
+#	this code; the macOS 5.22 job fails in the Object::Configure dependency
+#	chain, so find out whether MIN_PERL_VERSION 5.020 is still achievable
 
 =head1 NAME
 
@@ -93,11 +118,11 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 =head1 VERSION
 
-Version 0.51
+Version 0.52
 
 =cut
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 
 =encoding utf-8
 
@@ -161,8 +186,11 @@ When it returns, you will be able to test it with:
 
 =over 4
 
-=item * C<scantext> mode only finds locations in OpenAddresses; it falls back
-silently when C<OPENADDR_HOME> is not set (B<FIXME>: should warn).
+=item * C<scantext> mode only finds locations in OpenAddresses.  When
+C<OPENADDR_HOME> is not set it finds nothing, and warns once per object.
+
+=item * Pass decoded character strings.  Non-ASCII text is matched exactly, so C<Munchen>
+doesn't find C<ME<uuml>nchen>, and bytes that have not been decoded are a different address.
 
 =item * The C<__DATA__> alternatives table is hard-coded; it should live in a
 user-editable config file.
@@ -205,6 +233,13 @@ our $alternatives;
 # it (or two entries that rewrite into each other) cannot recurse forever.
 my %_alternatives_active;
 
+# clear_miss_cache() can't reach the scantext misses, which live in each object,
+# so it moves this on and an object that sees a change forgets what it held.
+my $_scantext_generation = 0;
+
+# How many scantext misses an object keeps before it starts again
+Readonly::Scalar my $SCANTEXT_MISS_LIMIT => 10_000;
+
 # -----------------------------------------------------------------------
 # Error-message table.  All user-facing strings live here so that a future
 # i18n layer only needs to swap this hash, not touch every call site.
@@ -220,7 +255,7 @@ my %_MESSAGES = (
 	geocoding_failed    => '%s: geocoding failed',
 	reverse_unsupported => 'Reverse lookup is not yet supported',
 	use_arrow_new       => '%s: use ->new() not ::new() to instantiate',
-	bad_ref_arg         => 'Usage: %s — do not pass a non-hash reference',
+	scantext_needs_oa   => '%s: scantext only searches OpenAddresses data, and no OPENADDR_HOME or openaddr is set',
 );
 
 # Confidence thresholds for scantext results, expressed as named constants
@@ -530,8 +565,8 @@ C<geocode()> with no arguments - and stays a croak on either setting.
 
 =head4 input
 
-    # Input schema (Params::Validate::Strict) - exactly one of location or scantext is required
-    location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
+    # Input schema (Params::Validate::Strict) - at least one of location or scantext is required
+    location     => { type => 'scalar',   optional => 1 }  # address string
     scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
     region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
     ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
@@ -554,8 +589,11 @@ finds nothing.
 OpenAddresses the scantext is searched, and without it the location is.
 
 =item * C<region> - any string; nothing is refused.  C<CA>, C<AU> and C<IE> are
-appended to a scantext candidate by name, in either case, and any other value
-is appended as written.  C<''> and C<'0'> append nothing.
+appended to a scantext candidate by name, in either case.  Any other two letters
+are appended in upper case, and any other value as written.  C<''> and C<'0'>
+append nothing.  A scantext that found nothing is remembered per C<region> and
+C<ignore_words>, as long as a miss in L<Geo::Coder::Free::MissCache> lasts and
+until L</clear_miss_cache>.
 
 =item * C<ignore_words> - an arrayref of words, matched in any case.  A false
 value is the same as absent.  With OpenAddresses, anything else true dies with
@@ -663,7 +701,8 @@ sub geocode {
 
 	if ($self->{'openaddr'}) {
 		if (my $scantext = $params{'scantext'}) {
-			return if $self->{'scantext_misses'}{$scantext};
+			my $miss_key = _scantext_miss_key($scantext, $params{'region'}, $params{'ignore_words'});
+			return if $self->_scantext_missed($miss_key);
 
 			# First try the whole scantext as a direct location lookup -
 			# saves work when the text happens to be a valid address string.
@@ -676,6 +715,8 @@ sub geocode {
 
 			my $region = $params{'region'};
 			my $country = defined($region) ? ($_REGION_COUNTRY{uc $region} // $region) : undef;
+			# An ISO code is upper case to the parsers, whatever it was given in
+			$country = uc($country) if defined($country) && ($country =~ /\A[a-z]{2}\z/);
 
 			# Build the effective stopword set.  When the caller supplies no
 			# ignore_words we avoid copying %_COMMON_WORDS (which is immutable
@@ -739,7 +780,7 @@ sub geocode {
 				}
 			}
 
-			$self->{'scantext_misses'}{$scantext} = 1;
+			$self->_remember_scantext_miss($miss_key);
 			return;
 		}
 
@@ -796,8 +837,7 @@ sub geocode {
 	}
 
 	# Final fallback: MaxMind for location lookups.
-	# Scantext without OPENADDR_HOME will silently reach here and return undef;
-	# a proper fix would warn here (see LIMITATIONS).
+	# Scantext without OPENADDR_HOME falls through this to the warning below.
 	# M8 (tautology elimination): both arms of the former wantarray ternary were
 	# identical - collapsed to a single call; context propagates implicitly.
 	if ($params{'location'}) {
@@ -805,6 +845,9 @@ sub geocode {
 	}
 
 	Carp::croak(_i18n('usage_geocode', __PACKAGE__)) unless $params{'scantext'};
+
+	# Once per object: a caller scanning a whole file doesn't want a line each
+	Carp::carp(_i18n('scantext_needs_oa', __PACKAGE__)) unless $self->{'warned_scantext'}++;
 	return;
 }
 
@@ -1140,7 +1183,11 @@ names no backend, C<''> and any non-ASCII string included, forgets nothing.
 
 sub clear_miss_cache {
 	# The invocant is $_[0] and is not needed; anything after it is the scope.
-	Geo::Coder::Free::MissCache->clear(@_ > 1 ? $_[1] : undef);
+	my $scope = @_ > 1 ? $_[1] : undef;
+	Geo::Coder::Free::MissCache->clear($scope);
+
+	# A scantext miss is a statement about the OpenAddresses data
+	$_scantext_generation++ if !defined($scope) || ($scope eq 'OpenAddresses');
 
 	return 1;
 }
@@ -1423,7 +1470,7 @@ sub _resolve_scan_candidates {
 	my @results;
 	for my $place (@{$candidates}) {
 		my $location = $region ? "$place, $region" : $place;
-		next if $self->{'scantext_misses'}{$location};
+		next if $self->_scantext_missed($location);
 		my @res = grep { defined } $self->{'openaddr'}->geocode($location);
 		if (@res) {
 			for my $entry (@res) {
@@ -1433,10 +1480,55 @@ sub _resolve_scan_candidates {
 			}
 			push @results, @res;
 		} else {
-			$self->{'scantext_misses'}{$location} = 1;
+			$self->_remember_scantext_miss($location);
 		}
 	}
 	return \@results;
+}
+
+# Purpose:  The key a scantext miss is remembered under.  A miss depends on what
+#           was searched for, so a different region or ignore_words is another search.
+# Entry:    $text; $region and $ignore_words as given to geocode(), or undef.
+# Exit:     The text itself when there are no options, otherwise a composite key.
+sub _scantext_miss_key {
+	my ($text, $region, $ignore_words) = @_;
+
+	my @words = $ignore_words ? sort(map { lc($_) } @{$ignore_words}) : ();
+	return $text if !length($region // '') && !@words;
+
+	return join("\0", $text, uc($region // ''), @words);
+}
+
+# Purpose:  Is this key a scantext miss that has not expired?
+# Side Effects: Forgets everything after clear_miss_cache(), and an expired entry.
+sub _scantext_missed {
+	my ($self, $key) = @_;
+
+	my $misses = $self->{'scantext_misses'} or return 0;
+	if (($self->{'scantext_generation'} // 0) != $_scantext_generation) {
+		%{$misses} = ();
+		$self->{'scantext_generation'} = $_scantext_generation;
+		return 0;
+	}
+
+	my $expires_at = $misses->{$key} // return 0;
+	return 1 if $expires_at > time();
+	delete $misses->{$key};
+
+	return 0;
+}
+
+# Purpose:  Remember a scantext miss for as long as MissCache remembers a miss.
+# Side Effects: Starts again rather than grow past $SCANTEXT_MISS_LIMIT entries.
+sub _remember_scantext_miss {
+	my ($self, $key) = @_;
+
+	my $misses = $self->{'scantext_misses'} //= {};
+	%{$misses} = () if keys(%{$misses}) >= $SCANTEXT_MISS_LIMIT;
+	$misses->{$key} = time() + Geo::Coder::Free::MissCache->expires_after();
+	$self->{'scantext_generation'} //= $_scantext_generation;
+
+	return;
 }
 
 # Purpose:  Slide a window of $n words across $text and return all comma-joined
@@ -1677,9 +1769,44 @@ Nigel Horne C<< <njh@nigelhorne.com> >>
       let mode == e ∨ "croak" •
       let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
                     ∧ (openaddr = undef ⟹ [MaxMind]) •
-      ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
+      addr = "" ⟹ result = ∅
+      ∧ addr ≠ "" ∧ ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
       ∧ ValidLocation(addr) ⟹
       result = first { defined } map { b.geocode(addr, r) } backends
+      -- with OpenAddresses, addr rewritten by the alternatives map is tried before MaxMind
+
+=head2 geocode (scantext)
+
+    Scantext : TEXT × Region? × ignore_words? → seq Point
+    ∀ t : TEXT; r : Region?; w : ignore_words? •
+      openaddr = undef ⟹ result = ∅
+      ∧ (t, r, w) ∈ misses ⟹ result = ∅
+      ∧ result = first { non-empty } of
+          direct(t), triplets(t, r, w), duplets(t, r, w), pattern(t, r), regional(t, r)
+      ∧ result = ∅ ⟹ misses' = misses ∪ { (t, r, w) }
+
+=head2 geocode_many
+
+    GeocodeMany : seq Address × Region? × ErrorMode? → Batch
+    ∀ vs : seq Address •
+      let ds == distinct(vs) •
+      ds ∩ RESERVED ≠ ∅ ⟹ ⊥
+      ∧ Batch.resolved + Batch.unresolved = # ds
+      ∧ Batch.lookups ≤ # ds
+      ∧ ∀ d ∈ ds • Batch[d] = Geocode(d, r, e)
+
+=head2 reverse_geocode
+
+    ReverseGeocode : LatLng? → Location?
+    openaddr ≠ undef ⟹ ⊥
+    ∧ latlng ≠ ∅ ⟹ result = MaxMind.reverse_geocode(latlng)
+    ∧ latlng = ∅ ⟹ ⊥
+
+=head2 clear_miss_cache
+
+    ClearMissCache : Scope? → BOOLEAN
+    scope = ∅ ⟹ misses' = ∅
+    ∧ scope ≠ ∅ ⟹ misses' = { m ∈ misses | scope(m) not within scope }
 
 =head2 provenance
 

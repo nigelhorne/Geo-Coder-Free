@@ -4,7 +4,7 @@ Geo::Coder::Free - Geocoding using free, locally-hosted databases
 
 ## Version
 
-Version 0.51
+Version 0.52
 
 ## Synopsis
 
@@ -60,8 +60,10 @@ curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsyl
 
 ## Limitations
 
-- `scantext` mode only finds locations in OpenAddresses; it falls back
-silently when `OPENADDR_HOME` is not set (**FIXME**: should warn).
+- `scantext` mode only finds locations in OpenAddresses.  When
+`OPENADDR_HOME` is not set it finds nothing, and warns once per object.
+- Pass decoded character strings.  Non-ASCII text is matched exactly, so `Munchen`
+doesn't find `M&uuml;nchen`, and bytes that have not been decoded are a different address.
 - The `__DATA__` alternatives table is hard-coded; it should live in a
 user-editable config file.
 - The address-regex scantext path misses birth-year sentences such as
@@ -282,8 +284,8 @@ scantext is a usage error rather than an input error - the same croak as calling
 ##### Input
 
 ```perl
-# Input schema (Params::Validate::Strict) - exactly one of location or scantext is required
-location     => { type => 'scalar',   optional => 1 }  # address string (exclusive with scantext)
+# Input schema (Params::Validate::Strict) - at least one of location or scantext is required
+location     => { type => 'scalar',   optional => 1 }  # address string
 scantext     => { type => 'scalar',   optional => 1 }  # free text to scan for place names
 region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
 ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
@@ -302,8 +304,11 @@ finds nothing.
 - `location` and `scantext` together - both are checked.  With
 OpenAddresses the scantext is searched, and without it the location is.
 - `region` - any string; nothing is refused.  `CA`, `AU` and `IE` are
-appended to a scantext candidate by name, in either case, and any other value
-is appended as written.  `''` and `'0'` append nothing.
+appended to a scantext candidate by name, in either case.  Any other two letters
+are appended in upper case, and any other value as written.  `''` and `'0'`
+append nothing.  A scantext that found nothing is remembered per `region` and
+`ignore_words`, as long as a miss in Geo::Coder::Free::MissCache lasts and
+until `clear_miss_cache`.
 - `ignore_words` - an arrayref of words, matched in any case.  A false
 value is the same as absent.  With OpenAddresses, anything else true dies with
 perl's own `ARRAY` reference error during a scantext scan; without it the value

@@ -29,11 +29,11 @@ Geo::Coder::Free::Local - Geocode using user-curated local data
 
 =head1 VERSION
 
-Version 0.51
+Version 0.52
 
 =cut
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 
 =head1 SYNOPSIS
 
@@ -456,8 +456,9 @@ sub geocode {
 			# Abort early if no data at all matches this state/country -
 			# saves traversing the full dataset for every remaining strategy.
 			if (!defined($addr{'country'})) {
-				$addr{'country'} = $l =~ /(United States|USA|US)$/i ? 'US'
-					: Carp::croak("TODO: extract country from $l");
+				# No country that this can search on, so nothing to find
+				return $self->_remember_miss($lc) if $l !~ /(United States|USA|US)$/i;
+				$addr{'country'} = 'US';
 			}
 			# O(1) region check via index built in new() - replaces the former
 			# O(n) grep across all rows.
@@ -710,9 +711,11 @@ places: C<39.4749> and C<39.47> both match a row at C<39.46727>, and C<39.4751>
 does not.
 
 =item * No range check applies.  C<'0,0'> and C<'91,181'> find nothing and are
-not errors.  A part that is not a number is read as zero with a warning per row,
-and finds nothing, unlike L<Geo::Coder::Free::MaxMind/reverse_geocode>.  A third
-part is dropped.
+not errors.  A third part is dropped.
+
+=item * Each must be an optional minus, ASCII digits, then an optional point and more
+digits, as in L<Geo::Coder::Free::MaxMind/reverse_geocode>.  Anything else croaks
+C<Invalid coordinate value for reverse_geocode>.
 
 =item * C<latlng> is used when it is true.  No arguments, C<''> or C<'0'>, one part
 with no comma, or only one of C<lat> and C<lon>, croak C<Usage:>.  So do a reference
@@ -761,6 +764,12 @@ sub reverse_geocode {
 
 	if (!defined($latitude) || !defined($longitude)) {
 		Carp::croak('Usage: ', __PACKAGE__, '::reverse_geocode(latlng => "$lat,$long")');
+	}
+
+	# The same test MaxMind::reverse_geocode applies, so the backends agree
+	for my $c ($latitude, $longitude) {
+		Carp::croak('Invalid coordinate value for reverse_geocode')
+			unless $c =~ /\A-?[0-9]+\.?[0-9]*\z/;
 	}
 
 	my @rc;

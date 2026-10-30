@@ -11,11 +11,11 @@ Geo::Coder::Free::MissCache - process-level memory of lookups that found nothing
 
 =head1 VERSION
 
-Version 0.51
+Version 0.52
 
 =cut
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 
 # How long a remembered miss lasts.  A miss is a statement about data on disk,
 # which does not change while a batch or a request runs; the lifetime only has
@@ -315,10 +315,8 @@ setting is left as it was.  Returns the setting in force after the call.
 
 The lowest value is C<0>; no maximum applies.  Leading zeros are accepted.  C<undef>
 only asks for the setting.  C<-1>, C<1.5>, C<1.0>, C<1e3>, C<''>, a space on either
-side, and a reference all croak.
-
-Known bug: C<"5\n"> and a digit of another script, such as C<"\x{661}">, are accepted
-as the setting.  F<t/domain.t> has a TODO for it.
+side, a trailing newline, a digit of another script such as C<"\x{661}">, and a
+reference all croak.
 
 =head4 output
 
@@ -331,7 +329,7 @@ sub expires_after {
 
 	if(defined($seconds)) {
 		Carp::croak('expires_after() expects a non-negative whole number of seconds')
-			unless $seconds =~ /^\d+$/;
+			unless $seconds =~ /\A[0-9]+\z/;
 		$EXPIRES_AFTER = $seconds;
 	}
 
