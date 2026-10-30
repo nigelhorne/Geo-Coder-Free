@@ -32,6 +32,22 @@ use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 # TODO: xt/mutant_*.t stubs are committed by CI with 117 TODOs, against
 #	their own "DO NOT COMMIT" header; complete them or stop committing them
 #
+# Domain bugs (each has a TODO block in t/domain.t):
+# TODO: OpenAddresses::_get dies with "Wide character in subroutine entry" on a
+#	normalised address of over 16 characters with a character beyond Latin-1.
+#	Encode to UTF-8 before the digest, and check that createdatabase.PL
+#	digests the same bytes, or the lookup will never match
+# TODO: OpenAddresses::_get's uc() and geocode()'s \w depend on how perl stores
+#	a Latin-1 string: it gets another digest, and in a scantext an accented
+#	letter ends the word.  use feature 'unicode_strings' would fix both, and
+#	has the same createdatabase.PL question
+# TODO: \d and $ let a digit of another script and a trailing newline through
+#	in MaxMind::reverse_geocode (into the SQL) and MissCache::expires_after.
+#	Use \A[0-9]+\z, and update the t/location-rule.t %EXEMPT entry
+# TODO: in VWF master, for Utils::distance: NaN gets past the range check and
+#	dies in Math::Complex, and a unit of "K\n" or "N\n" gets past the unit
+#	check and answers in miles
+#
 # Coverage and testing:
 # TODO: ship a small fixture openaddresses.sql and cities.sql so t/openaddr.t
 #	and t/maxmind.t run in CI.  CI branch coverage is 10.6% for
@@ -279,6 +295,28 @@ to those shared references are immediately visible in both objects.
 C<libpostal> is passed to L<Geo::Coder::Free::OpenAddresses>; see its
 "Optional modules" section for why you might turn it off.
 
+The domain of each parameter:
+
+=over 4
+
+=item * C<openaddr> - an existing, readable directory.  A directory that does
+not exist, or a file, croaks C<Can't find the directory>.  Absent or C<undef>
+falls back to C<OPENADDR_HOME>; C<''> or C<'0'> configures no backend, and beats
+C<OPENADDR_HOME>.
+
+=item * C<directory> - an existing directory.  A directory that does not exist,
+or a file, croaks C<directory ... doesn't exist>.  Absent means the one beside
+the module.
+
+=item * C<libpostal> - false turns it off; absent or C<undef> is true.
+
+=item * C<cache> - absent or C<undef> means the facade holds none.
+
+=item * The arguments - nothing, an even list or a hashref.  An odd list croaks
+C<Usage:>.  Called as a function with arguments, it warns and returns C<undef>.
+
+=back
+
 =head4 output
 
     # Output schema (Return::Set)
@@ -386,6 +424,17 @@ not valid.
 
     location => { type => 'scalar', optional => 1 }  # the string to test
 
+=over 4
+
+=item * False: C<undef>, C<''>, a reference, and a string only of digits of any
+length.  A digit is a Unicode decimal digit, so C<"\x{661}"> counts as one.
+
+=item * True: anything with a non-digit in it.  The shortest are one character
+long.  C<'-'>, C<' '>, C<'3.14'>, C<"1\n">, a zero byte and any non-ASCII letter,
+emoji or control character are all true.  No maximum length applies.
+
+=back
+
 =head4 output
 
     { type => 'boolean' }  # false for undef, '' and a digit-only string
@@ -487,6 +536,41 @@ C<geocode()> with no arguments - and stays a croak on either setting.
     region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
     ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
     on_error     => { type => 'scalar',   optional => 1 }  # 'croak' (default) or 'undef'
+
+The domain of each parameter:
+
+=over 4
+
+=item * C<location> - a string with a non-digit in it, from one character up; no
+maximum length applies.  It reaches the backends unchanged, whatever its
+characters.  C<''> finds nothing and is not an error; C<undef> counts as absent.
+A string only of digits, or a reference, croaks C<invalid location to geocode()>.
+
+=item * C<scantext> - the same partitions as C<location>, with the message
+C<invalid scantext to geocode()>.  Without OpenAddresses it is not looked at and
+finds nothing.
+
+=item * C<location> and C<scantext> together - both are checked.  With
+OpenAddresses the scantext is searched, and without it the location is.
+
+=item * C<region> - any string; nothing is refused.  C<CA>, C<AU> and C<IE> are
+appended to a scantext candidate by name, in either case, and any other value
+is appended as written.  C<''> and C<'0'> append nothing.
+
+=item * C<ignore_words> - an arrayref of words, matched in any case.  A false
+value is the same as absent.  With OpenAddresses, anything else true dies with
+perl's own C<ARRAY> reference error during a scantext scan; without it the value
+is not looked at.
+
+=item * C<on_error> - exactly C<'croak'> or C<'undef'>, in lower case; C<undef> is
+C<'croak'>.  Anything else, C<''> included, croaks C<on_error must be ...>, and
+that is reported before a bad location or scantext.
+
+=item * The arguments - a bare string, an even list or a hashref.  No arguments, a
+lone C<undef>, an empty hashref, a reference other than a hashref, an odd list
+longer than one, or options with neither a location nor a scantext croak C<Usage:>.
+
+=back
 
 =head4 output
 
@@ -825,6 +909,30 @@ the same handful of places thousands of times costs the handful of lookups.
     region   => { type => 'scalar', optional => 1 }     # ISO 3166-1 alpha-2 country code hint
     on_error => { type => 'scalar', optional => 1 }     # 'croak' (the default) or 'undef'
 
+The domain of each parameter:
+
+=over 4
+
+=item * C<values> - an arrayref of any size, from none up.  Anything that is not
+an arrayref, or none at all, croaks C<Usage:>.  Each row is a C<location> as
+C<geocode()> defines it, in any characters, and keys the result as given.
+C<undef> and C<''> are one value, which is unresolved on either C<on_error>
+setting.  A string only of digits, or a reference, follows C<on_error>.
+
+=item * A reserved value - C<lookups>, C<reads>, C<resolved>, C<unresolved> and
+C<unresolved_values>, spelled exactly, croak on either C<on_error> setting before
+anything is looked up.  C<Lookups> or C<' resolved'> are ordinary values.
+
+=item * C<region> - any string, handed to every lookup as it is.
+
+=item * C<on_error> - as for C<geocode()>.  It is checked first, so a bad setting
+croaks even with no values, or with a reserved value.
+
+=item * The options - a hashref or an even list of non-references.  A lone scalar,
+an odd list, an arrayref or a reference as a value croak C<Usage:>.
+
+=back
+
 =head4 output
 
     # Output schema (Return::Set)
@@ -1021,6 +1129,9 @@ true.
 
     scope => { type => 'string', optional => 1 }  # OpenAddresses, Local or MaxMind
 
+Any string is accepted.  C<undef> or absent empties everything, and one that
+names no backend, C<''> and any non-ASCII string included, forgets nothing.
+
 =head4 output
 
     { type => 'boolean', value => 1 }
@@ -1076,6 +1187,12 @@ geocoder has no provenance to report.
 =head4 input
 
     point => { type => 'hashref', optional => 1 }  # a result, usually a Geo::Location::Point
+
+Anything hash-based, in any class, counts as a result, however few of the keys
+it holds; nothing else does, so C<undef>, a string, or a reference to an array,
+scalar or subroutine (blessed or not) returns the empty answer.  The values are
+reported as they are held and aren't checked: a C<confidence> of C<2> comes back
+as C<2>.  Only a leading C<Geo::Coder::Free::> is removed from C<database>.
 
 =head4 output
 
@@ -1137,6 +1254,13 @@ OpenAddresses is attempted first when available.
     # (facade) level.  When no OpenAddresses backend is configured, passing
     # lat/lon/long instead of latlng will croak "not yet supported".
     # To use separate coordinates call Geo::Coder::Free::Local::reverse_geocode.
+
+The facade only asks whether C<latlng> is true, and passes it to the backend as
+it is.  Its format and range are the backend's concern; see
+L<Geo::Coder::Free::MaxMind/reverse_geocode>.  With C<undef>, C<''>, C<'0'>,
+separate coordinates or no arguments it croaks C<not yet supported>; so does
+every call when OpenAddresses is configured.  A reference other than a hashref,
+or an odd list longer than one, croaks C<Usage:>.
 
 =head4 output
 
@@ -1213,6 +1337,10 @@ is found.
     # Input schema (Params::Validate::Strict)
     class    => { type => 'string' }                    # Geo::Coder::Free
     location => { type => 'arrayref', of => 'string' }  # the words of the location, joined with spaces
+
+No words make the empty location, which finds nothing, so it croaks
+C<geocoding failed>.  One word of digits croaks C<invalid location to geocode()>;
+two are a valid location, since the space between them is a non-digit.
 
 =head4 output
 

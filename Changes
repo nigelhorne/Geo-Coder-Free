@@ -13,6 +13,13 @@ Revision history for Geo-Coder-Free
 	[ Enhancements ]
 	- region => 'IE' looks for addresses in the scantext, using the same
 	  comma-separated "street, town, county, country" form as GB
+	[ Documentation ]
+	- Each public method's API SPECIFICATION documents the valid and invalid
+	  values of its parameters, and the limits of each, as tested by t/domain.t
+	[ Tests ]
+	- t/domain.t tests the partitions and boundaries of every public parameter,
+	  including non-ASCII text.  Its TODO blocks mark five known bugs, listed in
+	  the roadmap in Free.pm
 
 0.51	Wed Oct 21 09:05:22 PM EDT 2026
 	[ Bug Fixes ]

@@ -62,6 +62,7 @@ t/contract-strict.t
 t/contract-workflows.t
 t/critic.t
 t/display.t
+t/domain.t
 t/downloads.t
 t/dr5hn.t
 t/edge_cases.t

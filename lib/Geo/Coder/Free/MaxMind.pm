@@ -132,6 +132,9 @@ L<Database::Abstraction>.
     directory => { type => 'string', optional => 1 }                           # holds databases/; defaults to beside this module
     cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible; defaults to a global memory cache
 
+C<directory> must be an existing directory: one that does not exist, or a file,
+croaks C<directory ... doesn't exist>.
+
 =head4 output
 
     # Output schema (Return::Set)
@@ -262,6 +265,23 @@ Returns nothing when the location has no comma and no region is given, when it
 is not found, or when it was already remembered as a miss.  It croaks on a
 missing location, on a reference other than a hashref, and on a location that
 fails L<Geo::Location::Predicate>'s rule, such as one made only of digits.
+
+The domain of C<location>:
+
+=over 4
+
+=item * Any characters are accepted, and a hand-curated location is answered
+without a read.
+
+=item * With no comma and no C<region>, nothing is found and nothing is read,
+whatever its characters.
+
+=item * C<undef>, C<''>, C<'0'>, an empty hashref or no arguments croak
+C<Usage: geocode(location =E<gt> $location)>.  Digits alone croak
+C<invalid input to geocode()>.  A reference other than a hashref croaks
+C<Usage: ...::geocode(...)>.
+
+=back
 
 =cut
 
@@ -739,6 +759,28 @@ a decimal number.
     lat    => { type => 'number', optional => 1 }   # with lon or long, when latlng isn't given
     lon    => { type => 'number', optional => 1 }
     long   => { type => 'number', optional => 1 }
+
+The domain of a coordinate:
+
+=over 4
+
+=item * An optional minus, one or more digits, then an optional point and more
+digits: C<0>, C<-76.5>, C<1.> are valid.  C<+1>, C<.5>, C<1e2>, a space on either
+side, C<''> or anything else croaks C<Invalid coordinate value for reverse_geocode>
+before anything is read.
+
+=item * No range check applies: C<90,180> and C<-90,-180> are valid, and so are
+C<90.000001,0> and C<91,181>, which simply find nothing.
+
+=item * C<latlng> is split on commas and a third part is dropped.  One part with no
+comma croaks C<Usage:>, as do no arguments, only one of C<lat> and C<lon>, or a
+reference other than a hashref.  C<latlng> gives way to C<lat> and C<lon> when it is
+C<''> or C<'0'>.
+
+=item * Known bug: a digit of another script, and a newline at the end of a
+coordinate, pass the check and reach the SQL.  F<t/domain.t> has a TODO for it.
+
+=back
 
 =head4 output
 

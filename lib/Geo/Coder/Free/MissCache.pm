@@ -92,6 +92,9 @@ it a backend name clears every data set that backend opened.
     backend => { type => 'string' }            # Local, MaxMind or OpenAddresses
     dataset => { type => 'string', optional => 1 }  # zero or more, which data set
 
+Any number of parts, in any characters; no parts gives C<''>.  An empty data set
+is still a part, so C<scope_for('a', '')> is not C<scope_for('a')>.
+
 =head4 output
 
     { type => 'string' }
@@ -118,6 +121,12 @@ not an error.
 
     scope => { type => 'string' }   # from scope_for()
     key   => { type => 'string' }
+
+A key can be any string: C<''>, C<'0'>, a zero byte, non-ASCII characters and a
+very long string are all kept apart.  Characters and the UTF-8 bytes that encode
+them are different keys; how perl stores a string makes no difference.  An unknown
+scope or key is false, and not an error.  This applies to L</remember> and
+L</forget> as well.
 
 =head4 output
 
@@ -222,6 +231,10 @@ holds nothing, or names no backend, forgets nothing.  Returns true.
 
     scope => { type => 'string', optional => 1 }   # a backend name or a scope_for() string
 
+C<undef> is the same as absent.  A scope matches whole parts only:
+C<OpenAddresses> doesn't cover C<OpenAddressesX>, and C<OpenAddresse> matches
+nothing.  C<''> is a scope like any other.  This applies to L</size> as well.
+
 =head4 output
 
     { type => 'boolean', value => 1 }
@@ -299,6 +312,13 @@ setting is left as it was.  Returns the setting in force after the call.
 =head4 input
 
     seconds => { type => 'integer', min => 0, optional => 1 }
+
+The lowest value is C<0>; no maximum applies.  Leading zeros are accepted.  C<undef>
+only asks for the setting.  C<-1>, C<1.5>, C<1.0>, C<1e3>, C<''>, a space on either
+side, and a reference all croak.
+
+Known bug: C<"5\n"> and a digit of another script, such as C<"\x{661}">, are accepted
+as the setting.  F<t/domain.t> has a TODO for it.
 
 =head4 output
 

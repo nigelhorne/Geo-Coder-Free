@@ -141,6 +141,10 @@ It defaults to true.
     cache     => { type => 'object', optional => 1, can => ['get', 'set'] }   # CHI-compatible cache object
     libpostal => { type => 'boolean', optional => 1, default => 1 }           # false: never use Geo::libpostal
 
+C<openaddr> is required.  Absent, C<''> or C<'0'> croak C<Usage:>, and a directory
+that does not exist, or a file, croaks C<Can't find the directory>.  C<libpostal>
+is true when absent or C<undef>.
+
 =head4 output
 
     # Output schema (Return::Set)
@@ -230,6 +234,28 @@ that either C<Leesburg, Loudoun County, Virginia, US> or C<Leesburg, Loudoun, Vi
     region       => { type => 'scalar',   optional => 1 }  # ISO 3166-1 alpha-2 country code hint
     ignore_words => { type => 'arrayref', optional => 1 }  # words to suppress during scantext scan
     exact        => { type => 'scalar',   optional => 1 }  # if set, do not fall back to town-only match
+
+The domain of each parameter:
+
+=over 4
+
+=item * C<location> - any characters.  Once normalised (commas and spaces removed)
+an address of up to 16 characters is looked up as written, in upper case, and a
+longer one by a digest of 16 characters.
+
+=item * C<scantext> - under 6 characters it is ignored, counted in characters, not
+bytes.  Words are made of word characters, so an emoji is punctuation and is dropped.
+
+=item * Known bug: a normalised address of over 16 characters containing a character
+beyond Latin-1 dies with C<Wide character in subroutine entry>, so a CJK or Cyrillic
+street in a US address can kill a lookup.
+
+=item * Known bug: a Latin-1 string is treated differently depending on how perl
+stores it.  Unless it has been upgraded internally it isn't upper-cased correctly,
+so it gets another digest, and in a C<scantext> its accented letter ends the word.
+F<t/domain.t> has TODOs for both bugs.
+
+=back
 
 =head4 output
 
