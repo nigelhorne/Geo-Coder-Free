@@ -1,6 +1,6 @@
 Revision history for Geo-Coder-Free
 
-0.52
+0.52	Fri Oct 30 09:53:33 AM EDT 2026
 	[ Bug Fixes ]
 	- OpenAddresses found no address containing a non-ASCII character whose key
 	  differs from what createdatabase.PL stored, and a character beyond Latin-1

@@ -63,7 +63,7 @@ curl 'https://geocode.nigelhorne.com/cgi-bin/page.fcgi?page=query&q=1600+Pennsyl
 - `scantext` mode only finds locations in OpenAddresses.  When
 `OPENADDR_HOME` is not set it finds nothing, and warns once per object.
 - Pass decoded character strings.  Non-ASCII text is matched exactly, so `Munchen`
-doesn't find `M&uuml;nchen`, and bytes that have not been decoded are a different address.
+doesn't find `München`, and bytes that have not been decoded are a different address.
 - The `__DATA__` alternatives table is hard-coded; it should live in a
 user-editable config file.
 - The address-regex scantext path misses birth-year sentences such as
@@ -307,8 +307,8 @@ OpenAddresses the scantext is searched, and without it the location is.
 appended to a scantext candidate by name, in either case.  Any other two letters
 are appended in upper case, and any other value as written.  `''` and `'0'`
 append nothing.  A scantext that found nothing is remembered per `region` and
-`ignore_words`, as long as a miss in Geo::Coder::Free::MissCache lasts and
-until `clear_miss_cache`.
+`ignore_words`, as long as a miss in [Geo::Coder::Free::MissCache](https://metacpan.org/pod/Geo%3A%3ACoder%3A%3AFree%3A%3AMissCache) lasts and
+until ["clear\_miss\_cache"](#clear_miss_cache).
 - `ignore_words` - an arrayref of words, matched in any case.  A false
 value is the same as absent.  With OpenAddresses, anything else true dies with
 perl's own `ARRAY` reference error during a scantext scan; without it the value
@@ -858,9 +858,52 @@ Geocode : Address × Region? × ErrorMode? → Point?
   let mode == e ∨ "croak" •
   let backends == (openaddr ≠ undef ⟹ [OpenAddresses, Local, MaxMind])
                 ∧ (openaddr = undef ⟹ [MaxMind]) •
-  ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
+  addr = "" ⟹ result = ∅
+  ∧ addr ≠ "" ∧ ¬ ValidLocation(addr) ⟹ (mode = "undef" ⟹ result = ∅ | mode = "croak" ⟹ ⊥)
   ∧ ValidLocation(addr) ⟹
   result = first { defined } map { b.geocode(addr, r) } backends
+  -- with OpenAddresses, addr rewritten by the alternatives map is tried before MaxMind
+```
+
+### Geocode (Scantext)
+
+```
+Scantext : TEXT × Region? × ignore_words? → seq Point
+∀ t : TEXT; r : Region?; w : ignore_words? •
+  openaddr = undef ⟹ result = ∅
+  ∧ (t, r, w) ∈ misses ⟹ result = ∅
+  ∧ result = first { non-empty } of
+      direct(t), triplets(t, r, w), duplets(t, r, w), pattern(t, r), regional(t, r)
+  ∧ result = ∅ ⟹ misses' = misses ∪ { (t, r, w) }
+```
+
+### Geocode\_Many
+
+```
+GeocodeMany : seq Address × Region? × ErrorMode? → Batch
+∀ vs : seq Address •
+  let ds == distinct(vs) •
+  ds ∩ RESERVED ≠ ∅ ⟹ ⊥
+  ∧ Batch.resolved + Batch.unresolved = # ds
+  ∧ Batch.lookups ≤ # ds
+  ∧ ∀ d ∈ ds • Batch[d] = Geocode(d, r, e)
+```
+
+### Reverse\_Geocode
+
+```
+ReverseGeocode : LatLng? → Location?
+openaddr ≠ undef ⟹ ⊥
+∧ latlng ≠ ∅ ⟹ result = MaxMind.reverse_geocode(latlng)
+∧ latlng = ∅ ⟹ ⊥
+```
+
+### Clear\_Miss\_Cache
+
+```
+ClearMissCache : Scope? → BOOLEAN
+scope = ∅ ⟹ misses' = ∅
+∧ scope ≠ ∅ ⟹ misses' = { m ∈ misses | scope(m) not within scope }
 ```
 
 ### Provenance
