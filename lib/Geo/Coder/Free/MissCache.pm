@@ -32,6 +32,12 @@ my %misses;
 use constant SWEEP_INTERVAL => 60;
 my $next_sweep = 0;
 
+# The most misses a scope holds.  A sweep only removes what has expired, so
+# without this an hour of distinct misses - from a website, say - all stay in
+# memory.  Past it the scope starts again, as the scantext misses do: forgetting
+# a miss costs one repeated search.
+use constant MAX_SCOPE_ENTRIES => 100_000;
+
 =head1 SYNOPSIS
 
     use Geo::Coder::Free::MissCache;
@@ -67,7 +73,8 @@ that a process which stays up after its data is rebuilt does not keep
 answering from a stale memory forever; C<Geo::Coder::Free->clear_miss_cache()>
 empties the cache at once for that case.  Expired entries are discarded when
 they are next asked about, and a sweep runs at most once a minute as new
-misses are recorded, so the cache does not grow without bound.
+misses are recorded.  A scope that reaches 100,000 live misses forgets them and
+starts again, so the cache does not grow without bound.
 
 A miss is only ever remembered, never inferred: nothing here decides that an
 answer will be missing, it only stores that a backend has already found that
@@ -155,7 +162,8 @@ sub missed {
     Geo::Coder::Free::MissCache->remember($scope, $key);
 
 Records that C<$key> found nothing in C<$scope>, for as long as
-L</expires_after> says.  Recording the same miss again refreshes it.
+L</expires_after> says.  Recording the same miss again refreshes it.  A new
+miss in a scope that already holds 100,000 forgets those first.
 Returns true.
 
 =head3 API SPECIFICATION
@@ -175,7 +183,9 @@ sub remember {
 	my ($class, $scope, $key) = @_;
 
 	_sweep();
-	$misses{$scope}{$key} = time() + $EXPIRES_AFTER;
+	my $entries = $misses{$scope} //= {};
+	%{$entries} = () if !exists($entries->{$key}) && (keys(%{$entries}) >= MAX_SCOPE_ENTRIES);
+	$entries->{$key} = time() + $EXPIRES_AFTER;
 
 	return 1;
 }

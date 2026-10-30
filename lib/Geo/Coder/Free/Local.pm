@@ -171,6 +171,9 @@ sub new {
 
 	$params = Object::Configure::configure($class, $params);
 
+	# The caller's $/ says nothing about how this data is laid out, whether
+	# read here or parsed by Text::xSV::Slurp below
+	local $/ = "\n";
 	my @data = <DATA>;
 
 	my $self = bless {
@@ -352,6 +355,9 @@ narrower, is a C<locality>.
 sub geocode {
 	my $self = shift;
 
+	# Loading an optional parser, or finding it missing, is no business of the caller's $@
+	local $@;
+
 	# Handle being called as a function rather than a method
 	if (!ref($self)) {
 		if (scalar @_) {
@@ -409,7 +415,8 @@ sub geocode {
 
 	if ($ap) {
 		my $l = $location;
-		$l =~ s/(.+), (England|UK)$/$1, GB/i;
+		# Anchored, or a failed match is tried again from every position
+		$l =~ s/^(.+), (England|UK)\Z/$1, GB/mi;
 
 		if ($ap->parse($l) == 0) {
 			my %c = $ap->components();
@@ -470,7 +477,8 @@ sub geocode {
 		}
 	}
 
-	if ($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+	# The lookbehind means a run of separators is only scanned from its start
+	if ($location =~ /^(.+?)(?<![,\s])[,\s]+(United States|USA|US)$/i) {
 		my $l = $1;
 		$l =~ tr/,/ /;
 		$l =~ s/\s{2,}/ /g;
@@ -565,7 +573,8 @@ sub geocode {
 	}
 	if (Geo::Address::Parser->can('parse')) {
 		my $addr_parser = Geo::Address::Parser->new(country => 'UK');
-		if (my $fields = $addr_parser->parse($location)) {
+		# It throws on text it can't make a field of, which isn't an error here
+		if (my $fields = do { local $@; eval { $addr_parser->parse($location) } }) {
 			# Remove undef fields so _search only matches defined columns
 			delete $fields->{$_} for grep { !defined $fields->{$_} } keys %{$fields};
 			if (my $rc = $self->_search($fields, keys %{$fields})) {

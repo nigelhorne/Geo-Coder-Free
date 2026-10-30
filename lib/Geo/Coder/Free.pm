@@ -108,6 +108,16 @@ use namespace::clean -except => [qw(_valid_location _normalize _abbreviate)];
 # TODO: the Geocoder suites fail in the sibling distributions: Geo-Coder-List
 #	lacks Geo::Coder::Abbreviations, and Geo-Coder-GeoApify lacks t/reference.t
 # TODO: t/actionlint-drift.t needs actionlint.yml in the sibling checkouts
+#
+# From t/edge_cases.t:
+#
+# TODO: a location of about a megabyte ending in USA takes over 15s, in
+#	Geo::StreetAddress::US->parse_location(), and the POD gives a location no
+#	maximum length.  Either stop handing the parsers a value no address could
+#	be, or cap the length of the website's input
+# TODO: in Database::Abstraction, an openaddr directory with a ; in its name can't
+#	be opened: the path goes into the DSN unquoted, and DBD::SQLite splits on
+#	; (TODO block in t/edge_cases.t)
 # TODO: the BSD jobs fail at ssh (exit 3), which is the infrastructure and not
 #	this code; the macOS 5.22 job fails in the Object::Configure dependency
 #	chain, so find out whether MIN_PERL_VERSION 5.020 is still achievable
@@ -395,6 +405,8 @@ sub new {
 	# so "Borough of North Tyneside" became "Borough, of, North, Tyneside").
 	if (!$alternatives) {
 		$alternatives = {};
+		# The caller's $/ says nothing about how this file is laid out
+		local $/ = "\n";
 		while (my $line = <DATA>) {
 			next if $line =~ /^\s*(#|$)/;
 			my ($from, $to) = split /\s*=\s*/, $line, 2;
@@ -711,7 +723,7 @@ sub geocode {
 				$self->{'local'}->geocode($scantext),
 				$self->{'openaddr'}->geocode($scantext),
 				$self->{'maxmind'}->geocode($scantext);
-			return @direct if @direct;
+			return wantarray ? @direct : $direct[0] if @direct;
 
 			my $region = $params{'region'};
 			my $country = defined($region) ? ($_REGION_COUNTRY{uc $region} // $region) : undef;
@@ -776,7 +788,7 @@ sub geocode {
 							$self->{'openaddr'}->geocode("$candidate, $country");
 						push @regional, @hits if @hits;
 					}
-					return @regional if @regional;
+					return wantarray ? @regional : $regional[0] if @regional;
 				}
 			}
 

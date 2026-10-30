@@ -351,6 +351,7 @@ my $test_requires = {
 	'Test::Needs' => 0,
 	'Test::NoWarnings' => 0,
 	'Test::Number::Delta' => 0,
+	'Test::Permissions' => 0,	# t/edge_cases.t
 	'Test::Returns' => 0,
 	'Test::Script' => 1.12,	# t/bin.t runs the command line programs
 	'Test::Without::Module' => 0,

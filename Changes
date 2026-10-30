@@ -1,5 +1,23 @@
 Revision history for Geo-Coder-Free
 
+0.53
+	[ Bug Fixes ]
+	- Several patterns in OpenAddresses and Local took quadratic time on long runs
+	  of spaces or commas, over 10 seconds for a 32KB location
+	- A location with nothing between its commas, such as ",,,", croaked from
+	  OpenAddresses (a usage error) and Local (from Geo::Address::Parser); these
+	  are now misses
+	- scantext in scalar context could return a count rather than a point, from
+	  Geo::Coder::Free when the text was found directly or by a region's pattern,
+	  and from OpenAddresses always
+	- The first new() lost the hand-curated data if the caller had changed $/
+	- geocode() could overwrite the caller's $@ while loading an optional parser
+	- MaxMind died if the admin1 table gave no answer for a US or Canadian state
+	- A failing cache, or an entry that can't be thawed, no longer costs the caller
+	  an answer the database has
+	- MissCache now forgets a scope at 100,000 misses: its POD said it couldn't
+	  grow without bound, but it could for as long as they took to expire
+
 0.52	Fri Oct 30 09:53:33 AM EDT 2026
 	[ Bug Fixes ]
 	- OpenAddresses found no address containing a non-ASCII character whose key

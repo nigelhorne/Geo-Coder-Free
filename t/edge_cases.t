@@ -1,17 +1,24 @@
 #!/usr/bin/env perl
 
-# edge_cases.t — Destructive, boundary-condition, and security tests for
+# edge_cases.t - Destructive, boundary-condition, and security tests for
 # Geo::Coder::Free and its backends.  The strategy is to actively try to
 # break or subvert the module rather than verifying the happy path.
 
 use strict;
 use warnings;
 
+use Config;
+use DBI;
 use File::Temp qw(tempdir tempfile);
+use Readonly;
 use Scalar::Util qw(looks_like_number refaddr);
 use POSIX qw(HUGE_VAL);
+use Storable ();
 use Test::Most;
 use Test::Mockingbird qw(mock restore_all);
+use Test::Permissions qw(:revoke :guard);
+use Test::Returns;
+use Time::HiRes qw(time);
 
 # Suppress OA/WOF auto-detection so no real database is required.
 local $ENV{OPENADDR_HOME}    = '';
@@ -19,17 +26,19 @@ local $ENV{WHOSONFIRST_HOME} = '';
 
 use_ok 'Geo::Coder::Free';
 use_ok 'Geo::Coder::Free::Local';
+use_ok 'Geo::Coder::Free::MaxMind';
+use_ok 'Geo::Coder::Free::MissCache';
 use_ok 'Geo::Coder::Free::OpenAddresses';
 use_ok 'Geo::Coder::Free::Utils';
 
 # -----------------------------------------------------------------------
-# Shared fixtures — created once to avoid exhausting <DATA> filehandle.
+# Shared fixtures - created once to avoid exhausting <DATA> filehandle.
 # -----------------------------------------------------------------------
 
-# Single Local instance — Geo::Coder::Free::Local reads __DATA__ only once.
+# Single Local instance - Geo::Coder::Free::Local reads __DATA__ only once.
 my $LOCAL_OBJ = Geo::Coder::Free::Local->new();
 
-# MaxMind mock — prevents any real DB access for GCF facade tests.
+# MaxMind mock - prevents any real DB access for GCF facade tests.
 # Call _remock_maxmind() after any restore_all() to reinstate these stubs.
 sub _remock_maxmind {
 	mock('Geo::Coder::Free::MaxMind', 'geocode',         sub { return undef });
@@ -37,8 +46,19 @@ sub _remock_maxmind {
 }
 _remock_maxmind();
 
-# Tempdir for OA — creates a valid (but empty) openaddr directory.
+# Tempdir for OA - creates a valid (but empty) openaddr directory.
 my $TMPDIR = tempdir(CLEANUP => 1);
+
+# Whether this platform can make a symlink
+my $HAVE_SYMLINK = eval { symlink('', ''); 1 } ? 1 : 0;
+
+sub _write_file {
+	my ($path, $content) = @_;
+	open(my $fh, '>', $path) or die "$path: $!";
+	print {$fh} $content;
+	close($fh) or die "$path: $!";
+	return;
+}
 
 # Named constants replace magic numbers in assertions.
 use constant {
@@ -51,11 +71,11 @@ use constant {
 };
 
 # -----------------------------------------------------------------------
-# 1. Utils::distance — undef / missing coordinates
+# 1. Utils::distance - undef / missing coordinates
 # Strategy: each null argument slot should trigger a distinct croak
 # rather than silently producing 0 or NaN.
 # -----------------------------------------------------------------------
-subtest 'distance() — null/undef coordinates croak' => sub {
+subtest 'distance() - null/undef coordinates croak' => sub {
 	throws_ok { Geo::Coder::Free::Utils::distance(undef, 0,     0,     0    ) } qr/lat1 must be defined/,  'undef lat1';
 	throws_ok { Geo::Coder::Free::Utils::distance(0,     undef, 0,     0    ) } qr/lon1 must be defined/,  'undef lon1';
 	throws_ok { Geo::Coder::Free::Utils::distance(0,     0,     undef, 0    ) } qr/lat2 must be defined/,  'undef lat2';
@@ -63,11 +83,11 @@ subtest 'distance() — null/undef coordinates croak' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 2. Utils::distance — non-numeric coordinates
+# 2. Utils::distance - non-numeric coordinates
 # Strategy: ensure the numeric guard is enforced for every parameter
 # position, including empty string (looks_like_number returns false for '').
 # -----------------------------------------------------------------------
-subtest 'distance() — non-numeric coordinates croak' => sub {
+subtest 'distance() - non-numeric coordinates croak' => sub {
 	throws_ok { Geo::Coder::Free::Utils::distance('abc', 0,     0,     0    ) } qr/lat1 must be numeric/, 'alpha lat1';
 	throws_ok { Geo::Coder::Free::Utils::distance(0,     'xyz', 0,     0    ) } qr/lon1 must be numeric/, 'alpha lon1';
 	throws_ok { Geo::Coder::Free::Utils::distance(0,     0,     'bad', 0    ) } qr/lat2 must be numeric/, 'alpha lat2';
@@ -78,11 +98,11 @@ subtest 'distance() — non-numeric coordinates croak' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 3. Utils::distance — out-of-range coordinates
+# 3. Utils::distance - out-of-range coordinates
 # Strategy: the range guards must reject impossible geographic coordinates
 # even when the values are otherwise numeric.
 # -----------------------------------------------------------------------
-subtest 'distance() — out-of-range coordinates croak' => sub {
+subtest 'distance() - out-of-range coordinates croak' => sub {
 	throws_ok { Geo::Coder::Free::Utils::distance(91,   0,  0,   0   ) } qr/Latitude must be between/, 'lat1 > 90';
 	throws_ok { Geo::Coder::Free::Utils::distance(-91,  0,  0,   0   ) } qr/Latitude must be between/, 'lat1 < -90';
 	throws_ok { Geo::Coder::Free::Utils::distance(0,    0,  91,  0   ) } qr/Latitude must be between/, 'lat2 > 90';
@@ -99,12 +119,12 @@ subtest 'distance() — out-of-range coordinates croak' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 4. Utils::distance — exact boundary coordinates (valid; must not croak)
-# Strategy: lat=±90 and lon=±180 are the inclusive extremes of the WGS-84
+# 4. Utils::distance - exact boundary coordinates (valid; must not croak)
+# Strategy: lat=+-90 and lon=+-180 are the inclusive extremes of the WGS-84
 # coordinate system.  The range check uses strict > / < so the boundary
 # values themselves are valid.
 # -----------------------------------------------------------------------
-subtest 'distance() — valid boundary coordinates' => sub {
+subtest 'distance() - valid boundary coordinates' => sub {
 	my $d;
 	lives_ok { $d = Geo::Coder::Free::Utils::distance(LAT_MAX,  LON_MAX,  LAT_MIN,  LON_MIN,  'K') } 'poles + antimeridian accepted';
 	cmp_ok($d, '>', 0, 'distance between diagonally opposite extreme points > 0');
@@ -113,35 +133,35 @@ subtest 'distance() — valid boundary coordinates' => sub {
 	lives_ok { $d = Geo::Coder::Free::Utils::distance(90, 0, 90, 0, 'M') } 'North Pole to itself accepted';
 	is($d, 0, 'North Pole to itself is 0 miles');
 
-	# Antimeridian: same lat, lon ±180.
+	# Antimeridian: same lat, lon +-180.
 	lives_ok { $d = Geo::Coder::Free::Utils::distance(0, 180, 0, -180, 'K') } 'lon=180 and lon=-180 accepted';
 	diag("antimeridian distance: $d km") if $ENV{TEST_VERBOSE};
 };
 
 # -----------------------------------------------------------------------
-# 5. Utils::distance — identical-point unit-check bypass
+# 5. Utils::distance - identical-point unit-check bypass
 # Strategy: the same-point early-return (return 0) fires BEFORE unit
 # validation.  Verifying this prevents a future refactor from accidentally
 # reordering the two checks.
 # -----------------------------------------------------------------------
-subtest 'distance() — identical points bypass unit check' => sub {
+subtest 'distance() - identical points bypass unit check' => sub {
 	my $d;
 
-	# Same point + nonsense unit → returns 0 without croaking.
+	# Same point + nonsense unit -> returns 0 without croaking.
 	lives_ok { $d = Geo::Coder::Free::Utils::distance(5, 5, 5, 5, 'XYZZY') } 'same point with bad unit lives';
 	is($d, 0, 'same point with bad unit returns 0 (unit not validated)');
 
-	# Different points + same nonsense unit → DOES croak (unit IS validated).
+	# Different points + same nonsense unit -> DOES croak (unit IS validated).
 	throws_ok { Geo::Coder::Free::Utils::distance(0, 0, 1, 1, 'XYZZY') } qr/Unknown unit 'XYZZY'/, 'distinct points + bad unit croaks';
 };
 
 # -----------------------------------------------------------------------
-# 6. Utils::distance — unit parameter variants
+# 6. Utils::distance - unit parameter variants
 # Strategy: the unit handling coerces via uc() and treats '' / undef as 'M'.
 # Verify that all documented variants are accepted and lowercase is silently
 # normalised.
 # -----------------------------------------------------------------------
-subtest 'distance() — unit parameter variants' => sub {
+subtest 'distance() - unit parameter variants' => sub {
 	my ($d_k, $d_m, $d_n);
 
 	# Capital units.
@@ -154,12 +174,12 @@ subtest 'distance() — unit parameter variants' => sub {
 	lives_ok { $d_k_lower = Geo::Coder::Free::Utils::distance(0, 0, 1, 1, 'k') } 'lowercase k accepted';
 	is($d_k_lower, $d_k, 'k produces same result as K');
 
-	# Empty string → treated as 'M' via: uc('' || 'M').
+	# Empty string -> treated as 'M' via: uc('' || 'M').
 	my $d_empty;
 	lives_ok { $d_empty = Geo::Coder::Free::Utils::distance(0, 0, 1, 1, '') } 'empty string unit accepted';
 	is($d_empty, $d_m, 'empty string unit identical to M');
 
-	# Default omitted → 'M'.
+	# Default omitted -> 'M'.
 	my $d_omit;
 	lives_ok { $d_omit = Geo::Coder::Free::Utils::distance(0, 0, 1, 1) } 'omitted unit accepted';
 	is($d_omit, $d_m, 'omitted unit identical to M');
@@ -168,15 +188,15 @@ subtest 'distance() — unit parameter variants' => sub {
 	cmp_ok($d_k, '>', $d_m, 'km > statute miles');
 	cmp_ok($d_m, '>', $d_n, 'statute miles > nautical miles');
 
-	diag(sprintf("0,0→1,1: %.4f km / %.4f mi / %.4f NM", $d_k, $d_m, $d_n)) if $ENV{TEST_VERBOSE};
+	diag(sprintf("0,0->1,1: %.4f km / %.4f mi / %.4f NM", $d_k, $d_m, $d_n)) if $ENV{TEST_VERBOSE};
 };
 
 # -----------------------------------------------------------------------
-# 7. Utils::create_disc_cache — invalid configurations
+# 7. Utils::create_disc_cache - invalid configurations
 # Strategy: each guard in _validate_cache_config / _configure_file_based
 # should fire at the earliest possible point with a specific error.
 # -----------------------------------------------------------------------
-subtest 'create_disc_cache() — hostile configurations' => sub {
+subtest 'create_disc_cache() - hostile configurations' => sub {
 	# Missing config entirely.
 	throws_ok { Geo::Coder::Free::Utils::create_disc_cache({}) } qr/config is not optional/, 'no config key';
 
@@ -214,16 +234,16 @@ subtest 'create_disc_cache() — hostile configurations' => sub {
 
 	# DBI driver: missing connect string.
 	# If CHI::Driver::DBI is not installed the driver falls back to 'File'
-	# (which then requires root_dir) — either way a config error is thrown.
+	# (which then requires root_dir) - either way a config error is thrown.
 	throws_ok {
 		Geo::Coder::Free::Utils::create_disc_cache({ config => { disc_cache => { driver => 'DBI' } } })
 	} qr/connect|root_dir/, 'DBI without connect (or fallback to File without root_dir)';
 };
 
 # -----------------------------------------------------------------------
-# 8. Utils::create_memory_cache — invalid configurations
+# 8. Utils::create_memory_cache - invalid configurations
 # -----------------------------------------------------------------------
-subtest 'create_memory_cache() — hostile configurations' => sub {
+subtest 'create_memory_cache() - hostile configurations' => sub {
 	# Missing config entirely.
 	throws_ok { Geo::Coder::Free::Utils::create_memory_cache({}) } qr/config is not optional/, 'no config key';
 
@@ -241,19 +261,19 @@ subtest 'create_memory_cache() — hostile configurations' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 9. Geo::Coder::Free::geocode() — purely numeric inputs
+# 9. Geo::Coder::Free::geocode() - purely numeric inputs
 # Strategy: numeric-only location/scantext strings are explicitly rejected
 # with a dedicated "invalid location" croak so that the caller knows the
 # value was never an address.
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — purely numeric inputs croak' => sub {
+subtest 'GCF geocode() - purely numeric inputs croak' => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	throws_ok { $geo->geocode(location => '42')      } qr/invalid location/, '"42" is not an address';
 	throws_ok { $geo->geocode(location => '0')       } qr/invalid location/, '"0" is not an address';
 	throws_ok { $geo->geocode(location => '999999')  } qr/invalid location/, 'large integer rejected';
 	# Note: '3.14' contains '.' which is \D, so it is NOT purely numeric per
-	# the regex /\D/ — only digit-only strings trigger the invalid-location croak.
+	# the regex /\D/ - only digit-only strings trigger the invalid-location croak.
 	throws_ok { $geo->geocode(location => '123456')  } qr/invalid location/, 'digit-only 6-char string rejected';
 
 	throws_ok { $geo->geocode(scantext => '99')      } qr/invalid scantext/, 'purely numeric scantext croaks';
@@ -268,7 +288,7 @@ subtest 'GCF geocode() — purely numeric inputs croak' => sub {
 # errors only, so the default is still a croak and a backend that dies still
 # dies; and an on_error nobody understands is refused rather than ignored.
 # -----------------------------------------------------------------------
-subtest 'GCF valid_location() — the rule the guard applies, made public' => sub {
+subtest 'GCF valid_location() - the rule the guard applies, made public' => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	ok(!$geo->valid_location('0044'), '0044 is not a location');
@@ -289,7 +309,7 @@ subtest 'GCF valid_location() — the rule the guard applies, made public' => su
 	ok(!Geo::Coder::Free::valid_location('0044'), 'function form');
 };
 
-subtest "GCF geocode() — on_error => 'undef' skips the row" => sub {
+subtest "GCF geocode() - on_error => 'undef' skips the row" => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	# The row the guard would have killed, skipped instead.  In both contexts:
@@ -312,7 +332,7 @@ subtest "GCF geocode() — on_error => 'undef' skips the row" => sub {
 
 	# The empty string is not an error the option has anything to do with: it has
 	# always returned undef without croaking, on either setting.
-	is($geo->geocode(location => '', on_error => 'croak'), undef, 'empty location → undef either way');
+	is($geo->geocode(location => '', on_error => 'croak'), undef, 'empty location -> undef either way');
 
 	# An option that changes error handling must not be guessed at: a caller who
 	# misspells it would otherwise ship a batch job that dies on row one.
@@ -404,7 +424,7 @@ subtest 'One rule for the facade and both backends' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 9d. geocode_many() — a column of hundreds of rows, and a dirty one
+# 9d. geocode_many() - a column of hundreds of rows, and a dirty one
 # Strategy: the loop this method replaces goes wrong in two ways - it looks the
 # same value up once per row, and it either dies on a value that is not a place
 # at all or spends a lookup on one.  So a repeated value must cost one backend
@@ -412,7 +432,7 @@ subtest 'One rule for the facade and both backends' => sub {
 # the counts must still account for every distinct value
 # (section 2.5 of BI-Phase6-Dependency-Specs.md).
 # -----------------------------------------------------------------------
-subtest 'GCF geocode_many() — one lookup per distinct value, and none for garbage' => sub {
+subtest 'GCF geocode_many() - one lookup per distinct value, and none for garbage' => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	my @asked;
@@ -450,7 +470,7 @@ subtest 'GCF geocode_many() — one lookup per distinct value, and none for garb
 	_remock_maxmind();
 };
 
-subtest 'GCF geocode_many() — the dirty column, in the words geocode() uses' => sub {
+subtest 'GCF geocode_many() - the dirty column, in the words geocode() uses' => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	# On the default setting an unusable value is refused with geocode()'s own
@@ -500,32 +520,32 @@ subtest 'GCF geocode_many() — the dirty column, in the words geocode() uses' =
 };
 
 # -----------------------------------------------------------------------
-# 10. Geo::Coder::Free::geocode() — empty/undef inputs
+# 10. Geo::Coder::Free::geocode() - empty/undef inputs
 # Strategy:
-#   - empty string location: defined, no \D chars, length=0 → early 'return'
+#   - empty string location: defined, no \D chars, length=0 -> early 'return'
 #     (no croak, returns undef).
 #   - undef location: not defined, so the numeric guard is skipped.
-#     No location AND no scantext → falls through to the bottom-of-geocode
+#     No location AND no scantext -> falls through to the bottom-of-geocode
 #     croak("Usage: ...").
-#   - empty string scantext: same logic as empty location → return undef.
+#   - empty string scantext: same logic as empty location -> return undef.
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — empty/undef location' => sub {
+subtest 'GCF geocode() - empty/undef location' => sub {
 	my $geo = Geo::Coder::Free->new();
 
-	is($geo->geocode(location => ''),  undef, 'empty string location → undef (not croak)');
-	is($geo->geocode(scantext => ''),  undef, 'empty string scantext → undef (not croak)');
+	is($geo->geocode(location => ''),  undef, 'empty string location -> undef (not croak)');
+	is($geo->geocode(scantext => ''),  undef, 'empty string scantext -> undef (not croak)');
 
-	# undef location → no location AND no scantext → usage croak.
-	throws_ok { $geo->geocode(location => undef) } qr/Usage/, 'undef location → usage croak';
+	# undef location -> no location AND no scantext -> usage croak.
+	throws_ok { $geo->geocode(location => undef) } qr/Usage/, 'undef location -> usage croak';
 };
 
 # -----------------------------------------------------------------------
-# 11. Geo::Coder::Free::geocode() — non-hash reference arguments
+# 11. Geo::Coder::Free::geocode() - non-hash reference arguments
 # Strategy: passing an arrayref, coderef, or other reference should croak
 # immediately rather than producing a misleading error from deep inside
 # Params::Get.  _normalize_args checks ref($args[0]).
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — non-hash reference arguments croak' => sub {
+subtest 'GCF geocode() - non-hash reference arguments croak' => sub {
 	my $geo = Geo::Coder::Free->new();
 
 	throws_ok { $geo->geocode([])        } qr/Usage/, 'arrayref arg croak';
@@ -534,70 +554,70 @@ subtest 'GCF geocode() — non-hash reference arguments croak' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 12. Geo::Coder::Free::geocode() — M7 fix: odd-count > 1 croak
+# 12. Geo::Coder::Free::geocode() - M7 fix: odd-count > 1 croak
 # Strategy: (M7) before the fix, ('a', 'b', 'c') silently fell through to
 # return ().  Now it croaks.  A regression test prevents re-introducing
 # the silent discard.
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — odd-count arg-list croaks (M7 regression)' => sub {
+subtest 'GCF geocode() - odd-count arg-list croaks (M7 regression)' => sub {
 	my $geo = Geo::Coder::Free->new();
 
-	# Three args (odd-count > 1) → croak
+	# Three args (odd-count > 1) -> croak
 	throws_ok { $geo->geocode('location', 'Ramsgate', 'extra') } qr/Usage/, '3-arg list croaks';
 
-	# Five args (odd-count > 1) → croak
+	# Five args (odd-count > 1) -> croak
 	throws_ok { $geo->geocode('location', 'Ramsgate', 'region', 'GB', 'extra') } qr/Usage/, '5-arg list croaks';
 
-	# Two args (even-count) → passes _normalize_args; MaxMind mock returns undef
+	# Two args (even-count) -> passes _normalize_args; MaxMind mock returns undef
 	my $r;
 	lives_ok { $r = $geo->geocode(location => 'Nowhere, Nonexistent, XX') } 'even-count arg-list lives';
 	is($r, undef, 'unfindable location returns undef');
 };
 
 # -----------------------------------------------------------------------
-# 13. Geo::Coder::Free::geocode() — hostile string payloads
+# 13. Geo::Coder::Free::geocode() - hostile string payloads
 # Strategy: strings designed to exploit SQL injection, shell injection,
 # log injection, and directory traversal must pass through the geocoding
 # stack without crashing and must return undef (not a real result).
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — hostile string payloads return undef' => sub {
+subtest 'GCF geocode() - hostile string payloads return undef' => sub {
 	my $geo = Geo::Coder::Free->new();
 	mock('Geo::Coder::Free::Local', 'new', sub { return $LOCAL_OBJ });
 
 	# SQL injection attempt.
 	is(
 		$geo->geocode(location => "'; DROP TABLE cities; --, state, US"),
-		undef, 'SQL injection in location → undef'
+		undef, 'SQL injection in location -> undef'
 	);
 
 	# UNION-based SQL injection.
 	is(
 		$geo->geocode(location => "' UNION SELECT 1,2,3 --, state, US"),
-		undef, 'UNION injection in location → undef'
+		undef, 'UNION injection in location -> undef'
 	);
 
 	# Log injection via newline.
 	is(
 		$geo->geocode(location => "City\nX-Injected: evil, State, US"),
-		undef, 'newline injection in location → undef'
+		undef, 'newline injection in location -> undef'
 	);
 
 	# Path traversal characters.
 	is(
 		$geo->geocode(location => '../../etc/passwd, state, US'),
-		undef, 'path traversal in location → undef'
+		undef, 'path traversal in location -> undef'
 	);
 
 	# Shell metacharacters.
 	is(
 		$geo->geocode(location => '; ls -la, state, US'),
-		undef, 'shell metacharacter in location → undef'
+		undef, 'shell metacharacter in location -> undef'
 	);
 
 	# Null byte (C-string terminator).
 	is(
 		$geo->geocode(location => "City\x00Injected, State, US"),
-		undef, 'null byte in location → undef'
+		undef, 'null byte in location -> undef'
 	);
 
 	restore_all();
@@ -605,12 +625,12 @@ subtest 'GCF geocode() — hostile string payloads return undef' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 14. Geo::Coder::Free::geocode() — global variable isolation
+# 14. Geo::Coder::Free::geocode() - global variable isolation
 # Strategy: a geocode call must not clobber $_, $@, or $! in the caller's
 # scope.  These are widely used in Perl idioms and unexpected mutation
 # causes subtle, hard-to-debug failures.
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — global variable isolation' => sub {
+subtest 'GCF geocode() - global variable isolation' => sub {
 	my $geo = new_ok('Geo::Coder::Free');
 
 	if(!defined($ENV{NO_NETWORK_TESTING})) {
@@ -619,14 +639,14 @@ subtest 'GCF geocode() — global variable isolation' => sub {
 		$geo->geocode(location => 'Ramsgate, Kent, UK');
 		is($_, 'sentinel_dollar_underscore', 'geocode() does not clobber $_');
 
-		# $@ isolation — must be sampled immediately after the eval to avoid
+		# $@ isolation - must be sampled immediately after the eval to avoid
 		# interference from any subsequent ops.
 		eval { 1 };
 		my $prev_err = $@;
 		$geo->geocode(location => 'Nonexistent, Place, XX');
 		is($@, $prev_err, 'geocode() does not clobber $@');
 
-		# Alarm state — verify geocode does not leave a pending alarm.
+		# Alarm state - verify geocode does not leave a pending alarm.
 		alarm(0);
 		$geo->geocode(location => 'Ramsgate, Kent, UK');
 		my $remaining = alarm(0);
@@ -635,37 +655,37 @@ subtest 'GCF geocode() — global variable isolation' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 15. Geo::Coder::Free::reverse_geocode() — hostile inputs
+# 15. Geo::Coder::Free::reverse_geocode() - hostile inputs
 # -----------------------------------------------------------------------
-subtest 'GCF reverse_geocode() — hostile inputs' => sub {
+subtest 'GCF reverse_geocode() - hostile inputs' => sub {
 	my $geo = Geo::Coder::Free->new();
 
-	# No args and no openaddr → "not yet supported"
+	# No args and no openaddr -> "not yet supported"
 	throws_ok { $geo->reverse_geocode() } qr/not yet supported/, 'no-arg reverse_geocode';
 
-	# Non-hash reference → usage croak (from _normalize_args before the backend check).
+	# Non-hash reference -> usage croak (from _normalize_args before the backend check).
 	throws_ok { $geo->reverse_geocode([]) } qr/Usage/, 'arrayref arg to reverse_geocode';
 
-	# Odd-count args > 1 → M7 croak.
+	# Odd-count args > 1 -> M7 croak.
 	throws_ok { $geo->reverse_geocode('latlng', '51.3,-1.4', 'extra') } qr/Usage/, '3-arg reverse_geocode';
 
-	# Valid latlng but no openaddr → MaxMind path (mocked to undef).
+	# Valid latlng but no openaddr -> MaxMind path (mocked to undef).
 	my $r;
 	lives_ok { $r = $geo->reverse_geocode(latlng => '51.3341,-1.4159') } 'valid latlng lives';
 	is($r, undef, 'reverse_geocode without OA returns undef from MaxMind mock');
 };
 
 # -----------------------------------------------------------------------
-# 16. Geo::Coder::Free::new() — hostile construction
+# 16. Geo::Coder::Free::new() - hostile construction
 # -----------------------------------------------------------------------
-subtest 'GCF new() — hostile construction' => sub {
-	# Called as a function (::new) with no args — warns and returns undef.
+subtest 'GCF new() - hostile construction' => sub {
+	# Called as a function (::new) with no args - warns and returns undef.
 	my $result = Geo::Coder::Free::new();
 	# The function path only works with no-args; it returns the class and proceeds.
 	# The important check: it must not crash.
 	pass('::new() with no args does not die');
 
-	# Unknown options are silently ignored — Object::Configure is permissive.
+	# Unknown options are silently ignored - Object::Configure is permissive.
 	my $geo;
 	lives_ok { $geo = Geo::Coder::Free->new(bogus_option => 'ignored') } 'unknown option silently ignored';
 	isa_ok($geo, 'Geo::Coder::Free', 'object still created');
@@ -678,48 +698,48 @@ subtest 'GCF new() — hostile construction' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 17. Geo::Coder::Free::Local::geocode() — insufficient comma count
+# 17. Geo::Coder::Free::Local::geocode() - insufficient comma count
 # Strategy: Local's geocode() requires at least "road, city, country"
 # (two commas) before invoking any parser.  The guard `return if $location
 # !~ /,.+,/` is cheap and must reject all under-specified inputs without
 # touching the data.
 # -----------------------------------------------------------------------
-subtest 'Local geocode() — insufficient commas → undef' => sub {
-	is($LOCAL_OBJ->geocode(location => 'Ramsgate'),              undef, 'bare city → undef');
-	is($LOCAL_OBJ->geocode(location => 'Ramsgate, Kent'),        undef, 'city+county, one comma → undef');
-	is($LOCAL_OBJ->geocode(location => ','),                     undef, 'only comma, no content → undef');
+subtest 'Local geocode() - insufficient commas -> undef' => sub {
+	is($LOCAL_OBJ->geocode(location => 'Ramsgate'),              undef, 'bare city -> undef');
+	is($LOCAL_OBJ->geocode(location => 'Ramsgate, Kent'),        undef, 'city+county, one comma -> undef');
+	is($LOCAL_OBJ->geocode(location => ','),                     undef, 'only comma, no content -> undef');
 
 	# Two commas are required; a string with exactly two commas but no
 	# content between them also fails to match /,.+,/.
-	is($LOCAL_OBJ->geocode(location => 'A,,B'),                  undef, 'no content between commas → undef');
+	is($LOCAL_OBJ->geocode(location => 'A,,B'),                  undef, 'no content between commas -> undef');
 };
 
 # -----------------------------------------------------------------------
-# 18. Geo::Coder::Free::Local::geocode() — hostile argument types
+# 18. Geo::Coder::Free::Local::geocode() - hostile argument types
 # -----------------------------------------------------------------------
-subtest 'Local geocode() — hostile argument types' => sub {
-	# Non-hash reference → usage croak.
+subtest 'Local geocode() - hostile argument types' => sub {
+	# Non-hash reference -> usage croak.
 	throws_ok { $LOCAL_OBJ->geocode([])      } qr/Usage/, 'arrayref arg';
 	throws_ok { $LOCAL_OBJ->geocode(sub {})  } qr/Usage/, 'coderef arg';
 
-	# Odd-count > 1 → M7 croak.
+	# Odd-count > 1 -> M7 croak.
 	throws_ok { $LOCAL_OBJ->geocode('location', 'x', 'extra') } qr/Usage/, '3-arg list';
 
-	# Empty string location: falsy → or-croak in geocode fires.
+	# Empty string location: falsy -> or-croak in geocode fires.
 	throws_ok { $LOCAL_OBJ->geocode(location => '') } qr/Usage/, 'empty string location croaks in Local';
 
-	# undef location: falsy → croak.
+	# undef location: falsy -> croak.
 	throws_ok { $LOCAL_OBJ->geocode(location => undef) } qr/Usage/, 'undef location croaks in Local';
 };
 
 # -----------------------------------------------------------------------
-# 19. Geo::Coder::Free::Local::reverse_geocode() — missing coordinates
+# 19. Geo::Coder::Free::Local::reverse_geocode() - missing coordinates
 # -----------------------------------------------------------------------
-subtest 'Local reverse_geocode() — missing/invalid coordinates' => sub {
-	# No args at all → croak (no latlng, no lat, no lon).
+subtest 'Local reverse_geocode() - missing/invalid coordinates' => sub {
+	# No args at all -> croak (no latlng, no lat, no lon).
 	throws_ok { $LOCAL_OBJ->reverse_geocode() } qr/Usage/, 'no args';
 
-	# latlng is undef → the split gives two undefs → croak in the defined-check.
+	# latlng is undef -> the split gives two undefs -> croak in the defined-check.
 	throws_ok { $LOCAL_OBJ->reverse_geocode(latlng => undef) } qr/Usage/, 'latlng=undef';
 
 	# Non-hash reference.
@@ -728,19 +748,19 @@ subtest 'Local reverse_geocode() — missing/invalid coordinates' => sub {
 	# Odd-count > 1.
 	throws_ok { $LOCAL_OBJ->reverse_geocode('latlng', '1,2', 'extra') } qr/Usage/, '3-arg list';
 
-	# Valid latlng that matches no data point → empty list (not a croak).
+	# Valid latlng that matches no data point -> empty list (not a croak).
 	my @rc;
 	lives_ok { @rc = $LOCAL_OBJ->reverse_geocode(latlng => '0,0') } 'unmatchable latlng lives';
 	is(scalar @rc, 0, 'unmatchable latlng returns empty list');
 };
 
 # -----------------------------------------------------------------------
-# 20. Geo::Coder::Free::OpenAddresses::new() — hostile construction
+# 20. Geo::Coder::Free::OpenAddresses::new() - hostile construction
 # Strategy: OA->new() must croak on invalid/missing openaddr paths before
 # any database handle is opened.
 # -----------------------------------------------------------------------
-subtest 'OA new() — hostile construction' => sub {
-	# No openaddr argument → croak usage.
+subtest 'OA new() - hostile construction' => sub {
+	# No openaddr argument -> croak usage.
 	throws_ok { Geo::Coder::Free::OpenAddresses->new() } qr/Usage: new/, 'no openaddr arg';
 
 	# Non-existent directory.
@@ -754,32 +774,32 @@ subtest 'OA new() — hostile construction' => sub {
 		Geo::Coder::Free::OpenAddresses->new(openaddr => $tmpfile)
 	} qr/Can't find the directory/, 'file instead of directory';
 
-	# Valid empty directory → object created.
+	# Valid empty directory -> object created.
 	my $oa;
 	lives_ok { $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $TMPDIR) } 'valid empty dir lives';
 	isa_ok($oa, 'Geo::Coder::Free::OpenAddresses', 'OA object');
 };
 
 # -----------------------------------------------------------------------
-# 21. Geo::Coder::Free::OpenAddresses::geocode() — pre-DB guards
+# 21. Geo::Coder::Free::OpenAddresses::geocode() - pre-DB guards
 # Strategy: several cheap guards fire before any DB query.  Test them
 # against an OA instance backed by an empty directory so no SQLite file
 # is required.
 #
-# Important: in OA::geocode an empty-string scantext is FALSY — it does
+# Important: in OA::geocode an empty-string scantext is FALSY - it does
 # not enter the scantext block, so the code falls through to the location
-# guard which croaks "Usage:...".  Only non-empty but short strings (1–5
+# guard which croaks "Usage:...".  Only non-empty but short strings (1-5
 # chars) enter the block and hit the length<6 early-return.
 # -----------------------------------------------------------------------
-subtest 'OA geocode() — pre-database guards' => sub {
+subtest 'OA geocode() - pre-database guards' => sub {
 	my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $TMPDIR);
 
-	# Empty string scantext is falsy → falls through to location croak.
-	throws_ok { $oa->geocode(scantext => '') } qr/Usage/, 'empty scantext → location croak (falsy)';
+	# Empty string scantext is falsy -> falls through to location croak.
+	throws_ok { $oa->geocode(scantext => '') } qr/Usage/, 'empty scantext -> location croak (falsy)';
 
-	# Non-empty but < 6 chars → enters the scantext block → early return undef.
-	is($oa->geocode(scantext => 'ab'),    undef, '2-char scantext → undef');
-	is($oa->geocode(scantext => 'abcde'), undef, '5-char scantext → undef');
+	# Non-empty but < 6 chars -> enters the scantext block -> early return undef.
+	is($oa->geocode(scantext => 'ab'),    undef, '2-char scantext -> undef');
+	is($oa->geocode(scantext => 'abcde'), undef, '5-char scantext -> undef');
 
 	# known_locations hash hit (hardcoded, no DB needed).
 	my $kl = $oa->geocode(location => 'Newport Pagnell, Buckinghamshire, England');
@@ -791,11 +811,11 @@ subtest 'OA geocode() — pre-database guards' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 22. Geo::Coder::Free::OpenAddresses::reverse_geocode() — always croaks
+# 22. Geo::Coder::Free::OpenAddresses::reverse_geocode() - always croaks
 # Strategy: OA::reverse_geocode() is not implemented and must croak with
 # "Reverse lookup is not yet supported" regardless of the argument.
 # -----------------------------------------------------------------------
-subtest 'OA reverse_geocode() — always croaks' => sub {
+subtest 'OA reverse_geocode() - always croaks' => sub {
 	my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $TMPDIR);
 
 	throws_ok { $oa->reverse_geocode()                         } qr/not yet supported/, 'no args';
@@ -804,12 +824,12 @@ subtest 'OA reverse_geocode() — always croaks' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 23. Security — ReDoS regression: _normalize() with long input
-# Strategy: the former /(.+)\s+(.+)\s+(.+)/ regex was O(N³).  The fix
+# 23. Security - ReDoS regression: _normalize() with long input
+# Strategy: the former /(.+)\s+(.+)\s+(.+)/ regex was O(N^3).  The fix
 # uses split /\s+/.  This test quantifies the safety margin by verifying
 # that a 10 000-character input returns in well under REDOS_TIMEOUT seconds.
 # -----------------------------------------------------------------------
-subtest 'Security — _normalize() does not backtrack catastrophically' => sub {
+subtest 'Security - _normalize() does not backtrack catastrophically' => sub {
 	# Build a pathologically long street name with no natural abbreviation.
 	my $long_street = join(' ', ('VeryLongStreetNameWord') x 200);
 
@@ -826,13 +846,13 @@ subtest 'Security — _normalize() does not backtrack catastrophically' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 24. Security — ReDoS regression: _find_gb_addresses() comma-free input
-# Strategy: the former \s*,?\s* separator (optional comma) caused O(N²)
+# 24. Security - ReDoS regression: _find_gb_addresses() comma-free input
+# Strategy: the former \s*,?\s* separator (optional comma) caused O(N^2)
 # backtracking on long comma-free strings.  Making commas mandatory
 # eliminates the ambiguity.  Verify the fix holds under hostile input.
 # -----------------------------------------------------------------------
-subtest 'Security — _find_gb_addresses() does not backtrack on comma-free input' => sub {
-	# A long string with no commas — the pattern must fail-fast, not backtrack.
+subtest 'Security - _find_gb_addresses() does not backtrack on comma-free input' => sub {
+	# A long string with no commas - the pattern must fail-fast, not backtrack.
 	my $no_commas = 'A' x 5000;
 	my @matches;
 
@@ -846,13 +866,13 @@ subtest 'Security — _find_gb_addresses() does not backtrack on comma-free inpu
 };
 
 # -----------------------------------------------------------------------
-# 25. Security — ReDoS regression: OA city-name nested quantifier
+# 25. Security - ReDoS regression: OA city-name nested quantifier
 # The old pattern ([a-zA-Z|\s+]{1,30}){1,2} was a ReDoS bomb because
 # the inner character class matched spaces, creating ambiguous splits.
 # The fix uses ([A-Za-z]+(?:\s+[A-Za-z]+)*).  Verify with a hostile
 # string that would have triggered the backtracking.
 # -----------------------------------------------------------------------
-subtest 'Security — OA city-name regex does not backtrack' => sub {
+subtest 'Security - OA city-name regex does not backtrack' => sub {
 	# Keep libpostal out of the timed call: its first parse_address() loads
 	# a model of several gigabytes, which can take longer than the timeout
 	# on its own and has nothing to do with the regex being tested.
@@ -872,11 +892,11 @@ subtest 'Security — OA city-name regex does not backtrack' => sub {
 };
 
 # -----------------------------------------------------------------------
-# 26. Multiple concurrent GCF instances — no shared mutable state
+# 26. Multiple concurrent GCF instances - no shared mutable state
 # Strategy: verify that scantext_misses recorded on one instance do not
 # bleed into a freshly-created independent instance.
 # -----------------------------------------------------------------------
-subtest 'Concurrent GCF instances — scantext_misses isolation' => sub {
+subtest 'Concurrent GCF instances - scantext_misses isolation' => sub {
 	my $g1 = Geo::Coder::Free->new();
 	my $g2 = Geo::Coder::Free->new();
 
@@ -902,7 +922,7 @@ subtest 'Concurrent GCF instances — scantext_misses isolation' => sub {
 # In list context, a list is returned.  These are semantically different
 # and the distinction must be preserved.
 # -----------------------------------------------------------------------
-subtest 'GCF geocode() — list vs scalar context' => sub {
+subtest 'GCF geocode() - list vs scalar context' => sub {
 	my $geo = Geo::Coder::Free->new();
 	mock('Geo::Coder::Free::Local', 'new', sub { return $LOCAL_OBJ });
 
@@ -914,9 +934,994 @@ subtest 'GCF geocode() — list vs scalar context' => sub {
 
 	# List context: same call returns a list.
 	my @list = $geo->geocode(location => '203 E Chatsworth Rd, Reisterstown, Baltimore, MD, US');
-	ok(ref(\@list) eq 'ARRAY', 'list context returns a list');
+	ok(!grep({ defined($_) && (ref($_) ne 'Geo::Location::Point') } @list), 'list context returns only points');
 
 	restore_all();
+};
+
+# =======================================================================
+# Hostile-environment suite.  The subtests below share these settings and
+# helpers.  Stand-ins replace only the data underneath a backend, so the
+# real backend code handles each upstream failure.
+# =======================================================================
+Readonly::Hash my %CONFIG => (
+	hostile_length   => 32_000,	# Took over 10s per lookup before the regexes were made linear
+	megabyte         => 1_000_000,
+	extended_length  => 100_000_000,	# TEST_EXTENDED only
+	volume_timeout   => 120,	# Seconds; these only have to finish, not be quick
+	million          => 1_000_000,
+	fd_limit         => 64,
+	fd_attempts      => 5_000,
+	fd_leak_slack    => 3,	# The backend keeps its database open after a read
+	miss_scope_limit => Geo::Coder::Free::MissCache::MAX_SCOPE_ENTRIES(),
+);
+Readonly::Scalar my $ADDRESS   => 'Ramsgate, Kent, England';
+Readonly::Scalar my $DB_KEY    => 'ABC';	# Short enough to be its own digest
+Readonly::Scalar my $GEOHASH   => 'gcpvj0duq';
+Readonly::Scalar my $GLP       => 'Geo::Location::Point';
+Readonly::Scalar my $MISS      => 'Geo::Coder::Free::MissCache';
+Readonly::Scalar my $DISK_FULL => "No space left on device\n";
+Readonly::Hash my %POINT_SCHEMA => (type => 'object', isa => $GLP);
+
+{
+	# A database table whose every query gives the same answer
+	package EdgeCases::Table;
+	our $AUTOLOAD;
+	sub new { my ($class, %args) = @_; return bless { calls => [], %args }, $class }
+	sub AUTOLOAD {
+		my ($self, @args) = @_;
+		(my $name = $AUTOLOAD) =~ s/.*:://;
+		return if $name eq 'DESTROY';
+		push @{$self->{'calls'}}, [$name, @args];
+		my $answer = $self->{'answer'};
+		return ref($answer) eq 'CODE' ? $answer->() : $answer;
+	}
+}
+
+{
+	# A cache that can be told to fail, or to hold rubbish
+	package EdgeCases::Cache;
+	sub new { my ($class, %args) = @_; return bless { %args }, $class }
+	sub get { my $self = shift; die $self->{'get_dies'} if $self->{'get_dies'}; return $self->{'holds'} }
+	sub set { my $self = shift; die $self->{'set_dies'} if $self->{'set_dies'}; return 1 }
+}
+
+{
+	# A backend for the facade's slots
+	package EdgeCases::Backend;
+	sub new { my ($class, @results) = @_; return bless { results => \@results }, $class }
+	sub geocode { my $self = shift; return @{$self->{'results'}} }
+	sub reads { return 0 }
+}
+
+# An overloaded string, to get past anything that only looks at ref()
+{
+	package EdgeCases::Stringy;
+	use overload '""' => sub { ${$_[0]} }, fallback => 1;
+	sub new { my ($class, $text) = @_; return bless \$text, $class }
+}
+
+# Runs the body with no mocks and an empty miss cache, then puts both back, so
+# that the real MaxMind code can be reached and no subtest sees another's misses.
+sub _isolated {
+	my $body = shift;
+	restore_all();
+	$MISS->clear();
+	$body->();
+	restore_all();
+	$MISS->clear();
+	_remock_maxmind();
+	return;
+}
+
+# returns_ok() passes undef for any schema, so a value has to be checked for first
+sub _point_ok {
+	my ($value, $name) = @_;
+	local $Test::Builder::Level = $Test::Builder::Level + 1;
+	return ok(defined($value), "$name (found)") && returns_ok($value, \%POINT_SCHEMA, $name);
+}
+
+sub _point { return $GLP->new({ lat => 51.33, long => 1.42, location => shift // $ADDRESS }) }
+
+# An OpenAddresses backend over a stand-in table, needing no database or libpostal
+sub _oa_over {
+	my ($answer, %args) = @_;
+	my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $TMPDIR, libpostal => 0, %args);
+	$oa->{'openaddr_db'} = EdgeCases::Table->new(answer => $answer);
+	return $oa;
+}
+
+# The facade with a stand-in in each backend slot
+sub _facade_over {
+	my ($openaddr, $local, $maxmind) = @_;
+	my $geo = Geo::Coder::Free->new();
+	$geo->{'openaddr'} = $openaddr;
+	$geo->{'local'}    = $local;
+	$geo->{'maxmind'}  = $maxmind // EdgeCases::Backend->new();
+	return $geo;
+}
+
+# A directory holding a real one-row openaddresses.sql
+sub _sqlite_dir {
+	my $dir = shift // tempdir(CLEANUP => 1);
+	my $dbh = DBI->connect("dbi:SQLite:dbname=$dir/openaddresses.sql", undef, undef, { RaiseError => 1 });
+	$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, geohash VARCHAR(10))');
+	$dbh->do('INSERT INTO openaddresses(md5, geohash) VALUES (?, ?)', undef, $DB_KEY, $GEOHASH);
+	$dbh->disconnect();
+	return $dir;
+}
+
+# Calls the code under an alarm.  Perl delivers a signal between ops, so a slow
+# regex overruns it rather than being cut short: the elapsed time is checked too.
+sub _timed_ok {
+	my ($code, $name, $limit) = @_;
+	$limit //= REDOS_TIMEOUT;
+	my $started = time();
+	my $error = do {
+		local $@;
+		local $SIG{ALRM} = sub { die "TIMEOUT\n" };
+		local $SIG{__WARN__} = sub { };
+		alarm($limit);
+		eval { $code->() };
+		alarm(0);
+		$@;
+	};
+	my $elapsed = time() - $started;
+	diag(sprintf('%s: %.3fs', $name, $elapsed)) if $ENV{TEST_VERBOSE};
+	return ok(!length($error) && ($elapsed < $limit), $name) || diag("error '$error', ${elapsed}s");
+}
+
+# Runs a script in another perl, with the lib directories this test was given.
+# Returns its output, or undef if the shell can't apply the limit.
+sub _child {
+	my ($script, $fd_limit) = @_;
+	my ($fh, $path) = tempfile(SUFFIX => '.pl', UNLINK => 1);
+	print {$fh} $script;
+	close($fh) or die "$path: $!";
+	local $ENV{PERL5LIB} = join($Config::Config{'path_sep'}, grep { !ref } @INC);
+	local $ENV{OPENADDR_HOME} = '';
+	my @command = defined($fd_limit)
+		? ('/bin/sh', '-c', 'ulimit -n "$1" || exit 99; shift; exec "$@"', 'sh', $fd_limit, $^X, $path)
+		: ($^X, $path);
+	open(my $out, '-|', @command) or return;
+	my $output = do { local $/; <$out> };
+	close($out);
+	return if ($? >> 8) == 99;
+	return $output;
+}
+
+# -----------------------------------------------------------------------
+# 28. valid_location() - values that are not strings at all
+# Strategy: the predicate is what a caller filters with, so it must answer
+# false for every reference rather than die or stringify one to "true".
+# -----------------------------------------------------------------------
+subtest 'valid_location() - references, globs and cycles' => sub {
+	my $geo = Geo::Coder::Free->new();
+	my $cycle = {}; $cycle->{'self'} = $cycle;
+	my @chain = (\my @tail); push @tail, \@chain;
+
+	my %refused = (
+		undef          => undef,
+		empty          => '',
+		digits         => '0044',
+		other_script   => "\x{661}\x{662}",
+		arrayref       => [],
+		cyclic_hash    => $cycle,
+		cyclic_array   => \@chain,
+		coderef        => sub { },
+		scalar_ref     => \'Ramsgate, Kent',
+		globref        => \*STDOUT,
+		io_handle      => *STDOUT{IO},
+		overloaded     => EdgeCases::Stringy->new('Ramsgate, Kent'),
+	);
+	for my $name (sort keys %refused) {
+		ok(!$geo->valid_location($refused{$name}), "$name is not valid");
+	}
+
+	# The POD's true partition: a non-digit anywhere is enough
+	ok($geo->valid_location($_), 'accepted: ' . (s/\W/?/gr)) for ('-', ' ', '3.14', "1\n", "\0", "\x{1F600}");
+
+	# A glob isn't a reference: it stringifies, and has a non-digit in it
+	ok($geo->valid_location(*STDOUT), 'a bare typeglob is a string with non-digits');
+};
+
+# -----------------------------------------------------------------------
+# 29. geocode() - references in the value slots
+# Strategy: a reference must never reach a backend, where it would be
+# stringified to "HASH(0x...)" and looked up, or cached under that name.
+# -----------------------------------------------------------------------
+subtest 'geocode() - a reference is refused, on both on_error settings' => sub {
+	my $reached = 0;
+	mock('Geo::Coder::Free::MaxMind', 'geocode', sub { $reached++; return });
+	my $geo = Geo::Coder::Free->new();
+	my $cycle = {}; $cycle->{'self'} = $cycle;
+
+	for my $value ([], {}, $cycle, sub { }, \*STDIN, *STDIN{IO}, EdgeCases::Stringy->new($ADDRESS)) {
+		my $kind = ref($value);
+		throws_ok { $geo->geocode(location => $value) } qr/invalid location to geocode\(\)/, "location $kind croaks";
+		throws_ok { $geo->geocode(scantext => $value) } qr/invalid scantext to geocode\(\)/, "scantext $kind croaks";
+		my $result = 'unset';
+		lives_ok { $result = $geo->geocode(location => $value, on_error => 'undef') } "location $kind lives with on_error => 'undef'";
+		is($result, undef, "location $kind is undef with on_error => 'undef'");
+	}
+	is($reached, 0, 'no reference reached a backend');
+
+	restore_all();
+	_remock_maxmind();
+};
+
+# -----------------------------------------------------------------------
+# 30. Duplicate and conflicting keys
+# Strategy: the guard must judge the value actually used.  A list form with a
+# repeated key must not let a clean first value vouch for a bad last one.
+# -----------------------------------------------------------------------
+subtest 'geocode() - duplicate and conflicting arguments' => sub {
+	my @seen;
+	mock('Geo::Coder::Free::MaxMind', 'geocode', sub { push @seen, $_[1]->{'location'}; return });
+	my $geo = Geo::Coder::Free->new();
+
+	throws_ok { $geo->geocode(location => $ADDRESS, location => '0044') } qr/invalid location/,
+		'the last of two locations is the one validated';
+	lives_ok { $geo->geocode(location => '0044', location => $ADDRESS) } 'a bad value overridden by a good one is not looked at';
+	is_deeply(\@seen, [$ADDRESS], 'only the surviving value reaches the backend');
+
+	throws_ok { $geo->geocode(on_error => 'bogus', location => '0044') } qr/on_error must be/,
+		'on_error is reported before a bad location';
+	throws_ok { $geo->geocode(region => 'GB') } qr/^Usage:/, 'options with no location or scantext are a usage error';
+	throws_ok { $geo->geocode({ region => 'GB' }) } qr/^Usage:/, 'the same as a hashref';
+	throws_ok { $geo->geocode(on_error => 'undef') } qr/^Usage:/, "on_error => 'undef' doesn't excuse a usage error";
+
+	restore_all();
+	_remock_maxmind();
+};
+
+# -----------------------------------------------------------------------
+# 31. Format strings
+# Strategy: messages are built with sprintf.  A value must be an argument of
+# the format and never part of it, or %n and friends become reachable.
+# -----------------------------------------------------------------------
+subtest 'Security - a value is never used as a format string' => sub {
+	my $geo = Geo::Coder::Free->new();
+	my $hostile = '%s%n%x%99999999d';
+
+	throws_ok { $geo->geocode(location => $ADDRESS, on_error => $hostile) } qr/\Q$hostile\E/,
+		'on_error appears literally in its message';
+	throws_ok { $geo->geocode_many([$ADDRESS], on_error => $hostile) } qr/\Q$hostile\E/,
+		'and in the batch form';
+};
+
+# -----------------------------------------------------------------------
+# 32. Invalid UTF-8 and unusual code points
+# Strategy: the digest of a key is built with Encode, and uc() and regexes run
+# over the text.  Malformed bytes, surrogates and non-characters must be a miss
+# in every backend, not "Wide character" or "Malformed UTF-8".
+# -----------------------------------------------------------------------
+subtest 'Every backend - invalid UTF-8 and unusual code points are misses' => sub {
+	_isolated(sub {
+		local $Geo::Coder::Free::Local::libpostal_is_installed = Geo::Coder::Free::Local::LIBPOSTAL_NOT_INSTALLED();
+		local $SIG{__WARN__} = sub { };
+		my $oa = _oa_over(undef);
+		my $maxmind = Geo::Coder::Free::MaxMind->new();
+		$maxmind->{$_} = EdgeCases::Table->new() for qw(cities admin1 admin2);
+
+		my %hostile = (
+			overlong       => "\xc0\xaf, \xc0\xaf, \xc0\xaf",
+			truncated      => "abc\xe2\x82, def, US",
+			lone_bytes     => "\xff\xfe, \xfd, GB",
+			surrogate      => "\x{D800}, \x{DFFF}, US",
+			non_character  => "\x{FFFE}, \x{FFFF}, England",
+			above_unicode  => "\x{10FFFF}, \x{110000}, USA",
+			nul_bytes      => "\0, \0, \0",
+			bidi_override  => "\x{202E}tnek, etagsmaR, GB",
+		);
+		for my $name (sort keys %hostile) {
+			my %backends = (OpenAddresses => $oa, Local => $LOCAL_OBJ, MaxMind => $maxmind);
+			for my $backend (sort keys %backends) {
+				my @found = ('unset');
+				lives_ok { @found = $backends{$backend}->geocode(location => $hostile{$name}) } "$backend lives on $name";
+				ok(!grep({ defined } @found), "$backend finds nothing for $name");
+			}
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 33. List and scalar context
+# Strategy: the POD promises a point in scalar context.  "return @list" hands a
+# scalar-context caller a count instead, and $n->lat() then dies far from the
+# cause, so each path that gathers several results is checked in both contexts.
+# -----------------------------------------------------------------------
+subtest 'Scantext in scalar context is a point, not a count (regression)' => sub {
+	_isolated(sub {
+		my ($first, $second) = (_point('first'), _point('second'));
+		my $nothing = EdgeCases::Backend->new();
+
+		# The text as a whole is answered directly by more than one backend
+		my $geo = _facade_over(EdgeCases::Backend->new($first), EdgeCases::Backend->new($second));
+		my $scalar = $geo->geocode(scantext => $ADDRESS);
+		_point_ok($scalar, 'direct hit in scalar context is a point');
+		is(refaddr($scalar), refaddr($second), 'and is the first of them, Local being asked first');
+		my @list = $geo->geocode(scantext => $ADDRESS);
+		is(scalar(@list), 2, 'list context has both');
+
+		# Found only by the region's address pattern
+		my $calls = 0;
+		my $late = EdgeCases::Backend->new();
+		mock('EdgeCases::Backend', 'geocode', sub {
+			my ($self, $asked) = @_;
+			return unless $self == $late && !ref($asked) && ($asked =~ /^12 High Street, /) && ($asked =~ /, GB$/);
+			return ($first, $second);
+		});
+		my $text = 'see 12 High Street, Ramsgate, Kent, England today';
+		$geo = _facade_over($late, $nothing);
+		$scalar = $geo->geocode(scantext => $text, region => 'GB');
+		_point_ok($scalar, 'regional hit in scalar context is a point');
+		restore_all();
+
+		# OpenAddresses gathering hits word by word
+		mock('Geo::Coder::Free::OpenAddresses', '_get', sub { return _point($_[1]) });
+		my $oa = _oa_over(undef);
+		$scalar = $oa->geocode(scantext => 'Ramsgate Margate Broadstairs');
+		_point_ok($scalar, 'OpenAddresses scantext in scalar context is a point');
+		my @points = $oa->geocode(scantext => 'Ramsgate Margate Broadstairs');
+		ok(@points && !grep({ ref($_) ne $GLP } @points), 'and only points in list context');
+		restore_all();
+
+		# And nothing found is undef, not 0
+		$scalar = 'unset';
+		$scalar = _oa_over(undef)->geocode(scantext => 'Ramsgate Margate');
+		is($scalar, undef, 'OpenAddresses scantext finding nothing is undef in scalar context');
+	});
+};
+
+# -----------------------------------------------------------------------
+# 34. Global state: $_, $@ and read-only aliases
+# Strategy: calling from inside "for ('literal')" aliases $_ to a constant, so
+# any unlocalised write to $_ dies with "Modification of a read-only value".
+# That catches what a sentinel comparison would only see afterwards.
+# -----------------------------------------------------------------------
+subtest 'Every backend - $_ and $@ belong to the caller' => sub {
+	_isolated(sub {
+		local $Geo::Coder::Free::Local::libpostal_is_installed = Geo::Coder::Free::Local::LIBPOSTAL_NOT_INSTALLED();
+		local $SIG{__WARN__} = sub { };
+		my $maxmind = Geo::Coder::Free::MaxMind->new();
+		$maxmind->{$_} = EdgeCases::Table->new() for qw(cities admin1 admin2);
+		my $oa = _oa_over(undef);
+		my $facade = _facade_over($oa, $LOCAL_OBJ, $maxmind);
+
+		my %calls = (
+			'OpenAddresses geocode'   => sub { $oa->geocode(location => $_) },
+			'OpenAddresses scantext'  => sub { $oa->geocode(scantext => $_) },
+			'Local geocode'           => sub { $LOCAL_OBJ->geocode(location => $_) },
+			'MaxMind geocode'         => sub { $maxmind->geocode(location => $_) },
+			'facade geocode'          => sub { $facade->geocode(location => $_) },
+			'facade scantext'         => sub { $facade->geocode(scantext => $_, region => 'GB') },
+			'facade geocode_many'     => sub { $facade->geocode_many([$_]) },
+		);
+		for my $name (sort keys %calls) {
+			$MISS->clear();
+			lives_ok { for ('12 High Street, Ramsgate, Kent, England') { $calls{$name}->() } }
+				"$name works with \$_ aliased to a constant";
+			eval { die "the caller's error\n" };
+			my $before = $@;
+			for my $text ($ADDRESS) { local $_ = $text; $calls{$name}->() }
+			is($@, $before, "$name leaves \$\@ alone");
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 35. A hostile input separator at the first new()
+# Strategy: the data in each module's __DATA__ is read the first time an object
+# is built, wherever that happens to be.  Inside a caller's "local $/" that
+# used to lose every row silently, leaving a working object with no data.
+# -----------------------------------------------------------------------
+subtest '$/ during the first new() does not lose the data (regression)' => sub {
+	for my $separator ('undef', q{\\ 1}, q{'X'}) {
+		my $output = _child(<<"SCRIPT");
+use strict; use warnings;
+use Geo::Coder::Free; use Geo::Coder::Free::Local;
+my (\$facade, \$local);
+{
+	local \$/ = $separator;
+	\$facade = Geo::Coder::Free->new();
+	\$local = Geo::Coder::Free::Local->new();
+}
+print scalar(keys %{\$facade->{'alternatives'}}), ' ', scalar(\@{\$local->{'data'}}), "\\n";
+SCRIPT
+		my ($alternatives, $rows) = split(' ', $output // '');
+		cmp_ok($alternatives // 0, '>', 1, "alternatives map is parsed by line with \$/ = $separator");
+		cmp_ok($rows // 0, '>', 1, "Local keeps its rows with \$/ = $separator");
+	}
+};
+
+# -----------------------------------------------------------------------
+# 36. Algorithmic CPU starvation
+# Strategy: each of these took 10s or more at this length, and four times that
+# at twice the length, before the patterns were made linear.  A lookup answers
+# nothing, so the only way to fail is to take too long or to die.
+# -----------------------------------------------------------------------
+subtest 'Security - hostile separators complete in linear time (regression)' => sub {
+	_isolated(sub {
+		local $Geo::Coder::Free::Local::libpostal_is_installed = Geo::Coder::Free::Local::LIBPOSTAL_NOT_INSTALLED();
+		my $n = $CONFIG{'hostile_length'};
+
+		my %inputs = (
+			spaces             => (' ' x $n) . 'x',
+			spaces_washington  => 'x' . (' ' x $n) . 'Washington D',
+			spaces_st_louis    => (' ' x $n) . 'Saint Louis, Mi',
+			commas             => ',' x $n,
+			comma_spaces       => 'x' . (', ' x ($n / 2)) . 'y',
+			separators_then_us => (', ' x ($n / 2)) . 'x US',
+			commas_england     => ('a, ' x ($n / 3)) . 'England',
+			single_word        => 'a' x $n,
+			many_words         => 'Aa ' x ($n / 3),
+			dots               => '.' x $n,
+			newlines           => "a\n" x ($n / 2),
+			tabs_and_commas    => "x,\t" x ($n / 3),
+		);
+
+		my $oa = _oa_over(undef);
+		my $maxmind = Geo::Coder::Free::MaxMind->new();
+		$maxmind->{$_} = EdgeCases::Table->new() for qw(cities admin1 admin2);
+		my $facade = _facade_over(EdgeCases::Backend->new(), EdgeCases::Backend->new());
+
+		# Loading a parser isn't what is being timed
+		{ local $SIG{__WARN__} = sub { }; eval { $LOCAL_OBJ->geocode('1 High St, Town, GB') }; }
+		$MISS->clear();
+
+		for my $name (sort keys %inputs) {
+			my $text = $inputs{$name};
+			_timed_ok(sub { $oa->geocode(location => $text) }, "OpenAddresses: $name");
+			_timed_ok(sub { $LOCAL_OBJ->geocode(location => $text) }, "Local: $name");
+			_timed_ok(sub { $maxmind->geocode(location => $text) }, "MaxMind: $name");
+			_timed_ok(sub { $facade->geocode(scantext => $text, region => 'GB') }, "facade scantext GB: $name");
+			_timed_ok(sub { $facade->geocode(scantext => $text, region => 'US') }, "facade scantext US: $name");
+			_timed_ok(sub { $facade->geocode(scantext => $text, region => 'CA') }, "facade scantext CA: $name");
+			_timed_ok(sub { Geo::Coder::Free::_find_us_addresses($text) }, "_find_us_addresses: $name");
+			_timed_ok(sub { Geo::Coder::Free::_find_gb_addresses($text) }, "_find_gb_addresses: $name");
+			_timed_ok(sub { Geo::Coder::Free::_find_ca_addresses($text) }, "_find_ca_addresses: $name");
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 37. Locations with no content
+# Strategy: removing separators can leave nothing.  OpenAddresses used to hand
+# that to itself and croak a usage error at a caller who had passed a string,
+# and an address parser's own exception used to escape through Local.
+# -----------------------------------------------------------------------
+subtest 'Every backend - separators with nothing between them are misses (regression)' => sub {
+	_isolated(sub {
+		local $Geo::Coder::Free::Local::libpostal_is_installed = Geo::Coder::Free::Local::LIBPOSTAL_NOT_INSTALLED();
+		local $SIG{__WARN__} = sub { };
+		my $oa = _oa_over(undef);
+		my $facade = _facade_over($oa, $LOCAL_OBJ);
+
+		for my $location (',', ',,', ',,,', ',,,,', ', , ,', '.,.,.', '0,', ',0', '0,0,', ', GB', ',,, US', ',, USA', '. , .') {
+			for my $check ([OpenAddresses => $oa], [Local => $LOCAL_OBJ], [facade => $facade]) {
+				$MISS->clear();
+				my @found = ('unset');
+				lives_ok { @found = $check->[1]->geocode(location => $location) } "$check->[0] lives on '$location'";
+				ok(!grep({ defined } @found), "$check->[0] finds nothing for '$location'");
+			}
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 38. Upstream failures under OpenAddresses
+# Strategy: "not found" and "could not look" are different answers.  The first
+# may be remembered; the second must not be, or an hour's lookups would report
+# good addresses as missing after the database came back.
+# -----------------------------------------------------------------------
+subtest 'OpenAddresses - a failed read is never remembered as a miss' => sub {
+	_isolated(sub {
+		for my $empty (undef, 0, '') {
+			$MISS->clear();
+			my $label = defined($empty) ? "'$empty'" : 'undef';
+			my $oa = _oa_over($empty);
+			is($oa->_get($DB_KEY), undef, "a table answering $label is a miss");
+			is($MISS->size(), 1, 'which is remembered');
+			$oa->_get($DB_KEY);
+			is($oa->reads(), 1, 'so the second call does not read');
+		}
+
+		for my $failure ("database is locked\n", "server has gone away\n", "ETIMEDOUT\n") {
+			$MISS->clear();
+			my $failing = 1;
+			my $oa = _oa_over(sub { die $failure if $failing; return $GEOHASH });
+			throws_ok { $oa->_get($DB_KEY) } qr/\Q$failure\E/, "'$failure' is not swallowed";
+			is($MISS->size(), 0, 'and not remembered as a miss');
+			$failing = 0;
+			_point_ok($oa->_get($DB_KEY), 'the next call finds the address once it has recovered');
+
+			my $facade = _facade_over(_oa_over(sub { die $failure }), EdgeCases::Backend->new());
+			throws_ok { $facade->geocode(location => $ADDRESS, on_error => 'undef') } qr/\Q$failure\E/,
+				"on_error => 'undef' doesn't hide '$failure' from the facade's caller";
+		}
+
+		# A corrupt row can't be turned into a point, and isn't a miss either
+		for my $garbage ('!!!!', "\0\n") {
+			$MISS->clear();
+			dies_ok { _oa_over($garbage)->_get($DB_KEY) } 'a geohash that cannot be decoded is an error';
+			is($MISS->size(), 0, 'and is not remembered as a miss');
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 39. Upstream failures under MaxMind
+# Strategy: a table answering nothing used to die dereferencing undef on the
+# US and Canadian state path.  Both empty answers are tried, on a path through
+# each of the parsing branches.
+# -----------------------------------------------------------------------
+subtest 'MaxMind - tables that answer nothing are misses (regression)' => sub {
+	_isolated(sub {
+		local $SIG{__WARN__} = sub { };
+		# Each table's list and row methods can only answer with rows or undef
+		for my $empty (undef, sub { return }) {
+			for my $location ('Rockville, Maryland, USA', 'Rockville, Montgomery, Maryland, USA',
+					'Toronto, Ontario, Canada', 'Ramsgate, Kent, England', 'Ramsgate, England', 'Kent, GB') {
+				$MISS->clear();
+				my $maxmind = Geo::Coder::Free::MaxMind->new();
+				$maxmind->{$_} = EdgeCases::Table->new(answer => $empty) for qw(cities admin1 admin2);
+				my @found = ('unset');
+				my $label = defined($empty) ? 'an empty list' : 'undef';
+				lives_ok { @found = $maxmind->geocode(location => $location) } "lives on '$location' when the tables answer $label";
+				ok(!grep({ defined } @found), "finds nothing for '$location'");
+			}
+		}
+
+		# The tables failing outright must reach the caller and not be remembered
+		$MISS->clear();
+		my $maxmind = Geo::Coder::Free::MaxMind->new();
+		$maxmind->{$_} = EdgeCases::Table->new(answer => sub { die "disk I/O error\n" }) for qw(cities admin1 admin2);
+		throws_ok { $maxmind->geocode(location => 'Ramsgate, Kent, England') } qr/disk I\/O error/, 'a failing table is not swallowed';
+		is($MISS->size(), 0, 'and is not remembered as a miss');
+	});
+};
+
+# -----------------------------------------------------------------------
+# 40. A failing or poisoned cache
+# Strategy: the cache only saves work.  When it is down, full or holding rubbish
+# the database still has the answer, so none of those may cost the caller it.
+# -----------------------------------------------------------------------
+subtest 'Caches - failure costs a read, not the answer (regression)' => sub {
+	_isolated(sub {
+		local $SIG{__WARN__} = sub { };
+		my %caches = (
+			'get dies'            => EdgeCases::Cache->new(get_dies => "cache connection dropped\n"),
+			'set finds disk full' => EdgeCases::Cache->new(set_dies => $DISK_FULL),
+			'holds rubbish'       => EdgeCases::Cache->new(holds => 'this was never frozen'),
+		);
+		for my $name (sort keys %caches) {
+			$MISS->clear();
+			my $oa = _oa_over($GEOHASH, cache => $caches{$name});
+			my $found;
+			lives_ok { $found = $oa->_get($DB_KEY) } "OpenAddresses lives when the cache $name";
+			_point_ok($found, 'and reads the answer from the table');
+			is($oa->reads(), 1, 'and one read was what it cost');
+		}
+
+		# A good entry is still used
+		my $frozen = Storable::freeze(_point());
+		my $oa = _oa_over(sub { die "the table should not be read\n" }, cache => EdgeCases::Cache->new(holds => $frozen));
+		_point_ok($oa->_get($DB_KEY), 'a cached point is answered without a read');
+
+		# MaxMind reads through a failing cache, and an answer survives a full disk
+		$MISS->clear();
+		my $maxmind = Geo::Coder::Free::MaxMind->new(cache => EdgeCases::Cache->new(get_dies => "cache connection dropped\n"));
+		$maxmind->{$_} = EdgeCases::Table->new() for qw(cities admin1 admin2);
+		lives_ok { $maxmind->geocode(location => 'Ramsgate, Kent, England') } 'MaxMind lives when its cache get dies';
+
+		$MISS->clear();
+		$maxmind = Geo::Coder::Free::MaxMind->new(cache => EdgeCases::Cache->new(set_dies => $DISK_FULL));
+		my $row = { Latitude => 51.33, Longitude => 1.42, City => 'ramsgate', Region => 'G5', Country => 'gb' };
+		$maxmind->{'admin1'} = EdgeCases::Table->new(answer => { concatenated_codes => 'GB.ENG', asciiname => 'England' });
+		$maxmind->{'admin2'} = EdgeCases::Table->new(answer => { concatenated_codes => 'GB.ENG.G5', asciiname => 'Kent' });
+		$maxmind->{'cities'} = EdgeCases::Table->new(answer => sub { return { %{$row} } });
+		my $point;
+		lives_ok { $point = $maxmind->geocode(location => 'Ramsgate, Kent, England') } 'MaxMind lives when its cache set finds the disk full';
+		_point_ok($point, 'and still gives the answer it found');
+	});
+};
+
+# -----------------------------------------------------------------------
+# 41. Corrupt databases on disk
+# Strategy: in each of these the file is there but no query can be answered.
+# That has to be loud, and must not be cached as "not found".  The zero-length
+# file is a real case: it hides a good openaddresses.db, since .sql is tried
+# first, and sqlite3 creates one if it is pointed at a path that doesn't exist.
+# -----------------------------------------------------------------------
+subtest 'OpenAddresses - unusable database files are errors, not misses' => sub {
+	_isolated(sub {
+		local $SIG{__WARN__} = sub { };
+		my %builders = (
+			'zero-byte file'       => sub { _write_file("$_[0]/openaddresses.sql", '') },
+			'whitespace-only file' => sub { _write_file("$_[0]/openaddresses.sql", " \n\t\n") },
+			'text not a database'  => sub { _write_file("$_[0]/openaddresses.sql", 'not a database ' x 100) },
+			'old lat, lon schema'  => sub {
+				my $dbh = DBI->connect("dbi:SQLite:dbname=$_[0]/openaddresses.sql", undef, undef, { RaiseError => 1, PrintError => 0 });
+				$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16), lat DECIMAL, lon DECIMAL)');
+				$dbh->disconnect();
+			},
+			'wrong table'          => sub {
+				my $dbh = DBI->connect("dbi:SQLite:dbname=$_[0]/openaddresses.sql", undef, undef, { RaiseError => 1, PrintError => 0 });
+				$dbh->do('CREATE TABLE other(md5 CHAR(16))');
+				$dbh->disconnect();
+			},
+			'directory for a file' => sub { mkdir("$_[0]/openaddresses.sql") or die $! },
+			'no file at all'       => sub { },
+		);
+		$builders{'dangling symlink'} = sub { symlink("$_[0]/none", "$_[0]/openaddresses.sql") or die $! } if $HAVE_SYMLINK;
+		$builders{'/dev/null symlink'} = sub { symlink('/dev/null', "$_[0]/openaddresses.sql") or die $! } if $HAVE_SYMLINK && -c '/dev/null';
+		$builders{'/dev/urandom symlink'} = sub { symlink('/dev/urandom', "$_[0]/openaddresses.sql") or die $! } if $HAVE_SYMLINK && -c '/dev/urandom';
+
+		for my $name (sort keys %builders) {
+			$MISS->clear();
+			my $dir = tempdir(CLEANUP => 1);
+			$builders{$name}->($dir);
+			my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $dir, libpostal => 0);
+			dies_ok { $oa->_get($DB_KEY) } "$name: the lookup fails loudly";
+			is($MISS->size(), 0, "$name: and isn't remembered as a miss");
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 42. Constructor paths and hostile file names
+# Strategy: a path has to be used as a path.  Character devices and missing
+# directories croak with the documented message, and shell metacharacters must
+# be inert: the canary only appears if something passes the name to a shell.
+# -----------------------------------------------------------------------
+subtest 'Paths - devices are refused, and metacharacters are inert' => sub {
+	_isolated(sub {
+		my (undef, $plain_file) = tempfile(UNLINK => 1);
+		my @not_directories = ($plain_file, "/nonexistent\n/xyzzy", "/nonexistent/ spaces /xyzzy", '/nonexistent/$(id)');
+		push @not_directories, grep { -c } ('/dev/null', '/dev/urandom');
+		for my $path (@not_directories) {
+			throws_ok { Geo::Coder::Free::OpenAddresses->new(openaddr => $path) } qr/Can't find the directory/, "OpenAddresses refuses '$path'";
+			throws_ok { Geo::Coder::Free::MaxMind->new(directory => $path) } qr/doesn't exist/, "MaxMind refuses '$path'";
+			throws_ok { Geo::Coder::Free->new(openaddr => $path) } qr/Can't find the directory/, "the facade passes on the refusal of '$path'";
+		}
+		throws_ok { Geo::Coder::Free::OpenAddresses->new(openaddr => []) } qr/Can't find the directory/, 'a reference is not a directory';
+
+		my $root = tempdir(CLEANUP => 1);
+		my $canary = "$root/canary";
+		for my $name ('with spaces', "new\nline", "semi;touch $canary", "\$(touch $canary)", "`touch $canary`", q{quo'te"s}, '| touch canary', '-rf', '*') {
+			(my $on_disk = $name) =~ s{/}{_}g;
+			my $dir = "$root/$on_disk";
+			next unless mkdir($dir);	# Not every file system takes every name
+			# Built elsewhere and moved in, since the name might not survive a DSN
+			rmdir($dir) or die "$dir: $!";
+			rename(_sqlite_dir(), $dir) or die "$dir: $!";
+			$MISS->clear();
+			my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $dir, libpostal => 0);
+			TODO: {
+				local $TODO = ($name =~ /;/) ? 'Database::Abstraction puts the path in a DSN unquoted, where ; ends the dbname' : undef;
+				local $SIG{__WARN__} = sub { };
+				_point_ok(scalar(eval { $oa->_get($DB_KEY) }), "the database is read from '$on_disk'");
+			}
+		}
+		ok(!-e $canary, 'nothing was run through a shell');
+		ok(!-e 'canary', 'nor from the current directory');
+
+		# Hostile values as well as names: a location with shell syntax is only text
+		my $oa = _oa_over(undef);
+		for my $location ("x\$(touch $canary), y, US", "`touch $canary`, y, GB", "x; touch $canary, y, England") {
+			lives_ok { $oa->geocode(location => $location) } "looking up '$location' lives";
+		}
+		ok(!-e $canary, 'no location was run through a shell');
+	});
+};
+
+# -----------------------------------------------------------------------
+# 43. Permissions
+# Strategy: Test::Permissions skips where the OS can't really take access away
+# (root, Windows, some file systems) rather than passing for the wrong reason.
+# -----------------------------------------------------------------------
+subtest 'Permissions - unreadable directories and databases' => sub {
+	_isolated(sub {
+		my $dir = _sqlite_dir();
+		SKIP: {
+			skip_unless_can_revoke('search', 3, $dir);
+			my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $dir, libpostal => 0);
+			local $SIG{__WARN__} = sub { };
+			with_revoked(search => $dir, sub {
+				dies_ok { $oa->_get($DB_KEY) } 'a directory that cannot be searched fails loudly';
+				is($MISS->size(), 0, "and isn't remembered as a miss");
+			});
+			delete $oa->{'openaddr_db'};
+			_point_ok($oa->_get($DB_KEY), 'and is found once it can be searched again');
+		}
+		$MISS->clear();
+		SKIP: {
+			skip_unless_can_revoke('read', 3, $dir);
+			my $oa = Geo::Coder::Free::OpenAddresses->new(openaddr => $dir, libpostal => 0);
+			local $SIG{__WARN__} = sub { };
+			with_revoked(read => "$dir/openaddresses.sql", sub {
+				dies_ok { $oa->_get($DB_KEY) } 'an unreadable database fails loudly';
+				is($MISS->size(), 0, "and isn't remembered as a miss");
+			});
+			delete $oa->{'openaddr_db'};
+			_point_ok($oa->_get($DB_KEY), 'and is found once it can be read again');
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 44. File descriptor depletion
+# Strategy: run out of descriptors for real, in a child with a low limit, and
+# look up an address that is there.  It may fail, but it may not report the
+# address as missing, must recover, and must not leak what it did manage to open.
+# -----------------------------------------------------------------------
+subtest 'File descriptors - exhaustion fails safely and leaks nothing' => sub {
+	plan(skip_all => 'needs /bin/sh and ulimit') if ($^O eq 'MSWin32') || !-x '/bin/sh';
+
+	my $output = _child(<<"SCRIPT", $CONFIG{'fd_limit'});
+use strict; use warnings;
+use DBI; use File::Temp qw(tempdir);
+use Geo::Coder::Free::MissCache; use Geo::Coder::Free::OpenAddresses;
+\$SIG{__WARN__} = sub { };
+
+sub database {
+	my \$dir = tempdir(CLEANUP => 1);
+	my \$dbh = DBI->connect("dbi:SQLite:dbname=\$dir/openaddresses.sql", undef, undef, { RaiseError => 1 });
+	\$dbh->do('CREATE TABLE openaddresses(md5 CHAR(16) PRIMARY KEY, geohash VARCHAR(10))');
+	\$dbh->do("INSERT INTO openaddresses VALUES('$DB_KEY', '$GEOHASH')");
+	\$dbh->disconnect();
+	return \$dir;
+}
+sub exhaust {
+	my \@handles;
+	while(\@handles < $CONFIG{'fd_attempts'}) {
+		open(my \$fh, '<', \$0) or last;
+		push \@handles, \$fh;
+	}
+	return (\\\@handles, \$!{EMFILE} ? 1 : 0);
+}
+
+# Everything loaded on demand is loaded now: this is about handles, not require
+my \$warm = Geo::Coder::Free::OpenAddresses->new(openaddr => database(), libpostal => 0)->_get('$DB_KEY');
+my \$oa = Geo::Coder::Free::OpenAddresses->new(openaddr => database(), libpostal => 0);
+
+my (\$handles, \$emfile) = exhaust();
+my \$opened = scalar(\@{\$handles});
+my \$during = eval { \$oa->_get('$DB_KEY') };
+my \$failed = \$@ ? 1 : 0;
+my \$misses = Geo::Coder::Free::MissCache->size();
+undef \$handles;
+
+my \$after = eval { \$oa->_get('$DB_KEY') };
+my (\$again) = exhaust();
+print join(' ', ref(\$warm), \$emfile, \$opened, (ref(\$during) || 'none'), \$failed, \$misses, (ref(\$after) || 'none'), scalar(\@{\$again})), "\\n";
+SCRIPT
+	plan(skip_all => "couldn't set the descriptor limit") unless defined($output) && length($output);
+
+	diag("child reported: $output") if $ENV{TEST_VERBOSE};
+	my ($warm, $emfile, $opened, $during, $failed, $misses, $after, $reopened) = split(' ', $output);
+	is($warm, $GLP, 'the lookup works before the limit is reached');
+	is($emfile, 1, 'the child did reach EMFILE');
+	ok($failed || ($during eq $GLP), 'at the limit the lookup fails or succeeds, and does not pretend');
+	is($misses, 0, 'a lookup that could not open the database is not remembered as a miss');
+	is($after, $GLP, 'once descriptors are free the address is found');
+	cmp_ok($reopened, '>=', $opened - $CONFIG{'fd_leak_slack'}, 'the failed lookup leaked no descriptors');
+};
+
+# -----------------------------------------------------------------------
+# 45. MissCache - hostile keys, and the bound its POD promises
+# Strategy: every key must be kept apart whatever it holds, and a website's
+# stream of distinct misses must not hold memory for an hour without limit.
+# -----------------------------------------------------------------------
+subtest 'MissCache - keys, bounds and expiry' => sub {
+	_isolated(sub {
+		my $scope = $MISS->scope_for('Test', 'one');
+		returns_ok($scope, { type => 'string' }, 'scope_for gives a string');
+
+		my @keys = ('', '0', "\0", "\0\0", ' ', "\n", "\xe9", "\x{e9}\x{100}", "\xc3\xa9", 'a' x $CONFIG{'megabyte'}, '%s', '*');
+		$MISS->remember($scope, $_) for @keys;
+		is($MISS->size($scope), scalar(@keys), 'every hostile key is held apart');
+		ok($MISS->missed($scope, $_), 'and is found again') for @keys;
+		ok(!$MISS->missed($scope, 'a' x ($CONFIG{'megabyte'} - 1)), 'a long key does not match its prefix');
+		ok(!$MISS->missed('no such scope', $keys[0]), 'an unknown scope is false, not an error');
+		ok($MISS->forget($scope, ''), "forgetting '' works");
+		ok(!$MISS->forget($scope, ''), 'and only once');
+
+		# A scope matches whole parts only
+		$MISS->remember('OpenAddresses', 'x');
+		$MISS->remember('OpenAddressesX', 'x');
+		$MISS->remember($MISS->scope_for('OpenAddresses', '/data'), 'x');
+		$MISS->clear('OpenAddresses');
+		is($MISS->size('OpenAddressesX'), 1, "clear() of a scope leaves one it's a prefix of");
+		is($MISS->size($MISS->scope_for('OpenAddresses', '/data')), 0, 'and takes those below it');
+
+		# Regression: the POD said the cache could not grow without bound, but a
+		# sweep only removes what has expired
+		$MISS->clear();
+		my $limit = $CONFIG{'miss_scope_limit'};
+		$MISS->remember('Bounded', $_) for 1 .. $limit + 1;
+		cmp_ok($MISS->size('Bounded'), '<=', $limit, 'a stream of distinct misses is bounded');
+		ok($MISS->missed('Bounded', $limit + 1), 'and the newest miss is kept');
+		$MISS->remember('Other', 'x');
+		$MISS->remember('Bounded', $_) for 1 .. $limit + 1;
+		is($MISS->size('Other'), 1, 'one scope filling up costs another scope nothing');
+
+		# Refreshing at the limit forgets nothing
+		$MISS->clear();
+		$MISS->remember('Bounded', $_) for 1 .. $limit;
+		$MISS->remember('Bounded', 1);
+		is($MISS->size('Bounded'), $limit, 'refreshing an existing miss at the limit forgets nothing');
+		$MISS->clear();
+
+		# Lifetimes
+		my $default = $MISS->expires_after();
+		for my $bad (-1, 1.5, '1.0', '1e3', '', ' 1', '1 ', "1\n", "\x{661}", [], {}, \1) {
+			throws_ok { $MISS->expires_after($bad) } qr/\Aexpires_after\(\) expects a non-negative whole number of seconds/,
+				'refused: ' . (ref($bad) || ($bad =~ s/\W/?/gr));
+			is($MISS->expires_after(), $default, 'and the setting is unchanged');
+		}
+		$MISS->expires_after(0);
+		$MISS->remember('Expiry', 'x');
+		ok(!$MISS->missed('Expiry', 'x'), 'a lifetime of 0 turns the cache off');
+		$MISS->expires_after('9' x 400);	# No maximum applies, and the sum becomes Inf
+		$MISS->remember('Expiry', 'y');
+		ok($MISS->missed('Expiry', 'y'), 'an absurd lifetime is honoured rather than wrapping round');
+		$MISS->expires_after($default);
+		$MISS->clear();
+	});
+};
+
+# -----------------------------------------------------------------------
+# 46. geocode_many() - volume, and values built to trick the reserved check
+# Strategy: a million rows that are one value must cost one lookup, and a
+# reserved word must not get past the check by arriving as an object.
+# -----------------------------------------------------------------------
+subtest 'geocode_many() - volume and hostile values' => sub {
+	my $lookups = 0;
+	mock('Geo::Coder::Free::MaxMind', 'geocode', sub { $lookups++; return });
+	my $geo = Geo::Coder::Free->new();
+
+	my $batch = $geo->geocode_many([($ADDRESS) x $CONFIG{'million'}]);
+	is($lookups, 1, 'a million repeats of one value are one call');
+	returns_ok($batch, { type => 'hashref' }, 'the batch is a hashref');
+	is($batch->{'unresolved'}, 1, 'and one distinct value');
+
+	throws_ok { $geo->geocode_many([EdgeCases::Stringy->new('lookups')]) } qr/one of the keys/, 'an object that stringifies to a reserved key is refused';
+	throws_ok { $geo->geocode_many([$ADDRESS, 'reads', '0044']) } qr/one of the keys/, 'a reserved value is found wherever it is, and first';
+	$lookups = 0;
+	throws_ok { $geo->geocode_many([$ADDRESS, 'resolved']) } qr/one of the keys/, 'which is before anything is looked up';
+	is($lookups, 0, 'so nothing was');
+
+	my $cycle = []; push @{$cycle}, $cycle;
+	$batch = $geo->geocode_many([$cycle, \*STDIN, sub { }, undef, '', '0044', "\0"], on_error => 'undef');
+	is($batch->{'resolved'}, 0, 'hostile rows resolve to nothing');
+	is($batch->{'resolved'} + $batch->{'unresolved'}, 6, 'and are each counted, undef sharing the entry of the empty string');
+
+	for my $not_values (undef, '', 0, 'text', {}, \'x', sub { }, *STDIN, \*STDIN) {
+		throws_ok { $geo->geocode_many($not_values, region => 'GB') } qr/^Usage:/, 'values of the wrong kind croak';
+	}
+	throws_ok { $geo->geocode_many([], 'lone') } qr/^Usage:/, 'a lone option croaks';
+	throws_ok { $geo->geocode_many([], region => []) } qr/^Usage:/, 'a reference as an option value croaks';
+	is($geo->geocode_many([])->{'resolved'}, 0, 'no values is not an error');
+
+	restore_all();
+	_remock_maxmind();
+};
+
+# -----------------------------------------------------------------------
+# 47. Memory stress
+# Strategy: the POD gives location and scantext no maximum length, so a large
+# string has to be handled rather than refused.  These are the paths whose cost
+# is this distribution's own; the optional parsers are left out, see the roadmap
+# in Free.pm.  The full 100MB run is behind TEST_EXTENDED.
+# -----------------------------------------------------------------------
+subtest 'Memory stress - large values are handled, not fatal' => sub {
+	_isolated(sub {
+		my $geo = _facade_over(EdgeCases::Backend->new(), EdgeCases::Backend->new());
+		my @lengths = ($CONFIG{'megabyte'});
+		push @lengths, $CONFIG{'extended_length'} if $ENV{TEST_EXTENDED};
+
+		for my $length (@lengths) {
+			my $huge = 'x' x $length;
+			_timed_ok(sub { $geo->valid_location($huge) or die "not valid\n" }, "valid_location: $length bytes", $CONFIG{'volume_timeout'});
+			_timed_ok(sub { $geo->geocode(location => $huge) }, "facade location: $length bytes", $CONFIG{'volume_timeout'});
+			_timed_ok(sub { $geo->geocode(scantext => $huge) }, "facade scantext: $length bytes", $CONFIG{'volume_timeout'});
+			_timed_ok(sub { $LOCAL_OBJ->geocode(location => $huge) }, "Local without a comma: $length bytes", $CONFIG{'volume_timeout'});
+			_timed_ok(sub { _oa_over(undef)->_get($huge) }, "OpenAddresses digest: $length bytes", $CONFIG{'volume_timeout'});
+			$MISS->remember('Huge', $huge);
+			ok($MISS->missed('Huge', $huge), "a miss of $length bytes is remembered");
+			$MISS->clear();
+			$geo->{'scantext_misses'} = {};
+		}
+
+		if($ENV{TEST_EXTENDED}) {
+			my @rows = map { "place $_" } 1 .. $CONFIG{'million'};
+			_timed_ok(sub { $geo->geocode_many(\@rows) }, 'geocode_many: a million distinct rows', $CONFIG{'volume_timeout'});
+		}
+	});
+};
+
+# -----------------------------------------------------------------------
+# 48. provenance() - points that aren't
+# Strategy: it reads hash keys off whatever it is given, so it must refuse
+# anything else without dying, and must not write back to the point it reads.
+# -----------------------------------------------------------------------
+subtest 'provenance() - hostile values' => sub {
+	my $geo = Geo::Coder::Free->new();
+
+	for my $value (undef, '', 0, 'text', [], \'x', sub { }, \*STDIN, bless([], 'EdgeCases::Backend')) {
+		my $kind = ref($value) || (defined($value) ? "'$value'" : 'undef');
+		my %empty;
+		lives_ok { %empty = %{$geo->provenance($value)} } "$kind lives in scalar context";
+		is(scalar(keys %empty), 0, "$kind has no provenance");
+		my @list = $geo->provenance($value);
+		is(scalar(@list), 0, "$kind is an empty list in list context");
+	}
+
+	my $point = { geocoder => 'x', database => 'Geo::Coder::Free::Local', confidence => 1, accuracy => 'city' };
+	$point->{'self'} = $point;
+	my $answer = $geo->provenance($point);
+	returns_ok($answer, { type => 'hashref' }, 'a cyclic hash is read');
+	is($answer->{'backend'}, 'Local', 'its backend is reported short');
+	is($point->{'database'}, 'Geo::Coder::Free::Local', 'and the point is not modified');
+	delete $point->{'self'};
+};
+
+# -----------------------------------------------------------------------
+# 49. reverse_geocode() - SQL injection
+# Strategy: MaxMind interpolates coordinates into its SQL, so the validation is
+# all that stands between a caller and the database.  The stand-in table records
+# every query: refused input must reach it zero times.
+# -----------------------------------------------------------------------
+subtest 'Security - reverse_geocode refuses before any SQL is built' => sub {
+	_isolated(sub {
+		my $cities = EdgeCases::Table->new();
+		my $maxmind = Geo::Coder::Free::MaxMind->new();
+		$maxmind->{'cities'} = $cities;
+
+		my @hostile = (
+			"1; DROP TABLE cities; --,0", "0,1; DROP TABLE cities; --", "1 OR 1=1,0", "0,1) OR (1=1",
+			"1\n,0", "0,1\n", "\x{661},0", '1e2,0', '+1,0', '.5,0', ' 1,0', '1 ,0', '0x10,0', '--1,0', '1.2.3,0',
+			"1'--,0", '1/**/,0', 'NaN,0', 'Inf,0', "1\0,0",
+		);
+		for my $latlng (@hostile) {
+			(my $printable = $latlng) =~ s/[^ -~]/?/g;
+			throws_ok { $maxmind->reverse_geocode(latlng => $latlng) } qr/Invalid coordinate value/, "MaxMind refuses '$printable'";
+			throws_ok { $LOCAL_OBJ->reverse_geocode(latlng => $latlng) } qr/Invalid coordinate value/, "Local refuses '$printable'";
+		}
+		for my $pair ([[], 0], [0, {}], [\1, 0]) {
+			throws_ok { $maxmind->reverse_geocode(lat => $pair->[0], lon => $pair->[1]) } qr/Invalid coordinate value/, 'MaxMind refuses a reference as a coordinate';
+		}
+		is(scalar(@{$cities->{'calls'}}), 0, 'not one query was sent');
+		is($maxmind->reads(), 0, 'and no read was counted');
+
+		# The longest valid value is digits, so it can't carry anything
+		my $digits = '1' x $CONFIG{'megabyte'};
+		lives_ok { $maxmind->reverse_geocode(latlng => "$digits,0") } 'a megabyte of digits is only a number';
+		like($cities->{'calls'}[0][1], qr/\A[\w\s()<>.,\-+*]+\z/, 'and the SQL holds nothing but the expected tokens');
+
+		# A row's region is written into the admin2 query, so it is validated too
+		$maxmind->{'admin2'} = EdgeCases::Table->new();
+		$maxmind->_prepare({ Region => "X' OR '1'='1", Country => 'GB' });
+		$maxmind->_prepare({ Region => 'G5', Country => "G' --" });
+		is(scalar(@{$maxmind->{'admin2'}{'calls'}}), 0, 'a hostile region or country is not put into SQL');
+	});
+};
+
+# -----------------------------------------------------------------------
+# 50. The network
+# Strategy: there is no network code to fail, and it should stay that way: ua()
+# exists for compatibility only, and must not accept an agent and then use it.
+# -----------------------------------------------------------------------
+subtest 'No network - ua() is inert' => sub {
+	my $agent = EdgeCases::Table->new(answer => sub { die "the user agent was called\n" });
+	for my $object (Geo::Coder::Free->new(), $LOCAL_OBJ, _oa_over(undef), Geo::Coder::Free::MaxMind->new()) {
+		my @nothing = ('unset');
+		lives_ok { @nothing = $object->ua($agent) } ref($object) . '->ua() lives';
+		is(scalar(@nothing), 0, 'and returns nothing');
+	}
+	is(scalar(@{$agent->{'calls'}}), 0, 'the agent is never used');
 };
 
 done_testing();

@@ -347,7 +347,8 @@ sub geocode {
 	return unless(($location =~ /,/) || $params{'region'});	# Not well formed, or an attempt to find the location of an entire country
 
 	# Check cache first
-	my $cached_result = $self->{'cache'}->get($location);
+	# A cache that has failed says nothing about the data: read the database instead
+	my $cached_result = do { local $@; eval { $self->{'cache'}->get($location) } };
 	return $cached_result if($cached_result);
 
 	# A miss is remembered for the whole process.  The key is the location as
@@ -443,7 +444,7 @@ sub geocode {
 				} else {
 					$country_code = $concatenated_codes;
 					$self->_read();
-					my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state)};
+					my @admin1s = @{$self->{'admin1'}->selectall_hashref(asciiname => $state) || []};
 					foreach my $admin1(@admin1s) {
 						if($admin1->{'concatenated_codes'} =~ /^\Q$concatenated_codes\E\./i) {
 							$concatenated_codes = $admin1->{'concatenated_codes'};
@@ -732,7 +733,8 @@ sub geocode {
 			 # country alone is the first match in that region.
 			 'accuracy' => $options->{'City'} ? 'city' : 'region')
 		});
-		$self->{cache}->set($location, $rc);
+		# A full disk costs the next caller a read, not this caller the answer
+		do { local $@; eval { $self->{cache}->set($location, $rc) } };
 		return $rc;
 	}
 	# return $city;

@@ -272,6 +272,10 @@ C<%known_locations> entry did, since that entry's coordinate is a town's.
 sub geocode
 {
 	my $self = shift;
+
+	# Loading an optional parser, or finding it missing, is no business of the caller's $@
+	local $@;
+
 	my $param = (@_ == 1 && !ref($_[0]))
 		? { location => $_[0] }
 		: Params::Get::get_params(undef, @_);
@@ -371,7 +375,7 @@ sub geocode
 			}
 			$offset++;
 		}
-		return @rc;
+		return wantarray ? @rc : $rc[0];
 		# my @locations;
 
 		# foreach my $l(@rc) {
@@ -385,6 +389,10 @@ sub geocode
 		or Carp::croak('Usage: geocode(location => $location|scantext => $text)');
 
 
+	# A run of whitespace is one separator.  Collapsing it first also keeps the
+	# patterns below linear: each \s+ or \s* would otherwise rescan a long run
+	# from every position in it.
+	$location =~ s/\s{2,}/ /g;
 	$location =~ s/,\s+,\s+/, /g;
 
 	if($location =~ /^,\s*(.+)/) {
@@ -475,7 +483,8 @@ sub geocode
 	}
 	if($ap) {
 		my $l = $location;
-		if($l =~ /(.+), (England|UK)$/i) {
+		# Anchored, or a failed match is tried again from every position
+		if($l =~ /^(.+), (England|UK)\Z/mi) {
 			$l = "$1, GB";
 		}
 		if($ap->parse($l)) {
@@ -531,7 +540,8 @@ sub geocode
 		}
 	}
 
-	if($location =~ /^(.+?)[,\s]+(United States|USA|US)$/i) {
+	# The lookbehind means a run of separators is only scanned from its start
+	if($location =~ /^(.+?)(?<![,\s])[,\s]+(United States|USA|US)$/i) {
 		# Try Geo::StreetAddress::US, which is rather buggy
 
 		my $l = $1;
@@ -606,7 +616,8 @@ sub geocode
 		}
 	}
 
-	if($location =~ /(.+),\s*([\s\w]+),\s*([\w\s]+)$/) {
+	# Anchored, or a failed match is tried again from every position
+	if($location =~ /^(.+),\s*([\s\w]+),\s*([\w\s]+)\Z/m) {
 		my $city = $1;
 		$state = $2;
 		$country = $3;
@@ -944,7 +955,7 @@ sub geocode
 				}
 			}
 		}
-	} elsif($location =~ /([a-z\s]+),?\s*(United States|USA|US|Canada)$/i) {
+	} elsif($location =~ /(?<![a-z\s])([a-z\s]+),?\s*(United States|USA|US|Canada)$/i) {
 		# Looking for a state/province in Canada or the US
 		$state = $1;
 		$country = $2;
@@ -977,7 +988,8 @@ sub geocode
 
 		if(($country eq 'US') && Geo::Address::Parser->can('parse')) {
 			my $addr_parser = Geo::Address::Parser->new(country => 'US');
-			if(my $fields = $addr_parser->parse($location)) {
+			# It throws on text it can't make a field of, which isn't an error here
+			if(my $fields = do { local $@; eval { $addr_parser->parse($location) } }) {
 				for my $key (keys %{$fields}) {
 					delete $fields->{$key} unless defined $fields->{$key};
 				}
@@ -1039,7 +1051,8 @@ sub geocode
 			}
 		}
 	}
-	if($location =~ s/,//g) {
+	# Nothing but commas leaves nothing to look up, which isn't a usage error
+	if(($location =~ s/,//g) && $location) {
 		return $self->geocode($location);
 	}
 	undef;
@@ -1099,8 +1112,12 @@ sub _get {
 	# print "line ", $call_details[2], "\n";
 	# print "$location: $digest\n";
 	if(my $cache = $self->{'cache'}) {
-		if(my $frozen = $cache->get($digest)) {
-			return Storable::thaw($frozen);
+		# A cache that has failed, or holds something that can't be thawed, says
+		# nothing about the data: read the database instead
+		local $@;
+		if(my $frozen = eval { $cache->get($digest) }) {
+			my $rc = eval { Storable::thaw($frozen) };
+			return $rc if(ref($rc));
 		}
 	}
 
@@ -1135,7 +1152,9 @@ sub _get {
 		});
 
 		if(my $cache = $self->{'cache'}) {
-			$cache->set($digest, Storable::freeze($rc), '1 month');
+			# A full disk costs the next caller a read, not this caller the answer
+			local $@;
+			eval { $cache->set($digest, Storable::freeze($rc), '1 month') };
 		}
 
 		return $rc;
