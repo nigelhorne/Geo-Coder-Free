@@ -72,7 +72,6 @@ t/kwalitee.t
 t/links.t
 t/local.t
 t/locales.t
-t/location-fuzz-doc.t
 t/location-predicates.t
 t/location-rule.t
 t/logic-reducer.t
