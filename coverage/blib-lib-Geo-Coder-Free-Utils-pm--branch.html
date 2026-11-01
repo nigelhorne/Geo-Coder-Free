@@ -58,29 +58,29 @@ https://pjcj.net
 <tr><td class="h"><a id="L306">306</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $config-&gt;{&#39;redis_options&#39;}</td></tr>
 <tr><td class="h"><a id="L312">312</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $connect_string</td></tr>
 <tr><td class="h"><a id="L323">323</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L341">341</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $config-&gt;{&#39;global&#39;}) { }</td></tr>
-<tr><td class="h"><a id="L350">350</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@servers) { }</td></tr>
-<tr><td class="h"><a id="L355">355</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L362">362</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $root_dir</td></tr>
-<tr><td class="h"><a id="L363">363</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless -d $root_dir and -w $root_dir</td></tr>
-<tr><td class="h"><a id="L372">372</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $server_config</td></tr>
-<tr><td class="h"><a id="L379">379</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($server_entry =~ /:/u)</td></tr>
-<tr><td class="h"><a id="L385">385</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($server_entry =~ /^([a-zA-Z0-9.-]+):(\d+)$/u) { }</td></tr>
-<tr><td class="h"><a id="L387">387</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $port &gt; 0 and $port &lt;= 65535</td></tr>
-<tr><td class="h"><a id="L389">389</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
-<tr><td class="h"><a id="L418">418</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $$coord</td></tr>
-<tr><td class="h"><a id="L419">419</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless &amp;looks_like_number($$coord)</td></tr>
-<tr><td class="h"><a id="L423">423</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lat1 &gt; 90 or abs $lat2 &gt; 90</td></tr>
-<tr><td class="h"><a id="L425">425</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lon1 &gt; 180 or abs $lon2 &gt; 180</td></tr>
-<tr><td class="h"><a id="L429">429</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $lat1 == $lat2 and $lon1 == $lon2</td></tr>
-<tr><td class="h"><a id="L433">433</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $unit =~ /^[KNM]$/u</td></tr>
-<tr><td class="h"><a id="L437">437</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$unit eq &#39;N&#39; ? :</td></tr>
+<tr><td class="h"><a id="L345">345</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if (exists $config-&gt;{&#39;global&#39;}) { }</td></tr>
+<tr><td class="h"><a id="L354">354</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if (@servers) { }</td></tr>
+<tr><td class="h"><a id="L359">359</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
+<tr><td class="h"><a id="L366">366</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $root_dir</td></tr>
+<tr><td class="h"><a id="L367">367</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless -d $root_dir and -w $root_dir</td></tr>
+<tr><td class="h"><a id="L376">376</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $server_config</td></tr>
+<tr><td class="h"><a id="L383">383</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless ($server_entry =~ /:/u)</td></tr>
+<tr><td class="h"><a id="L389">389</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if ($server_entry =~ /^([a-zA-Z0-9.-]+):(\d+)$/u) { }</td></tr>
+<tr><td class="h"><a id="L391">391</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">unless $port &gt; 0 and $port &lt;= 65535</td></tr>
+<tr><td class="h"><a id="L393">393</a></td><td class="c0">0</td><td class="c0">T</td><td class="c0">F</td><td class="s">if $logger</td></tr>
+<tr><td class="h"><a id="L422">422</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless defined $$coord</td></tr>
+<tr><td class="h"><a id="L423">423</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless &amp;looks_like_number($$coord)</td></tr>
+<tr><td class="h"><a id="L427">427</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lat1 &gt; 90 or abs $lat2 &gt; 90</td></tr>
+<tr><td class="h"><a id="L429">429</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if abs $lon1 &gt; 180 or abs $lon2 &gt; 180</td></tr>
+<tr><td class="h"><a id="L433">433</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $lat1 == $lat2 and $lon1 == $lon2</td></tr>
+<tr><td class="h"><a id="L437">437</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $unit =~ /^[KNM]$/u</td></tr>
+<tr><td class="h"><a id="L441">441</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$unit eq &#39;N&#39; ? :</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$unit eq &#39;K&#39; ? :</td></tr>
-<tr><td class="h"><a id="L470">470</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@words &gt;= 3) { }</td></tr>
+<tr><td class="h"><a id="L474">474</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (@words &gt;= 3) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif (@words == 2) { }</td></tr>
-<tr><td class="h"><a id="L472">472</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (lc $words[-2] ne &#39;cross&#39; and $a = $abbreviations-&gt;abbreviate($words[-2])) { }</td></tr>
+<tr><td class="h"><a id="L476">476</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (lc $words[-2] ne &#39;cross&#39; and $a = $abbreviations-&gt;abbreviate($words[-2])) { }</td></tr>
 <tr><td class="h"></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">elsif ($a = $abbreviations-&gt;abbreviate($words[-1])) { }</td></tr>
-<tr><td class="h"><a id="L479">479</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $a = $abbreviations-&gt;abbreviate($words[-1]))</td></tr>
+<tr><td class="h"><a id="L483">483</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $a = $abbreviations-&gt;abbreviate($words[-1]))</td></tr>
 </table>
 </body>
 </html>
